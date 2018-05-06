@@ -4,57 +4,22 @@ import (
 	"github.com/vektah/graphql-parser/lexer"
 )
 
-type Source struct {
-	Body           string
-	Name           string
-	LocationOffset *Location
-}
+type Operation string
+
+const (
+	Query        Operation = "query"
+	Mutation     Operation = "mutation"
+	Subscription Operation = "subscription"
+)
 
 // Location contains a range of UTF-8 character offsets and token references that
 // identify the region of the source from which the AST derived.
 type Location struct {
-	// The character offset at which this Node begins.
-	Start int
-
-	// The character offset at which this Node ends.
-	End int
-
 	// The Token at which this Node begins.
-	StartToken Token
+	StartToken lexer.Token
 
 	// The Token at which this Node ends.
-	EndToken Token
-
-	// The Source document the AST represents.
-	Source Source
-}
-
-// Token represents a range of characters represented by a lexical token
-// within a Source.
-type Token struct {
-	// The kind of Token.
-	Kind lexer.Type
-
-	// The character offset at which this Node begins.
-	Start int
-
-	// The character offset at which this Node ends.
-	End int
-
-	// The 1-indexed line number on which this Token appears.
-	Line int
-
-	// The 1-indexed column number at which this Token begins.
-	Column int
-
-	// For non-punctuation tokens, represents the interpreted value of the token.
-	Value string
-
-	// Tokens exist as nodes in a double-linked-list amongst all tokens
-	// including ignored tokens. <SOF> is always the first node and <EOF>
-	// the last.
-	Prev *Token
-	Next *Token
+	EndToken lexer.Token
 }
 
 // Name
@@ -66,20 +31,32 @@ type Name struct {
 
 // Document
 
-type ExecutableDocument struct {
-	Loc        Location
-	Operations []OperationDefinition
-	Fragments  []FragmentDefinition
+type Document struct {
+	Loc         Location
+	Definitions []Definition
 }
 
-type SchemaDocument struct {
-	Loc                 Location
-	SchemaDefinitions   []SchemaDefinition
-	TypeDefinitions     []TypeDefinition
-	DirectiveDefinition []DirectiveDefinition
-	SchemaExtensions    []SchemaExtension
-	TypeExtensions      []TypeExtension
+type Definition interface {
+	isDefinition()
 }
+
+func (OperationDefinition) isDefinition()       {}
+func (FragmentDefinition) isDefinition()        {}
+func (SchemaExtension) isDefinition()           {}
+func (SchemaDefinition) isDefinition()          {}
+func (DirectiveDefinition) isDefinition()       {}
+func (ScalarTypeDefinition) isDefinition()      {}
+func (ObjectTypeDefinition) isDefinition()      {}
+func (InterfaceTypeDefinition) isDefinition()   {}
+func (UnionTypeDefinition) isDefinition()       {}
+func (EnumTypeDefinition) isDefinition()        {}
+func (InputObjectTypeDefinition) isDefinition() {}
+func (ScalarTypeExtension) isDefinition()       {}
+func (ObjectTypeExtension) isDefinition()       {}
+func (InterfaceTypeExtension) isDefinition()    {}
+func (UnionTypeExtension) isDefinition()        {}
+func (EnumTypeExtension) isDefinition()         {}
+func (InputObjectTypeExtension) isDefinition()  {}
 
 type OperationDefinition struct {
 	Loc                 Location

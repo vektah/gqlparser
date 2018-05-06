@@ -6,8 +6,32 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 )
+
+func TestLastLexerPeek(t *testing.T) {
+	lex := New("asdf 1.0")
+
+	require.Equal(t, Invalid, lex.lastToken.Kind)
+	require.Equal(t, "asdf", lex.PeekToken().Value)
+	require.Equal(t, "asdf", lex.PeekToken().Value)
+
+	tok, err := lex.ReadToken()
+	require.NoError(t, err)
+	require.Equal(t, "asdf", tok.Value)
+	require.Equal(t, "asdf", lex.lastToken.Value)
+
+	tok, err = lex.ReadToken()
+	require.NoError(t, err)
+	require.Equal(t, "1.0", tok.Value)
+	require.Equal(t, "1.0", lex.lastToken.Value)
+
+	tok, err = lex.ReadToken()
+	require.NoError(t, err)
+	require.Equal(t, EOF, tok.Kind)
+	require.Equal(t, EOF, lex.lastToken.Kind)
+}
 
 func TestLexer(t *testing.T) {
 	b, err := ioutil.ReadFile("spec.yml")

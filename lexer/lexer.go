@@ -22,6 +22,12 @@ type Lexer struct {
 	line int
 	// An offset into the string in rune
 	lineStartRunes int
+
+	peeked    bool
+	peekToken Token
+	peekError error
+
+	lastToken Token
 }
 
 func New(input string) Lexer {
@@ -73,12 +79,33 @@ func (s *Lexer) makeError(format string, args ...interface{}) (Token, error) {
 	}, fmt.Errorf(format, args...)
 }
 
+func (s *Lexer) LastToken() Token {
+	return s.lastToken
+}
+
+func (s *Lexer) PeekToken() Token {
+	if !s.peeked {
+		s.peekToken, s.peekError = s.ReadToken()
+		s.peeked = true
+	}
+
+	return s.peekToken
+}
+
 // ReadToken gets the next token from the source starting at the given position.
 //
 // This skips over whitespace and comments until it finds the next lexable
 // token, then lexes punctuators immediately or calls the appropriate helper
 // function for more complicated tokens.
-func (s *Lexer) ReadToken() (Token, error) {
+func (s *Lexer) ReadToken() (token Token, err error) {
+	defer func() {
+		s.lastToken = token
+	}()
+
+	if s.peeked {
+		s.peeked = false
+		return s.peekToken, s.peekError
+	}
 	s.ws()
 	s.start = s.end
 	s.startRunes = s.endRunes
