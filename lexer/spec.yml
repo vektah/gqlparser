@@ -1,0 +1,676 @@
+disallows uncommon control characters:
+  input: "\u0007"
+  error:
+    message: 'Cannot contain the invalid character "\u0007"'
+    location: {line: 1, column: 1}
+
+accepts BOM header:
+  input: "\uFEFF foo"
+  tokens:
+    -
+      kind: NAME
+      start: 2
+      end: 5
+      value: 'foo'
+
+records line and column:
+  input: "\n \r\n \r  foo\n"
+  tokens:
+    -
+      kind: NAME
+      start: 8
+      end: 11
+      line: 4
+      column: 3
+      value: 'foo'
+
+skips whitespace:
+  input: "\n\n    foo\n\n\n"
+  tokens:
+    -
+      kind: NAME
+      start: 6
+      end: 9
+      value: 'foo'
+
+skips comments:
+  input: "\n    #comment\n    foo#comment\n"
+  tokens:
+    -
+      kind: NAME
+      start: 18
+      end: 21
+      value: 'foo'
+
+skips commas:
+  input: ",,,foo,,,"
+  tokens:
+    -
+      kind: NAME
+      start: 3
+      end: 6
+      value: 'foo'
+
+errors respect whitespace:
+  input: "\n\n    ?\n\n\n"
+  error:
+      message: 'Cannot parse the unexpected character "?".'
+      location: {line: 3, column: 5}
+      string: |
+        Syntax Error: Cannot parse the unexpected character "?".
+        GraphQL request (3:5)
+        2:
+        3:     ?
+               ^
+        4:
+
+lexes strings:
+  subtests:
+    basic:
+      input: '"simple"'
+      tokens:
+        -
+          kind: STRING
+          start: 0
+          end: 8
+          value: 'simple'
+
+    whitespace:
+      input: '" white space "'
+      tokens:
+        -
+          kind: STRING
+          start: 0
+          end: 15
+          value: ' white space '
+
+    quote:
+      input: '"quote \""'
+      tokens:
+        -
+          kind: STRING
+          start: 0
+          end: 10
+          value: 'quote "'
+
+    escaped:
+      input: '"escaped \n\r\b\t\f"'
+      tokens:
+        -
+          kind: STRING
+          start: 0
+          end: 20
+          value: "escaped \n\r\b\t\f"
+
+    slashes:
+      input: '"slashes \\ \/"'
+      tokens:
+        -
+          kind: STRING
+          start: 0
+          end: 15
+          value: 'slashes \ /'
+
+    unicode:
+      input: '"unicode \u1234\u5678\u90AB\uCDEF"'
+      tokens:
+        -
+          kind: STRING
+          start: 0
+          end: 34
+          value: "unicode \u1234\u5678\u90AB\uCDEF"
+
+lex reports useful string errors:
+  subtests:
+    unterminated:
+      input: '"'
+      error:
+        message: "Unterminated string."
+        location: { line: 1, column: 2 }
+
+    no end quote:
+      input: '"no end quote'
+      error:
+        message: 'Unterminated string.'
+        location: { line: 1, column: 14 }
+
+    single quotes:
+      input: "'single quotes'"
+      error:
+        message: "Unexpected single quote character ('), did you mean to use a double quote (\")?"
+        location: { line: 1, column: 1 }
+
+    control characters:
+      input: "\"contains unescaped \u0007 control char\""
+      error:
+        message: 'Invalid character within String: "\u0007".'
+        location: { line: 1, column: 21 }
+
+    null byte:
+      input: "\"null-byte is not \u0000 end of file\""
+      error:
+        message: 'Invalid character within String: "\u0000".'
+        location: { line: 1, column: 19 }
+
+    unterminated newline:
+      input: "\"multi\nline\""
+      error:
+        message: 'Unterminated string.'
+        location: {line: 1, column: 7 }
+
+    unterminated carriage return:
+      input: "\"multi\rline\""
+      error:
+        message: 'Unterminated string.'
+        location: { line: 1, column: 7 }
+
+    bad escape character:
+      input: '"bad \z esc"'
+      error:
+        message: 'Invalid character escape sequence: \z.'
+        location: { line: 1, column: 7 }
+
+    hex escape sequence:
+      input: '"bad \x esc"'
+      error:
+        message: 'Invalid character escape sequence: \x.'
+        location: { line: 1, column: 7 }
+
+    short escape sequence:
+      input: '"bad \u1 esc"'
+      error:
+        message: 'Invalid character escape sequence: \u1 es.'
+        location: { line: 1, column: 7 }
+
+    invalid escape sequence 1:
+      input: '"bad \u0XX1 esc"'
+      error:
+        message: 'Invalid character escape sequence: \u0XX1.'
+        location: { line: 1, column: 7 }
+
+    invalid escape sequence 2:
+      input: '"bad \uXXXX esc"'
+      error:
+        message: 'Invalid character escape sequence: \uXXXX.'
+        location: { line: 1, column: 7 }
+
+    invalid escape sequence 3:
+      input: '"bad \uFXXX esc"'
+      error:
+        message: 'Invalid character escape sequence: \uFXXX.'
+        location: { line: 1, column: 7 }
+
+    invalid character escape sequence:
+      input: '"bad \uXXXF esc"'
+      error:
+        message: 'Invalid character escape sequence: \uXXXF.'
+        location: { line: 1, column: 7 }
+
+lexes block strings:
+  subtests:
+    simple:
+      input: '"""simple"""'
+      tokens:
+        -
+          kind: BLOCK_STRING
+          start: 0
+          end: 12
+          value: 'simple'
+
+    white space:
+      input: '""" white space """'
+      tokens:
+        -
+          kind: BLOCK_STRING
+          start: 0
+          end: 19
+          value: ' white space '
+
+    contains quote:
+      input: '"""contains " quote"""'
+      tokens:
+        -
+          kind: BLOCK_STRING
+          start: 0
+          end: 22
+          value: 'contains " quote'
+
+    contains triplequote:
+      input: "\"\"\"contains \\\"\"\" triplequote\"\"\""
+      tokens:
+        -
+          kind: BLOCK_STRING
+          start: 0
+          end: 31
+          value: 'contains """ triplequote'
+
+    multi line:
+      input: "\"\"\"multi\nline\"\"\""
+      tokens:
+        -
+          kind: BLOCK_STRING
+          start: 0
+          end: 16
+          value: "multi\nline"
+
+    multi line normalized:
+      input: "\"\"\"multi\rline\r\nnormalized\"\"\""
+      tokens:
+        -
+          kind: BLOCK_STRING
+          start: 0
+          end: 28
+          value: "multi\nline\nnormalized"
+
+    unescaped:
+      input: '"""unescaped \n\r\b\t\f\u1234"""'
+      tokens:
+        -
+          kind: BLOCK_STRING
+          start: 0
+          end: 32
+          value: 'unescaped \n\r\b\t\f\u1234'
+
+    slashes:
+      input: '"""slashes \\ \/"""'
+      tokens:
+        -
+          kind: BLOCK_STRING
+          start: 0
+          end: 19
+          value: 'slashes \\ \/'
+
+    multiple lines:
+      input: |
+        """
+
+        spans
+          multiple
+            lines
+
+        """
+      tokens:
+        -
+          kind: BLOCK_STRING
+          start: 0
+          end: 36
+          value: "spans\n  multiple\n    lines"
+
+lex reports useful block string errors:
+  subtests:
+    unterminated string:
+      input: '"""'
+      error:
+        message: "Unterminated string."
+        location: { line: 1, column: 4 }
+
+    unescaped control characters:
+      input: "\"\"\"contains unescaped \u0007 control char\"\"\""
+      error:
+        message: 'Invalid character within String: "\u0007".'
+        location: { line: 1, column: 23 }
+
+    null byte:
+      input: "\"\"\"null-byte is not \u0000 end of file\"\"\""
+      error:
+        message: 'Invalid character within String: "\u0000".'
+        location: { line: 1, column: 21 }
+
+lexes numbers:
+  subtests:
+    integer:
+      input: "4"
+      tokens:
+        -
+          kind: INT
+          start: 0
+          end: 1
+          value: '4'
+
+    float:
+      input: "4.123"
+      tokens:
+        -
+          kind: FLOAT
+          start: 0
+          end: 5
+          value: '4.123'
+
+    negative:
+      input: "-4"
+      tokens:
+        -
+          kind: INT
+          start: 0
+          end: 2
+          value: '-4'
+
+    nine:
+      input: "9"
+      tokens:
+        -
+          kind: INT
+          start: 0
+          end: 1
+          value: '9'
+
+    zero:
+      input: "0"
+      tokens:
+        -
+          kind: INT
+          start: 0
+          end: 1
+          value: '0'
+
+    negative float:
+      input: "-4.123"
+      tokens:
+        -
+          kind: FLOAT
+          start: 0
+          end: 6
+          value: '-4.123'
+
+    float leading zero:
+      input: "0.123"
+      tokens:
+        -
+          kind: FLOAT
+          start: 0
+          end: 5
+          value: '0.123'
+
+    exponent whole:
+      input: "123e4"
+      tokens:
+        -
+          kind: FLOAT
+          start: 0
+          end: 5
+          value: '123e4'
+
+    exponent uppercase:
+      input: "123E4"
+      tokens:
+        -
+          kind: FLOAT
+          start: 0
+          end: 5
+          value: '123E4'
+
+    exponent negative power:
+      input: "123e-4"
+      tokens:
+        -
+          kind: FLOAT
+          start: 0
+          end: 6
+          value: '123e-4'
+
+    exponent positive power:
+      input: "123e+4"
+      tokens:
+        -
+          kind: FLOAT
+          start: 0
+          end: 6
+          value: '123e+4'
+
+    exponent negative base:
+      input: "-1.123e4"
+      tokens:
+        -
+          kind: FLOAT
+          start: 0
+          end: 8
+          value: '-1.123e4'
+
+    exponent negative base upper:
+      input: "-1.123E4"
+      tokens:
+        -
+          kind: FLOAT
+          start: 0
+          end: 8
+          value: '-1.123E4'
+
+    exponent negative base negative power:
+      input: "-1.123e-4"
+      tokens:
+        -
+          kind: FLOAT
+          start: 0
+          end: 9
+          value: '-1.123e-4'
+
+    exponent negative base positive power:
+      input: "-1.123e+4"
+      tokens:
+        -
+          kind: FLOAT
+          start: 0
+          end: 9
+          value: '-1.123e+4'
+
+    exponent negative base large power:
+      input: "-1.123e4567"
+      tokens:
+        -
+          kind: FLOAT
+          start: 0
+          end: 11
+          value: '-1.123e4567'
+
+lex reports useful number errors:
+  subtests:
+    zero:
+      input: "00"
+      error:
+        message: 'Invalid number, unexpected digit after 0: "0".'
+        location: { line: 1, column: 2 }
+
+    positive:
+      input: "+1"
+      error:
+        message: 'Cannot parse the unexpected character "+".'
+        location: { line: 1, column: 1 }
+
+    trailing dot:
+      input: "1."
+      error:
+        message: 'Invalid number, expected digit but got: <EOF>.'
+        location: { line: 1, column: 3 }
+
+    traililng dot exponent:
+      input: "1.e1"
+      error:
+        message: 'Invalid number, expected digit but got: "e".'
+        location: { line: 1, column: 3 }
+
+    missing leading zero:
+      input: ".123"
+      error:
+        message: 'Cannot parse the unexpected character ".".'
+        location: { line: 1, column: 1 }
+
+    characters:
+      input: "1.A"
+      error:
+        message: 'Invalid number, expected digit but got: "A".'
+        location: { line: 1, column: 3 }
+
+    negative characters:
+      input: "-A"
+      error:
+        message: 'Invalid number, expected digit but got: "A".'
+        location: { line: 1, column: 2 }
+
+    missing exponent:
+      input: '1.0e'
+      error:
+        message: 'Invalid number, expected digit but got: <EOF>.'
+        location: { line: 1, column: 5 }
+
+    character exponent:
+      input: "1.0eA"
+      error:
+        message: 'Invalid number, expected digit but got: "A".'
+        location: { line: 1, column: 5 }
+
+lexes punctuation:
+  subtests:
+    bang:
+      input: "!"
+      tokens:
+        -
+          kind: BANG
+          start: 0
+          end: 1
+          value: undefined
+
+    dollar:
+      input: "$"
+      tokens:
+        -
+          kind: DOLLAR
+          start: 0
+          end: 1
+          value: undefined
+
+    open paren:
+      input: "("
+      tokens:
+        -
+          kind: PAREN_L
+          start: 0
+          end: 1
+          value: undefined
+
+    close paren:
+      input: ")"
+      tokens:
+        -
+          kind: PAREN_R
+          start: 0
+          end: 1
+          value: undefined
+
+    spread:
+      input: "..."
+      tokens:
+        -
+          kind: SPREAD
+          start: 0
+          end: 3
+          value: undefined
+
+    colon:
+      input: ":"
+      tokens:
+        -
+          kind: COLON
+          start: 0
+          end: 1
+          value: undefined
+
+    equals:
+      input: "="
+      tokens:
+        -
+          kind: EQUALS
+          start: 0
+          end: 1
+          value: undefined
+
+    at:
+      input: "@"
+      tokens:
+        -
+          kind: AT
+          start: 0
+          end: 1
+          value: undefined
+
+    open bracket:
+      input: "["
+      tokens:
+        -
+          kind: BRACKET_L
+          start: 0
+          end: 1
+          value: undefined
+
+    close bracket:
+      input: "]"
+      tokens:
+        -
+          kind: BRACKET_R
+          start: 0
+          end: 1
+          value: undefined
+
+    open brace:
+      input: "{"
+      tokens:
+        -
+          kind: BRACE_L
+          start: 0
+          end: 1
+          value: undefined
+
+    close brace:
+      input: "}"
+      tokens:
+        -
+          kind: BRACE_R
+          start: 0
+          end: 1
+          value: undefined
+
+    pipe:
+      input: "|"
+      tokens:
+        -
+          kind: PIPE
+          start: 0
+          end: 1
+          value: undefined
+
+lex reports useful unknown character error:
+    not a spread:
+      input: ".."
+      error:
+        message: 'Cannot parse the unexpected character ".".'
+        location: { line: 1, column: 1 }
+
+    question mark:
+      input: "?"
+      error:
+        message: 'Cannot parse the unexpected character "?".'
+        message: 'Cannot parse the unexpected character "?".'
+        location: { line: 1, column: 1 }
+
+    unicode 203:
+      input: "\u203B"
+      error:
+        message: 'Cannot parse the unexpected character "\\u203B".'
+        location: { line: 1, column: 1 }
+
+    unicode 200:
+      input: "\u200b"
+      error:
+        message: 'Cannot parse the unexpected character "\\u200B".'
+        location: { line: 1, column: 1 }
+
+lex reports useful information for dashes in names:
+    input: "a-b"
+    error:
+      message: 'Invalid number, expected digit but got: "b".'
+      location: { line: 1, column: 3 }
+    tokens:
+      -
+        kind: Name
+        start: 0
+        end: 1
+        value: a
