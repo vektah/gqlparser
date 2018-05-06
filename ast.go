@@ -119,7 +119,7 @@ type InlineFragment struct {
 	Loc           Location
 	TypeCondition NamedType
 	Directives    []Directive
-	SelectionSet  []SelectionSet
+	SelectionSet  SelectionSet
 }
 
 type FragmentDefinition struct {
@@ -130,7 +130,7 @@ type FragmentDefinition struct {
 	VariableDefinition []VariableDefinition
 	TypeCondition      NamedType
 	Directives         []Directive
-	SelectionSet       []SelectionSet
+	SelectionSet       SelectionSet
 }
 
 // Values

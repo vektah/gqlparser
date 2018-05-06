@@ -194,10 +194,276 @@ func (p *Parser) parseSelectionSet() (SelectionSet, error) {
 
 	var selections []Selection
 
+	p.many(lexer.BraceL, lexer.BraceR, func() error {
+		selection, err := p.parseSelection()
+		if err != nil {
+			return err
+		}
+		selections = append(selections, selection)
+		return nil
+	})
+
 	return SelectionSet{
 		Selections: selections,
 		Loc:        p.loc(start),
 	}, nil
+}
+
+func (p *Parser) parseSelection() (Selection, error) {
+	if p.lex.PeekToken().Kind == lexer.Spread {
+		return p.parseFragment()
+	}
+	return p.parseField()
+}
+
+func (p *Parser) parseField() (Field, error) {
+	start := p.lex.PeekToken()
+
+	var field Field
+
+	nameOrAlias, err := p.parseName()
+	if err != nil {
+		return field, err
+	}
+
+	hasName, err := p.skip(lexer.Colon)
+	if err != nil {
+		return field, err
+	}
+	if hasName {
+		field.Alias = nameOrAlias
+		field.Name, err = p.parseName()
+		if err != nil {
+			return field, err
+		}
+	} else {
+		field.Name = nameOrAlias
+	}
+
+	field.Arguments, err = p.parseArguments(p.parseValueLiteral)
+	if err != nil {
+		return field, err
+	}
+	field.Directives, err = p.parseDirectives(false)
+	if err != nil {
+		return field, err
+	}
+	if p.lex.PeekToken().Kind == lexer.BraceL {
+		field.SelectionSet, err = p.parseSelectionSet()
+		if err != nil {
+			return field, err
+		}
+	}
+
+	field.Loc = p.loc(start)
+
+	return field, nil
+}
+
+func (p *Parser) parseArguments(valuer func() (Value, error)) ([]Argument, error) {
+	var arguments []Argument
+	err := p.many(lexer.ParenL, lexer.ParenR, func() error {
+		arg, err := p.parseArgument(valuer)
+		if err != nil {
+			return err
+		}
+
+		arguments = append(arguments, arg)
+		return nil
+	})
+
+	return arguments, err
+}
+
+func (p *Parser) parseArgument(valuer func() (Value, error)) (Argument, error) {
+	start := p.lex.PeekToken()
+	arg := Argument{}
+	var err error
+
+	arg.Name, err = p.parseName()
+	if err != nil {
+		return arg, err
+	}
+
+	if err = p.expect(lexer.Colon); err != nil {
+		return arg, err
+	}
+
+	arg.Value, err = valuer()
+	if err != nil {
+		return arg, err
+	}
+
+	arg.Loc = p.loc(start)
+	return arg, nil
+}
+
+func (p *Parser) parseFragment() (Selection, error) {
+	start := p.lex.PeekToken()
+
+	err := p.expect(lexer.Spread)
+	if err != nil {
+		return nil, err
+	}
+
+	if peek := p.lex.PeekToken(); peek.Kind == lexer.Name && peek.Value != "on" {
+		var def FragmentSpread
+		def.Name, err = p.parseFragmentName()
+		if err != nil {
+			return nil, err
+		}
+
+		def.Directives, err = p.parseDirectives()
+		if err != nil {
+			return nil, err
+		}
+
+		def.Loc = p.loc(start)
+		return def, nil
+	}
+
+	var def InlineFragment
+	if p.lex.PeekToken().Value == "on" {
+		_, err := p.lex.ReadToken() // "on"
+		if err != nil {
+			return nil, err
+		}
+
+		def.TypeCondition, err = p.parseNamedType()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	def.Directives, err = p.parseDirectives(false)
+	if err != nil {
+		return nil, err
+	}
+
+	def.SelectionSet, err = p.parseSelectionSet()
+	if err != nil {
+		return nil, err
+	}
+
+	def.Loc = p.loc(start)
+	return def, nil
+}
+
+func (p *Parser) parseFragmentDefinition() (FragmentDefinition, error) {
+	var def FragmentDefinition
+	start, err := p.expectKeyword("fragment")
+	if err != nil {
+		return def, err
+	}
+
+	def.Name, err = p.parseFragmentName()
+	if err != nil {
+		return def, err
+	}
+
+	def.VariableDefinition, err = p.parseVariableDefinitions()
+	if err != nil {
+		return def, err
+	}
+
+	_, err = p.expectKeyword("on")
+	if err != nil {
+		return def, err
+	}
+
+	def.TypeCondition, err = p.parseNamedType()
+	if err != nil {
+		return def, err
+	}
+
+	def.Directives, err = p.parseDirectives(false)
+	if err != nil {
+		return def, err
+	}
+
+	def.Loc = p.loc(start)
+	return def, nil
+}
+
+func (p *Parser) parseFragmentName() (Name, error) {
+	if p.lex.PeekToken().Value == "on" {
+		return Name{}, p.unexpectedError()
+	}
+
+	return p.parseName()
+}
+
+func (p *Parser) parseValueLiteral(isConst bool) (Value, error) {
+	token := p.lex.PeekToken()
+
+	switch token.Kind {
+	case lexer.BracketL:
+		return p.parseList(isConst)
+	case lexer.BraceL:
+		return p.parseObject(isCont)
+	case lexer.Int:
+		_, err := p.lex.ReadToken()
+		if err != nil {
+			return nil, err
+		}
+		return IntValue{
+			Value: token.Value,
+			Loc:   p.loc(token),
+		}, nil
+	case lexer.Float:
+		_, err := p.lex.ReadToken()
+		if err != nil {
+			return nil, err
+		}
+
+		return FloatValue{
+			Value: token.Value,
+			Loc:   p.loc(token),
+		}, nil
+
+	case lexer.String, lexer.BlockString:
+		return p.parseStringLiteral()
+
+	case lexer.Dollar:
+		if !isConst {
+			return p.parseVariable()
+		}
+		break
+
+	case lexer.Name:
+		_, err := p.lex.ReadToken()
+		if err != nil {
+			return nil, err
+		}
+		switch token.Value {
+
+		case "true", "false":
+			return BooleanValue{
+				Value: token.Value == "true",
+				Loc:   p.loc(token),
+			}, nil
+		case "null":
+			return NullValue{
+				Loc: p.loc(token),
+			}, nil
+		default:
+			return EnumValue{
+				Value: token.Value,
+				Loc:   p.loc(token),
+			}, nil
+		}
+	}
+
+	return nil, p.unexpectedError()
+}
+
+func (p *Parser) expectKeyword(value string) (lexer.Token, error) {
+	tok := p.lex.PeekToken()
+	if tok.Kind == lexer.Name && tok.Value == value {
+		return p.lex.ReadToken()
+	}
+
+	return lexer.Token{}, fmt.Errorf("Expected %s, found %s", value, tok.Kind.String())
 }
 
 func (p *Parser) expect(kind lexer.Type) error {
