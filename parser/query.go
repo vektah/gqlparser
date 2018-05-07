@@ -1,63 +1,41 @@
 package parser
 
-import "github.com/vektah/graphql-parser/lexer"
+import (
+	"github.com/vektah/graphql-parser"
+	"github.com/vektah/graphql-parser/lexer"
+)
 
-func Parse(source string) (Document, error) {
+func ParseQuery(source string) (QueryDocument, *graphql_parser.Error) {
 	parser := Parser{
 		lexer: lexer.New(source),
 	}
-	return parser.parseDocument()
+	return parser.parseQueryDocument(), parser.err
 }
 
-func (p *Parser) parseDocument() (Document, error) {
-	var definitions []Definition
+func (p *Parser) parseQueryDocument() QueryDocument {
+	var doc QueryDocument
 	for p.peek().Kind != lexer.EOF {
-		definitions = append(definitions, p.parseDefinition())
-	}
-	return Document{
-		Definitions: definitions,
-	}, p.err
-}
-
-func (p *Parser) parseDefinition() Definition {
-	peek := p.peek()
-	switch peek.Kind {
-	case lexer.Name:
-		switch peek.Value {
-		case "query", "mutation", "subscription", "fragment":
-			return p.parseExecutableDefinition()
-
-			//case "schema", "scalar", "type", "interface", "union", "enum", "input", "directive":
-			//	return p.parseTypeSystemDefinition()
-
-			//case "extend":
-			//	return p.parseTypeSystemExtension()
+		if p.err != nil {
+			return doc
 		}
-	case lexer.BraceL:
-		return p.parseExecutableDefinition()
-		//case lexer.String, lexer.BlockString:
-		//	return p.parseTypeSystemDefinition()
-	}
-
-	p.unexpectedError()
-	return nil
-}
-
-func (p *Parser) parseExecutableDefinition() Definition {
-	switch p.peek().Kind {
-	case lexer.Name:
-		switch p.peek().Value {
-		case "query", "mutation":
-			return p.parseOperationDefinition()
-		case "fragment":
-			return p.parseFragmentDefinition()
+		switch p.peek().Kind {
+		case lexer.Name:
+			switch p.peek().Value {
+			case "query", "mutation":
+				doc.Operations = append(doc.Operations, p.parseOperationDefinition())
+			case "fragment":
+				doc.Fragments = append(doc.Fragments, p.parseFragmentDefinition())
+			default:
+				p.unexpectedError()
+			}
+		case lexer.BraceL:
+			doc.Operations = append(doc.Operations, p.parseOperationDefinition())
+		default:
+			p.unexpectedError()
 		}
-	case lexer.BraceL:
-		return p.parseOperationDefinition()
 	}
 
-	p.unexpectedError()
-	return nil
+	return doc
 }
 
 func (p *Parser) parseOperationDefinition() OperationDefinition {
@@ -115,6 +93,7 @@ func (p *Parser) parseVariableDefinition() VariableDefinition {
 }
 
 func (p *Parser) parseVariable() Variable {
+	p.expect(lexer.Dollar)
 	return Variable(p.parseName())
 }
 

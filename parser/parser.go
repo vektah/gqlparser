@@ -2,17 +2,19 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
+	"github.com/vektah/graphql-parser"
 	"github.com/vektah/graphql-parser/lexer"
 )
 
 type Parser struct {
 	lexer lexer.Lexer
-	err   error
+	err   *graphql_parser.Error
 
 	peeked    bool
 	peekToken lexer.Token
-	peekError error
+	peekError *graphql_parser.Error
 
 	prev lexer.Token
 }
@@ -34,11 +36,16 @@ func (p *Parser) peek() lexer.Token {
 	return p.peekToken
 }
 
-func (p *Parser) error(format string, args ...interface{}) {
+func (p *Parser) error(tok lexer.Token, format string, args ...interface{}) {
 	if p.err != nil {
 		return
 	}
-	p.err = fmt.Errorf(format, args...)
+	p.err = &graphql_parser.Error{
+		Message: fmt.Sprintf(format, args...),
+		Locations: []graphql_parser.Location{
+			{Line: tok.Line, Column: tok.Column},
+		},
+	}
 }
 
 func (p *Parser) next() lexer.Token {
@@ -60,7 +67,7 @@ func (p *Parser) expectKeyword(value string) lexer.Token {
 		return p.next()
 	}
 
-	p.error("Expected %s, found %s", value, tok.String())
+	p.error(tok, "Expected %s, found %s", strconv.Quote(value), tok.String())
 	return tok
 }
 
@@ -70,7 +77,7 @@ func (p *Parser) expect(kind lexer.Type) lexer.Token {
 		return p.next()
 	}
 
-	p.error("Expected %s, found %s", kind, tok.Kind.String())
+	p.error(tok, "Expected %s, found %s", kind, tok.Kind.String())
 	return tok
 }
 
@@ -89,7 +96,7 @@ func (p *Parser) unexpectedError() {
 }
 
 func (p *Parser) unexpectedToken(tok lexer.Token) {
-	p.error("Unexpected %s", tok.String())
+	p.error(tok, "Unexpected %s", tok.String())
 }
 
 func (p *Parser) many(start lexer.Type, end lexer.Type, cb func()) {
@@ -98,11 +105,8 @@ func (p *Parser) many(start lexer.Type, end lexer.Type, cb func()) {
 		return
 	}
 
-	for p.peek().Kind != end {
+	for p.peek().Kind != end && p.err == nil {
 		cb()
-		if p.err != nil {
-			return
-		}
 	}
 	p.next()
 }

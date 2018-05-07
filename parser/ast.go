@@ -14,8 +14,9 @@ type Name string
 
 // Document
 
-type Document struct {
-	Definitions []Definition
+type QueryDocument struct {
+	Operations []OperationDefinition
+	Fragments  []FragmentDefinition
 }
 
 type Definition interface {

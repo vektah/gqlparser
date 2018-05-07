@@ -6,32 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/vektah/graphql-parser"
 	"gopkg.in/yaml.v2"
 )
-
-func TestLastLexerPeek(t *testing.T) {
-	lex := New("asdf 1.0")
-
-	require.Equal(t, Invalid, lex.lastToken.Kind)
-	require.Equal(t, "asdf", lex.PeekToken().Value)
-	require.Equal(t, "asdf", lex.PeekToken().Value)
-
-	tok, err := lex.ReadToken()
-	require.NoError(t, err)
-	require.Equal(t, "asdf", tok.Value)
-	require.Equal(t, "asdf", lex.lastToken.Value)
-
-	tok, err = lex.ReadToken()
-	require.NoError(t, err)
-	require.Equal(t, "1.0", tok.Value)
-	require.Equal(t, "1.0", lex.lastToken.Value)
-
-	tok, err = lex.ReadToken()
-	require.NoError(t, err)
-	require.Equal(t, EOF, tok.Kind)
-	require.Equal(t, EOF, lex.lastToken.Kind)
-}
 
 func TestLexer(t *testing.T) {
 	b, err := ioutil.ReadFile("spec.yml")
@@ -83,15 +60,13 @@ func (test *test) Run(t *testing.T) {
 
 	l := New(test.Input)
 	var tokens []Token
-	var error error
-	var errorToken Token
+	var error *graphql_parser.Error
 
 	for {
 		tok, err := l.ReadToken()
 
 		if err != nil {
 			error = err
-			errorToken = tok
 			break
 		}
 
@@ -119,17 +94,17 @@ func (test *test) Run(t *testing.T) {
 	} else if error == nil {
 		t.Errorf("expected error %s but got none", test.Error.Message)
 	} else {
-		if error.Error() != test.Error.Message {
-			t.Errorf("wrong error returned\nexpected: %s\ngot:      %s", test.Error.Message, error.Error())
+		if error.Message != test.Error.Message {
+			t.Errorf("wrong error returned\nexpected: %s\ngot:      %s", test.Error.Message, error.Message)
 		}
 
-		if errorToken.Column != test.Error.Location.Column || errorToken.Line != test.Error.Location.Line {
+		if error.Locations[0].Column != test.Error.Location.Column || error.Locations[0].Line != test.Error.Location.Line {
 			t.Errorf(
 				"wrong error location:\nexpected: line %d column %d\ngot:      line %d column %d",
 				test.Error.Location.Line,
 				test.Error.Location.Column,
-				errorToken.Line,
-				errorToken.Column,
+				error.Locations[0].Line,
+				error.Locations[0].Column,
 			)
 		}
 	}
@@ -144,8 +119,8 @@ func (test *test) Run(t *testing.T) {
 		for i, tok := range tokens {
 			expected := test.Tokens[i]
 
-			if !strings.EqualFold(strings.Replace(expected.Kind, "_", "", -1), tok.Kind.String()) {
-				t.Errorf("token[%d].kind should be %s, was %s", i, expected.Kind, tok.Kind.String())
+			if !strings.EqualFold(strings.Replace(expected.Kind, "_", "", -1), tok.Kind.Name()) {
+				t.Errorf("token[%d].kind should be %s, was %s", i, expected.Kind, tok.Kind.Name())
 			}
 			if expected.Value != "undefined" && expected.Value != tok.Value {
 				t.Errorf("token[%d].value incorrect\nexpected: %s\ngot:      %s", i, strconv.Quote(expected.Value), strconv.Quote(tok.Value))

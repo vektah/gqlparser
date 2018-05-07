@@ -13,19 +13,19 @@ func TestParserUtils(t *testing.T) {
 		require.Equal(t, "asdf", p.peek().Value)
 		require.Equal(t, "asdf", p.expectKeyword("asdf").Value)
 		require.Equal(t, "asdf", p.prev.Value)
-		require.NoError(t, p.err)
+		require.Nil(t, p.err)
 
 		require.Equal(t, "1.0", p.peek().Value)
 		require.Equal(t, "1.0", p.peek().Value)
 		require.Equal(t, "1.0", p.expect(lexer.Float).Value)
 		require.Equal(t, "1.0", p.prev.Value)
-		require.NoError(t, p.err)
+		require.Nil(t, p.err)
 
 		require.True(t, p.skip(lexer.Name))
-		require.NoError(t, p.err)
+		require.Nil(t, p.err)
 
 		require.Equal(t, lexer.EOF, p.peek().Kind)
-		require.NoError(t, p.err)
+		require.Nil(t, p.err)
 	})
 
 	t.Run("test many can read array", func(t *testing.T) {
@@ -35,11 +35,11 @@ func TestParserUtils(t *testing.T) {
 		p.many(lexer.BracketL, lexer.BracketR, func() {
 			arr = append(arr, p.next().Value)
 		})
-		require.NoError(t, p.err)
+		require.Nil(t, p.err)
 		require.Equal(t, []string{"a", "b", "c", "d"}, arr)
 
 		require.Equal(t, lexer.EOF, p.peek().Kind)
-		require.NoError(t, p.err)
+		require.Nil(t, p.err)
 	})
 
 	t.Run("test many return if open is not found", func(t *testing.T) {
@@ -48,7 +48,7 @@ func TestParserUtils(t *testing.T) {
 		p.many(lexer.BracketL, lexer.BracketR, func() {
 			t.Error("cb should not be called")
 		})
-		require.NoError(t, p.err)
+		require.Nil(t, p.err)
 		require.Equal(t, "turtles", p.next().Value)
 	})
 
@@ -59,10 +59,10 @@ func TestParserUtils(t *testing.T) {
 		p.many(lexer.BracketL, lexer.BracketR, func() {
 			arr = append(arr, p.next().Value)
 			if len(arr) == 2 {
-				p.error("boom")
+				p.error(p.peek(), "boom")
 			}
 		})
-		require.EqualError(t, p.err, "boom")
+		require.EqualError(t, p.err, "Syntax Error: boom (line 1, column 6)")
 		require.Equal(t, []string{"a", "b"}, arr)
 	})
 
@@ -70,10 +70,10 @@ func TestParserUtils(t *testing.T) {
 		p := newParser("foo bar")
 
 		p.next()
-		p.error("test error")
-		p.error("secondary error")
+		p.error(p.peek(), "test error")
+		p.error(p.peek(), "secondary error")
 
-		require.EqualError(t, p.err, "test error")
+		require.EqualError(t, p.err, "Syntax Error: test error (line 1, column 5)")
 
 		require.Equal(t, "foo", p.peek().Value)
 		require.Equal(t, "foo", p.next().Value)
@@ -83,26 +83,26 @@ func TestParserUtils(t *testing.T) {
 	t.Run("unexpected error", func(t *testing.T) {
 		p := newParser("1 3")
 		p.unexpectedError()
-		require.EqualError(t, p.err, "Unexpected Int[\"1\", line: 1, column: 1]")
+		require.EqualError(t, p.err, "Syntax Error: Unexpected Int \"1\" (line 1, column 1)")
 	})
 
 	t.Run("unexpected error", func(t *testing.T) {
 		p := newParser("1 3")
 		p.unexpectedToken(p.next())
-		require.EqualError(t, p.err, "Unexpected Int[\"1\", line: 1, column: 1]")
+		require.EqualError(t, p.err, "Syntax Error: Unexpected Int \"1\" (line 1, column 1)")
 	})
 
 	t.Run("expect error", func(t *testing.T) {
 		p := newParser("foo bar")
 		p.expect(lexer.Float)
 
-		require.EqualError(t, p.err, "Expected Float, found Name")
+		require.EqualError(t, p.err, "Syntax Error: Expected Float, found Name (line 1, column 1)")
 	})
 
 	t.Run("expectKeyword error", func(t *testing.T) {
 		p := newParser("foo bar")
 		p.expectKeyword("baz")
 
-		require.EqualError(t, p.err, "Expected baz, found Name[\"foo\", line: 1, column: 1]")
+		require.EqualError(t, p.err, "Syntax Error: Expected \"baz\", found Name \"foo\" (line 1, column 1)")
 	})
 }

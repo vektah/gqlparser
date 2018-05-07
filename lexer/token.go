@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -30,7 +29,7 @@ const (
 	Comment
 )
 
-func (t Type) String() string {
+func (t Type) Name() string {
 	switch t {
 	case Invalid:
 		return "Invalid"
@@ -80,6 +79,56 @@ func (t Type) String() string {
 	return "Unknown " + strconv.Itoa(int(t))
 }
 
+func (t Type) String() string {
+	switch t {
+	case Invalid:
+		return "<Invalid>"
+	case EOF:
+		return "<EOF>"
+	case Bang:
+		return "!"
+	case Dollar:
+		return "$"
+	case Amp:
+		return "&"
+	case ParenL:
+		return "("
+	case ParenR:
+		return ")"
+	case Spread:
+		return "..."
+	case Colon:
+		return ":"
+	case Equals:
+		return "="
+	case At:
+		return "@"
+	case BracketL:
+		return "["
+	case BracketR:
+		return "]"
+	case BraceL:
+		return "{"
+	case BraceR:
+		return "}"
+	case Pipe:
+		return "|"
+	case Name:
+		return "Name"
+	case Int:
+		return "Int"
+	case Float:
+		return "Float"
+	case String:
+		return "String"
+	case BlockString:
+		return "BlockString"
+	case Comment:
+		return "Comment"
+	}
+	return "Unknown " + strconv.Itoa(int(t))
+}
+
 // Kind represents a type of token. The types are predefined as constants.
 type Type int
 
@@ -93,5 +142,8 @@ type Token struct {
 }
 
 func (t Token) String() string {
-	return fmt.Sprintf("%s[%s, line: %d, column: %d]", t.Kind, strconv.Quote(t.Value), t.Line, t.Column)
+	if t.Value != "" {
+		return t.Kind.String() + " " + strconv.Quote(t.Value)
+	}
+	return t.Kind.String()
 }

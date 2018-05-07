@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"unicode/utf8"
+
+	"github.com/vektah/graphql-parser"
 )
 
 // Lexer turns graphql request and schema strings into tokens
@@ -52,25 +54,35 @@ func (s *Lexer) get() string {
 	return s.input[s.start:]
 }
 
-func (s *Lexer) makeToken(kind Type) (Token, error) {
+func (s *Lexer) makeToken(kind Type) (Token, *graphql_parser.Error) {
+	return s.makeValueToken(kind, s.input[s.start:s.end])
+}
+
+func (s *Lexer) makeValueToken(kind Type, value string) (Token, *graphql_parser.Error) {
 	return Token{
 		Kind:   kind,
 		Start:  s.startRunes,
 		End:    s.endRunes,
-		Value:  s.input[s.start:s.end],
+		Value:  value,
 		Line:   s.line,
 		Column: s.startRunes - s.lineStartRunes + 1,
 	}, nil
 }
 
-func (s *Lexer) makeError(format string, args ...interface{}) (Token, error) {
+func (s *Lexer) makeError(format string, args ...interface{}) (Token, *graphql_parser.Error) {
+	column := s.endRunes - s.lineStartRunes + 1
 	return Token{
-		Kind:   Invalid,
-		Start:  s.startRunes,
-		End:    s.endRunes,
-		Line:   s.line,
-		Column: s.endRunes - s.lineStartRunes + 1,
-	}, fmt.Errorf(format, args...)
+			Kind:   Invalid,
+			Start:  s.startRunes,
+			End:    s.endRunes,
+			Line:   s.line,
+			Column: column,
+		}, &graphql_parser.Error{
+			Message: fmt.Sprintf(format, args...),
+			Locations: []graphql_parser.Location{
+				{Line: s.line, Column: column},
+			},
+		}
 }
 
 // ReadToken gets the next token from the source starting at the given position.
@@ -78,7 +90,7 @@ func (s *Lexer) makeError(format string, args ...interface{}) (Token, error) {
 // This skips over whitespace and comments until it finds the next lexable
 // token, then lexes punctuators immediately or calls the appropriate helper
 // function for more complicated tokens.
-func (s *Lexer) ReadToken() (token Token, err error) {
+func (s *Lexer) ReadToken() (token Token, err *graphql_parser.Error) {
 
 	s.ws()
 	s.start = s.end
@@ -92,40 +104,41 @@ func (s *Lexer) ReadToken() (token Token, err error) {
 	s.endRunes++
 	switch r {
 	case '!':
-		return s.makeToken(Bang)
-	case '#':
-		s.readComment()
-		return s.ReadToken()
+		return s.makeValueToken(Bang, "")
+
 	case '$':
-		return s.makeToken(Dollar)
+		return s.makeValueToken(Dollar, "")
 	case '&':
-		return s.makeToken(Amp)
+		return s.makeValueToken(Amp, "")
 	case '(':
-		return s.makeToken(ParenL)
+		return s.makeValueToken(ParenL, "")
 	case ')':
-		return s.makeToken(ParenR)
+		return s.makeValueToken(ParenR, "")
 	case '.':
 		if len(s.input) > s.start+2 && s.input[s.start:s.start+3] == "..." {
 			s.end += 2
 			s.endRunes += 2
-			return s.makeToken(Spread)
+			return s.makeValueToken(Spread, "")
 		}
 	case ':':
-		return s.makeToken(Colon)
+		return s.makeValueToken(Colon, "")
 	case '=':
-		return s.makeToken(Equals)
+		return s.makeValueToken(Equals, "")
 	case '@':
-		return s.makeToken(At)
+		return s.makeValueToken(At, "")
 	case '[':
-		return s.makeToken(BracketL)
+		return s.makeValueToken(BracketL, "")
 	case ']':
-		return s.makeToken(BracketR)
+		return s.makeValueToken(BracketR, "")
 	case '{':
-		return s.makeToken(BraceL)
+		return s.makeValueToken(BraceL, "")
 	case '}':
-		return s.makeToken(BraceR)
+		return s.makeValueToken(BraceR, "")
 	case '|':
-		return s.makeToken(Pipe)
+		return s.makeValueToken(Pipe, "")
+	case '#':
+		s.readComment()
+		return s.ReadToken()
 
 	case '_', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z':
 		return s.readName()
@@ -196,7 +209,7 @@ func (s *Lexer) ws() {
 // readComment from the input
 //
 // #[\u0009\u0020-\uFFFF]*
-func (s *Lexer) readComment() (Token, error) {
+func (s *Lexer) readComment() (Token, *graphql_parser.Error) {
 	for s.end < len(s.input) {
 		r, w := s.peek()
 
@@ -217,7 +230,7 @@ func (s *Lexer) readComment() (Token, error) {
 //
 // Int:   -?(0|[1-9][0-9]*)
 // Float: -?(0|[1-9][0-9]*)(\.[0-9]+)?((E|e)(+|-)?[0-9]+)?
-func (s *Lexer) readNumber() (Token, error) {
+func (s *Lexer) readNumber() (Token, *graphql_parser.Error) {
 	float := false
 
 	// backup to the first digit
@@ -313,7 +326,7 @@ func (s *Lexer) describeNext() string {
 // readString from the input
 //
 // "([^"\\\u000A\u000D]|(\\(u[0-9a-fA-F]{4}|["\\/bfnrt])))*"
-func (s *Lexer) readString() (Token, error) {
+func (s *Lexer) readString() (Token, *graphql_parser.Error) {
 	inputLen := len(s.input)
 
 	// this buffer is lazily created only if there are escape characters.
@@ -423,7 +436,7 @@ func (s *Lexer) readString() (Token, error) {
 // readBlockString from the input
 //
 // """("?"?(\\"""|\\(?!=""")|[^"\\]))*"""
-func (s *Lexer) readBlockString() (Token, error) {
+func (s *Lexer) readBlockString() (Token, *graphql_parser.Error) {
 	inputLen := len(s.input)
 
 	var buf bytes.Buffer
@@ -439,12 +452,11 @@ func (s *Lexer) readBlockString() (Token, error) {
 
 		// Closing triple quote (""")
 		if r == '"' && s.end+3 <= inputLen && s.input[s.end:s.end+3] == `"""` {
-			t, err := s.makeToken(BlockString)
+			t, err := s.makeValueToken(BlockString, blockStringValue(buf.String()))
+
 			// the token should not include the quotes in its value, but should cover them in its position
 			t.Start -= 3
 			t.End += 3
-
-			t.Value = blockStringValue(buf.String())
 
 			// skip the close quote
 			s.end += 3
@@ -509,7 +521,7 @@ func unhex(b string) (v rune, ok bool) {
 // readName from the input
 //
 // [_A-Za-z][_0-9A-Za-z]*
-func (s *Lexer) readName() (Token, error) {
+func (s *Lexer) readName() (Token, *graphql_parser.Error) {
 	for s.end < len(s.input) {
 		r, w := s.peek()
 

@@ -1,0 +1,66 @@
+parser provides useful errors:
+  unclosed paren:
+    input: '{'
+    error:
+      message: "Expected Name, found <EOF>"
+      location: {line: 1, column: 2}
+
+  missing on in fragment:
+    input: |
+      { ...MissingOn }
+      fragment MissingOn Type
+    error:
+      message: 'Expected "on", found Name "Type"'
+      location: { line: 2, column: 20 }
+
+  missing name after alias:
+    input: '{ field: {} }'
+    error:
+      message: "Expected Name, found {"
+      location: { line: 1, column: 10 }
+
+  not an operation:
+    input: 'notanoperation Foo { field }'
+    error:
+      message: 'Unexpected Name "notanoperation"'
+      location: { line: 1, column: 1 }
+
+  a wild splat appears:
+    input: '...'
+    error:
+      message: 'Unexpected ...'
+      location: { line: 1, column: 1}
+
+parses values:
+  inline:
+    input: '{ field(complex: { a: { b: [ $var ] } }) }'
+    ast: |
+      QueryDocument {
+        Operations: [
+          OperationDefinition {
+            SelectionSet: [
+              Field {
+                Name: field
+                Arguments: [
+                  Argument {
+                    Name: complex
+                    Value: [
+                      ObjectField {
+                        Name: a
+                        Value: [
+                          ObjectField {
+                            Name: b
+                            Value: [
+                              var
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
