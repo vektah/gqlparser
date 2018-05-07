@@ -1,8 +1,4 @@
-package graphql_parser
-
-import (
-	"github.com/vektah/graphql-parser/lexer"
-)
+package parser
 
 type Operation string
 
@@ -12,27 +8,13 @@ const (
 	Subscription Operation = "subscription"
 )
 
-// Location contains a range of UTF-8 character offsets and token references that
-// identify the region of the source from which the AST derived.
-type Location struct {
-	// The Token at which this Node begins.
-	StartToken lexer.Token
-
-	// The Token at which this Node ends.
-	EndToken lexer.Token
-}
-
 // Name
 
-type Name struct {
-	Loc   Location
-	Value string
-}
+type Name string
 
 // Document
 
 type Document struct {
-	Loc         Location
 	Definitions []Definition
 }
 
@@ -59,8 +41,7 @@ func (EnumTypeExtension) isDefinition()         {}
 func (InputObjectTypeExtension) isDefinition()  {}
 
 type OperationDefinition struct {
-	Loc                 Location
-	Operation           string
+	Operation           Operation
 	Name                Name
 	VariableDefinitions []VariableDefinition
 	Directives          []Directive
@@ -68,21 +49,14 @@ type OperationDefinition struct {
 }
 
 type VariableDefinition struct {
-	Loc          Location
 	Variable     Variable
 	Type         Type
 	DefaultValue Value
 }
 
-type Variable struct {
-	Loc  Location
-	Name Name
-}
+type Variable Name
 
-type SelectionSet struct {
-	Loc        Location
-	Selections []Selection
-}
+type SelectionSet []Selection
 
 type Selection interface {
 	isSelection()
@@ -93,7 +67,6 @@ func (FragmentSpread) isSelection() {}
 func (InlineFragment) isSelection() {}
 
 type Field struct {
-	Loc          Location
 	Alias        Name
 	Name         Name
 	Arguments    []Argument
@@ -102,7 +75,6 @@ type Field struct {
 }
 
 type Argument struct {
-	Loc   Location
 	Name  Name
 	Value Value
 }
@@ -110,20 +82,17 @@ type Argument struct {
 // Fragments
 
 type FragmentSpread struct {
-	Loc        Location
 	Name       Name
 	Directives []Directive
 }
 
 type InlineFragment struct {
-	Loc           Location
 	TypeCondition NamedType
 	Directives    []Directive
 	SelectionSet  SelectionSet
 }
 
 type FragmentDefinition struct {
-	Loc  Location
 	Name Name
 	// Note: fragment variable definitions are experimental and may be changed
 	// or removed in the future.
@@ -143,54 +112,24 @@ func (Variable) isValue()     {}
 func (IntValue) isValue()     {}
 func (FloatValue) isValue()   {}
 func (StringValue) isValue()  {}
+func (BlockValue) isValue()   {}
 func (BooleanValue) isValue() {}
 func (NullValue) isValue()    {}
 func (EnumValue) isValue()    {}
 func (ListValue) isValue()    {}
 func (ObjectValue) isValue()  {}
 
-type IntValue struct {
-	Loc   Location
-	Value string
-}
-
-type FloatValue struct {
-	Loc   Location
-	Value string
-}
-
-type StringValue struct {
-	Loc   Location
-	Value string
-	Block bool
-}
-
-type BooleanValue struct {
-	Loc   Location
-	Value bool
-}
-
-type NullValue struct {
-	Loc Location
-}
-
-type EnumValue struct {
-	Loc   Location
-	Value string
-}
-
-type ListValue struct {
-	Loc    Location
-	Values []Value
-}
-
-type ObjectValue struct {
-	Loc    Location
-	Fields []ObjectField
-}
+type IntValue string
+type FloatValue string
+type StringValue string
+type BlockValue string
+type BooleanValue bool
+type NullValue struct{}
+type EnumValue string
+type ListValue []Value
+type ObjectValue []ObjectField
 
 type ObjectField struct {
-	Loc   Location
 	Name  Name
 	Value Value
 }
@@ -198,7 +137,6 @@ type ObjectField struct {
 // Directives
 
 type Directive struct {
-	Loc       Location
 	Name      Name
 	Arguments []Argument
 }
@@ -214,17 +152,14 @@ func (ListType) isType()    {}
 func (NonNullType) isType() {}
 
 type NamedType struct {
-	Loc  Location
 	Name Name
 }
 
 type ListType struct {
-	Loc  Location
 	Type Type
 }
 
 type NonNullType struct {
-	Loc  Location
 	Type Type
 }
 
@@ -244,13 +179,11 @@ func (EnumTypeDefinition) isTypeDefinition()        {}
 func (InputObjectTypeDefinition) isTypeDefinition() {}
 
 type SchemaDefinition struct {
-	Loc            Location
 	Directives     []Directive
 	OperationTypes []OperationTypeDefinition
 }
 
 type OperationTypeDefinition struct {
-	Loc       Location
 	Operation string
 	Type      NamedType
 }
@@ -258,14 +191,12 @@ type OperationTypeDefinition struct {
 // Type Definition
 
 type ScalarTypeDefinition struct {
-	Loc         Location
 	Description StringValue
 	Name        Name
 	Directives  []Directive
 }
 
 type ObjectTypeDefinition struct {
-	Loc         Location
 	Description StringValue
 	Name        Name
 	Interfaces  []NamedType
@@ -274,7 +205,6 @@ type ObjectTypeDefinition struct {
 }
 
 type FieldDefinition struct {
-	Loc         Location
 	Description StringValue
 	Name        Name
 	Arguments   []InputValueDefinition
@@ -283,7 +213,6 @@ type FieldDefinition struct {
 }
 
 type InputValueDefinition struct {
-	Loc          Location
 	Description  StringValue
 	Name         Name
 	Type         Type
@@ -292,7 +221,6 @@ type InputValueDefinition struct {
 }
 
 type InterfaceTypeDefinition struct {
-	Loc         Location
 	Description StringValue
 	Name        Name
 	Directives  []Directive
@@ -300,7 +228,6 @@ type InterfaceTypeDefinition struct {
 }
 
 type UnionTypeDefinition struct {
-	Loc         Location
 	Description StringValue
 	Name        Name
 	Directives  []Directive
@@ -308,7 +235,6 @@ type UnionTypeDefinition struct {
 }
 
 type EnumTypeDefinition struct {
-	Loc         Location
 	Description StringValue
 	Name        Name
 	Directives  []Directive
@@ -316,14 +242,12 @@ type EnumTypeDefinition struct {
 }
 
 type EnumValueDefinition struct {
-	Loc         Location
 	Description StringValue
 	Name        Name
 	Directives  []Directive
 }
 
 type InputObjectTypeDefinition struct {
-	Loc         Location
 	Description StringValue
 	Name        Name
 	Directives  []Directive
@@ -333,7 +257,6 @@ type InputObjectTypeDefinition struct {
 // Directive Definitions
 
 type DirectiveDefinition struct {
-	Loc         Location
 	Description StringValue
 	Name        Name
 	Arguments   InputValueDefinition
@@ -343,7 +266,6 @@ type DirectiveDefinition struct {
 // Type System Extensions
 
 type SchemaExtension struct {
-	Loc            Location
 	Directives     []Directive
 	OperationTypes []OperationTypeDefinition
 }
@@ -362,13 +284,11 @@ func (InputObjectTypeExtension) isTypeExtension() {}
 // Type Extensions
 
 type ScalarTypeExtension struct {
-	Loc        Location
 	Name       Name
 	Directives []Directive
 }
 
 type ObjectTypeExtension struct {
-	Loc        Location
 	Name       Name
 	Interfaces NamedType
 	Directives []Directive
@@ -376,28 +296,24 @@ type ObjectTypeExtension struct {
 }
 
 type InterfaceTypeExtension struct {
-	Loc        Location
 	Name       Name
 	Directives []Directive
 	Fields     []FieldDefinition
 }
 
 type UnionTypeExtension struct {
-	Loc        Location
 	Name       Name
 	Directives []Directive
 	Types      NamedType
 }
 
 type EnumTypeExtension struct {
-	Loc        Location
 	Name       Name
 	Directives []Directive
 	Values     EnumValueDefinition
 }
 
 type InputObjectTypeExtension struct {
-	Loc        Location
 	Name       Name
 	Directives []Directive
 	Fields     InputValueDefinition

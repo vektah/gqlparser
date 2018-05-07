@@ -18,7 +18,7 @@ const (
 	Equals
 	At
 	BracketL
-	BrackedR
+	BracketR
 	BraceL
 	BraceR
 	Pipe
@@ -56,7 +56,7 @@ func (t Type) String() string {
 		return "At"
 	case BracketL:
 		return "BracketL"
-	case BrackedR:
+	case BracketR:
 		return "BracketR"
 	case BraceL:
 		return "BraceL"
