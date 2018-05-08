@@ -1,0 +1,16 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: golang:1.10.2
+    working_directory: /go/src/github.com/vektah/graphql-parser
+    steps:
+      - checkout
+      - run: >
+          go get -u github.com/alecthomas/gometalinter github.com/andreyvit/diff github.com/stretchr/testify gopkg.in/yaml.v2 github.com/mattn/goveralls &&
+          gometalinter --install
+      - run: go vet ./...
+      - run: go test -race ./...
+      - run: gometalinter --vendor ./...
+      - run: go test -cover -coverprofile=/tmp/coverage.out ./...
+      - run: goveralls -coverprofile=/tmp/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN

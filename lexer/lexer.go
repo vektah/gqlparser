@@ -38,27 +38,11 @@ func (s *Lexer) peek() (rune, int) {
 	return utf8.DecodeRuneInString(s.input[s.end:])
 }
 
-// take one byte from input and advance end. This is a bit faster than take, but be careful not to break unicode support
-func (s *Lexer) takeByte() uint8 {
-	r := s.input[s.end]
-	s.end++
-	s.endRunes++
-	return r
-}
-
-// get the remaining input.
-func (s *Lexer) get() string {
-	if s.start > len(s.input) {
-		return ""
-	}
-	return s.input[s.start:]
-}
-
-func (s *Lexer) makeToken(kind Type) (Token, *graphql_parser.Error) {
+func (s *Lexer) makeToken(kind Type) (Token, *gqlparser.Error) {
 	return s.makeValueToken(kind, s.input[s.start:s.end])
 }
 
-func (s *Lexer) makeValueToken(kind Type, value string) (Token, *graphql_parser.Error) {
+func (s *Lexer) makeValueToken(kind Type, value string) (Token, *gqlparser.Error) {
 	return Token{
 		Kind:   kind,
 		Start:  s.startRunes,
@@ -69,7 +53,7 @@ func (s *Lexer) makeValueToken(kind Type, value string) (Token, *graphql_parser.
 	}, nil
 }
 
-func (s *Lexer) makeError(format string, args ...interface{}) (Token, *graphql_parser.Error) {
+func (s *Lexer) makeError(format string, args ...interface{}) (Token, *gqlparser.Error) {
 	column := s.endRunes - s.lineStartRunes + 1
 	return Token{
 			Kind:   Invalid,
@@ -77,9 +61,9 @@ func (s *Lexer) makeError(format string, args ...interface{}) (Token, *graphql_p
 			End:    s.endRunes,
 			Line:   s.line,
 			Column: column,
-		}, &graphql_parser.Error{
+		}, &gqlparser.Error{
 			Message: fmt.Sprintf(format, args...),
-			Locations: []graphql_parser.Location{
+			Locations: []gqlparser.Location{
 				{Line: s.line, Column: column},
 			},
 		}
@@ -90,7 +74,7 @@ func (s *Lexer) makeError(format string, args ...interface{}) (Token, *graphql_p
 // This skips over whitespace and comments until it finds the next lexable
 // token, then lexes punctuators immediately or calls the appropriate helper
 // function for more complicated tokens.
-func (s *Lexer) ReadToken() (token Token, err *graphql_parser.Error) {
+func (s *Lexer) ReadToken() (token Token, err *gqlparser.Error) {
 
 	s.ws()
 	s.start = s.end
@@ -190,7 +174,6 @@ func (s *Lexer) ws() {
 			if s.end < len(s.input) && s.input[s.end] == '\n' {
 				s.end++
 				s.endRunes++
-			} else {
 			}
 			// byte order mark, given ws is hot path we aren't relying on the unicode package here.
 		case 0xef:
@@ -209,7 +192,7 @@ func (s *Lexer) ws() {
 // readComment from the input
 //
 // #[\u0009\u0020-\uFFFF]*
-func (s *Lexer) readComment() (Token, *graphql_parser.Error) {
+func (s *Lexer) readComment() (Token, *gqlparser.Error) {
 	for s.end < len(s.input) {
 		r, w := s.peek()
 
@@ -230,7 +213,7 @@ func (s *Lexer) readComment() (Token, *graphql_parser.Error) {
 //
 // Int:   -?(0|[1-9][0-9]*)
 // Float: -?(0|[1-9][0-9]*)(\.[0-9]+)?((E|e)(+|-)?[0-9]+)?
-func (s *Lexer) readNumber() (Token, *graphql_parser.Error) {
+func (s *Lexer) readNumber() (Token, *gqlparser.Error) {
 	float := false
 
 	// backup to the first digit
@@ -292,16 +275,6 @@ func (s *Lexer) acceptByte(bytes ...uint8) bool {
 	return false
 }
 
-// acceptByteRange accepts one byte inside the range provided, returning true if it found anything
-func (s *Lexer) acceptByteRange(start uint8, end uint8) bool {
-	if s.end < len(s.input) && s.input[s.end] >= start && s.input[s.end] <= end {
-		s.end++
-		s.endRunes++
-		return true
-	}
-	return false
-}
-
 // acceptDigits from the input, returning the number of digits it found
 func (s *Lexer) acceptDigits() int {
 	consumed := 0
@@ -326,7 +299,7 @@ func (s *Lexer) describeNext() string {
 // readString from the input
 //
 // "([^"\\\u000A\u000D]|(\\(u[0-9a-fA-F]{4}|["\\/bfnrt])))*"
-func (s *Lexer) readString() (Token, *graphql_parser.Error) {
+func (s *Lexer) readString() (Token, *gqlparser.Error) {
 	inputLen := len(s.input)
 
 	// this buffer is lazily created only if there are escape characters.
@@ -436,7 +409,7 @@ func (s *Lexer) readString() (Token, *graphql_parser.Error) {
 // readBlockString from the input
 //
 // """("?"?(\\"""|\\(?!=""")|[^"\\]))*"""
-func (s *Lexer) readBlockString() (Token, *graphql_parser.Error) {
+func (s *Lexer) readBlockString() (Token, *gqlparser.Error) {
 	inputLen := len(s.input)
 
 	var buf bytes.Buffer
@@ -521,7 +494,7 @@ func unhex(b string) (v rune, ok bool) {
 // readName from the input
 //
 // [_A-Za-z][_0-9A-Za-z]*
-func (s *Lexer) readName() (Token, *graphql_parser.Error) {
+func (s *Lexer) readName() (Token, *gqlparser.Error) {
 	for s.end < len(s.input) {
 		r, w := s.peek()
 

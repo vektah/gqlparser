@@ -207,21 +207,6 @@ type NonNullType struct {
 	Type Type
 }
 
-// Type System Definition
-
-type TypeDefinition interface {
-	isTypeDefinition()
-}
-
-func (SchemaDefinition) isTypeDefinition()          {}
-func (DirectiveDefinition) isTypeDefinition()       {}
-func (ScalarTypeDefinition) isTypeDefinition()      {}
-func (ObjectTypeDefinition) isTypeDefinition()      {}
-func (InterfaceTypeDefinition) isTypeDefinition()   {}
-func (UnionTypeDefinition) isTypeDefinition()       {}
-func (EnumTypeDefinition) isTypeDefinition()        {}
-func (InputObjectTypeDefinition) isTypeDefinition() {}
-
 type SchemaDefinition struct {
 	Description    string
 	Directives     []Directive

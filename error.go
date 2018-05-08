@@ -1,4 +1,4 @@
-package graphql_parser
+package gqlparser
 
 import "fmt"
 

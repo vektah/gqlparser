@@ -1,4 +1,4 @@
-graphql-parser
+graphql-parser [![CircleCI](https://circleci.com/gh/vektah/graphql-parser.svg?style=shield)](https://circleci.com/gh/vektah/graphql-parser) [![Go Report Card](https://goreportcard.com/badge/github.com/vektah/graphql-parser)](https://goreportcard.com/report/github.com/vektah/graphql-parser) [![Coverage Status](https://coveralls.io/repos/github/vektah/graphql-parser/badge.svg?branch=master)](https://coveralls.io/github/vektah/graphql-parser?branch=master)
 ===
 
 *This repo is still under heavy development. APIs will break, use it at your own peril.*
