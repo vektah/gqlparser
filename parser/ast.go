@@ -8,6 +8,32 @@ const (
 	Subscription Operation = "subscription"
 )
 
+type DirectiveLocation string
+
+const (
+	// Executable
+	LocationQuery              DirectiveLocation = `QUERY`
+	LocationMutation           DirectiveLocation = `MUTATION`
+	LocationSubscription       DirectiveLocation = `SUBSCRIPTION`
+	LocationField              DirectiveLocation = `FIELD`
+	LocationFragmentDefinition DirectiveLocation = `FRAGMENT_DEFINITION`
+	LocationFragmentSpread     DirectiveLocation = `FRAGMENT_SPREAD`
+	LocationInlineFragment     DirectiveLocation = `INLINE_FRAGMENT`
+
+	// Type System
+	LocationSchema               DirectiveLocation = `SCHEMA`
+	LocationScalar               DirectiveLocation = `SCALAR`
+	LocationObject               DirectiveLocation = `OBJECT`
+	LocationFieldDefinition      DirectiveLocation = `FIELD_DEFINITION`
+	LocationArgumentDefinition   DirectiveLocation = `ARGUMENT_DEFINITION`
+	LocationIinterface           DirectiveLocation = `INTERFACE`
+	LocationUnion                DirectiveLocation = `UNION`
+	LocationEnum                 DirectiveLocation = `ENUM`
+	LocationEnumValue            DirectiveLocation = `ENUM_VALUE`
+	LocationInputObject          DirectiveLocation = `INPUT_OBJECT`
+	LocationInputFieldDefinition DirectiveLocation = `INPUT_FIELD_DEFINITION`
+)
+
 // Document
 
 type QueryDocument struct {
@@ -31,6 +57,11 @@ func (d QueryDocument) GetFragment(name string) *FragmentDefinition {
 		}
 	}
 	return nil
+}
+
+type SchemaDocument struct {
+	Definitions []Definition
+	Extensions  []TypeExtension
 }
 
 type Definition interface {
@@ -192,25 +223,26 @@ func (EnumTypeDefinition) isTypeDefinition()        {}
 func (InputObjectTypeDefinition) isTypeDefinition() {}
 
 type SchemaDefinition struct {
+	Description    string
 	Directives     []Directive
 	OperationTypes []OperationTypeDefinition
 }
 
 type OperationTypeDefinition struct {
-	Operation string
+	Operation Operation
 	Type      NamedType
 }
 
 // Type Definition
 
 type ScalarTypeDefinition struct {
-	Description StringValue
+	Description string
 	Name        string
 	Directives  []Directive
 }
 
 type ObjectTypeDefinition struct {
-	Description StringValue
+	Description string
 	Name        string
 	Interfaces  []NamedType
 	Directives  []Directive
@@ -218,7 +250,7 @@ type ObjectTypeDefinition struct {
 }
 
 type FieldDefinition struct {
-	Description StringValue
+	Description string
 	Name        string
 	Arguments   []InputValueDefinition
 	Type        Type
@@ -226,7 +258,7 @@ type FieldDefinition struct {
 }
 
 type InputValueDefinition struct {
-	Description  StringValue
+	Description  string
 	Name         string
 	Type         Type
 	DefaultValue Value
@@ -234,34 +266,34 @@ type InputValueDefinition struct {
 }
 
 type InterfaceTypeDefinition struct {
-	Description StringValue
+	Description string
 	Name        string
 	Directives  []Directive
 	Fields      []FieldDefinition
 }
 
 type UnionTypeDefinition struct {
-	Description StringValue
+	Description string
 	Name        string
 	Directives  []Directive
 	Types       []NamedType
 }
 
 type EnumTypeDefinition struct {
-	Description StringValue
+	Description string
 	Name        string
 	Directives  []Directive
 	Values      []EnumValueDefinition
 }
 
 type EnumValueDefinition struct {
-	Description StringValue
+	Description string
 	Name        string
 	Directives  []Directive
 }
 
 type InputObjectTypeDefinition struct {
-	Description StringValue
+	Description string
 	Name        string
 	Directives  []Directive
 	Fields      []InputValueDefinition
@@ -270,23 +302,17 @@ type InputObjectTypeDefinition struct {
 // Directive Definitions
 
 type DirectiveDefinition struct {
-	Description StringValue
+	Description string
 	Name        string
-	Arguments   InputValueDefinition
-	Locations   string
-}
-
-// Type System Extensions
-
-type SchemaExtension struct {
-	Directives     []Directive
-	OperationTypes []OperationTypeDefinition
+	Arguments   []InputValueDefinition
+	Locations   []DirectiveLocation
 }
 
 type TypeExtension interface {
 	isTypeExtension()
 }
 
+func (SchemaExtension) isTypeExtension()          {}
 func (ScalarTypeExtension) isTypeExtension()      {}
 func (ObjectTypeExtension) isTypeExtension()      {}
 func (InterfaceTypeExtension) isTypeExtension()   {}
@@ -294,40 +320,54 @@ func (UnionTypeExtension) isTypeExtension()       {}
 func (EnumTypeExtension) isTypeExtension()        {}
 func (InputObjectTypeExtension) isTypeExtension() {}
 
+// Type System Extensions
+
+type SchemaExtension struct {
+	Description    string
+	Directives     []Directive
+	OperationTypes []OperationTypeDefinition
+}
+
 // Type Extensions
 
 type ScalarTypeExtension struct {
-	Name       string
-	Directives []Directive
+	Description string
+	Name        string
+	Directives  []Directive
 }
 
 type ObjectTypeExtension struct {
-	Name       string
-	Interfaces NamedType
-	Directives []Directive
-	Fields     FieldDefinition
+	Description string
+	Name        string
+	Interfaces  []NamedType
+	Directives  []Directive
+	Fields      []FieldDefinition
 }
 
 type InterfaceTypeExtension struct {
-	Name       string
-	Directives []Directive
-	Fields     []FieldDefinition
+	Description string
+	Name        string
+	Directives  []Directive
+	Fields      []FieldDefinition
 }
 
 type UnionTypeExtension struct {
-	Name       string
-	Directives []Directive
-	Types      NamedType
+	Description string
+	Name        string
+	Directives  []Directive
+	Types       []NamedType
 }
 
 type EnumTypeExtension struct {
-	Name       string
-	Directives []Directive
-	Values     EnumValueDefinition
+	Description string
+	Name        string
+	Directives  []Directive
+	Values      []EnumValueDefinition
 }
 
 type InputObjectTypeExtension struct {
-	Name       string
-	Directives []Directive
-	Fields     InputValueDefinition
+	Description string
+	Name        string
+	Directives  []Directive
+	Fields      []InputValueDefinition
 }
