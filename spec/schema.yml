@@ -1,0 +1,426 @@
+object types:
+  - name: simple
+    input: |
+      type Hello {
+        world: String
+      }
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <ObjectTypeDefinition>
+            Name: "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "world"
+                Type: NamedType("String")
+
+  - name: with description
+    input: |
+      "Description"
+      type Hello {
+        world: String
+      }
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <ObjectTypeDefinition>
+            Description: "Description"
+            Name: "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "world"
+                Type: NamedType("String")
+
+  - name: with block description
+    input: |
+      """
+      Description
+      """
+      # Even with comments between them
+      type Hello {
+        world: String
+      }
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <ObjectTypeDefinition>
+            Description: "Description"
+            Name: "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "world"
+                Type: NamedType("String")
+  - name: with field arg
+    input: |
+      type Hello {
+        world(flag: Boolean): String
+      }
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <ObjectTypeDefinition>
+            Name: "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "world"
+                Arguments: [InputValueDefinition]
+                - <InputValueDefinition>
+                    Name: "flag"
+                    Type: NamedType("Boolean")
+                Type: NamedType("String")
+
+  - name: with field arg and default value
+    input: |
+      type Hello {
+        world(flag: Boolean = true): String
+      }
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <ObjectTypeDefinition>
+            Name: "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "world"
+                Arguments: [InputValueDefinition]
+                - <InputValueDefinition>
+                    Name: "flag"
+                    Type: NamedType("Boolean")
+                    DefaultValue: true
+                Type: NamedType("String")
+
+  - name: with field list arg
+    input: |
+      type Hello {
+        world(things: [String]): String
+      }
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <ObjectTypeDefinition>
+            Name: "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "world"
+                Arguments: [InputValueDefinition]
+                - <InputValueDefinition>
+                    Name: "things"
+                    Type: <ListType>
+                      Type: NamedType("String")
+                Type: NamedType("String")
+
+  - name: with two args
+    input: |
+      type Hello {
+        world(argOne: Boolean, argTwo: Int): String
+      }
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <ObjectTypeDefinition>
+            Name: "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "world"
+                Arguments: [InputValueDefinition]
+                - <InputValueDefinition>
+                    Name: "argOne"
+                    Type: NamedType("Boolean")
+                - <InputValueDefinition>
+                    Name: "argTwo"
+                    Type: NamedType("Int")
+                Type: NamedType("String")
+
+type extensions:
+  - name: Object extension
+    input: |
+      extend type Hello {
+        world: String
+      }
+    ast: |
+      <SchemaDocument>
+        Extensions: [TypeExtension]
+        - <ObjectTypeExtension>
+            Name: "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "world"
+                Type: NamedType("String")
+
+  - name: without any fields
+    input: "extend type Hello implements Greeting"
+    ast: |
+      <SchemaDocument>
+        Extensions: [TypeExtension]
+        - <ObjectTypeExtension>
+            Name: "Hello"
+            Interfaces: [NamedType]
+            - NamedType("Greeting")
+
+  - name: without fields twice
+    input: |
+      extend type Hello implements Greeting
+      extend type Hello implements SecondGreeting
+    ast: |
+      <SchemaDocument>
+        Extensions: [TypeExtension]
+        - <ObjectTypeExtension>
+            Name: "Hello"
+            Interfaces: [NamedType]
+            - NamedType("Greeting")
+        - <ObjectTypeExtension>
+            Name: "Hello"
+            Interfaces: [NamedType]
+            - NamedType("SecondGreeting")
+
+  - name: without anything errors
+    input: "extend type Hello"
+    error:
+      message: "Unexpected <EOF>"
+      locations: [{ line: 1, column: 18 }]
+
+  - name: can have descriptions # hmm, this might not be spec compliant...
+    input: |
+      "Description"
+      extend type Hello {
+        world: String
+      }
+    ast: |
+      <SchemaDocument>
+        Extensions: [TypeExtension]
+        - <ObjectTypeExtension>
+            Description: "Description"
+            Name: "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "world"
+                Type: NamedType("String")
+
+  - name: can not have descriptions on types
+    input: |
+      extend "Description" type Hello {
+        world: String
+      }
+    error:
+      message: Unexpected String "Description"
+      locations: [{ line: 1, column: 9 }]
+
+schema extensions:
+  - name: simple
+    input: |
+       extend schema {
+         mutation: Mutation
+       }
+    ast: |
+      <SchemaDocument>
+        Extensions: [TypeExtension]
+        - <SchemaExtension>
+            OperationTypes: [OperationTypeDefinition]
+            - <OperationTypeDefinition>
+                Operation: Operation("mutation")
+                Type: NamedType("Mutation")
+
+  - name: directive only
+    input: "extend schema @directive"
+    ast: |
+      <SchemaDocument>
+        Extensions: [TypeExtension]
+        - <SchemaExtension>
+            Directives: [Directive]
+            - <Directive>
+                Name: "directive"
+
+  - name: without anything errors
+    input: "extend schema"
+    error:
+      message: "Unexpected <EOF>"
+      locations: [{ line: 1, column: 14}]
+
+inheritance:
+  - name: single
+    input: "type Hello implements World { field: String }"
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <ObjectTypeDefinition>
+            Name: "Hello"
+            Interfaces: [NamedType]
+            - NamedType("World")
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "field"
+                Type: NamedType("String")
+
+  - name: multi
+    input: "type Hello implements Wo & rld { field: String }"
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <ObjectTypeDefinition>
+            Name: "Hello"
+            Interfaces: [NamedType]
+            - NamedType("Wo")
+            - NamedType("rld")
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "field"
+                Type: NamedType("String")
+
+  - name: multi with leading amp
+    input: "type Hello implements & Wo & rld { field: String }"
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <ObjectTypeDefinition>
+            Name: "Hello"
+            Interfaces: [NamedType]
+            - NamedType("Wo")
+            - NamedType("rld")
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "field"
+                Type: NamedType("String")
+
+enums:
+  - name: single value
+    input: "enum Hello { WORLD }"
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <EnumTypeDefinition>
+            Name: "Hello"
+            Values: [EnumValueDefinition]
+            - <EnumValueDefinition>
+                Name: "WORLD"
+
+  - name: double value
+    input: "enum Hello { WO, RLD }"
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <EnumTypeDefinition>
+            Name: "Hello"
+            Values: [EnumValueDefinition]
+            - <EnumValueDefinition>
+                Name: "WO"
+            - <EnumValueDefinition>
+                Name: "RLD"
+
+interface:
+  - name: simple
+    input: |
+      interface Hello {
+        world: String
+      }
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <InterfaceTypeDefinition>
+            Name: "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "world"
+                Type: NamedType("String")
+
+unions:
+  - name: simple
+    input: "union Hello = World"
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <UnionTypeDefinition>
+            Name: "Hello"
+            Types: [NamedType]
+            - NamedType("World")
+
+  - name: with two types
+    input: "union Hello = Wo | Rld"
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <UnionTypeDefinition>
+            Name: "Hello"
+            Types: [NamedType]
+            - NamedType("Wo")
+            - NamedType("Rld")
+
+  - name: with leading pipe
+    input: "union Hello = | Wo | Rld"
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <UnionTypeDefinition>
+            Name: "Hello"
+            Types: [NamedType]
+            - NamedType("Wo")
+            - NamedType("Rld")
+
+  - name: cant be empty
+    input: "union Hello = || Wo | Rld"
+    error:
+      message: "Expected Name, found |"
+      locations: [{ line: 1, column: 16 }]
+
+  - name: cant double pipe
+    input: "union Hello = Wo || Rld"
+    error:
+      message: "Expected Name, found |"
+      locations: [{ line: 1, column: 19 }]
+
+  - name: cant have trailing pipe
+    input: "union Hello = | Wo | Rld |"
+    error:
+      message: "Expected Name, found <EOF>"
+      locations: [{ line: 1, column: 27 }]
+
+scalar:
+  - name: simple
+    input: "scalar Hello"
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <ScalarTypeDefinition>
+            Name: "Hello"
+
+input object:
+  - name: simple
+    input: |
+      input Hello {
+        world: String
+      }
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <InputObjectTypeDefinition>
+            Name: "Hello"
+            Fields: [InputValueDefinition]
+            - <InputValueDefinition>
+                Name: "world"
+                Type: NamedType("String")
+
+  - name: can not have args
+    input: |
+      input Hello {
+        world(foo: Int): String
+      }
+    error:
+      message: "Expected :, found ("
+      locations: [{ line: 2, column: 8 }]
+
+directives:
+  - name: simple
+    input: directive @foo on FIELD
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <DirectiveDefinition>
+            Name: "foo"
+            Locations: [DirectiveLocation]
+            - DirectiveLocation("FIELD")
+
+  - name: invalid location
+    input: "directive @foo on FIELD | INCORRECT_LOCATION"
+    error:
+      message: 'Unexpected Name "INCORRECT_LOCATION"'
+      locations: [{ line: 1, column: 27 }]
+

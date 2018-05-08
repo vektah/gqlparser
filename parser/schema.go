@@ -30,19 +30,13 @@ func (p *Parser) parseSchemaDocument() SchemaDocument {
 		}
 
 		switch p.peek().Value {
-		case "schema":
-		case "scalar":
-		case "type":
-		case "interface":
-		case "union":
-		case "enum":
-		case "input":
-		case "directive":
+		case "schema", "scalar", "type", "interface", "union", "enum", "input", "directive":
 			doc.Definitions = append(doc.Definitions, p.parseTypeSystemDefinition(description))
 		case "extend":
 			doc.Extensions = append(doc.Extensions, p.parseTypeSystemExtension(description))
 		default:
 			p.unexpectedError()
+			return doc
 		}
 	}
 

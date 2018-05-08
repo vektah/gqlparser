@@ -7,7 +7,7 @@ import (
 )
 
 func TestLexer(t *testing.T) {
-	spec.Test(t, "spec.yml", func(t *testing.T, input string) spec.Spec {
+	spec.Test(t, "../spec/lexer.yml", func(t *testing.T, input string) spec.Spec {
 		l := New(input)
 
 		ret := spec.Spec{}
