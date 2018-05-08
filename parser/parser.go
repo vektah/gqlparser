@@ -10,17 +10,13 @@ import (
 
 type Parser struct {
 	lexer lexer.Lexer
-	err   *graphql_parser.Error
+	err   *gqlparser.Error
 
 	peeked    bool
 	peekToken lexer.Token
-	peekError *graphql_parser.Error
+	peekError *gqlparser.Error
 
 	prev lexer.Token
-}
-
-func newParser(input string) Parser {
-	return Parser{lexer: lexer.New(input)}
 }
 
 func (p *Parser) peek() lexer.Token {
@@ -40,9 +36,9 @@ func (p *Parser) error(tok lexer.Token, format string, args ...interface{}) {
 	if p.err != nil {
 		return
 	}
-	p.err = &graphql_parser.Error{
+	p.err = &gqlparser.Error{
 		Message: fmt.Sprintf(format, args...),
-		Locations: []graphql_parser.Location{
+		Locations: []gqlparser.Location{
 			{Line: tok.Line, Column: tok.Column},
 		},
 	}

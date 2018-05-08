@@ -5,7 +5,7 @@ import (
 	"github.com/vektah/graphql-parser/lexer"
 )
 
-func ParseSchema(source string) (SchemaDocument, *graphql_parser.Error) {
+func ParseSchema(source string) (SchemaDocument, *gqlparser.Error) {
 	parser := Parser{
 		lexer: lexer.New(source),
 	}

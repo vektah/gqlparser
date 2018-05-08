@@ -5,7 +5,7 @@ import (
 	"github.com/vektah/graphql-parser/lexer"
 )
 
-func ParseQuery(source string) (QueryDocument, *graphql_parser.Error) {
+func ParseQuery(source string) (QueryDocument, *gqlparser.Error) {
 	parser := Parser{
 		lexer: lexer.New(source),
 	}
@@ -228,7 +228,6 @@ func (p *Parser) parseValueLiteral(isConst bool) Value {
 		if !isConst {
 			return p.parseVariable()
 		}
-		break
 
 	case lexer.Name:
 		p.next()

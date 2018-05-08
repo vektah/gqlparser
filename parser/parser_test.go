@@ -106,3 +106,7 @@ func TestParserUtils(t *testing.T) {
 		require.EqualError(t, p.err, "Syntax Error: Expected \"baz\", found Name \"foo\" (line 1, column 1)")
 	})
 }
+
+func newParser(input string) Parser {
+	return Parser{lexer: lexer.New(input)}
+}

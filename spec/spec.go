@@ -16,7 +16,7 @@ type Features map[string][]Spec
 type Spec struct {
 	Name   string
 	Input  string
-	Error  *graphql_parser.Error
+	Error  *gqlparser.Error
 	Tokens []Token
 	AST    string
 }
