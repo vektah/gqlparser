@@ -31,36 +31,458 @@ parser provides useful errors:
       message: 'Unexpected ...'
       location: { line: 1, column: 1}
 
-parses values:
-  inline:
+variables:
+  are allowed in args:
     input: '{ field(complex: { a: { b: [ $var ] } }) }'
+
+  are not allowed in default args:
+    input: 'query Foo($x: Complex = { a: { b: [ $var ] } }) { field }'
+    error:
+      message: 'Unexpected $'
+      location: { line: 1, column: 37 }
+
+fragments:
+  can not be named 'on':
+    input: 'fragment on on on { on }'
+    error:
+      message: 'Unexpected Name "on"'
+      location: { line: 1, column: 10 }
+
+  can not spread fragments called 'on':
+    input: '{ ...on }'
+    error:
+      message: 'Expected Name, found }'
+      location: { line: 1, column: 9 }
+
+encoding:
+  multibyte characters are supported:
+    input: |
+      # This comment has a ਊ multi-byte character.
+      { field(arg: "Has a ਊ multi-byte character.") }
     ast: |
-      QueryDocument {
-        Operations: [
-          OperationDefinition {
-            SelectionSet: [
-              Field {
-                Name: field
-                Arguments: [
-                  Argument {
-                    Name: complex
-                    Value: [
-                      ObjectField {
-                        Name: a
-                        Value: [
-                          ObjectField {
-                            Name: b
-                            Value: [
-                              var
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
+      <QueryDocument>
+        Operations: [OperationDefinition]
+        - <OperationDefinition>
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "field"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "arg"
+                    Value: StringValue("Has a ਊ multi-byte character.")
+
+keywords are allowed anywhere a name is:
+  on:
+    input: |
+      query on {
+        ... a
+        ... on on { field }
       }
+      fragment a on Type {
+        on(on: $on)
+          @on(on: on)
+      }
+
+  subscription:
+    input: |
+      query subscription {
+        ... subscription
+        ... on subscription { field }
+      }
+      fragment subscription on Type {
+        subscription(subscription: $subscription)
+          @subscription(subscription: subscription)
+      }
+
+  true:
+    input: |
+      query true {
+        ... true
+        ... on true { field }
+      }
+      fragment true on Type {
+        true(true: $true)
+          @true(true: true)
+      }
+
+operations:
+  anonymous mutation:
+    input: 'mutation { mutationField }'
+
+  named mutation:
+    input: 'mutation Foo { mutationField }'
+
+  anonymous subscription:
+    input: 'subscription { subscriptionField }'
+
+  named subscription:
+    input: 'subscription Foo { subscriptionField }'
+
+
+ast:
+  simple query:
+    input: |
+      {
+        node(id: 4) {
+          id,
+          name
+        }
+      }
+    ast: |
+      <QueryDocument>
+        Operations: [OperationDefinition]
+        - <OperationDefinition>
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "node"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "id"
+                    Value: IntValue("4")
+                SelectionSet: [Selection]
+                - <Field>
+                    Name: "id"
+                - <Field>
+                    Name: "name"
+
+  nameless query with no variables:
+    input: |
+      query {
+        node {
+          id
+        }
+      }
+    ast: |
+      <QueryDocument>
+        Operations: [OperationDefinition]
+        - <OperationDefinition>
+            Operation: Operation("query")
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "node"
+                SelectionSet: [Selection]
+                - <Field>
+                    Name: "id"
+
+  fragment defined variables:
+    input: 'fragment a($v: Boolean = false) on t { f(v: $v) }'
+    ast: |
+      <QueryDocument>
+        Operations: [OperationDefinition]
+        - <OperationDefinition>
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "f"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "v"
+                    Value: Variable("v")
+        Fragments: [FragmentDefinition]
+        - <FragmentDefinition>
+            Name: "a"
+            VariableDefinition: [VariableDefinition]
+            - <VariableDefinition>
+                Variable: Variable("v")
+                Type: NamedType("Boolean")
+                DefaultValue: false
+            TypeCondition: NamedType("t")
+
+values:
+  null:
+    input: '{ f(id: null) }'
+    ast: |
+      <QueryDocument>
+        Operations: [OperationDefinition]
+        - <OperationDefinition>
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "f"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "id"
+                    Value: <NullValue>
+
+  strings:
+    input: '{ f(long: """long""", short: "short") } '
+    ast: |
+      <QueryDocument>
+        Operations: [OperationDefinition]
+        - <OperationDefinition>
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "f"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "long"
+                    Value: BlockValue("long")
+                - <Argument>
+                    Name: "short"
+                    Value: StringValue("short")
+
+  list:
+    input: '{ f(id: [1,2]) }'
+    ast: |
+      <QueryDocument>
+        Operations: [OperationDefinition]
+        - <OperationDefinition>
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "f"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "id"
+                    Value: [Value]
+                    - IntValue("1")
+                    - IntValue("2")
+
+types:
+  common types:
+    input: 'query ($string: String, $int: Int, $arr: [Arr], $notnull: [Arr!]!) { f }'
+    ast: |
+      <QueryDocument>
+        Operations: [OperationDefinition]
+        - <OperationDefinition>
+            Operation: Operation("query")
+            VariableDefinitions: [VariableDefinition]
+            - <VariableDefinition>
+                Variable: Variable("string")
+                Type: NamedType("String")
+            - <VariableDefinition>
+                Variable: Variable("int")
+                Type: NamedType("Int")
+            - <VariableDefinition>
+                Variable: Variable("arr")
+                Type: <ListType>
+                  Type: NamedType("Arr")
+            - <VariableDefinition>
+                Variable: Variable("notnull")
+                Type: <NonNullType>
+                  Type: <ListType>
+                    Type: <NonNullType>
+                      Type: NamedType("Arr")
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "f"
+
+large queries:
+  kitchen sink:
+    input: |
+      # Copyright (c) 2015-present, Facebook, Inc.
+      #
+      # This source code is licensed under the MIT license found in the
+      # LICENSE file in the root directory of this source tree.
+
+      query queryName($foo: ComplexType, $site: Site = MOBILE) {
+        whoever123is: node(id: [123, 456]) {
+          id ,
+          ... on User @defer {
+            field2 {
+              id ,
+              alias: field1(first:10, after:$foo,) @include(if: $foo) {
+                id,
+                ...frag
+              }
+            }
+          }
+          ... @skip(unless: $foo) {
+            id
+          }
+          ... {
+            id
+          }
+        }
+      }
+
+      mutation likeStory {
+        like(story: 123) @defer {
+          story {
+            id
+          }
+        }
+      }
+
+      subscription StoryLikeSubscription($input: StoryLikeSubscribeInput) {
+        storyLikeSubscribe(input: $input) {
+          story {
+            likers {
+              count
+            }
+            likeSentence {
+              text
+            }
+          }
+        }
+      }
+
+      fragment frag on Friend {
+        foo(size: $size, bar: $b, obj: {key: "value", block: """
+            block string uses \"""
+        """})
+      }
+
+      {
+        unnamed(truthy: true, falsey: false, nullish: null),
+        query
+      }
+    ast: |
+      <QueryDocument>
+        Operations: [OperationDefinition]
+        - <OperationDefinition>
+            Operation: Operation("query")
+            Name: "queryName"
+            VariableDefinitions: [VariableDefinition]
+            - <VariableDefinition>
+                Variable: Variable("foo")
+                Type: NamedType("ComplexType")
+            - <VariableDefinition>
+                Variable: Variable("site")
+                Type: NamedType("Site")
+                DefaultValue: EnumValue("MOBILE")
+            SelectionSet: [Selection]
+            - <Field>
+                Alias: "whoever123is"
+                Name: "node"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "id"
+                    Value: [Value]
+                    - IntValue("123")
+                    - IntValue("456")
+                SelectionSet: [Selection]
+                - <Field>
+                    Name: "id"
+                - <InlineFragment>
+                    TypeCondition: NamedType("User")
+                    Directives: [Directive]
+                    - <Directive>
+                        Name: "defer"
+                    SelectionSet: [Selection]
+                    - <Field>
+                        Name: "field2"
+                        SelectionSet: [Selection]
+                        - <Field>
+                            Name: "id"
+                        - <Field>
+                            Alias: "alias"
+                            Name: "field1"
+                            Arguments: [Argument]
+                            - <Argument>
+                                Name: "first"
+                                Value: IntValue("10")
+                            - <Argument>
+                                Name: "after"
+                                Value: Variable("foo")
+                            Directives: [Directive]
+                            - <Directive>
+                                Name: "include"
+                                Arguments: [Argument]
+                                - <Argument>
+                                    Name: "if"
+                                    Value: Variable("foo")
+                            SelectionSet: [Selection]
+                            - <Field>
+                                Name: "id"
+                            - <FragmentSpread>
+                                Name: "frag"
+                - <InlineFragment>
+                    Directives: [Directive]
+                    - <Directive>
+                        Name: "skip"
+                        Arguments: [Argument]
+                        - <Argument>
+                            Name: "unless"
+                            Value: Variable("foo")
+                    SelectionSet: [Selection]
+                    - <Field>
+                        Name: "id"
+                - <InlineFragment>
+                    SelectionSet: [Selection]
+                    - <Field>
+                        Name: "id"
+        - <OperationDefinition>
+            Operation: Operation("mutation")
+            Name: "likeStory"
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "like"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "story"
+                    Value: IntValue("123")
+                Directives: [Directive]
+                - <Directive>
+                    Name: "defer"
+                SelectionSet: [Selection]
+                - <Field>
+                    Name: "story"
+                    SelectionSet: [Selection]
+                    - <Field>
+                        Name: "id"
+        - <OperationDefinition>
+            Operation: Operation("subscription")
+            Name: "StoryLikeSubscription"
+            VariableDefinitions: [VariableDefinition]
+            - <VariableDefinition>
+                Variable: Variable("input")
+                Type: NamedType("StoryLikeSubscribeInput")
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "storyLikeSubscribe"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "input"
+                    Value: Variable("input")
+                SelectionSet: [Selection]
+                - <Field>
+                    Name: "story"
+                    SelectionSet: [Selection]
+                    - <Field>
+                        Name: "likers"
+                        SelectionSet: [Selection]
+                        - <Field>
+                            Name: "count"
+                    - <Field>
+                        Name: "likeSentence"
+                        SelectionSet: [Selection]
+                        - <Field>
+                            Name: "text"
+        - <OperationDefinition>
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "foo"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "size"
+                    Value: Variable("size")
+                - <Argument>
+                    Name: "bar"
+                    Value: Variable("b")
+                - <Argument>
+                    Name: "obj"
+                    Value: [ObjectField]
+                    - <ObjectField>
+                        Name: "key"
+                        Value: StringValue("value")
+                    - <ObjectField>
+                        Name: "block"
+                        Value: BlockValue("block string uses \"\"\"")
+        - <OperationDefinition>
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "unnamed"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "truthy"
+                    Value: true
+                - <Argument>
+                    Name: "falsey"
+                    Value: false
+                - <Argument>
+                    Name: "nullish"
+                    Value: <NullValue>
+            - <Field>
+                Name: "query"
+        Fragments: [FragmentDefinition]
+        - <FragmentDefinition>
+            Name: "frag"
+            TypeCondition: NamedType("Friend")

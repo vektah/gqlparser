@@ -3,6 +3,7 @@ package parser
 import (
 	"io/ioutil"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/andreyvit/diff"
@@ -51,13 +52,8 @@ func (test *test) Run(t *testing.T) {
 	}
 
 	doc, err := ParseQuery(test.Input)
-
-	t.Logf("input: %s", strconv.Quote(test.Input))
-	if err != nil {
-		t.Logf("error: %s", err.Error())
-	}
-	ast := Dump(doc)
-	t.Logf("ast:\n%s", ast)
+	ast := strings.TrimSpace(Dump(doc))
+	test.AST = strings.TrimSpace(test.AST)
 
 	if test.Error.Message == "" {
 		if err != nil {
@@ -85,6 +81,13 @@ func (test *test) Run(t *testing.T) {
 		diff := diff.LineDiff(test.AST, ast)
 		if diff != "" {
 			t.Errorf("AST mismatch:\n%s", diff)
+		}
+	}
+
+	if t.Failed() {
+		t.Logf("input: %s", strconv.Quote(test.Input))
+		if err != nil {
+			t.Logf("error: %s", err.Error())
 		}
 	}
 

@@ -21,7 +21,7 @@ func (p *Parser) parseQueryDocument() QueryDocument {
 		switch p.peek().Kind {
 		case lexer.Name:
 			switch p.peek().Value {
-			case "query", "mutation":
+			case "query", "mutation", "subscription":
 				doc.Operations = append(doc.Operations, p.parseOperationDefinition())
 			case "fragment":
 				doc.Fragments = append(doc.Fragments, p.parseFragmentDefinition())
@@ -45,12 +45,19 @@ func (p *Parser) parseOperationDefinition() OperationDefinition {
 		}
 	}
 
-	return OperationDefinition{
-		Operation:           p.parseOperationType(),
-		VariableDefinitions: p.parseVariableDefinitions(),
-		Directives:          p.parseDirectives(false),
-		SelectionSet:        p.parseSelectionSet(),
+	var od OperationDefinition
+
+	od.Operation = p.parseOperationType()
+
+	if p.peek().Kind == lexer.Name {
+		od.Name = p.next().Value
 	}
+
+	od.VariableDefinitions = p.parseVariableDefinitions()
+	od.Directives = p.parseDirectives(false)
+	od.SelectionSet = p.parseSelectionSet()
+
+	return od
 }
 
 func (p *Parser) parseOperationType() Operation {
@@ -189,7 +196,7 @@ func (p *Parser) parseFragmentDefinition() FragmentDefinition {
 	return def
 }
 
-func (p *Parser) parseFragmentName() Name {
+func (p *Parser) parseFragmentName() string {
 	if p.peek().Value == "on" {
 		p.unexpectedError()
 		return ""
@@ -308,6 +315,7 @@ func (p *Parser) parseTypeReference() Type {
 		typ = ListType{
 			Type: typ,
 		}
+		p.expect(lexer.BracketR)
 	} else {
 		typ = p.parseNamedType()
 	}
@@ -321,13 +329,11 @@ func (p *Parser) parseTypeReference() Type {
 }
 
 func (p *Parser) parseNamedType() NamedType {
-	return NamedType{
-		Name: p.parseName(),
-	}
+	return NamedType(p.parseName())
 }
 
-func (p *Parser) parseName() Name {
+func (p *Parser) parseName() string {
 	token := p.expect(lexer.Name)
 
-	return Name(token.Value)
+	return token.Value
 }

@@ -8,15 +8,29 @@ const (
 	Subscription Operation = "subscription"
 )
 
-// Name
-
-type Name string
-
 // Document
 
 type QueryDocument struct {
 	Operations []OperationDefinition
 	Fragments  []FragmentDefinition
+}
+
+func (d QueryDocument) GetOperation(name string) *OperationDefinition {
+	for _, o := range d.Operations {
+		if o.Name == name {
+			return &o
+		}
+	}
+	return nil
+}
+
+func (d QueryDocument) GetFragment(name string) *FragmentDefinition {
+	for _, f := range d.Fragments {
+		if f.Name == name {
+			return &f
+		}
+	}
+	return nil
 }
 
 type Definition interface {
@@ -43,7 +57,7 @@ func (InputObjectTypeExtension) isDefinition()  {}
 
 type OperationDefinition struct {
 	Operation           Operation
-	Name                Name
+	Name                string
 	VariableDefinitions []VariableDefinition
 	Directives          []Directive
 	SelectionSet        SelectionSet
@@ -55,7 +69,7 @@ type VariableDefinition struct {
 	DefaultValue Value
 }
 
-type Variable Name
+type Variable string
 
 type SelectionSet []Selection
 
@@ -68,22 +82,22 @@ func (FragmentSpread) isSelection() {}
 func (InlineFragment) isSelection() {}
 
 type Field struct {
-	Alias        Name
-	Name         Name
+	Alias        string
+	Name         string
 	Arguments    []Argument
 	Directives   []Directive
 	SelectionSet SelectionSet
 }
 
 type Argument struct {
-	Name  Name
+	Name  string
 	Value Value
 }
 
 // Fragments
 
 type FragmentSpread struct {
-	Name       Name
+	Name       string
 	Directives []Directive
 }
 
@@ -94,7 +108,7 @@ type InlineFragment struct {
 }
 
 type FragmentDefinition struct {
-	Name Name
+	Name string
 	// Note: fragment variable definitions are experimental and may be changed
 	// or removed in the future.
 	VariableDefinition []VariableDefinition
@@ -131,14 +145,14 @@ type ListValue []Value
 type ObjectValue []ObjectField
 
 type ObjectField struct {
-	Name  Name
+	Name  string
 	Value Value
 }
 
 // Directives
 
 type Directive struct {
-	Name      Name
+	Name      string
 	Arguments []Argument
 }
 
@@ -152,9 +166,7 @@ func (NamedType) isType()   {}
 func (ListType) isType()    {}
 func (NonNullType) isType() {}
 
-type NamedType struct {
-	Name Name
-}
+type NamedType string
 
 type ListType struct {
 	Type Type
@@ -193,13 +205,13 @@ type OperationTypeDefinition struct {
 
 type ScalarTypeDefinition struct {
 	Description StringValue
-	Name        Name
+	Name        string
 	Directives  []Directive
 }
 
 type ObjectTypeDefinition struct {
 	Description StringValue
-	Name        Name
+	Name        string
 	Interfaces  []NamedType
 	Directives  []Directive
 	Fields      []FieldDefinition
@@ -207,7 +219,7 @@ type ObjectTypeDefinition struct {
 
 type FieldDefinition struct {
 	Description StringValue
-	Name        Name
+	Name        string
 	Arguments   []InputValueDefinition
 	Type        Type
 	Directives  []Directive
@@ -215,7 +227,7 @@ type FieldDefinition struct {
 
 type InputValueDefinition struct {
 	Description  StringValue
-	Name         Name
+	Name         string
 	Type         Type
 	DefaultValue Value
 	Directives   []Directive
@@ -223,34 +235,34 @@ type InputValueDefinition struct {
 
 type InterfaceTypeDefinition struct {
 	Description StringValue
-	Name        Name
+	Name        string
 	Directives  []Directive
 	Fields      []FieldDefinition
 }
 
 type UnionTypeDefinition struct {
 	Description StringValue
-	Name        Name
+	Name        string
 	Directives  []Directive
 	Types       []NamedType
 }
 
 type EnumTypeDefinition struct {
 	Description StringValue
-	Name        Name
+	Name        string
 	Directives  []Directive
 	Values      []EnumValueDefinition
 }
 
 type EnumValueDefinition struct {
 	Description StringValue
-	Name        Name
+	Name        string
 	Directives  []Directive
 }
 
 type InputObjectTypeDefinition struct {
 	Description StringValue
-	Name        Name
+	Name        string
 	Directives  []Directive
 	Fields      []InputValueDefinition
 }
@@ -259,9 +271,9 @@ type InputObjectTypeDefinition struct {
 
 type DirectiveDefinition struct {
 	Description StringValue
-	Name        Name
+	Name        string
 	Arguments   InputValueDefinition
-	Locations   Name
+	Locations   string
 }
 
 // Type System Extensions
@@ -285,37 +297,37 @@ func (InputObjectTypeExtension) isTypeExtension() {}
 // Type Extensions
 
 type ScalarTypeExtension struct {
-	Name       Name
+	Name       string
 	Directives []Directive
 }
 
 type ObjectTypeExtension struct {
-	Name       Name
+	Name       string
 	Interfaces NamedType
 	Directives []Directive
 	Fields     FieldDefinition
 }
 
 type InterfaceTypeExtension struct {
-	Name       Name
+	Name       string
 	Directives []Directive
 	Fields     []FieldDefinition
 }
 
 type UnionTypeExtension struct {
-	Name       Name
+	Name       string
 	Directives []Directive
 	Types      NamedType
 }
 
 type EnumTypeExtension struct {
-	Name       Name
+	Name       string
 	Directives []Directive
 	Values     EnumValueDefinition
 }
 
 type InputObjectTypeExtension struct {
-	Name       Name
+	Name       string
 	Directives []Directive
 	Fields     InputValueDefinition
 }

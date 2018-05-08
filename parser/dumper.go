@@ -41,7 +41,11 @@ func (d *dumper) dump(v reflect.Value) {
 		d.WriteString(fmt.Sprintf("%.2f", v.Float()))
 
 	case reflect.String:
-		d.WriteString(v.String())
+		if v.Type().Name() != "string" {
+			d.WriteString(v.Type().Name() + "(" + strconv.Quote(v.String()) + ")")
+		} else {
+			d.WriteString(strconv.Quote(v.String()))
+		}
 
 	case reflect.Array, reflect.Slice:
 		d.dumpArray(v)
@@ -67,26 +71,20 @@ func (d *dumper) nl() {
 }
 
 func (d *dumper) dumpArray(v reflect.Value) {
-	d.WriteString("[")
-	d.indent++
+	d.WriteString("[" + v.Type().Elem().Name() + "]")
 
 	for i := 0; i < v.Len(); i++ {
 		d.nl()
+		d.WriteString("- ")
+		d.indent++
 		d.dump(v.Index(i))
+		d.indent--
 	}
-
-	d.indent--
-	if v.Len() > 0 {
-		d.nl()
-	}
-	d.WriteString("]")
 }
 
 func (d *dumper) dumpStruct(v reflect.Value) {
-	d.WriteString(v.Type().Name() + " {")
+	d.WriteString("<" + v.Type().Name() + ">")
 	d.indent++
-
-	wroteAny := false
 
 	typ := v.Type()
 	for i := 0; i < v.NumField(); i++ {
@@ -95,7 +93,6 @@ func (d *dumper) dumpStruct(v reflect.Value) {
 		if isZero(f) {
 			continue
 		}
-		wroteAny = true
 		d.nl()
 		d.WriteString(typ.Field(i).Name)
 		d.WriteString(": ")
@@ -103,10 +100,6 @@ func (d *dumper) dumpStruct(v reflect.Value) {
 	}
 
 	d.indent--
-	if wroteAny {
-		d.nl()
-	}
-	d.WriteString("}")
 }
 
 func isZero(v reflect.Value) bool {
