@@ -1,61 +1,61 @@
 parser provides useful errors:
-  unclosed paren:
+  - name: unclosed paren
     input: '{'
     error:
       message: "Expected Name, found <EOF>"
-      location: {line: 1, column: 2}
+      locations: [{line: 1, column: 2}]
 
-  missing on in fragment:
+  - name: missing on in fragment
     input: |
       { ...MissingOn }
       fragment MissingOn Type
     error:
       message: 'Expected "on", found Name "Type"'
-      location: { line: 2, column: 20 }
+      locations: [{ line: 2, column: 20 }]
 
-  missing name after alias:
+  - name: missing name after alias
     input: '{ field: {} }'
     error:
       message: "Expected Name, found {"
-      location: { line: 1, column: 10 }
+      locations: [{ line: 1, column: 10 }]
 
-  not an operation:
+  - name: not an operation
     input: 'notanoperation Foo { field }'
     error:
       message: 'Unexpected Name "notanoperation"'
-      location: { line: 1, column: 1 }
+      locations: [{ line: 1, column: 1 }]
 
-  a wild splat appears:
+  - name: a wild splat appears
     input: '...'
     error:
       message: 'Unexpected ...'
-      location: { line: 1, column: 1}
+      locations: [{ line: 1, column: 1}]
 
 variables:
-  are allowed in args:
+  - name: are allowed in args
     input: '{ field(complex: { a: { b: [ $var ] } }) }'
 
-  are not allowed in default args:
+  - name: are not allowed in default args
     input: 'query Foo($x: Complex = { a: { b: [ $var ] } }) { field }'
     error:
       message: 'Unexpected $'
-      location: { line: 1, column: 37 }
+      locations: [{ line: 1, column: 37 }]
 
 fragments:
-  can not be named 'on':
+  - name: can not be named 'on'
     input: 'fragment on on on { on }'
     error:
       message: 'Unexpected Name "on"'
-      location: { line: 1, column: 10 }
+      locations: [{ line: 1, column: 10 }]
 
-  can not spread fragments called 'on':
+  - name: can not spread fragments called 'on'
     input: '{ ...on }'
     error:
       message: 'Expected Name, found }'
-      location: { line: 1, column: 9 }
+      locations: [{ line: 1, column: 9 }]
 
 encoding:
-  multibyte characters are supported:
+  - name: multibyte characters are supported
     input: |
       # This comment has a ਊ multi-byte character.
       { field(arg: "Has a ਊ multi-byte character.") }
@@ -72,7 +72,7 @@ encoding:
                     Value: StringValue("Has a ਊ multi-byte character.")
 
 keywords are allowed anywhere a name is:
-  on:
+  - name: on
     input: |
       query on {
         ... a
@@ -83,7 +83,7 @@ keywords are allowed anywhere a name is:
           @on(on: on)
       }
 
-  subscription:
+  - name: subscription
     input: |
       query subscription {
         ... subscription
@@ -94,7 +94,7 @@ keywords are allowed anywhere a name is:
           @subscription(subscription: subscription)
       }
 
-  true:
+  - name: true
     input: |
       query true {
         ... true
@@ -106,21 +106,21 @@ keywords are allowed anywhere a name is:
       }
 
 operations:
-  anonymous mutation:
+  - name: anonymous mutation
     input: 'mutation { mutationField }'
 
-  named mutation:
+  - name: named mutation
     input: 'mutation Foo { mutationField }'
 
-  anonymous subscription:
+  - name: anonymous subscription
     input: 'subscription { subscriptionField }'
 
-  named subscription:
+  - name: named subscription
     input: 'subscription Foo { subscriptionField }'
 
 
 ast:
-  simple query:
+  - name: simple query
     input: |
       {
         node(id: 4) {
@@ -145,7 +145,7 @@ ast:
                 - <Field>
                     Name: "name"
 
-  nameless query with no variables:
+  - name: nameless query with no variables
     input: |
       query {
         node {
@@ -164,7 +164,7 @@ ast:
                 - <Field>
                     Name: "id"
 
-  fragment defined variables:
+  - name: fragment defined variables
     input: 'fragment a($v: Boolean = false) on t { f(v: $v) }'
     ast: |
       <QueryDocument>
@@ -188,7 +188,7 @@ ast:
             TypeCondition: NamedType("t")
 
 values:
-  null:
+  - name: null
     input: '{ f(id: null) }'
     ast: |
       <QueryDocument>
@@ -202,7 +202,7 @@ values:
                     Name: "id"
                     Value: <NullValue>
 
-  strings:
+  - name: strings
     input: '{ f(long: """long""", short: "short") } '
     ast: |
       <QueryDocument>
@@ -219,7 +219,7 @@ values:
                     Name: "short"
                     Value: StringValue("short")
 
-  list:
+  - name: list
     input: '{ f(id: [1,2]) }'
     ast: |
       <QueryDocument>
@@ -236,7 +236,7 @@ values:
                     - IntValue("2")
 
 types:
-  common types:
+  - name: common types
     input: 'query ($string: String, $int: Int, $arr: [Arr], $notnull: [Arr!]!) { f }'
     ast: |
       <QueryDocument>
@@ -265,7 +265,7 @@ types:
                 Name: "f"
 
 large queries:
-  kitchen sink:
+  - name: kitchen sink
     input: |
       # Copyright (c) 2015-present, Facebook, Inc.
       #
