@@ -27,6 +27,6 @@ Guiding principles:
 | ------| ------------|
 | lexer | done |
 | query parser | done |
-| schema parser | in progress |
+| schema parser | done |
 | schema loader | next |
 | validator | later |
