@@ -20,3 +20,13 @@ Guiding principles:
  - idiomatic & stable api: It should follow go best practices, especially around forwards compatibility.
  - fast: Where it doesnt impact on the above it should be fast. Avoid unnecessary allocs in hot paths.
  - close to reference: Where it doesnt impact on the above, it should stay close to the [graphql/graphql-js](github.com/graphql/graphql-js) reference implementation.
+
+## progress
+
+| feature | readyness |
+| ------| ------------|
+| lexer | done |
+| query parser | done |
+| schema parser | in progress |
+| schema loader | next |
+| validator | later |
