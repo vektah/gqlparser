@@ -1,8 +1,8 @@
-package gqlparser
+package errors
 
 import "fmt"
 
-type Error struct {
+type Syntax struct {
 	Message   string     `json:"message"`
 	Locations []Location `json:"locations,omitempty"`
 }
@@ -12,7 +12,7 @@ type Location struct {
 	Column int `json:"column"`
 }
 
-func (err *Error) Error() string {
+func (err *Syntax) Error() string {
 	if err == nil {
 		return "<nil>"
 	}

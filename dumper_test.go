@@ -1,4 +1,4 @@
-package parser
+package gqlparser
 
 import (
 	"fmt"

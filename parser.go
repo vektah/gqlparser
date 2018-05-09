@@ -1,25 +1,25 @@
-package parser
+package gqlparser
 
 import (
 	"fmt"
 	"strconv"
 
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/errors"
 	"github.com/vektah/gqlparser/lexer"
 )
 
-type Parser struct {
+type parser struct {
 	lexer lexer.Lexer
-	err   *gqlparser.Error
+	err   *errors.Syntax
 
 	peeked    bool
 	peekToken lexer.Token
-	peekError *gqlparser.Error
+	peekError *errors.Syntax
 
 	prev lexer.Token
 }
 
-func (p *Parser) peek() lexer.Token {
+func (p *parser) peek() lexer.Token {
 	if p.err != nil {
 		return p.prev
 	}
@@ -32,19 +32,19 @@ func (p *Parser) peek() lexer.Token {
 	return p.peekToken
 }
 
-func (p *Parser) error(tok lexer.Token, format string, args ...interface{}) {
+func (p *parser) error(tok lexer.Token, format string, args ...interface{}) {
 	if p.err != nil {
 		return
 	}
-	p.err = &gqlparser.Error{
+	p.err = &errors.Syntax{
 		Message: fmt.Sprintf(format, args...),
-		Locations: []gqlparser.Location{
+		Locations: []errors.Location{
 			{Line: tok.Line, Column: tok.Column},
 		},
 	}
 }
 
-func (p *Parser) next() lexer.Token {
+func (p *parser) next() lexer.Token {
 	if p.err != nil {
 		return p.prev
 	}
@@ -57,7 +57,7 @@ func (p *Parser) next() lexer.Token {
 	return p.prev
 }
 
-func (p *Parser) expectKeyword(value string) lexer.Token {
+func (p *parser) expectKeyword(value string) lexer.Token {
 	tok := p.peek()
 	if tok.Kind == lexer.Name && tok.Value == value {
 		return p.next()
@@ -67,7 +67,7 @@ func (p *Parser) expectKeyword(value string) lexer.Token {
 	return tok
 }
 
-func (p *Parser) expect(kind lexer.Type) lexer.Token {
+func (p *parser) expect(kind lexer.Type) lexer.Token {
 	tok := p.peek()
 	if tok.Kind == kind {
 		return p.next()
@@ -77,7 +77,7 @@ func (p *Parser) expect(kind lexer.Type) lexer.Token {
 	return tok
 }
 
-func (p *Parser) skip(kind lexer.Type) bool {
+func (p *parser) skip(kind lexer.Type) bool {
 	tok := p.peek()
 
 	if tok.Kind != kind {
@@ -87,15 +87,15 @@ func (p *Parser) skip(kind lexer.Type) bool {
 	return true
 }
 
-func (p *Parser) unexpectedError() {
+func (p *parser) unexpectedError() {
 	p.unexpectedToken(p.peek())
 }
 
-func (p *Parser) unexpectedToken(tok lexer.Token) {
+func (p *parser) unexpectedToken(tok lexer.Token) {
 	p.error(tok, "Unexpected %s", tok.String())
 }
 
-func (p *Parser) many(start lexer.Type, end lexer.Type, cb func()) {
+func (p *parser) many(start lexer.Type, end lexer.Type, cb func()) {
 	hasDef := p.skip(start)
 	if !hasDef {
 		return

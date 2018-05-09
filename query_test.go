@@ -1,4 +1,4 @@
-package parser
+package gqlparser
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestQueryDocument(t *testing.T) {
-	spec.Test(t, "../spec/query.yml", func(t *testing.T, input string) spec.Spec {
+	spec.Test(t, "spec/query.yml", func(t *testing.T, input string) spec.Spec {
 		doc, err := ParseQuery(input)
 		return spec.Spec{
 			Error: err,

@@ -1,4 +1,4 @@
-package parser
+package gqlparser
 
 import (
 	"testing"
@@ -107,6 +107,6 @@ func TestParserUtils(t *testing.T) {
 	})
 }
 
-func newParser(input string) Parser {
-	return Parser{lexer: lexer.New(input)}
+func newParser(input string) parser {
+	return parser{lexer: lexer.New(input)}
 }

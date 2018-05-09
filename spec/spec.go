@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/andreyvit/diff"
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/errors"
 	"gopkg.in/yaml.v2"
 )
 
@@ -16,7 +16,7 @@ type Features map[string][]Spec
 type Spec struct {
 	Name   string
 	Input  string
-	Error  *gqlparser.Error
+	Error  *errors.Syntax
 	Tokens []Token
 	AST    string
 }

@@ -1,4 +1,4 @@
-package parser
+package gqlparser
 
 type Operation string
 
