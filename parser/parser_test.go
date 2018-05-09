@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/vektah/graphql-parser/lexer"
+	"github.com/vektah/gqlparser/lexer"
 )
 
 func TestParserUtils(t *testing.T) {

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/vektah/graphql-parser"
-	"github.com/vektah/graphql-parser/lexer"
+	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/lexer"
 )
 
 type Parser struct {

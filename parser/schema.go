@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"github.com/vektah/graphql-parser"
-	"github.com/vektah/graphql-parser/lexer"
+	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/lexer"
 )
 
 func ParseSchema(source string) (SchemaDocument, *gqlparser.Error) {
