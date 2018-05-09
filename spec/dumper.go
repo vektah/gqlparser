@@ -1,4 +1,4 @@
-package gqlparser
+package spec
 
 import (
 	"bytes"
@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-// Dump turns ast into a stable string format for assertions in tests
-func Dump(i interface{}) string {
+// DumpAST turns ast into a stable string format for assertions in tests
+func DumpAST(i interface{}) string {
 	v := reflect.ValueOf(i)
 
 	d := dumper{Buffer: &bytes.Buffer{}}

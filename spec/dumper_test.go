@@ -1,4 +1,4 @@
-package gqlparser
+package spec
 
 import (
 	"fmt"
@@ -6,16 +6,17 @@ import (
 
 	"github.com/andreyvit/diff"
 	"github.com/stretchr/testify/require"
+	"github.com/vektah/gqlparser"
 )
 
 func TestDump(t *testing.T) {
-	res := Dump(SchemaDefinition{
-		Directives: []Directive{
+	res := DumpAST(gqlparser.SchemaDefinition{
+		Directives: []gqlparser.Directive{
 			{
 				Name:      "foo",
-				Arguments: []Argument{{Name: "bar"}},
+				Arguments: []gqlparser.Argument{{Name: "bar"}},
 			},
-			{Arguments: []Argument{}},
+			{Arguments: []gqlparser.Argument{}},
 		},
 	})
 

@@ -11,7 +11,7 @@ func TestSchemaDocument(t *testing.T) {
 		doc, err := ParseSchema(input)
 		return spec.Spec{
 			Error: err,
-			AST:   Dump(doc),
+			AST:   spec.DumpAST(doc),
 		}
 	})
 }

@@ -12,10 +12,7 @@ type Location struct {
 	Column int `json:"column"`
 }
 
-func (err *Syntax) Error() string {
-	if err == nil {
-		return "<nil>"
-	}
+func (err Syntax) Error() string {
 	str := fmt.Sprintf("Syntax Error: %s", err.Message)
 	for _, loc := range err.Locations {
 		str += fmt.Sprintf(" (line %d, column %d)", loc.Line, loc.Column)

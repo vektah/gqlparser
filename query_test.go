@@ -11,7 +11,7 @@ func TestQueryDocument(t *testing.T) {
 		doc, err := ParseQuery(input)
 		return spec.Spec{
 			Error: err,
-			AST:   Dump(doc),
+			AST:   spec.DumpAST(doc),
 		}
 	})
 }
