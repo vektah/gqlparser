@@ -6,10 +6,10 @@ import (
 )
 
 func ParseQuery(source string) (QueryDocument, *errors.Syntax) {
-	parser := parser{
+	p := parser{
 		lexer: lexer.New(source),
 	}
-	return parser.parseQueryDocument(), parser.err
+	return p.parseQueryDocument(), p.err
 }
 
 func (p *parser) parseQueryDocument() QueryDocument {

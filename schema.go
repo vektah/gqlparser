@@ -6,10 +6,10 @@ import (
 )
 
 func ParseSchema(source string) (SchemaDocument, *errors.Syntax) {
-	parser := parser{
+	p := parser{
 		lexer: lexer.New(source),
 	}
-	return parser.parseSchemaDocument(), parser.err
+	return p.parseSchemaDocument(), p.err
 }
 
 func (p *parser) parseSchemaDocument() SchemaDocument {
