@@ -28,5 +28,5 @@ Guiding principles:
 | lexer | done |
 | query parser | done |
 | schema parser | done |
-| schema loader | next |
-| validator | later |
+| schema loader | done |
+| validator | doing |

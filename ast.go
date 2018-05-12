@@ -180,6 +180,10 @@ func (NonNullType) isType() {}
 
 type NamedType string
 
+func (n NamedType) Name() string {
+	return string(n)
+}
+
 type ListType struct {
 	Type Type
 }
