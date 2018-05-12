@@ -60,31 +60,12 @@ func (d QueryDocument) GetFragment(name string) *FragmentDefinition {
 }
 
 type SchemaDocument struct {
-	Definitions []Definition
-	Extensions  []TypeExtension
+	Schema          []SchemaDefinition
+	SchemaExtension []SchemaDefinition
+	Directives      []DirectiveDefinition
+	Definitions     []Definition
+	Extensions      []Definition
 }
-
-type Definition interface {
-	isDefinition()
-}
-
-func (OperationDefinition) isDefinition()       {}
-func (FragmentDefinition) isDefinition()        {}
-func (SchemaExtension) isDefinition()           {}
-func (SchemaDefinition) isDefinition()          {}
-func (DirectiveDefinition) isDefinition()       {}
-func (ScalarTypeDefinition) isDefinition()      {}
-func (ObjectTypeDefinition) isDefinition()      {}
-func (InterfaceTypeDefinition) isDefinition()   {}
-func (UnionTypeDefinition) isDefinition()       {}
-func (EnumTypeDefinition) isDefinition()        {}
-func (InputObjectTypeDefinition) isDefinition() {}
-func (ScalarTypeExtension) isDefinition()       {}
-func (ObjectTypeExtension) isDefinition()       {}
-func (InterfaceTypeExtension) isDefinition()    {}
-func (UnionTypeExtension) isDefinition()        {}
-func (EnumTypeExtension) isDefinition()         {}
-func (InputObjectTypeExtension) isDefinition()  {}
 
 type OperationDefinition struct {
 	Operation           Operation
@@ -218,57 +199,43 @@ type OperationTypeDefinition struct {
 	Type      NamedType
 }
 
-// Type Definition
+type DefinitionKind string
 
-type ScalarTypeDefinition struct {
+const (
+	Scalar      DefinitionKind = "SCALAR"
+	Object      DefinitionKind = "OBJECT"
+	Interface   DefinitionKind = "INTERFACE"
+	Union       DefinitionKind = "UNION"
+	Enum        DefinitionKind = "ENUM"
+	InputObject DefinitionKind = "INPUT_OBJECT"
+)
+
+// Definition is the core type definition object, it includes all of the definable types
+// but does *not* cover schema or directives.
+//
+// @vektah: Javascript implementation has different types for all of these, but they are
+// more similar than different and don't define any behaviour. I think this style of
+// "some hot" struct works better, at least for go.
+//
+// Type extensions are also represented by this same struct.
+type Definition struct {
+	Kind        DefinitionKind
 	Description string
 	Name        string
 	Directives  []Directive
-}
-
-type ObjectTypeDefinition struct {
-	Description string
-	Name        string
-	Interfaces  []NamedType
-	Directives  []Directive
-	Fields      []FieldDefinition
+	Interfaces  []NamedType           // object and input object
+	Fields      []FieldDefinition     // object and input object
+	Types       []NamedType           // union
+	Values      []EnumValueDefinition // enum
 }
 
 type FieldDefinition struct {
-	Description string
-	Name        string
-	Arguments   []InputValueDefinition
-	Type        Type
-	Directives  []Directive
-}
-
-type InputValueDefinition struct {
 	Description  string
 	Name         string
+	Arguments    []FieldDefinition // only for objects
+	DefaultValue Value             // only for input objects
 	Type         Type
-	DefaultValue Value
 	Directives   []Directive
-}
-
-type InterfaceTypeDefinition struct {
-	Description string
-	Name        string
-	Directives  []Directive
-	Fields      []FieldDefinition
-}
-
-type UnionTypeDefinition struct {
-	Description string
-	Name        string
-	Directives  []Directive
-	Types       []NamedType
-}
-
-type EnumTypeDefinition struct {
-	Description string
-	Name        string
-	Directives  []Directive
-	Values      []EnumValueDefinition
 }
 
 type EnumValueDefinition struct {
@@ -277,82 +244,11 @@ type EnumValueDefinition struct {
 	Directives  []Directive
 }
 
-type InputObjectTypeDefinition struct {
-	Description string
-	Name        string
-	Directives  []Directive
-	Fields      []InputValueDefinition
-}
-
 // Directive Definitions
 
 type DirectiveDefinition struct {
 	Description string
 	Name        string
-	Arguments   []InputValueDefinition
+	Arguments   []FieldDefinition
 	Locations   []DirectiveLocation
-}
-
-type TypeExtension interface {
-	isTypeExtension()
-}
-
-func (SchemaExtension) isTypeExtension()          {}
-func (ScalarTypeExtension) isTypeExtension()      {}
-func (ObjectTypeExtension) isTypeExtension()      {}
-func (InterfaceTypeExtension) isTypeExtension()   {}
-func (UnionTypeExtension) isTypeExtension()       {}
-func (EnumTypeExtension) isTypeExtension()        {}
-func (InputObjectTypeExtension) isTypeExtension() {}
-
-// Type System Extensions
-
-type SchemaExtension struct {
-	Description    string
-	Directives     []Directive
-	OperationTypes []OperationTypeDefinition
-}
-
-// Type Extensions
-
-type ScalarTypeExtension struct {
-	Description string
-	Name        string
-	Directives  []Directive
-}
-
-type ObjectTypeExtension struct {
-	Description string
-	Name        string
-	Interfaces  []NamedType
-	Directives  []Directive
-	Fields      []FieldDefinition
-}
-
-type InterfaceTypeExtension struct {
-	Description string
-	Name        string
-	Directives  []Directive
-	Fields      []FieldDefinition
-}
-
-type UnionTypeExtension struct {
-	Description string
-	Name        string
-	Directives  []Directive
-	Types       []NamedType
-}
-
-type EnumTypeExtension struct {
-	Description string
-	Name        string
-	Directives  []Directive
-	Values      []EnumValueDefinition
-}
-
-type InputObjectTypeExtension struct {
-	Description string
-	Name        string
-	Directives  []Directive
-	Fields      []InputValueDefinition
 }

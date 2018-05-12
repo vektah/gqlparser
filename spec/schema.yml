@@ -7,7 +7,8 @@ object types:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <ObjectTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Name: "Hello"
             Fields: [FieldDefinition]
             - <FieldDefinition>
@@ -23,7 +24,8 @@ object types:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <ObjectTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Description: "Description"
             Name: "Hello"
             Fields: [FieldDefinition]
@@ -43,7 +45,8 @@ object types:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <ObjectTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Description: "Description"
             Name: "Hello"
             Fields: [FieldDefinition]
@@ -58,13 +61,14 @@ object types:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <ObjectTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Name: "Hello"
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Arguments: [InputValueDefinition]
-                - <InputValueDefinition>
+                Arguments: [FieldDefinition]
+                - <FieldDefinition>
                     Name: "flag"
                     Type: NamedType("Boolean")
                 Type: NamedType("String")
@@ -77,16 +81,17 @@ object types:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <ObjectTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Name: "Hello"
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Arguments: [InputValueDefinition]
-                - <InputValueDefinition>
+                Arguments: [FieldDefinition]
+                - <FieldDefinition>
                     Name: "flag"
-                    Type: NamedType("Boolean")
                     DefaultValue: true
+                    Type: NamedType("Boolean")
                 Type: NamedType("String")
 
   - name: with field list arg
@@ -97,13 +102,14 @@ object types:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <ObjectTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Name: "Hello"
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Arguments: [InputValueDefinition]
-                - <InputValueDefinition>
+                Arguments: [FieldDefinition]
+                - <FieldDefinition>
                     Name: "things"
                     Type: <ListType>
                       Type: NamedType("String")
@@ -117,16 +123,17 @@ object types:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <ObjectTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Name: "Hello"
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Arguments: [InputValueDefinition]
-                - <InputValueDefinition>
+                Arguments: [FieldDefinition]
+                - <FieldDefinition>
                     Name: "argOne"
                     Type: NamedType("Boolean")
-                - <InputValueDefinition>
+                - <FieldDefinition>
                     Name: "argTwo"
                     Type: NamedType("Int")
                 Type: NamedType("String")
@@ -139,8 +146,9 @@ type extensions:
       }
     ast: |
       <SchemaDocument>
-        Extensions: [TypeExtension]
-        - <ObjectTypeExtension>
+        Extensions: [Definition]
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Name: "Hello"
             Fields: [FieldDefinition]
             - <FieldDefinition>
@@ -151,8 +159,9 @@ type extensions:
     input: "extend type Hello implements Greeting"
     ast: |
       <SchemaDocument>
-        Extensions: [TypeExtension]
-        - <ObjectTypeExtension>
+        Extensions: [Definition]
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Name: "Hello"
             Interfaces: [NamedType]
             - NamedType("Greeting")
@@ -163,12 +172,14 @@ type extensions:
       extend type Hello implements SecondGreeting
     ast: |
       <SchemaDocument>
-        Extensions: [TypeExtension]
-        - <ObjectTypeExtension>
+        Extensions: [Definition]
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Name: "Hello"
             Interfaces: [NamedType]
             - NamedType("Greeting")
-        - <ObjectTypeExtension>
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Name: "Hello"
             Interfaces: [NamedType]
             - NamedType("SecondGreeting")
@@ -185,16 +196,9 @@ type extensions:
       extend type Hello {
         world: String
       }
-    ast: |
-      <SchemaDocument>
-        Extensions: [TypeExtension]
-        - <ObjectTypeExtension>
-            Description: "Description"
-            Name: "Hello"
-            Fields: [FieldDefinition]
-            - <FieldDefinition>
-                Name: "world"
-                Type: NamedType("String")
+    error:
+      message: 'Unexpected String "Description"'
+      locations: [{ line: 1, column: 2 }]
 
   - name: can not have descriptions on types
     input: |
@@ -205,6 +209,21 @@ type extensions:
       message: Unexpected String "Description"
       locations: [{ line: 1, column: 9 }]
 
+schema definition:
+  - name: simple
+    input: |
+      schema {
+        query: Query
+      }
+    ast: |
+      <SchemaDocument>
+        Schema: [SchemaDefinition]
+        - <SchemaDefinition>
+            OperationTypes: [OperationTypeDefinition]
+            - <OperationTypeDefinition>
+                Operation: Operation("query")
+                Type: NamedType("Query")
+
 schema extensions:
   - name: simple
     input: |
@@ -213,8 +232,8 @@ schema extensions:
        }
     ast: |
       <SchemaDocument>
-        Extensions: [TypeExtension]
-        - <SchemaExtension>
+        SchemaExtension: [SchemaDefinition]
+        - <SchemaDefinition>
             OperationTypes: [OperationTypeDefinition]
             - <OperationTypeDefinition>
                 Operation: Operation("mutation")
@@ -224,8 +243,8 @@ schema extensions:
     input: "extend schema @directive"
     ast: |
       <SchemaDocument>
-        Extensions: [TypeExtension]
-        - <SchemaExtension>
+        SchemaExtension: [SchemaDefinition]
+        - <SchemaDefinition>
             Directives: [Directive]
             - <Directive>
                 Name: "directive"
@@ -236,13 +255,64 @@ schema extensions:
       message: "Unexpected <EOF>"
       locations: [{ line: 1, column: 14}]
 
+type extensions:
+  - name: all can have directives
+    input: |
+      extend scalar Foo @deprecated
+      extend type Foo @deprecated
+      extend interface Foo @deprecated
+      extend union Foo @deprecated
+      extend enum Foo @deprecated
+      extend input Foo @deprecated
+    ast: |
+      <SchemaDocument>
+        Extensions: [Definition]
+        - <Definition>
+            Kind: DefinitionKind("SCALAR")
+            Name: "Foo"
+            Directives: [Directive]
+            - <Directive>
+                Name: "deprecated"
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
+            Name: "Foo"
+            Directives: [Directive]
+            - <Directive>
+                Name: "deprecated"
+        - <Definition>
+            Kind: DefinitionKind("INTERFACE")
+            Name: "Foo"
+            Directives: [Directive]
+            - <Directive>
+                Name: "deprecated"
+        - <Definition>
+            Kind: DefinitionKind("UNION")
+            Name: "Foo"
+            Directives: [Directive]
+            - <Directive>
+                Name: "deprecated"
+        - <Definition>
+            Kind: DefinitionKind("ENUM")
+            Name: "Foo"
+            Directives: [Directive]
+            - <Directive>
+                Name: "deprecated"
+        - <Definition>
+            Kind: DefinitionKind("INPUT_OBJECT")
+            Name: "Foo"
+            Directives: [Directive]
+            - <Directive>
+                Name: "deprecated"
+
+
 inheritance:
   - name: single
     input: "type Hello implements World { field: String }"
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <ObjectTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Name: "Hello"
             Interfaces: [NamedType]
             - NamedType("World")
@@ -256,7 +326,8 @@ inheritance:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <ObjectTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Name: "Hello"
             Interfaces: [NamedType]
             - NamedType("Wo")
@@ -271,7 +342,8 @@ inheritance:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <ObjectTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
             Name: "Hello"
             Interfaces: [NamedType]
             - NamedType("Wo")
@@ -287,7 +359,8 @@ enums:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <EnumTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("ENUM")
             Name: "Hello"
             Values: [EnumValueDefinition]
             - <EnumValueDefinition>
@@ -298,7 +371,8 @@ enums:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <EnumTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("ENUM")
             Name: "Hello"
             Values: [EnumValueDefinition]
             - <EnumValueDefinition>
@@ -315,7 +389,8 @@ interface:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <InterfaceTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("INTERFACE")
             Name: "Hello"
             Fields: [FieldDefinition]
             - <FieldDefinition>
@@ -328,7 +403,8 @@ unions:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <UnionTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("UNION")
             Name: "Hello"
             Types: [NamedType]
             - NamedType("World")
@@ -338,7 +414,8 @@ unions:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <UnionTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("UNION")
             Name: "Hello"
             Types: [NamedType]
             - NamedType("Wo")
@@ -349,7 +426,8 @@ unions:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <UnionTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("UNION")
             Name: "Hello"
             Types: [NamedType]
             - NamedType("Wo")
@@ -379,7 +457,8 @@ scalar:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <ScalarTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("SCALAR")
             Name: "Hello"
 
 input object:
@@ -391,10 +470,11 @@ input object:
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
-        - <InputObjectTypeDefinition>
+        - <Definition>
+            Kind: DefinitionKind("INPUT_OBJECT")
             Name: "Hello"
-            Fields: [InputValueDefinition]
-            - <InputValueDefinition>
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
                 Name: "world"
                 Type: NamedType("String")
 
@@ -412,7 +492,7 @@ directives:
     input: directive @foo on FIELD
     ast: |
       <SchemaDocument>
-        Definitions: [Definition]
+        Directives: [DirectiveDefinition]
         - <DirectiveDefinition>
             Name: "foo"
             Locations: [DirectiveLocation]

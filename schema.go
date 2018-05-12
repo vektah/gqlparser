@@ -30,10 +30,17 @@ func (p *parser) parseSchemaDocument() SchemaDocument {
 		}
 
 		switch p.peek().Value {
-		case "schema", "scalar", "type", "interface", "union", "enum", "input", "directive":
+		case "scalar", "type", "interface", "union", "enum", "input":
 			doc.Definitions = append(doc.Definitions, p.parseTypeSystemDefinition(description))
+		case "schema":
+			doc.Schema = append(doc.Schema, p.parseSchemaDefinition(description))
+		case "directive":
+			doc.Directives = append(doc.Directives, p.parseDirectiveDefinition(description))
 		case "extend":
-			doc.Extensions = append(doc.Extensions, p.parseTypeSystemExtension(description))
+			if description != "" {
+				p.unexpectedToken(p.prev)
+			}
+			p.parseTypeSystemExtension(&doc)
 		default:
 			p.unexpectedError()
 			return doc
@@ -57,12 +64,10 @@ func (p *parser) parseTypeSystemDefinition(description string) Definition {
 	tok := p.peek()
 	if tok.Kind != lexer.Name {
 		p.unexpectedError()
-		return nil
+		return Definition{}
 	}
 
 	switch tok.Value {
-	case "schema":
-		return p.parseSchemaDefinition(description)
 	case "scalar":
 		return p.parseScalarTypeDefinition(description)
 	case "type":
@@ -75,11 +80,9 @@ func (p *parser) parseTypeSystemDefinition(description string) Definition {
 		return p.parseEnumTypeDefinition(description)
 	case "input":
 		return p.parseInputObjectTypeDefinition(description)
-	case "directive":
-		return p.parseDirectiveDefinition(description)
 	default:
 		p.unexpectedError()
-		return nil
+		return Definition{}
 	}
 }
 
@@ -104,19 +107,23 @@ func (p *parser) parseOperationTypeDefinition() OperationTypeDefinition {
 	return op
 }
 
-func (p *parser) parseScalarTypeDefinition(description string) ScalarTypeDefinition {
+func (p *parser) parseScalarTypeDefinition(description string) Definition {
 	p.expectKeyword("scalar")
 
-	def := ScalarTypeDefinition{Description: description}
+	var def Definition
+	def.Kind = Scalar
+	def.Description = description
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	return def
 }
 
-func (p *parser) parseObjectTypeDefinition(description string) ObjectTypeDefinition {
+func (p *parser) parseObjectTypeDefinition(description string) Definition {
 	p.expectKeyword("type")
 
-	def := ObjectTypeDefinition{Description: description}
+	var def Definition
+	def.Kind = Object
+	def.Description = description
 	def.Name = p.parseName()
 	def.Interfaces = p.parseImplementsInterfaces()
 	def.Directives = p.parseDirectives(true)
@@ -160,16 +167,16 @@ func (p *parser) parseFieldDefinition() FieldDefinition {
 	return def
 }
 
-func (p *parser) parseArgumentDefs() []InputValueDefinition {
-	var args []InputValueDefinition
+func (p *parser) parseArgumentDefs() []FieldDefinition {
+	var args []FieldDefinition
 	p.many(lexer.ParenL, lexer.ParenR, func() {
 		args = append(args, p.parseInputValueDef())
 	})
 	return args
 }
 
-func (p *parser) parseInputValueDef() InputValueDefinition {
-	var def InputValueDefinition
+func (p *parser) parseInputValueDef() FieldDefinition {
+	var def FieldDefinition
 	def.Description = p.parseDescription()
 	def.Name = p.parseName()
 	p.expect(lexer.Colon)
@@ -181,20 +188,24 @@ func (p *parser) parseInputValueDef() InputValueDefinition {
 	return def
 }
 
-func (p *parser) parseInterfaceTypeDefinition(description string) InterfaceTypeDefinition {
+func (p *parser) parseInterfaceTypeDefinition(description string) Definition {
 	p.expectKeyword("interface")
 
-	def := InterfaceTypeDefinition{Description: description}
+	var def Definition
+	def.Kind = Interface
+	def.Description = description
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	def.Fields = p.parseFieldsDefinition()
 	return def
 }
 
-func (p *parser) parseUnionTypeDefinition(description string) UnionTypeDefinition {
+func (p *parser) parseUnionTypeDefinition(description string) Definition {
 	p.expectKeyword("union")
 
-	def := UnionTypeDefinition{Description: description}
+	var def Definition
+	def.Kind = Union
+	def.Description = description
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	def.Types = p.parseUnionMemberTypes()
@@ -215,10 +226,12 @@ func (p *parser) parseUnionMemberTypes() []NamedType {
 	return types
 }
 
-func (p *parser) parseEnumTypeDefinition(description string) EnumTypeDefinition {
+func (p *parser) parseEnumTypeDefinition(description string) Definition {
 	p.expectKeyword("enum")
 
-	def := EnumTypeDefinition{Description: description}
+	var def Definition
+	def.Kind = Enum
+	def.Description = description
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	def.Values = p.parseEnumValuesDefinition()
@@ -241,52 +254,53 @@ func (p *parser) parseEnumValueDefinition() EnumValueDefinition {
 	}
 }
 
-func (p *parser) parseInputObjectTypeDefinition(description string) InputObjectTypeDefinition {
+func (p *parser) parseInputObjectTypeDefinition(description string) Definition {
 	p.expectKeyword("input")
 
-	def := InputObjectTypeDefinition{Description: description}
+	var def Definition
+	def.Kind = InputObject
+	def.Description = description
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	def.Fields = p.parseInputFieldsDefinition()
 	return def
 }
 
-func (p *parser) parseInputFieldsDefinition() []InputValueDefinition {
-	var values []InputValueDefinition
+func (p *parser) parseInputFieldsDefinition() []FieldDefinition {
+	var values []FieldDefinition
 	p.many(lexer.BraceL, lexer.BraceR, func() {
 		values = append(values, p.parseInputValueDef())
 	})
 	return values
 }
 
-func (p *parser) parseTypeSystemExtension(description string) TypeExtension {
+func (p *parser) parseTypeSystemExtension(doc *SchemaDocument) {
 	p.expectKeyword("extend")
 
 	switch p.peek().Value {
 	case "schema":
-		return p.parseSchemaExtension(description)
+		doc.SchemaExtension = append(doc.SchemaExtension, p.parseSchemaExtension())
 	case "scalar":
-		return p.parseScalarTypeExtension(description)
+		doc.Extensions = append(doc.Extensions, p.parseScalarTypeExtension())
 	case "type":
-		return p.parseObjectTypeExtension(description)
+		doc.Extensions = append(doc.Extensions, p.parseObjectTypeExtension())
 	case "interface":
-		return p.parseInterfaceTypeExtension(description)
+		doc.Extensions = append(doc.Extensions, p.parseInterfaceTypeExtension())
 	case "union":
-		return p.parseUnionTypeExtension(description)
+		doc.Extensions = append(doc.Extensions, p.parseUnionTypeExtension())
 	case "enum":
-		return p.parseEnumTypeExtension(description)
+		doc.Extensions = append(doc.Extensions, p.parseEnumTypeExtension())
 	case "input":
-		return p.parseInputObjectTypeExtension(description)
+		doc.Extensions = append(doc.Extensions, p.parseInputObjectTypeExtension())
 	default:
 		p.unexpectedError()
-		return nil
 	}
 }
 
-func (p *parser) parseSchemaExtension(description string) SchemaExtension {
+func (p *parser) parseSchemaExtension() SchemaDefinition {
 	p.expectKeyword("schema")
 
-	def := SchemaExtension{Description: description}
+	var def SchemaDefinition
 	def.Directives = p.parseDirectives(true)
 	p.many(lexer.BraceL, lexer.BraceR, func() {
 		def.OperationTypes = append(def.OperationTypes, p.parseOperationTypeDefinition())
@@ -297,10 +311,12 @@ func (p *parser) parseSchemaExtension(description string) SchemaExtension {
 	return def
 }
 
-func (p *parser) parseScalarTypeExtension(description string) ScalarTypeExtension {
+func (p *parser) parseScalarTypeExtension() Definition {
 	p.expectKeyword("scalar")
 
-	def := ScalarTypeExtension{Description: description}
+	var def Definition
+	def.Kind = Scalar
+	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	if len(def.Directives) == 0 {
 		p.unexpectedError()
@@ -308,10 +324,11 @@ func (p *parser) parseScalarTypeExtension(description string) ScalarTypeExtensio
 	return def
 }
 
-func (p *parser) parseObjectTypeExtension(description string) ObjectTypeExtension {
+func (p *parser) parseObjectTypeExtension() Definition {
 	p.expectKeyword("type")
 
-	def := ObjectTypeExtension{Description: description}
+	var def Definition
+	def.Kind = Object
 	def.Name = p.parseName()
 	def.Interfaces = p.parseImplementsInterfaces()
 	def.Directives = p.parseDirectives(true)
@@ -322,10 +339,11 @@ func (p *parser) parseObjectTypeExtension(description string) ObjectTypeExtensio
 	return def
 }
 
-func (p *parser) parseInterfaceTypeExtension(description string) InterfaceTypeExtension {
+func (p *parser) parseInterfaceTypeExtension() Definition {
 	p.expectKeyword("interface")
 
-	def := InterfaceTypeExtension{Description: description}
+	var def Definition
+	def.Kind = Interface
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	def.Fields = p.parseFieldsDefinition()
@@ -335,10 +353,11 @@ func (p *parser) parseInterfaceTypeExtension(description string) InterfaceTypeEx
 	return def
 }
 
-func (p *parser) parseUnionTypeExtension(description string) UnionTypeExtension {
+func (p *parser) parseUnionTypeExtension() Definition {
 	p.expectKeyword("union")
 
-	def := UnionTypeExtension{Description: description}
+	var def Definition
+	def.Kind = Union
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	def.Types = p.parseUnionMemberTypes()
@@ -349,10 +368,11 @@ func (p *parser) parseUnionTypeExtension(description string) UnionTypeExtension 
 	return def
 }
 
-func (p *parser) parseEnumTypeExtension(description string) EnumTypeExtension {
+func (p *parser) parseEnumTypeExtension() Definition {
 	p.expectKeyword("enum")
 
-	def := EnumTypeExtension{Description: description}
+	var def Definition
+	def.Kind = Enum
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	def.Values = p.parseEnumValuesDefinition()
@@ -362,10 +382,11 @@ func (p *parser) parseEnumTypeExtension(description string) EnumTypeExtension {
 	return def
 }
 
-func (p *parser) parseInputObjectTypeExtension(description string) InputObjectTypeExtension {
+func (p *parser) parseInputObjectTypeExtension() Definition {
 	p.expectKeyword("input")
 
-	def := InputObjectTypeExtension{Description: description}
+	var def Definition
+	def.Kind = InputObject
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(false)
 	def.Fields = p.parseInputFieldsDefinition()
@@ -379,7 +400,8 @@ func (p *parser) parseDirectiveDefinition(description string) DirectiveDefinitio
 	p.expectKeyword("directive")
 	p.expect(lexer.At)
 
-	def := DirectiveDefinition{Description: description}
+	var def DirectiveDefinition
+	def.Description = description
 	def.Name = p.parseName()
 	def.Arguments = p.parseArgumentDefs()
 
