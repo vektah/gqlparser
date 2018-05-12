@@ -12,6 +12,7 @@ func TestLoadSchema(t *testing.T) {
 		file, err := ioutil.ReadFile("testdata/swapi.graphql")
 		require.NoError(t, err)
 		s, err := LoadSchema(string(file))
+		require.NoError(t, err)
 
 		require.Equal(t, "Query", s.Query.Name)
 		require.Equal(t, "hero", s.Query.Fields[0].Name)
@@ -26,6 +27,7 @@ func TestLoadSchema(t *testing.T) {
 		file, err := ioutil.ReadFile("testdata/extensions.graphql")
 		require.NoError(t, err)
 		s, err := LoadSchema(string(file))
+		require.NoError(t, err)
 
 		require.Equal(t, "Subscription", s.Subscription.Name)
 		require.Equal(t, "dogEvents", s.Subscription.Fields[0].Name)
