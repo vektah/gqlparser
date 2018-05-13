@@ -1,0 +1,116 @@
+- name: 'Validate: Known directives/with no directives'
+  rule: KnownDirectives
+  schema: 0
+  query: |2-
+          
+          query Foo {
+            name
+            ...Frag
+          }
+          
+          fragment Frag on Dog {
+            name
+          }
+          
+  errors: []
+- name: 'Validate: Known directives/with known directives'
+  rule: KnownDirectives
+  schema: 0
+  query: |2-
+          
+          {
+            dog @include(if: true) {
+              name
+            }
+            human @skip(if: false) {
+              name
+            }
+          }
+          
+  errors: []
+- name: 'Validate: Known directives/with unknown directive'
+  rule: KnownDirectives
+  schema: 0
+  query: |2-
+          
+          {
+            dog @unknown(directive: "value") {
+              name
+            }
+          }
+          
+  errors:
+    - message: Unknown directive "unknown".
+      locations:
+        - {line: 3, column: 13}
+- name: 'Validate: Known directives/with many unknown directives'
+  rule: KnownDirectives
+  schema: 0
+  query: |2-
+          
+          {
+            dog @unknown(directive: "value") {
+              name
+            }
+            human @unknown(directive: "value") {
+              name
+              pets @unknown(directive: "value") {
+                name
+              }
+            }
+          }
+          
+  errors:
+    - message: Unknown directive "unknown".
+      locations:
+        - {line: 3, column: 13}
+    - message: Unknown directive "unknown".
+      locations:
+        - {line: 6, column: 15}
+    - message: Unknown directive "unknown".
+      locations:
+        - {line: 8, column: 16}
+- name: 'Validate: Known directives/with well placed directives'
+  rule: KnownDirectives
+  schema: 0
+  query: |2-
+          
+          query Foo @onQuery {
+            name @include(if: true)
+            ...Frag @include(if: true)
+            skippedField @skip(if: true)
+            ...SkippedFrag @skip(if: true)
+          }
+          
+          mutation Bar @onMutation {
+            someField
+          }
+          
+  errors: []
+- name: 'Validate: Known directives/with misplaced directives'
+  rule: KnownDirectives
+  schema: 0
+  query: |2-
+          
+          query Foo @include(if: true) {
+            name @onQuery
+            ...Frag @onQuery
+          }
+          
+          mutation Bar @onQuery {
+            someField
+          }
+          
+  errors:
+    - message: Directive "include" may not be used on QUERY.
+      locations:
+        - {line: 2, column: 17}
+    - message: Directive "onQuery" may not be used on FIELD.
+      locations:
+        - {line: 3, column: 14}
+    - message: Directive "onQuery" may not be used on FRAGMENT_SPREAD.
+      locations:
+        - {line: 4, column: 17}
+    - message: Directive "onQuery" may not be used on MUTATION.
+      locations:
+        - {line: 7, column: 20}

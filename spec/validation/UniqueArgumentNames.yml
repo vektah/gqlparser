@@ -1,0 +1,155 @@
+- name: 'Validate: Unique argument names/no arguments on field'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            field
+          }
+          
+  errors: []
+- name: 'Validate: Unique argument names/no arguments on directive'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            field @directive
+          }
+          
+  errors: []
+- name: 'Validate: Unique argument names/argument on field'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            field(arg: "value")
+          }
+          
+  errors: []
+- name: 'Validate: Unique argument names/argument on directive'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            field @directive(arg: "value")
+          }
+          
+  errors: []
+- name: 'Validate: Unique argument names/same argument on two fields'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            one: field(arg: "value")
+            two: field(arg: "value")
+          }
+          
+  errors: []
+- name: 'Validate: Unique argument names/same argument on field and directive'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            field(arg: "value") @directive(arg: "value")
+          }
+          
+  errors: []
+- name: 'Validate: Unique argument names/same argument on two directives'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            field @directive1(arg: "value") @directive2(arg: "value")
+          }
+          
+  errors: []
+- name: 'Validate: Unique argument names/multiple field arguments'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            field(arg1: "value", arg2: "value", arg3: "value")
+          }
+          
+  errors: []
+- name: 'Validate: Unique argument names/multiple directive arguments'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            field @directive(arg1: "value", arg2: "value", arg3: "value")
+          }
+          
+  errors: []
+- name: 'Validate: Unique argument names/duplicate field arguments'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            field(arg1: "value", arg1: "value")
+          }
+          
+  errors:
+    - message: There can be only one argument named "arg1".
+      locations:
+        - {line: 3, column: 15}
+        - {line: 3, column: 30}
+- name: 'Validate: Unique argument names/many duplicate field arguments'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            field(arg1: "value", arg1: "value", arg1: "value")
+          }
+          
+  errors:
+    - message: There can be only one argument named "arg1".
+      locations:
+        - {line: 3, column: 15}
+        - {line: 3, column: 30}
+    - message: There can be only one argument named "arg1".
+      locations:
+        - {line: 3, column: 15}
+        - {line: 3, column: 45}
+- name: 'Validate: Unique argument names/duplicate directive arguments'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            field @directive(arg1: "value", arg1: "value")
+          }
+          
+  errors:
+    - message: There can be only one argument named "arg1".
+      locations:
+        - {line: 3, column: 26}
+        - {line: 3, column: 41}
+- name: 'Validate: Unique argument names/many duplicate directive arguments'
+  rule: UniqueArgumentNames
+  schema: 0
+  query: |2-
+          
+          {
+            field @directive(arg1: "value", arg1: "value", arg1: "value")
+          }
+          
+  errors:
+    - message: There can be only one argument named "arg1".
+      locations:
+        - {line: 3, column: 26}
+        - {line: 3, column: 41}
+    - message: There can be only one argument named "arg1".
+      locations:
+        - {line: 3, column: 26}
+        - {line: 3, column: 56}

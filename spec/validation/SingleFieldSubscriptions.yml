@@ -1,0 +1,68 @@
+- name: 'Validate: Subscriptions with single field/valid subscription'
+  rule: SingleFieldSubscriptions
+  schema: 0
+  query: |2-
+          
+          subscription ImportantEmails {
+            importantEmails
+          }
+          
+  errors: []
+- name: 'Validate: Subscriptions with single field/fails with more than one root field'
+  rule: SingleFieldSubscriptions
+  schema: 0
+  query: |2-
+          
+          subscription ImportantEmails {
+            importantEmails
+            notImportantEmails
+          }
+          
+  errors:
+    - message: Subscription "ImportantEmails" must select only one top level field.
+      locations:
+        - {line: 4, column: 9}
+- name: 'Validate: Subscriptions with single field/fails with more than one root field including introspection'
+  rule: SingleFieldSubscriptions
+  schema: 0
+  query: |2-
+          
+          subscription ImportantEmails {
+            importantEmails
+            __typename
+          }
+          
+  errors:
+    - message: Subscription "ImportantEmails" must select only one top level field.
+      locations:
+        - {line: 4, column: 9}
+- name: 'Validate: Subscriptions with single field/fails with many more than one root field'
+  rule: SingleFieldSubscriptions
+  schema: 0
+  query: |2-
+          
+          subscription ImportantEmails {
+            importantEmails
+            notImportantEmails
+            spamEmails
+          }
+          
+  errors:
+    - message: Subscription "ImportantEmails" must select only one top level field.
+      locations:
+        - {line: 4, column: 9}
+        - {line: 5, column: 9}
+- name: 'Validate: Subscriptions with single field/fails with more than one root field in anonymous subscriptions'
+  rule: SingleFieldSubscriptions
+  schema: 0
+  query: |2-
+          
+          subscription {
+            importantEmails
+            notImportantEmails
+          }
+          
+  errors:
+    - message: Anonymous Subscription must select only one top level field.
+      locations:
+        - {line: 4, column: 9}

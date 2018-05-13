@@ -1,1 +1,3 @@
 /vendor
+/spec/exporter/node_modules
+/spec/exporter/graphql-js

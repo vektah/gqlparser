@@ -1,0 +1,80 @@
+- name: 'Validate: Unique input field names/input object with fields'
+  rule: UniqueInputFieldNames
+  schema: 0
+  query: |2-
+          
+          {
+            field(arg: { f: true })
+          }
+          
+  errors: []
+- name: 'Validate: Unique input field names/same input object within two args'
+  rule: UniqueInputFieldNames
+  schema: 0
+  query: |2-
+          
+          {
+            field(arg1: { f: true }, arg2: { f: true })
+          }
+          
+  errors: []
+- name: 'Validate: Unique input field names/multiple input object fields'
+  rule: UniqueInputFieldNames
+  schema: 0
+  query: |2-
+          
+          {
+            field(arg: { f1: "value", f2: "value", f3: "value" })
+          }
+          
+  errors: []
+- name: 'Validate: Unique input field names/allows for nested input objects with similar fields'
+  rule: UniqueInputFieldNames
+  schema: 0
+  query: |2-
+          
+          {
+            field(arg: {
+              deep: {
+                deep: {
+                  id: 1
+                }
+                id: 1
+              }
+              id: 1
+            })
+          }
+          
+  errors: []
+- name: 'Validate: Unique input field names/duplicate input object fields'
+  rule: UniqueInputFieldNames
+  schema: 0
+  query: |2-
+          
+          {
+            field(arg: { f1: "value", f1: "value" })
+          }
+          
+  errors:
+    - message: There can be only one input field named "f1".
+      locations:
+        - {line: 3, column: 22}
+        - {line: 3, column: 35}
+- name: 'Validate: Unique input field names/many duplicate input object fields'
+  rule: UniqueInputFieldNames
+  schema: 0
+  query: |2-
+          
+          {
+            field(arg: { f1: "value", f1: "value", f1: "value" })
+          }
+          
+  errors:
+    - message: There can be only one input field named "f1".
+      locations:
+        - {line: 3, column: 22}
+        - {line: 3, column: 35}
+    - message: There can be only one input field named "f1".
+      locations:
+        - {line: 3, column: 22}
+        - {line: 3, column: 48}
