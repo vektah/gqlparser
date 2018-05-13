@@ -46,14 +46,10 @@ function normalizeWs(rawString) {
     }
 
     for (let i = 0; i < lines.length; i++) {
-        console.log(lines[i].length, commonIndent);
         if (lines[i].length < commonIndent) {
             lines[i] = ' '.repeat(commonIndent);
         }
     }
-
-    // Return a string of the lines joined with U+000A.
-    console.log(commonIndent, lines);
     return lines.join('\n');
 }
 

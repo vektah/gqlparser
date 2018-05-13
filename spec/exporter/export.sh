@@ -2,8 +2,9 @@
 
 REPO_DIR=./graphql-js
 PATH=$PATH:./node_modules/.bin
+EXPORTER_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cd "$( dirname "${BASH_SOURCE[0]}" )"
+cd $EXPORTER_ROOT
 
 if [[ -d "$REPO_DIR" ]] ; then
     echo "fetching latest graphql-js"
@@ -18,9 +19,10 @@ else
     git checkout origin/master
 fi
 
+cd $EXPORTER_ROOT
+
 echo "installing js dependencies"
 npm install
 
 echo "exporting tests"
-cp export.js graphql-js
-babel-node graphql-js/export.js
+babel-node ./export.js
