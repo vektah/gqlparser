@@ -7,6 +7,12 @@ type Syntax struct {
 	Locations []Location `json:"locations,omitempty"`
 }
 
+type Validation struct {
+	Message   string     `json:"message"`
+	Locations []Location `json:"locations,omitempty"`
+	Rule      string     `json:"-"`
+}
+
 type Location struct {
 	Line   int `json:"line"`
 	Column int `json:"column"`

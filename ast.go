@@ -233,6 +233,15 @@ type Definition struct {
 	Values      []EnumValueDefinition // enum
 }
 
+func (d *Definition) Field(name string) *FieldDefinition {
+	for _, f := range d.Fields {
+		if f.Name == name {
+			return &f
+		}
+	}
+	return nil
+}
+
 type FieldDefinition struct {
 	Description  string
 	Name         string
