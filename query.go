@@ -193,6 +193,7 @@ func (p *parser) parseFragmentDefinition() FragmentDefinition {
 
 	def.TypeCondition = p.parseNamedType()
 	def.Directives = p.parseDirectives(false)
+	def.SelectionSet = p.parseSelectionSet()
 	return def
 }
 

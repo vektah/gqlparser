@@ -168,15 +168,6 @@ ast:
     input: 'fragment a($v: Boolean = false) on t { f(v: $v) }'
     ast: |
       <QueryDocument>
-        Operations: [OperationDefinition]
-        - <OperationDefinition>
-            SelectionSet: [Selection]
-            - <Field>
-                Name: "f"
-                Arguments: [Argument]
-                - <Argument>
-                    Name: "v"
-                    Value: Variable("v")
         Fragments: [FragmentDefinition]
         - <FragmentDefinition>
             Name: "a"
@@ -186,6 +177,14 @@ ast:
                 Type: NamedType("Boolean")
                 DefaultValue: false
             TypeCondition: NamedType("t")
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "f"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "v"
+                    Value: Variable("v")
+
 
 values:
   - name: null
@@ -449,26 +448,6 @@ large queries:
         - <OperationDefinition>
             SelectionSet: [Selection]
             - <Field>
-                Name: "foo"
-                Arguments: [Argument]
-                - <Argument>
-                    Name: "size"
-                    Value: Variable("size")
-                - <Argument>
-                    Name: "bar"
-                    Value: Variable("b")
-                - <Argument>
-                    Name: "obj"
-                    Value: [ObjectField]
-                    - <ObjectField>
-                        Name: "key"
-                        Value: StringValue("value")
-                    - <ObjectField>
-                        Name: "block"
-                        Value: BlockValue("block string uses \"\"\"")
-        - <OperationDefinition>
-            SelectionSet: [Selection]
-            - <Field>
                 Name: "unnamed"
                 Arguments: [Argument]
                 - <Argument>
@@ -486,3 +465,22 @@ large queries:
         - <FragmentDefinition>
             Name: "frag"
             TypeCondition: NamedType("Friend")
+            SelectionSet: [Selection]
+            - <Field>
+                Name: "foo"
+                Arguments: [Argument]
+                - <Argument>
+                    Name: "size"
+                    Value: Variable("size")
+                - <Argument>
+                    Name: "bar"
+                    Value: Variable("b")
+                - <Argument>
+                    Name: "obj"
+                    Value: [ObjectField]
+                    - <ObjectField>
+                        Name: "key"
+                        Value: StringValue("value")
+                    - <ObjectField>
+                        Name: "block"
+                        Value: BlockValue("block string uses \"\"\"")
