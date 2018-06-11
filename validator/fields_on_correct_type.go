@@ -24,9 +24,9 @@ func fieldsOnCorrectType(ctx *vctx, parentDef *gqlparser.Definition, fieldDef *g
 	message := fmt.Sprintf(`Cannot query field "%s" on type "%s".`, field.Name, parentDef.Name)
 
 	if suggestedTypeNames := getSuggestedTypeNames(ctx, parentDef, field.Name); suggestedTypeNames != nil {
-		message += " Did you mean to use an inline fragment on " + quotedOrList(suggestedTypeNames...)
+		message += " Did you mean to use an inline fragment on " + quotedOrList(suggestedTypeNames...) + "?"
 	} else if suggestedFieldNames := getSuggestedFieldNames(ctx, parentDef, field.Name); suggestedFieldNames != nil {
-		message += " Did you mean " + quotedOrList(suggestedFieldNames...)
+		message += " Did you mean " + quotedOrList(suggestedFieldNames...) + "?"
 	}
 	ctx.errors = append(ctx.errors, errors.Validation{
 		Message: message,
