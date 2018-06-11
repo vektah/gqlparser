@@ -11,6 +11,12 @@ type Schema struct {
 
 	Types      map[string]*Definition
 	Directives map[string]*DirectiveDefinition
+
+	possibleTypes map[string][]*Definition
+}
+
+func (s *Schema) addPossibleType(name string, def *Definition) {
+	s.possibleTypes[name] = append(s.possibleTypes[name], def)
 }
 
 func LoadSchema(input string) (*Schema, error) {
@@ -20,8 +26,9 @@ func LoadSchema(input string) (*Schema, error) {
 	}
 
 	schema := Schema{
-		Types:      map[string]*Definition{},
-		Directives: map[string]*DirectiveDefinition{},
+		Types:         map[string]*Definition{},
+		Directives:    map[string]*DirectiveDefinition{},
+		possibleTypes: map[string][]*Definition{},
 	}
 
 	for i, def := range ast.Definitions {
@@ -29,6 +36,13 @@ func LoadSchema(input string) (*Schema, error) {
 			return nil, fmt.Errorf("Cannot redeclare type %s.", def.Name)
 		}
 		schema.Types[def.Name] = &ast.Definitions[i]
+
+		if def.Kind != Interface {
+			for _, intf := range def.Interfaces {
+				schema.addPossibleType(intf.Name(), &ast.Definitions[i])
+			}
+			schema.addPossibleType(def.Name, &ast.Definitions[i])
+		}
 	}
 
 	for _, ext := range ast.Extensions {
@@ -94,4 +108,17 @@ func LoadSchema(input string) (*Schema, error) {
 	}
 
 	return &schema, nil
+}
+
+// GetPossibleTypes will enumerate all the definitions for a given interface or union
+func (s *Schema) GetPossibleTypes(def *Definition) []*Definition {
+	if def.Kind == Union {
+		var defs []*Definition
+		for _, t := range def.Types {
+			defs = append(defs, s.Types[t.Name()])
+		}
+		return defs
+	}
+
+	return s.possibleTypes[def.Name]
 }

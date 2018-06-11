@@ -21,6 +21,11 @@ func TestLoadSchema(t *testing.T) {
 
 		require.Equal(t, "Subscription", s.Subscription.Name)
 		require.Equal(t, "reviewAdded", s.Subscription.Fields[0].Name)
+
+		possibleCharacters := s.GetPossibleTypes(s.Types["Character"])
+		require.Len(t, possibleCharacters, 2)
+		require.Equal(t, "Human", possibleCharacters[0].Name)
+		require.Equal(t, "Droid", possibleCharacters[1].Name)
 	})
 
 	t.Run("type extensions", func(t *testing.T) {

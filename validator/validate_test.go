@@ -16,7 +16,7 @@ func TestValidate(t *testing.T) {
 	`)
 	require.Nil(t, err)
 
-	req, err := gqlparser.ParseQuery(`fragment subFieldNotDefined on User { undefined }`)
+	req, err := gqlparser.ParseQuery(`fragment subFieldNotDefined on User { Name }`)
 	require.Nil(t, err)
 
 	errs := Validate(s, &req)

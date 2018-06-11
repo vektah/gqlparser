@@ -242,6 +242,10 @@ func (d *Definition) Field(name string) *FieldDefinition {
 	return nil
 }
 
+func (d *Definition) IsAbstractType() bool {
+	return d.Kind == Interface || d.Kind == Union
+}
+
 type FieldDefinition struct {
 	Description  string
 	Name         string
