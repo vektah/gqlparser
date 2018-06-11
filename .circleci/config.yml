@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout
       - run: >
-          go get -u github.com/alecthomas/gometalinter github.com/andreyvit/diff github.com/stretchr/testify gopkg.in/yaml.v2 github.com/mattn/goveralls &&
+          go get -u github.com/alecthomas/gometalinter github.com/andreyvit/diff github.com/stretchr/testify gopkg.in/yaml.v2 github.com/mattn/goveralls github.com/agnivade/levenshtein &&
           gometalinter --install
       - run: go vet ./...
       - run: go test -race ./...
