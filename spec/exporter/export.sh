@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REPO_DIR=./graphql-js
-PATH=$PATH:./node_modules/.bin
+PATH=./node_modules/.bin:$PATH
 EXPORTER_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd $EXPORTER_ROOT
