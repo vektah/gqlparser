@@ -83,6 +83,5 @@ func readYaml(filename string, result interface{}) {
 	err = yaml.Unmarshal(b, result)
 	if err != nil {
 		panic(fmt.Errorf("unable to load %s: %s", filename, err.Error()))
-		return
 	}
 }
