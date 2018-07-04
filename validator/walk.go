@@ -62,10 +62,21 @@ func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selec
 		} else {
 			def = parentDef.Field(it.Name)
 		}
+
+		beforeErr := len(c.errors)
 		for _, v := range fieldVisitors {
 			v(c, parentDef, def, &it)
 		}
+		errFound := beforeErr != len(c.errors)
+
 		for _, sel := range it.SelectionSet {
+			switch sel.(type) {
+			case gqlparser.Field:
+				if errFound {
+					// don't walk deeper selection when error was found.
+					continue
+				}
+			}
 			c.walkSelection(parentDef, sel)
 		}
 
