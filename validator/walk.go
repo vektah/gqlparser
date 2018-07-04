@@ -63,21 +63,40 @@ func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selec
 			def = parentDef.Field(it.Name)
 		}
 
-		beforeErr := len(c.errors)
 		for _, v := range fieldVisitors {
 			v(c, parentDef, def, &it)
 		}
-		errFound := beforeErr != len(c.errors)
+
+		var nextParentDef *gqlparser.Definition
+		if def != nil {
+			var typeName string
+			defType := def.Type
+			for typeName == "" {
+				switch it := defType.(type) {
+				case gqlparser.NamedType:
+					typeName = it.Name()
+				case gqlparser.ListType:
+					defType = it.Type
+				case gqlparser.NonNullType:
+					defType = it.Type
+				}
+			}
+
+			nextParentDef = c.schema.Types[typeName]
+		}
 
 		for _, sel := range it.SelectionSet {
 			switch sel.(type) {
 			case gqlparser.Field:
-				if errFound {
-					// don't walk deeper selection when error was found.
+				if nextParentDef == nil {
+					// don't walk deeper selection when field name mismatch found.
 					continue
 				}
+				c.walkSelection(nextParentDef, sel)
+
+			default:
+				c.walkSelection(parentDef, sel)
 			}
-			c.walkSelection(parentDef, sel)
 		}
 
 	case gqlparser.InlineFragment:
