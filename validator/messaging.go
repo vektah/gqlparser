@@ -15,10 +15,20 @@ func quotedOrList(items ...string) string {
 func orList(items ...string) string {
 	var buf bytes.Buffer
 
+	if len(items) > 5 {
+		items = items[:5]
+	}
+	if len(items) == 2 {
+		buf.WriteString(items[0])
+		buf.WriteString(" or ")
+		buf.WriteString(items[1])
+		return buf.String()
+	}
+
 	for i, item := range items {
 		if i != 0 {
 			if i == len(items)-1 {
-				buf.WriteString(" or ")
+				buf.WriteString(", or ")
 			} else {
 				buf.WriteString(", ")
 			}
