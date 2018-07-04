@@ -8,6 +8,8 @@ import (
 )
 
 var fieldVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
+var fragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
+var inlineFragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
 
 type vctx struct {
 	schema   *gqlparser.Schema
@@ -45,6 +47,15 @@ func (c *vctx) walkFragment(it *gqlparser.FragmentDefinition) {
 	if parentDef == nil {
 		return
 	}
+
+	beforeErr := len(c.errors)
+	for _, v := range fragmentVisitors {
+		v(c, parentDef, it)
+	}
+	if beforeErr != len(c.errors) {
+		return
+	}
+
 	for _, child := range it.SelectionSet {
 		c.walkSelection(parentDef, child)
 	}
@@ -70,13 +81,26 @@ func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selec
 		}
 
 	case gqlparser.InlineFragment:
-		if it.TypeCondition.Name() != "" {
-			parentDef = c.schema.Types[it.TypeCondition.Name()]
+
+		beforeErr := len(c.errors)
+		for _, v := range inlineFragmentVisitors {
+			v(c, parentDef, &it)
+		}
+		if beforeErr != len(c.errors) {
+			return
 		}
 
-		for _, sel := range it.SelectionSet {
-			c.walkSelection(parentDef, sel)
+		var nextParentDef *gqlparser.Definition
+		if it.TypeCondition.Name() != "" {
+			nextParentDef = c.schema.Types[it.TypeCondition.Name()]
 		}
+
+		if nextParentDef != nil {
+			for _, sel := range it.SelectionSet {
+				c.walkSelection(nextParentDef, sel)
+			}
+		}
+
 	default:
 		panic(fmt.Errorf("unsupported %T", it))
 
