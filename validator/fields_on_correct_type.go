@@ -55,7 +55,8 @@ func getSuggestedTypeNames(ctx *vctx, parent *gqlparser.Definition, name string)
 		suggestedObjectTypes = append(suggestedObjectTypes, possibleType.Name)
 
 		for _, possibleInterface := range possibleType.Interfaces {
-			if interfaceField := ctx.schema.Types[possibleInterface.Name()]; interfaceField != nil {
+			interfaceField := ctx.schema.Types[possibleInterface.Name()]
+			if interfaceField != nil && interfaceField.Field(name) != nil {
 				interfaceUsageCount[possibleInterface.Name()]++
 			}
 		}
