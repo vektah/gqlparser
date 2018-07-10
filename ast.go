@@ -224,7 +224,7 @@ type Definition struct {
 	Name        string
 	Directives  []Directive
 	Interfaces  []NamedType           // object and input object
-	Fields      []FieldDefinition     // object and input object
+	Fields      FieldList             // object and input object
 	Types       []NamedType           // union
 	Values      []EnumValueDefinition // enum
 }
@@ -249,10 +249,21 @@ func (d *Definition) IsCompositeType() bool {
 type FieldDefinition struct {
 	Description  string
 	Name         string
-	Arguments    []FieldDefinition // only for objects
-	DefaultValue Value             // only for input objects
+	Arguments    FieldList // only for objects
+	DefaultValue Value     // only for input objects
 	Type         Type
 	Directives   []Directive
+}
+
+type FieldList []FieldDefinition
+
+func (f FieldList) ForName(name string) *FieldDefinition {
+	for _, field := range f {
+		if field.Name == name {
+			return &field
+		}
+	}
+	return nil
 }
 
 type EnumValueDefinition struct {
@@ -266,6 +277,6 @@ type EnumValueDefinition struct {
 type DirectiveDefinition struct {
 	Description string
 	Name        string
-	Arguments   []FieldDefinition
+	Arguments   FieldList
 	Locations   []DirectiveLocation
 }

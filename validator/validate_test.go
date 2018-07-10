@@ -38,6 +38,7 @@ func TestSpec(t *testing.T) {
 
 	t.Run("FieldsOnCorrectType", runSpec(schemas, deviations, "../spec/validation/FieldsOnCorrectType.yml"))
 	t.Run("FragmentsOnCompositeTypes", runSpec(schemas, deviations, "../spec/validation/FragmentsOnCompositeTypes.yml"))
+	t.Run("KnownArgumentNames", runSpec(schemas, deviations, "../spec/validation/KnownArgumentNames.yml"))
 }
 
 func runSpec(schemas []*gqlparser.Schema, deviations map[string]*Spec, filename string) func(t *testing.T) {
@@ -59,12 +60,21 @@ func runSpec(schemas []*gqlparser.Schema, deviations map[string]*Spec, filename 
 				require.Nil(t, err)
 				errs := Validate(schemas[spec.Schema], &query)
 
-				for i := range spec.Errors {
-					// todo fixme. These arent currently supported.
-					spec.Errors[i].Rule = spec.Rule
-					spec.Errors[i].Locations = nil
+				var finalErrors []errors.Validation
+				for _, err := range errs {
+					// ignore errors from other rules
+					if err.Rule != spec.Rule {
+						continue
+					}
+					finalErrors = append(finalErrors, err)
 				}
-				assert.Equal(t, spec.Errors, errs)
+
+				// todo: location is currently not supported by the parser/
+				for i := range spec.Errors {
+					spec.Errors[i].Locations = nil
+					spec.Errors[i].Rule = spec.Rule
+				}
+				assert.Equal(t, spec.Errors, finalErrors)
 
 				if t.Failed() {
 					t.Log("\nquery:", spec.Query)

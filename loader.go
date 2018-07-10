@@ -57,6 +57,31 @@ func LoadSchema(input string) (*Schema, error) {
 		Name:        "ID",
 	}
 
+	schema.Directives["skip"] = &DirectiveDefinition{
+		Name:        "skip",
+		Description: "Directs the executor to skip this field or fragment when the `if` argument is true.",
+		Arguments: FieldList{
+			FieldDefinition{
+				Name:        "if",
+				Description: "Skipped when true.",
+				Type:        NamedType("Boolean"),
+			},
+		},
+		Locations: []DirectiveLocation{LocationField, LocationFragmentSpread, LocationInlineFragment},
+	}
+	schema.Directives["include"] = &DirectiveDefinition{
+		Name:        "include",
+		Description: "Directs the executor to include this field or fragment only when the `if` argument is true.",
+		Arguments: FieldList{
+			FieldDefinition{
+				Name:        "if",
+				Description: "Included when true.",
+				Type:        NamedType("Boolean"),
+			},
+		},
+		Locations: []DirectiveLocation{LocationField, LocationFragmentSpread, LocationInlineFragment},
+	}
+
 	for i, def := range ast.Definitions {
 		if schema.Types[def.Name] != nil {
 			return nil, fmt.Errorf("Cannot redeclare type %s.", def.Name)

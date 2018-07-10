@@ -10,6 +10,13 @@ import (
 var fieldVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
 var fragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
 var inlineFragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
+var directiveVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive)
+
+func init() {
+	//fieldVisitors = append(fieldVisitors, func(vctx *vctx, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field) {
+	//	fmt.Println("ENTER FIELD "+field.Name, parentDef, fieldDef)
+	//})
+}
 
 type vctx struct {
 	schema   *gqlparser.Schema
@@ -29,7 +36,7 @@ func (c *vctx) walk() {
 func (c *vctx) walkOperation(operation *gqlparser.OperationDefinition) {
 	var def *gqlparser.Definition
 	switch operation.Operation {
-	case gqlparser.Query:
+	case gqlparser.Query, "":
 		def = c.schema.Query
 	case gqlparser.Mutation:
 		def = c.schema.Mutation
@@ -61,6 +68,13 @@ func (c *vctx) walkFragment(it *gqlparser.FragmentDefinition) {
 	}
 }
 
+func (c *vctx) walkDirective(parentDef *gqlparser.Definition, directive *gqlparser.Directive) {
+	def := c.schema.Directives[directive.Name]
+	for _, v := range directiveVisitors {
+		v(c, parentDef, def, directive)
+	}
+}
+
 func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selection) {
 	switch it := it.(type) {
 	case gqlparser.Field:
@@ -84,16 +98,14 @@ func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selec
 		}
 
 		for _, sel := range it.SelectionSet {
-			switch sel.(type) {
-			case gqlparser.Field:
-				c.walkSelection(nextParentDef, sel)
-			default:
-				c.walkSelection(nextParentDef, sel)
-			}
+			c.walkSelection(nextParentDef, sel)
+		}
+
+		for _, dir := range it.Directives {
+			c.walkDirective(nextParentDef, &dir)
 		}
 
 	case gqlparser.InlineFragment:
-
 		beforeErr := len(c.errors)
 		for _, v := range inlineFragmentVisitors {
 			v(c, parentDef, &it)

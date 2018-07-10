@@ -146,8 +146,8 @@ func (p *parser) parseImplementsInterfaces() []NamedType {
 	return types
 }
 
-func (p *parser) parseFieldsDefinition() []FieldDefinition {
-	var defs []FieldDefinition
+func (p *parser) parseFieldsDefinition() FieldList {
+	var defs FieldList
 	p.many(lexer.BraceL, lexer.BraceR, func() {
 		defs = append(defs, p.parseFieldDefinition())
 	})
@@ -167,8 +167,8 @@ func (p *parser) parseFieldDefinition() FieldDefinition {
 	return def
 }
 
-func (p *parser) parseArgumentDefs() []FieldDefinition {
-	var args []FieldDefinition
+func (p *parser) parseArgumentDefs() FieldList {
+	var args FieldList
 	p.many(lexer.ParenL, lexer.ParenR, func() {
 		args = append(args, p.parseInputValueDef())
 	})
@@ -266,8 +266,8 @@ func (p *parser) parseInputObjectTypeDefinition(description string) Definition {
 	return def
 }
 
-func (p *parser) parseInputFieldsDefinition() []FieldDefinition {
-	var values []FieldDefinition
+func (p *parser) parseInputFieldsDefinition() FieldList {
+	var values FieldList
 	p.many(lexer.BraceL, lexer.BraceR, func() {
 		values = append(values, p.parseInputValueDef())
 	})
