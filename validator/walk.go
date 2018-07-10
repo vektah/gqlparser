@@ -11,6 +11,7 @@ var fieldVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fieldDef *
 var fragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
 var inlineFragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
 var directiveVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive)
+var directiveDecoratedVisitors []func(vctx *vctx, target interface{}, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive)
 
 func init() {
 	//fieldVisitors = append(fieldVisitors, func(vctx *vctx, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field) {
@@ -42,6 +43,13 @@ func (c *vctx) walkOperation(operation *gqlparser.OperationDefinition) {
 		def = c.schema.Mutation
 	case gqlparser.Subscription:
 		def = c.schema.Subscription
+	}
+
+	for _, directive := range operation.Directives {
+		def := c.schema.Directives[directive.Name]
+		for _, v := range directiveDecoratedVisitors {
+			v(c, operation, def, &directive)
+		}
 	}
 
 	for _, v := range operation.SelectionSet {
@@ -101,8 +109,13 @@ func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selec
 			c.walkSelection(nextParentDef, sel)
 		}
 
-		for _, dir := range it.Directives {
-			c.walkDirective(nextParentDef, &dir)
+		for _, directive := range it.Directives {
+			def := c.schema.Directives[directive.Name]
+			for _, v := range directiveDecoratedVisitors {
+				v(c, &it, def, &directive)
+			}
+
+			c.walkDirective(nextParentDef, &directive)
 		}
 
 	case gqlparser.InlineFragment:
@@ -122,6 +135,18 @@ func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selec
 		if nextParentDef != nil {
 			for _, sel := range it.SelectionSet {
 				c.walkSelection(nextParentDef, sel)
+			}
+
+			for _, dir := range it.Directives {
+				c.walkDirective(nextParentDef, &dir)
+			}
+		}
+
+	case gqlparser.FragmentSpread:
+		for _, directive := range it.Directives {
+			def := c.schema.Directives[directive.Name]
+			for _, v := range directiveDecoratedVisitors {
+				v(c, &it, def, &directive)
 			}
 		}
 
