@@ -39,6 +39,7 @@ func TestSpec(t *testing.T) {
 	t.Run("FieldsOnCorrectType", runSpec(schemas, deviations, "../spec/validation/FieldsOnCorrectType.yml"))
 	t.Run("FragmentsOnCompositeTypes", runSpec(schemas, deviations, "../spec/validation/FragmentsOnCompositeTypes.yml"))
 	t.Run("KnownArgumentNames", runSpec(schemas, deviations, "../spec/validation/KnownArgumentNames.yml"))
+	t.Run("KnownDirectives", runSpec(schemas, deviations, "../spec/validation/KnownDirectives.yml"))
 }
 
 func runSpec(schemas []*gqlparser.Schema, deviations map[string]*Spec, filename string) func(t *testing.T) {

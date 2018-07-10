@@ -451,7 +451,7 @@ func (p *parser) parseDirectiveLocation() DirectiveLocation {
 	case `ARGUMENT_DEFINITION`:
 		return LocationArgumentDefinition
 	case `INTERFACE`:
-		return LocationIinterface
+		return LocationInterface
 	case `UNION`:
 		return LocationUnion
 	case `ENUM`:

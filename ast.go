@@ -26,7 +26,7 @@ const (
 	LocationObject               DirectiveLocation = `OBJECT`
 	LocationFieldDefinition      DirectiveLocation = `FIELD_DEFINITION`
 	LocationArgumentDefinition   DirectiveLocation = `ARGUMENT_DEFINITION`
-	LocationIinterface           DirectiveLocation = `INTERFACE`
+	LocationInterface            DirectiveLocation = `INTERFACE`
 	LocationUnion                DirectiveLocation = `UNION`
 	LocationEnum                 DirectiveLocation = `ENUM`
 	LocationEnumValue            DirectiveLocation = `ENUM_VALUE`
