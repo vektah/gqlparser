@@ -1,0 +1,6 @@
+# The order here has switched due to internal differences between the js parser and gqlparser
+'Validate: Fields on correct type/Defined on implementors but not on interface':
+  errors:
+    - message: Cannot query field "nickname" on type "Pet". Did you mean to use an inline fragment on "Cat" or "Dog"?
+      locations:
+        - {line: 3, column: 9}
