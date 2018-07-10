@@ -171,18 +171,14 @@ type Directive struct {
 // Type Reference
 
 type Type interface {
-	isType()
+	Name() string
 }
 
-func (NamedType) isType()   {}
-func (ListType) isType()    {}
-func (NonNullType) isType() {}
+func (t NamedType) Name() string   { return string(t) }
+func (t ListType) Name() string    { return t.Type.Name() }
+func (t NonNullType) Name() string { return t.Type.Name() }
 
 type NamedType string
-
-func (n NamedType) Name() string {
-	return string(n)
-}
 
 type ListType struct {
 	Type Type
