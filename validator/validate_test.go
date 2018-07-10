@@ -49,6 +49,7 @@ func TestSpec(t *testing.T) {
 	}
 
 	t.Run("FieldsOnCorrectType", runSpec(schemas, "../spec/validation/FieldsOnCorrectType.yml"))
+	t.Run("FragmentsOnCompositeTypes", runSpec(schemas, "../spec/validation/FragmentsOnCompositeTypes.yml"))
 }
 
 func runSpec(schemas []*gqlparser.Schema, filename string) func(t *testing.T) {

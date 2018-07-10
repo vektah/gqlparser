@@ -246,6 +246,10 @@ func (d *Definition) IsAbstractType() bool {
 	return d.Kind == Interface || d.Kind == Union
 }
 
+func (d *Definition) IsCompositeType() bool {
+	return d.Kind == Object || d.Kind == Interface || d.Kind == Union
+}
+
 type FieldDefinition struct {
 	Description  string
 	Name         string
