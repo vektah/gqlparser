@@ -44,6 +44,7 @@ func getSuggestedTypeNames(ctx *vctx, parent *gqlparser.Definition, name string)
 	}
 
 	var suggestedObjectTypes []string
+	var suggestedInterfaceTypes []string
 	interfaceUsageCount := map[string]int{}
 
 	for _, possibleType := range ctx.schema.GetPossibleTypes(parent) {
@@ -57,17 +58,15 @@ func getSuggestedTypeNames(ctx *vctx, parent *gqlparser.Definition, name string)
 		for _, possibleInterface := range possibleType.Interfaces {
 			interfaceField := ctx.schema.Types[possibleInterface.Name()]
 			if interfaceField != nil && interfaceField.Field(name) != nil {
+				if interfaceUsageCount[possibleInterface.Name()] == 0 {
+					suggestedInterfaceTypes = append(suggestedInterfaceTypes, possibleInterface.Name())
+				}
 				interfaceUsageCount[possibleInterface.Name()]++
 			}
 		}
 	}
 
-	var suggestedInterfaceTypes []string
-	for key := range interfaceUsageCount {
-		suggestedInterfaceTypes = append(suggestedInterfaceTypes, key)
-	}
-
-	sort.Slice(suggestedInterfaceTypes, func(i, j int) bool {
+	sort.SliceStable(suggestedInterfaceTypes, func(i, j int) bool {
 		return interfaceUsageCount[suggestedInterfaceTypes[i]] > interfaceUsageCount[suggestedInterfaceTypes[j]]
 	})
 
