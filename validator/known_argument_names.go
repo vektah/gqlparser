@@ -6,7 +6,7 @@ import (
 
 func init() {
 	fieldVisitors = append(fieldVisitors, knownFieldArgumentNames)
-	directiveVisitors = append(directiveVisitors, knowDirectiveArgumentNames)
+	directiveVisitors = append(directiveVisitors, knownDirectiveArgumentNames)
 }
 
 // A GraphQL field is only valid if all supplied arguments are defined by that field.
@@ -33,7 +33,7 @@ func knownFieldArgumentNames(ctx *vctx, parentDef *gqlparser.Definition, fieldDe
 	}
 }
 
-func knowDirectiveArgumentNames(ctx *vctx, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation) {
+func knownDirectiveArgumentNames(ctx *vctx, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation) {
 	if directiveDef == nil {
 		return
 	}
