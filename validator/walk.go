@@ -49,6 +49,8 @@ func Walk(schema *gqlparser.Schema, document *gqlparser.QueryDocument, observers
 		Schema:    schema,
 		Document:  document,
 
+		validatedFragmentSpreads: make(map[string]bool),
+
 		visitedFrags: make(map[string]bool),
 	}
 	w.walk()
@@ -60,6 +62,9 @@ type Walker struct {
 	Schema    *gqlparser.Schema
 	Document  *gqlparser.QueryDocument
 
+	validatedFragmentSpreads map[string]bool
+
+	// for rules
 	visitedFrags map[string]bool
 }
 
@@ -197,11 +202,6 @@ func (w *Walker) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Sel
 			v(w, parentDef, def, &it)
 		}
 
-		if w.visitedFrags[it.Name] {
-			// stop infinite recursive
-			return
-		}
-
 		var nextParentDef *gqlparser.Definition
 		if def != nil {
 			nextParentDef = w.Schema.Types[def.TypeCondition.Name()]
@@ -209,7 +209,10 @@ func (w *Walker) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Sel
 
 		w.walkDirectives(nextParentDef, it.Directives, gqlparser.LocationFragmentSpread)
 
-		if def != nil {
+		if def != nil && !w.validatedFragmentSpreads[def.Name] {
+			// prevent inifinite recursion
+			w.validatedFragmentSpreads[def.Name] = true
+
 			for _, sel := range def.SelectionSet {
 				w.walkSelection(nextParentDef, sel)
 			}
