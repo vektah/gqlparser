@@ -41,6 +41,7 @@ func TestSpec(t *testing.T) {
 	t.Run("KnownArgumentNames", runSpec(schemas, deviations, "../spec/validation/KnownArgumentNames.yml"))
 	t.Run("KnownDirectives", runSpec(schemas, deviations, "../spec/validation/KnownDirectives.yml"))
 	t.Run("KnownFragmentNames", runSpec(schemas, deviations, "../spec/validation/KnownFragmentNames.yml"))
+	t.Run("KnownTypeNames", runSpec(schemas, deviations, "../spec/validation/KnownTypeNames.yml"))
 
 	t.Run("LoneAnonymousOperation", runSpec(schemas, deviations, "../spec/validation/LoneAnonymousOperation.yml"))
 
