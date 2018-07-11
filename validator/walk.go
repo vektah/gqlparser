@@ -14,6 +14,7 @@ type Events struct {
 	field            []func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
 	fragment         []func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
 	inlineFragment   []func(walker *Walker, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
+	fragmentSpread   []func(walker *Walker, parentDef *gqlparser.Definition, fragmentDef *gqlparser.FragmentDefinition, fragmentSpread *gqlparser.FragmentSpread)
 	directive        []func(walker *Walker, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)
 	directiveList    []func(walker *Walker, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)
 	value            []func(walker *Walker, value gqlparser.Value)
@@ -30,6 +31,9 @@ func (o *Events) OnFragment(f func(walker *Walker, parentDef *gqlparser.Definiti
 }
 func (o *Events) OnInlineFragment(f func(walker *Walker, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)) {
 	o.inlineFragment = append(o.inlineFragment, f)
+}
+func (o *Events) OnFragmentSpread(f func(walker *Walker, parentDef *gqlparser.Definition, fragmentDef *gqlparser.FragmentDefinition, fragmentSpread *gqlparser.FragmentSpread)) {
+	o.fragmentSpread = append(o.fragmentSpread, f)
 }
 func (o *Events) OnDirective(f func(walker *Walker, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)) {
 	o.directive = append(o.directive, f)
@@ -188,6 +192,10 @@ func (w *Walker) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Sel
 
 	case gqlparser.FragmentSpread:
 		def := w.Document.GetFragment(it.Name)
+
+		for _, v := range w.Observers.fragmentSpread {
+			v(w, parentDef, def, &it)
+		}
 
 		var nextParentDef *gqlparser.Definition
 		if def != nil {
