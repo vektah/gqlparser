@@ -29,7 +29,7 @@ func suggestionList(input string, options []string) []string {
 }
 
 func calcThreshold(a, b string) (threshold int) {
-	if len(a) <= len(b) {
+	if len(a) >= len(b) {
 		threshold = len(a) / 2
 	} else {
 		threshold = len(b) / 2
