@@ -172,11 +172,16 @@ type Directive struct {
 
 type Type interface {
 	Name() string
+	String() string
 }
 
 func (t NamedType) Name() string   { return string(t) }
 func (t ListType) Name() string    { return t.Type.Name() }
 func (t NonNullType) Name() string { return t.Type.Name() }
+
+func (t NamedType) String() string   { return string(t) }
+func (t ListType) String() string    { return "[" + t.Type.Name() + "]" }
+func (t NonNullType) String() string { return t.Type.Name() + "!" }
 
 type NamedType string
 
@@ -236,6 +241,10 @@ func (d *Definition) Field(name string) *FieldDefinition {
 		}
 	}
 	return nil
+}
+
+func (d *Definition) IsLeafType() bool {
+	return d.Kind == Enum || d.Kind == Scalar
 }
 
 func (d *Definition) IsAbstractType() bool {

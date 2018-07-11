@@ -28,7 +28,7 @@ func knownFieldArgumentNames(ctx *vctx, parentDef *gqlparser.Definition, fieldDe
 		ctx.errors = append(ctx.errors, Error(
 			Rule("KnownArgumentNames"),
 			Message(`Unknown argument "%s" on field "%s" of type "%s".`, arg.Name, field.Name, parentDef.Name),
-			Suggest(arg.Name, suggestions),
+			SuggestList(arg.Name, suggestions),
 		))
 	}
 }
@@ -51,7 +51,7 @@ func knowDirectiveArgumentNames(ctx *vctx, parentDef *gqlparser.Definition, dire
 		ctx.errors = append(ctx.errors, Error(
 			Rule("KnownArgumentNames"),
 			Message(`Unknown argument "%s" on directive "@%s".`, arg.Name, directive.Name),
-			Suggest(arg.Name, suggestions),
+			SuggestList(arg.Name, suggestions),
 		))
 	}
 }
