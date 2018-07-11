@@ -14,6 +14,7 @@ type Events struct {
 	inlineFragment   []func(walker *Walker, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
 	directive        []func(walker *Walker, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)
 	directiveList    []func(walker *Walker, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)
+	value            []func(walker *Walker, value gqlparser.Value)
 }
 
 func (o *Events) OnOperation(f func(walker *Walker, operation *gqlparser.OperationDefinition)) {
@@ -33,6 +34,9 @@ func (o *Events) OnDirective(f func(walker *Walker, parentDef *gqlparser.Definit
 }
 func (o *Events) OnDirectiveList(f func(walker *Walker, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)) {
 	o.directiveList = append(o.directiveList, f)
+}
+func (o *Events) OnValue(f func(walker *Walker, value gqlparser.Value)) {
+	o.value = append(o.value, f)
 }
 
 func Walk(schema *gqlparser.Schema, document *gqlparser.QueryDocument, observers *Events) {
@@ -113,6 +117,23 @@ func (w *Walker) walkDirectives(parentDef *gqlparser.Definition, directives []gq
 	}
 }
 
+func (w *Walker) walkValue(value gqlparser.Value) {
+	for _, v := range w.Observers.value {
+		v(w, value)
+	}
+
+	switch value := value.(type) {
+	case gqlparser.ListValue:
+		for _, v := range value {
+			w.walkValue(v)
+		}
+	case gqlparser.ObjectValue:
+		for _, v := range value {
+			w.walkValue(v.Value)
+		}
+	}
+}
+
 func (w *Walker) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selection) {
 	switch it := it.(type) {
 	case gqlparser.Field:
@@ -133,6 +154,10 @@ func (w *Walker) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Sel
 		var nextParentDef *gqlparser.Definition
 		if def != nil {
 			nextParentDef = w.Schema.Types[def.Type.Name()]
+		}
+
+		for _, arg := range it.Arguments {
+			w.walkValue(arg.Value)
 		}
 
 		for _, sel := range it.SelectionSet {
