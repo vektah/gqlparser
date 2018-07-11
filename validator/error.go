@@ -30,11 +30,17 @@ func Message(msg string, args ...interface{}) Option {
 	}
 }
 
-func Suggest(typed string, suggestions []string) Option {
+func SuggestList(typed string, suggestions []string) Option {
 	suggested := suggestionList(typed, suggestions)
 	return func(err *errors.Validation) {
 		if len(suggested) > 0 {
 			err.Message += " Did you mean " + quotedOrList(suggested...) + "?"
 		}
+	}
+}
+
+func Suggestf(suggestion string, args ...interface{}) Option {
+	return func(err *errors.Validation) {
+		err.Message += " Did you mean " + fmt.Sprintf(suggestion, args...) + "?"
 	}
 }
