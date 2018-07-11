@@ -63,12 +63,8 @@ func (c *vctx) walkFragment(it *gqlparser.FragmentDefinition) {
 		return
 	}
 
-	beforeErr := len(c.errors)
 	for _, v := range fragmentVisitors {
 		v(c, parentDef, it)
-	}
-	if beforeErr != len(c.errors) {
-		return
 	}
 
 	for _, child := range it.SelectionSet {
@@ -119,12 +115,8 @@ func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selec
 		}
 
 	case gqlparser.InlineFragment:
-		beforeErr := len(c.errors)
 		for _, v := range inlineFragmentVisitors {
 			v(c, parentDef, &it)
-		}
-		if beforeErr != len(c.errors) {
-			return
 		}
 
 		var nextParentDef *gqlparser.Definition
