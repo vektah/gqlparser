@@ -44,6 +44,8 @@ func TestSpec(t *testing.T) {
 
 	t.Run("LoneAnonymousOperation", runSpec(schemas, deviations, "../spec/validation/LoneAnonymousOperation.yml"))
 
+	t.Run("NoFragmentCycles", runSpec(schemas, deviations, "../spec/validation/NoFragmentCycles.yml"))
+
 	t.Run("ScalarLeafs", runSpec(schemas, deviations, "../spec/validation/ScalarLeafs.yml"))
 	t.Run("SingleFieldSubscriptions", runSpec(schemas, deviations, "../spec/validation/SingleFieldSubscriptions.yml"))
 	t.Run("UniqueArgumentNames", runSpec(schemas, deviations, "../spec/validation/UniqueArgumentNames.yml"))

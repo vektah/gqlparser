@@ -16,6 +16,8 @@ type rule struct {
 
 var rules []rule
 
+// addRule to rule set.
+// f is called once each time `Validate` is executed.
 func addRule(name string, f ruleFunc) {
 	rules = append(rules, rule{name: name, rule: f})
 }
