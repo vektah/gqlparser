@@ -7,8 +7,9 @@ import (
 
 func Validate(schema *Schema, doc *QueryDocument) []errors.Validation {
 	ctx := vctx{
-		schema:   schema,
-		document: doc,
+		schema:        schema,
+		document:      doc,
+		seenFragments: map[string]bool{},
 	}
 
 	ctx.walk()
