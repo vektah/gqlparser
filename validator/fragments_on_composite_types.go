@@ -4,47 +4,39 @@ import (
 	"fmt"
 
 	"github.com/vektah/gqlparser"
-	"github.com/vektah/gqlparser/errors"
 )
 
 func init() {
-	inlineFragmentVisitors = append(inlineFragmentVisitors, inlineFragmentOnCompositeTypes)
-	fragmentVisitors = append(fragmentVisitors, fragmentOnCompositeTypes)
-}
+	addRule("FragmentsOnCompositeTypes", func(observers *Events, addError addErrFunc) {
+		observers.OnInlineFragment(func(walker *Walker, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment) {
+			if parentDef == nil {
+				return
+			}
 
-func inlineFragmentOnCompositeTypes(ctx *vctx, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment) {
-	if parentDef == nil {
-		return
-	}
+			fragmentType := walker.Schema.Types[inlineFragment.TypeCondition.Name()]
+			if fragmentType == nil || fragmentType.IsCompositeType() {
+				return
+			}
 
-	fragmentType := ctx.schema.Types[inlineFragment.TypeCondition.Name()]
-	if fragmentType == nil || fragmentType.IsCompositeType() {
-		return
-	}
+			message := fmt.Sprintf(`Fragment cannot condition on non composite type "%s".`, inlineFragment.TypeCondition.Name())
 
-	message := fmt.Sprintf(`Fragment cannot condition on non composite type "%s".`, inlineFragment.TypeCondition.Name())
+			addError(Message(message))
+		})
 
-	ctx.errors = append(ctx.errors, errors.Validation{
-		Message: message,
-		Rule:    "FragmentsOnCompositeTypes",
-	})
-}
+		observers.OnFragment(func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition) {
+			if parentDef == nil {
+				return
+			}
 
-func fragmentOnCompositeTypes(ctx *vctx, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition) {
-	if parentDef == nil {
-		return
-	}
+			if fragment.TypeCondition.Name() == "" {
+				return
+			} else if parentDef != nil && parentDef.IsCompositeType() {
+				return
+			}
 
-	if fragment.TypeCondition.Name() == "" {
-		return
-	} else if parentDef != nil && parentDef.IsCompositeType() {
-		return
-	}
+			message := fmt.Sprintf(`Fragment "%s" cannot condition on non composite type "%s".`, fragment.Name, fragment.TypeCondition.Name())
 
-	message := fmt.Sprintf(`Fragment "%s" cannot condition on non composite type "%s".`, fragment.Name, fragment.TypeCondition.Name())
-
-	ctx.errors = append(ctx.errors, errors.Validation{
-		Message: message,
-		Rule:    "FragmentsOnCompositeTypes",
+			addError(Message(message))
+		})
 	})
 }

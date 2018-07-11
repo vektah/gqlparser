@@ -6,31 +6,15 @@ import (
 	"github.com/vektah/gqlparser/errors"
 )
 
-func Error(options ...Option) errors.Validation {
-	var err errors.Validation
+type ErrorOption func(err *errors.Validation)
 
-	for _, o := range options {
-		o(&err)
-	}
-
-	return err
-}
-
-type Option func(err *errors.Validation)
-
-func Rule(rule string) Option {
-	return func(err *errors.Validation) {
-		err.Rule = rule
-	}
-}
-
-func Message(msg string, args ...interface{}) Option {
+func Message(msg string, args ...interface{}) ErrorOption {
 	return func(err *errors.Validation) {
 		err.Message = fmt.Sprintf(msg, args...)
 	}
 }
 
-func SuggestList(typed string, suggestions []string) Option {
+func SuggestList(typed string, suggestions []string) ErrorOption {
 	suggested := suggestionList(typed, suggestions)
 	return func(err *errors.Validation) {
 		if len(suggested) > 0 {
@@ -39,7 +23,7 @@ func SuggestList(typed string, suggestions []string) Option {
 	}
 }
 
-func Suggestf(suggestion string, args ...interface{}) Option {
+func Suggestf(suggestion string, args ...interface{}) ErrorOption {
 	return func(err *errors.Validation) {
 		err.Message += " Did you mean " + fmt.Sprintf(suggestion, args...) + "?"
 	}
