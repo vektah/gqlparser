@@ -7,12 +7,12 @@ import (
 	"github.com/vektah/gqlparser/errors"
 )
 
-var operationVisitor []func(vctx *vctx, operation *gqlparser.OperationDefinition)
-var fieldVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
-var fragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
-var inlineFragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
-var directiveVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)
-var directiveListVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)
+var operationVisitor []func(ctx *vctx, operation *gqlparser.OperationDefinition)
+var fieldVisitors []func(ctx *vctx, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
+var fragmentVisitors []func(ctx *vctx, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
+var inlineFragmentVisitors []func(ctx *vctx, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
+var directiveVisitors []func(ctx *vctx, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)
+var directiveListVisitors []func(ctx *vctx, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)
 
 func init() {
 	//fieldVisitors = append(fieldVisitors, func(vctx *vctx, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field) {
@@ -24,6 +24,9 @@ type vctx struct {
 	schema   *gqlparser.Schema
 	document *gqlparser.QueryDocument
 	errors   []errors.Validation
+
+	// todo: Move this somewhere better
+	seenFragments map[string]bool
 }
 
 func (c *vctx) walk() {
