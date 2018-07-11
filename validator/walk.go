@@ -12,6 +12,7 @@ var fieldVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fieldDef *
 var fragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
 var inlineFragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
 var directiveVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)
+var directiveListVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)
 
 func init() {
 	//fieldVisitors = append(fieldVisitors, func(vctx *vctx, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field) {
@@ -53,9 +54,7 @@ func (c *vctx) walkOperation(operation *gqlparser.OperationDefinition) {
 		loc = gqlparser.LocationSubscription
 	}
 
-	for _, dir := range operation.Directives {
-		c.walkDirective(def, &dir, loc)
-	}
+	c.walkDirectives(def, operation.Directives, loc)
 
 	for _, v := range operation.SelectionSet {
 		c.walkSelection(def, v)
@@ -64,9 +63,8 @@ func (c *vctx) walkOperation(operation *gqlparser.OperationDefinition) {
 
 func (c *vctx) walkFragment(it *gqlparser.FragmentDefinition) {
 	parentDef := c.schema.Types[it.TypeCondition.Name()]
-	if parentDef == nil {
-		return
-	}
+
+	c.walkDirectives(parentDef, it.Directives, gqlparser.LocationFragmentDefinition)
 
 	for _, v := range fragmentVisitors {
 		v(c, parentDef, it)
@@ -77,10 +75,16 @@ func (c *vctx) walkFragment(it *gqlparser.FragmentDefinition) {
 	}
 }
 
-func (c *vctx) walkDirective(parentDef *gqlparser.Definition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation) {
-	def := c.schema.Directives[directive.Name]
-	for _, v := range directiveVisitors {
-		v(c, parentDef, def, directive, location)
+func (c *vctx) walkDirectives(parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation) {
+	for _, v := range directiveListVisitors {
+		v(c, parentDef, directives, location)
+	}
+
+	for _, dir := range directives {
+		def := c.schema.Directives[dir.Name]
+		for _, v := range directiveVisitors {
+			v(c, parentDef, def, &dir, location)
+		}
 	}
 }
 
@@ -110,9 +114,7 @@ func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selec
 			c.walkSelection(nextParentDef, sel)
 		}
 
-		for _, dir := range it.Directives {
-			c.walkDirective(nextParentDef, &dir, gqlparser.LocationField)
-		}
+		c.walkDirectives(nextParentDef, it.Directives, gqlparser.LocationField)
 
 	case gqlparser.InlineFragment:
 		for _, v := range inlineFragmentVisitors {
@@ -124,9 +126,7 @@ func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selec
 			nextParentDef = c.schema.Types[it.TypeCondition.Name()]
 		}
 
-		for _, dir := range it.Directives {
-			c.walkDirective(nextParentDef, &dir, gqlparser.LocationInlineFragment)
-		}
+		c.walkDirectives(nextParentDef, it.Directives, gqlparser.LocationInlineFragment)
 
 		for _, sel := range it.SelectionSet {
 			c.walkSelection(nextParentDef, sel)
@@ -140,9 +140,7 @@ func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selec
 			nextParentDef = c.schema.Types[def.TypeCondition.Name()]
 		}
 
-		for _, dir := range it.Directives {
-			c.walkDirective(nextParentDef, &dir, gqlparser.LocationFragmentSpread)
-		}
+		c.walkDirectives(nextParentDef, it.Directives, gqlparser.LocationFragmentSpread)
 
 		if def != nil {
 			for _, sel := range def.SelectionSet {
