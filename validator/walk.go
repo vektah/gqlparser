@@ -14,7 +14,6 @@ func newEvents() *Events {
 }
 
 type Events struct {
-	operationCount int
 	visitedFrags   map[string]bool
 
 	operationVisitor []func(walker *Walker, operation *gqlparser.OperationDefinition)
@@ -69,8 +68,6 @@ type Walker struct {
 }
 
 func (w *Walker) walk() {
-	w.Observers.operationCount = len(w.Document.Operations)
-
 	for _, child := range w.Document.Operations {
 		w.walkOperation(&child)
 	}
