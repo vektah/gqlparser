@@ -7,6 +7,7 @@ import (
 	"github.com/vektah/gqlparser/errors"
 )
 
+var operationVisitor []func(vctx *vctx, operation *gqlparser.OperationDefinition)
 var fieldVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
 var fragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
 var inlineFragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
@@ -34,6 +35,10 @@ func (c *vctx) walk() {
 }
 
 func (c *vctx) walkOperation(operation *gqlparser.OperationDefinition) {
+	for _, v := range operationVisitor {
+		v(c, operation)
+	}
+
 	var def *gqlparser.Definition
 	var loc gqlparser.DirectiveLocation
 	switch operation.Operation {

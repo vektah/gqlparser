@@ -42,6 +42,7 @@ func TestSpec(t *testing.T) {
 	t.Run("KnownDirectives", runSpec(schemas, deviations, "../spec/validation/KnownDirectives.yml"))
 
 	t.Run("ScalarLeafs", runSpec(schemas, deviations, "../spec/validation/ScalarLeafs.yml"))
+	t.Run("SingleFieldSubscriptions", runSpec(schemas, deviations, "../spec/validation/SingleFieldSubscriptions.yml"))
 }
 
 func runSpec(schemas []*gqlparser.Schema, deviations map[string]*Spec, filename string) func(t *testing.T) {
