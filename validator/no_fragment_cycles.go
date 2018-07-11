@@ -22,11 +22,11 @@ func detectCycleRecursive(walker *Walker, observers *Events, fragment *gqlparser
 
 	var recursive func(fragment *gqlparser.FragmentDefinition)
 	recursive = func(fragment *gqlparser.FragmentDefinition) {
-		if observers.visitedFrags[fragment.Name] {
+		if walker.visitedFrags[fragment.Name] {
 			return
 		}
 
-		observers.visitedFrags[fragment.Name] = true
+		walker.visitedFrags[fragment.Name] = true
 
 		spreadNodes := getFragmentSpreads(fragment.SelectionSet)
 		if len(spreadNodes) == 0 {

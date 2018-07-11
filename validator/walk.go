@@ -7,15 +7,7 @@ import (
 	"github.com/vektah/gqlparser"
 )
 
-func newEvents() *Events {
-	return &Events{
-		visitedFrags: make(map[string]bool),
-	}
-}
-
 type Events struct {
-	visitedFrags   map[string]bool
-
 	operationVisitor []func(walker *Walker, operation *gqlparser.OperationDefinition)
 	field            []func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
 	fragment         []func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
@@ -56,6 +48,8 @@ func Walk(schema *gqlparser.Schema, document *gqlparser.QueryDocument, observers
 		Observers: observers,
 		Schema:    schema,
 		Document:  document,
+
+		visitedFrags: make(map[string]bool),
 	}
 	w.walk()
 }
@@ -65,6 +59,8 @@ type Walker struct {
 	Observers *Events
 	Schema    *gqlparser.Schema
 	Document  *gqlparser.QueryDocument
+
+	visitedFrags map[string]bool
 }
 
 func (w *Walker) walk() {
@@ -201,7 +197,7 @@ func (w *Walker) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Sel
 			v(w, parentDef, def, &it)
 		}
 
-		if w.Observers.visitedFrags[it.Name] {
+		if w.visitedFrags[it.Name] {
 			// stop infinite recursive
 			return
 		}

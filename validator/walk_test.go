@@ -14,7 +14,7 @@ func TestWalker(t *testing.T) {
 	require.Nil(t, err)
 
 	called := false
-	observers := newEvents()
+	observers := &Events{}
 	observers.OnField(func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field) {
 		called = true
 
