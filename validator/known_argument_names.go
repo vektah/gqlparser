@@ -33,7 +33,7 @@ func knownFieldArgumentNames(ctx *vctx, parentDef *gqlparser.Definition, fieldDe
 	}
 }
 
-func knowDirectiveArgumentNames(ctx *vctx, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive) {
+func knowDirectiveArgumentNames(ctx *vctx, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation) {
 	if directiveDef == nil {
 		return
 	}

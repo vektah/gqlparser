@@ -10,8 +10,7 @@ import (
 var fieldVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
 var fragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
 var inlineFragmentVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
-var directiveVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive)
-var directiveDecoratedVisitors []func(vctx *vctx, target interface{}, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive)
+var directiveVisitors []func(vctx *vctx, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)
 
 func init() {
 	//fieldVisitors = append(fieldVisitors, func(vctx *vctx, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field) {
@@ -36,20 +35,21 @@ func (c *vctx) walk() {
 
 func (c *vctx) walkOperation(operation *gqlparser.OperationDefinition) {
 	var def *gqlparser.Definition
+	var loc gqlparser.DirectiveLocation
 	switch operation.Operation {
 	case gqlparser.Query, "":
 		def = c.schema.Query
+		loc = gqlparser.LocationQuery
 	case gqlparser.Mutation:
 		def = c.schema.Mutation
+		loc = gqlparser.LocationMutation
 	case gqlparser.Subscription:
 		def = c.schema.Subscription
+		loc = gqlparser.LocationSubscription
 	}
 
-	for _, directive := range operation.Directives {
-		def := c.schema.Directives[directive.Name]
-		for _, v := range directiveDecoratedVisitors {
-			v(c, operation, def, &directive)
-		}
+	for _, dir := range operation.Directives {
+		c.walkDirective(def, &dir, loc)
 	}
 
 	for _, v := range operation.SelectionSet {
@@ -72,10 +72,10 @@ func (c *vctx) walkFragment(it *gqlparser.FragmentDefinition) {
 	}
 }
 
-func (c *vctx) walkDirective(parentDef *gqlparser.Definition, directive *gqlparser.Directive) {
+func (c *vctx) walkDirective(parentDef *gqlparser.Definition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation) {
 	def := c.schema.Directives[directive.Name]
 	for _, v := range directiveVisitors {
-		v(c, parentDef, def, directive)
+		v(c, parentDef, def, directive, location)
 	}
 }
 
@@ -105,13 +105,8 @@ func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selec
 			c.walkSelection(nextParentDef, sel)
 		}
 
-		for _, directive := range it.Directives {
-			def := c.schema.Directives[directive.Name]
-			for _, v := range directiveDecoratedVisitors {
-				v(c, &it, def, &directive)
-			}
-
-			c.walkDirective(nextParentDef, &directive)
+		for _, dir := range it.Directives {
+			c.walkDirective(nextParentDef, &dir, gqlparser.LocationField)
 		}
 
 	case gqlparser.InlineFragment:
@@ -124,21 +119,29 @@ func (c *vctx) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selec
 			nextParentDef = c.schema.Types[it.TypeCondition.Name()]
 		}
 
-		if nextParentDef != nil {
-			for _, sel := range it.SelectionSet {
-				c.walkSelection(nextParentDef, sel)
-			}
+		for _, dir := range it.Directives {
+			c.walkDirective(nextParentDef, &dir, gqlparser.LocationInlineFragment)
+		}
 
-			for _, dir := range it.Directives {
-				c.walkDirective(nextParentDef, &dir)
-			}
+		for _, sel := range it.SelectionSet {
+			c.walkSelection(nextParentDef, sel)
 		}
 
 	case gqlparser.FragmentSpread:
-		for _, directive := range it.Directives {
-			def := c.schema.Directives[directive.Name]
-			for _, v := range directiveDecoratedVisitors {
-				v(c, &it, def, &directive)
+		def := c.document.GetFragment(it.Name)
+
+		var nextParentDef *gqlparser.Definition
+		if def != nil {
+			nextParentDef = c.schema.Types[def.TypeCondition.Name()]
+		}
+
+		for _, dir := range it.Directives {
+			c.walkDirective(nextParentDef, &dir, gqlparser.LocationFragmentSpread)
+		}
+
+		if def != nil {
+			for _, sel := range def.SelectionSet {
+				c.walkSelection(nextParentDef, sel)
 			}
 		}
 
