@@ -23,7 +23,7 @@ func addRule(name string, f ruleFunc) {
 func Validate(schema *Schema, doc *QueryDocument) []errors.Validation {
 	var errs []errors.Validation
 
-	observers := &Events{}
+	observers := newEvents()
 	for i := range rules {
 		rule := rules[i]
 		rule.rule(observers, func(options ...ErrorOption) {

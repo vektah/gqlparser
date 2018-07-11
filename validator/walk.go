@@ -7,8 +7,15 @@ import (
 	"github.com/vektah/gqlparser"
 )
 
+func newEvents() *Events {
+	return &Events{
+		visitedFrags: make(map[string]bool),
+	}
+}
+
 type Events struct {
 	operationCount int
+	visitedFrags   map[string]bool
 
 	operationVisitor []func(walker *Walker, operation *gqlparser.OperationDefinition)
 	field            []func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
@@ -195,6 +202,11 @@ func (w *Walker) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Sel
 
 		for _, v := range w.Observers.fragmentSpread {
 			v(w, parentDef, def, &it)
+		}
+
+		if w.Observers.visitedFrags[it.Name] {
+			// stop infinite recursive
+			return
 		}
 
 		var nextParentDef *gqlparser.Definition
