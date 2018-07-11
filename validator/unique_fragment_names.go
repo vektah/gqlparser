@@ -5,16 +5,16 @@ import (
 )
 
 func init() {
-	fragmentVisitors = append(fragmentVisitors, uniqueFragmentNames)
-}
+	addRule("UniqueFragmentNames", func(observers *Events, addError addErrFunc) {
+		seenFragments := map[string]bool{}
 
-// A GraphQL document is only valid if all defined fragments have unique names.
-func uniqueFragmentNames(ctx *vctx, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition) {
-	if ctx.seenFragments[fragment.Name] {
-		ctx.errors = append(ctx.errors, Error(
-			Rule("UniqueFragmentNames"),
-			Message(`There can be only one fragment named "%s".`, fragment.Name),
-		))
-	}
-	ctx.seenFragments[fragment.Name] = true
+		observers.OnFragment(func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition) {
+			if seenFragments[fragment.Name] {
+				addError(
+					Message(`There can be only one fragment named "%s".`, fragment.Name),
+				)
+			}
+			seenFragments[fragment.Name] = true
+		})
+	})
 }
