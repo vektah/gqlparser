@@ -50,8 +50,6 @@ func Walk(schema *gqlparser.Schema, document *gqlparser.QueryDocument, observers
 		Document:  document,
 
 		validatedFragmentSpreads: make(map[string]bool),
-
-		visitedFrags: make(map[string]bool),
 	}
 	w.walk()
 }
@@ -63,9 +61,6 @@ type Walker struct {
 	Document  *gqlparser.QueryDocument
 
 	validatedFragmentSpreads map[string]bool
-
-	// for rules
-	visitedFrags map[string]bool
 }
 
 func (w *Walker) walk() {

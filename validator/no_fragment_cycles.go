@@ -9,62 +9,59 @@ import (
 
 func init() {
 	addRule("NoFragmentCycles", func(observers *Events, addError addErrFunc) {
+		visitedFrags := make(map[string]bool)
+
 		observers.OnFragment(func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition) {
-			detectCycleRecursive(walker, observers, fragment, addError)
-		})
-	})
-}
+			var spreadPath []gqlparser.FragmentSpread
+			spreadPathIndexByName := make(map[string]int)
 
-func detectCycleRecursive(walker *Walker, observers *Events, fragment *gqlparser.FragmentDefinition, addError addErrFunc) {
-
-	var spreadPath []gqlparser.FragmentSpread
-	spreadPathIndexByName := make(map[string]int)
-
-	var recursive func(fragment *gqlparser.FragmentDefinition)
-	recursive = func(fragment *gqlparser.FragmentDefinition) {
-		if walker.visitedFrags[fragment.Name] {
-			return
-		}
-
-		walker.visitedFrags[fragment.Name] = true
-
-		spreadNodes := getFragmentSpreads(fragment.SelectionSet)
-		if len(spreadNodes) == 0 {
-			return
-		}
-		spreadPathIndexByName[fragment.Name] = len(spreadPath)
-
-		for _, spreadNode := range spreadNodes {
-			spreadName := spreadNode.Name
-
-			cycleIndex, ok := spreadPathIndexByName[spreadName]
-
-			spreadPath = append(spreadPath, spreadNode)
-			if !ok {
-				spreadFragment := walker.Document.GetFragment(spreadName)
-				if spreadFragment != nil {
-					recursive(spreadFragment)
+			var recursive func(fragment *gqlparser.FragmentDefinition)
+			recursive = func(fragment *gqlparser.FragmentDefinition) {
+				if visitedFrags[fragment.Name] {
+					return
 				}
-			} else {
-				cyclePath := spreadPath[cycleIndex : len(spreadPath)-1]
-				var fragmentNames []string
-				for _, fs := range cyclePath {
-					fragmentNames = append(fragmentNames, fs.Name)
+
+				visitedFrags[fragment.Name] = true
+
+				spreadNodes := getFragmentSpreads(fragment.SelectionSet)
+				if len(spreadNodes) == 0 {
+					return
 				}
-				var via string
-				if len(fragmentNames) != 0 {
-					via = fmt.Sprintf(" via %s", strings.Join(fragmentNames, ", "))
+				spreadPathIndexByName[fragment.Name] = len(spreadPath)
+
+				for _, spreadNode := range spreadNodes {
+					spreadName := spreadNode.Name
+
+					cycleIndex, ok := spreadPathIndexByName[spreadName]
+
+					spreadPath = append(spreadPath, spreadNode)
+					if !ok {
+						spreadFragment := walker.Document.GetFragment(spreadName)
+						if spreadFragment != nil {
+							recursive(spreadFragment)
+						}
+					} else {
+						cyclePath := spreadPath[cycleIndex : len(spreadPath)-1]
+						var fragmentNames []string
+						for _, fs := range cyclePath {
+							fragmentNames = append(fragmentNames, fs.Name)
+						}
+						var via string
+						if len(fragmentNames) != 0 {
+							via = fmt.Sprintf(" via %s", strings.Join(fragmentNames, ", "))
+						}
+						addError(Message(`Cannot spread fragment "%s" within itself%s.`, spreadName, via))
+					}
+
+					spreadPath = spreadPath[:len(spreadPath)-1]
 				}
-				addError(Message(`Cannot spread fragment "%s" within itself%s.`, spreadName, via))
+
+				delete(spreadPathIndexByName, fragment.Name)
 			}
 
-			spreadPath = spreadPath[:len(spreadPath)-1]
-		}
-
-		delete(spreadPathIndexByName, fragment.Name)
-	}
-
-	recursive(fragment)
+			recursive(fragment)
+		})
+	})
 }
 
 func getFragmentSpreads(node gqlparser.SelectionSet) []gqlparser.FragmentSpread {
