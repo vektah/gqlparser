@@ -8,8 +8,6 @@ import (
 )
 
 type Events struct {
-	operationCount int
-
 	operationVisitor []func(walker *Walker, operation *gqlparser.OperationDefinition)
 	field            []func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
 	fragment         []func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
@@ -62,8 +60,6 @@ type Walker struct {
 }
 
 func (w *Walker) walk() {
-	w.Observers.operationCount = len(w.Document.Operations)
-
 	for _, child := range w.Document.Operations {
 		w.walkOperation(&child)
 	}
