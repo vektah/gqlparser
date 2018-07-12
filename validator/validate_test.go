@@ -65,7 +65,6 @@ func TestSpec(t *testing.T) {
 		"OverlappingFieldsCanBeMerged",
 		"PossibleFragmentSpreads",
 		"ProvidedRequiredArguments",
-		"VariablesAreInputTypes",
 		"VariablesInAllowedPosition",
 	}
 
