@@ -62,7 +62,6 @@ func TestSpec(t *testing.T) {
 	ignores := []string{
 		"ExecutableDefinitions",
 		"NoUndefinedVariables",
-		"NoUnusedVariables",
 		"OverlappingFieldsCanBeMerged",
 		"PossibleFragmentSpreads",
 		"ProvidedRequiredArguments",

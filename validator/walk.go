@@ -8,18 +8,22 @@ import (
 )
 
 type Events struct {
-	operationVisitor []func(walker *Walker, operation *gqlparser.OperationDefinition)
-	field            []func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
-	fragment         []func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
-	inlineFragment   []func(walker *Walker, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
-	fragmentSpread   []func(walker *Walker, parentDef *gqlparser.Definition, fragmentDef *gqlparser.FragmentDefinition, fragmentSpread *gqlparser.FragmentSpread)
-	directive        []func(walker *Walker, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)
-	directiveList    []func(walker *Walker, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)
-	value            []func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value)
+	operationVisitor      []func(walker *Walker, operation *gqlparser.OperationDefinition)
+	operationLeaveVisitor []func(walker *Walker, operation *gqlparser.OperationDefinition)
+	field                 []func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
+	fragment              []func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
+	inlineFragment        []func(walker *Walker, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
+	fragmentSpread        []func(walker *Walker, parentDef *gqlparser.Definition, fragmentDef *gqlparser.FragmentDefinition, fragmentSpread *gqlparser.FragmentSpread)
+	directive             []func(walker *Walker, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)
+	directiveList         []func(walker *Walker, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)
+	value                 []func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value)
 }
 
 func (o *Events) OnOperation(f func(walker *Walker, operation *gqlparser.OperationDefinition)) {
 	o.operationVisitor = append(o.operationVisitor, f)
+}
+func (o *Events) OnOperationLeave(f func(walker *Walker, operation *gqlparser.OperationDefinition)) {
+	o.operationLeaveVisitor = append(o.operationLeaveVisitor, f)
 }
 func (o *Events) OnField(f func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)) {
 	o.field = append(o.field, f)
@@ -101,6 +105,10 @@ func (w *Walker) walkOperation(operation *gqlparser.OperationDefinition) {
 
 	for _, v := range operation.SelectionSet {
 		w.walkSelection(def, v)
+	}
+
+	for _, v := range w.Observers.operationLeaveVisitor {
+		v(w, operation)
 	}
 }
 
