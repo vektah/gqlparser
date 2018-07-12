@@ -3,6 +3,8 @@ package validator
 import (
 	"fmt"
 	"io/ioutil"
+	"regexp"
+	"sort"
 	"strings"
 	"testing"
 
@@ -19,15 +21,25 @@ type Spec struct {
 	Schema int
 	Query  string
 	Errors []errors.Validation
-	Skip   bool
+}
+
+type Deviation struct {
+	Rule   string
+	Errors []errors.Validation
+	Skip   string
+
+	pattern *regexp.Regexp
 }
 
 func TestSpec(t *testing.T) {
 	var rawSchemas []string
 	readYaml("../spec/validation/schemas.yml", &rawSchemas)
 
-	var deviations map[string]*Spec
+	var deviations []*Deviation
 	readYaml("../spec/validation/deviations.yml", &deviations)
+	for _, d := range deviations {
+		d.pattern = regexp.MustCompile("^" + d.Rule + "$")
+	}
 
 	var schemas []*gqlparser.Schema
 	for _, schema := range rawSchemas {
@@ -54,7 +66,6 @@ func TestSpec(t *testing.T) {
 		"OverlappingFieldsCanBeMerged",
 		"PossibleFragmentSpreads",
 		"ProvidedRequiredArguments",
-		"ValuesOfCorrectType",
 		"VariablesAreInputTypes",
 		"VariablesInAllowedPosition",
 	}
@@ -88,7 +99,7 @@ file:
 	}
 }
 
-func runSpec(schemas []*gqlparser.Schema, deviations map[string]*Spec, filename string) func(t *testing.T) {
+func runSpec(schemas []*gqlparser.Schema, deviations []*Deviation, filename string) func(t *testing.T) {
 	var specs []Spec
 	readYaml(filename, &specs)
 	return func(t *testing.T) {
@@ -97,12 +108,14 @@ func runSpec(schemas []*gqlparser.Schema, deviations map[string]*Spec, filename 
 				spec.Errors = nil
 			}
 			t.Run(spec.Name, func(t *testing.T) {
-				if deviation := deviations[spec.Name]; deviation != nil {
-					if deviation.Errors != nil {
-						spec.Errors = deviation.Errors
-					}
-					if deviation.Skip {
-						t.SkipNow()
+				for _, deviation := range deviations {
+					if deviation.pattern.MatchString(spec.Name) {
+						if deviation.Skip != "" {
+							t.Skip(deviation.Skip)
+						}
+						if deviation.Errors != nil {
+							spec.Errors = deviation.Errors
+						}
 					}
 				}
 
@@ -123,7 +136,16 @@ func runSpec(schemas []*gqlparser.Schema, deviations map[string]*Spec, filename 
 				for i := range spec.Errors {
 					spec.Errors[i].Locations = nil
 					spec.Errors[i].Rule = spec.Rule
+
+					// remove inconsistent use of ;
+					spec.Errors[i].Message = strings.Replace(spec.Errors[i].Message, "; Did you mean", ". Did you mean", -1)
 				}
+				sort.Slice(spec.Errors, func(i, j int) bool {
+					return strings.Compare(spec.Errors[i].Message, spec.Errors[j].Message) > 0
+				})
+				sort.Slice(finalErrors, func(i, j int) bool {
+					return strings.Compare(finalErrors[i].Message, finalErrors[j].Message) > 0
+				})
 				assert.Equal(t, spec.Errors, finalErrors)
 
 				if t.Failed() {

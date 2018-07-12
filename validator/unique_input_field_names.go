@@ -6,7 +6,7 @@ import (
 
 func init() {
 	addRule("UniqueInputFieldNames", func(observers *Events, addError addErrFunc) {
-		observers.OnValue(func(walker *Walker, value gqlparser.Value) {
+		observers.OnValue(func(walker *Walker, fieldType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value) {
 			object, isObject := value.(gqlparser.ObjectValue)
 			if !isObject {
 				return

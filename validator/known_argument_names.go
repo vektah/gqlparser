@@ -24,7 +24,7 @@ func init() {
 
 				addError(
 					Message(`Unknown argument "%s" on field "%s" of type "%s".`, arg.Name, field.Name, parentDef.Name),
-					SuggestList(arg.Name, suggestions),
+					SuggestListQuoted("Did you mean", arg.Name, suggestions),
 				)
 			}
 		})
@@ -46,7 +46,7 @@ func init() {
 
 				addError(
 					Message(`Unknown argument "%s" on directive "@%s".`, arg.Name, directive.Name),
-					SuggestList(arg.Name, suggestions),
+					SuggestListQuoted("Did you mean", arg.Name, suggestions),
 				)
 			}
 		})
