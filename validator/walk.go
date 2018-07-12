@@ -93,6 +93,12 @@ func (w *Walker) walkOperation(operation *gqlparser.OperationDefinition) {
 
 	w.walkDirectives(def, operation.Directives, loc)
 
+	for _, def := range operation.VariableDefinitions {
+		if def.DefaultValue != nil {
+			w.walkValue(def.Type, def.DefaultValue)
+		}
+	}
+
 	for _, v := range operation.SelectionSet {
 		w.walkSelection(def, v)
 	}

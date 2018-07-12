@@ -21,6 +21,3 @@
 
 - rule: 'Validate: Values of correct type/.*custom scalar.*'
   skip: "Custom scalars are a runtime feature, maybe they dont belong in here?"
-
-- rule: 'Validate: Values of correct type/.*Variable default values.*'
-  skip: "TODO"
