@@ -88,21 +88,11 @@ let names = [];
 const fakeModules = {
     'mocha': {
         describe(name, f) {
-            switch (name) {
-                case 'within schema language':
-                    return;
-            }
             names.push(name);
             f();
             names.pop();
         },
         it(name, f) {
-            switch (name) {
-                case 'ignores type definitions':
-                case 'reports correctly when a non-exclusive follows an exclusive':
-                case 'disallows differing subfields':
-                    return;
-            }
             names.push(name);
             f();
             names.pop();

@@ -4,3 +4,14 @@
     - message: Cannot query field "nickname" on type "Pet". Did you mean to use an inline fragment on "Cat" or "Dog"?
       locations:
         - {line: 3, column: 9}
+
+'Validate: Known directives/within schema language/with well placed directives':
+  skip: true
+'Validate: Known directives/within schema language/with misplaced directives':
+  skip: true
+'Validate: Known type names/ignores type definitions':
+  skip: true
+'Validate: Overlapping fields can be merged/return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive':
+  skip: true
+'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing subfields':
+  skip: true
