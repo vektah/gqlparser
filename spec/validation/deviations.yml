@@ -1,17 +1,26 @@
-# The order here has switched due to internal differences between the js parser and gqlparser
-'Validate: Fields on correct type/Defined on implementors but not on interface':
+- rule: 'Validate: Fields on correct type/Defined on implementors but not on interface'
   errors:
     - message: Cannot query field "nickname" on type "Pet". Did you mean to use an inline fragment on "Cat" or "Dog"?
       locations:
         - {line: 3, column: 9}
 
-'Validate: Known directives/within schema language/with well placed directives':
+- rule: 'Validate: Known directives/within schema language/with well placed directives'
   skip: true
-'Validate: Known directives/within schema language/with misplaced directives':
+
+- rule: 'Validate: Known directives/within schema language/with misplaced directives'
   skip: true
-'Validate: Known type names/ignores type definitions':
+
+- rule: 'Validate: Known type names/ignores type definitions'
   skip: true
-'Validate: Overlapping fields can be merged/return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive':
+
+- rule: 'Validate: Overlapping fields can be merged/return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive'
   skip: true
-'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing subfields':
+
+- rule: 'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing subfields'
   skip: true
+
+- rule: 'Validate: Values of correct type/.*custom scalar.*'
+  skip: "Custom scalars are a runtime feature, maybe they dont belong in here?"
+
+- rule: 'Validate: Values of correct type/.*Variable default values.*'
+  skip: "TODO"

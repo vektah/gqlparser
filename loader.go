@@ -64,7 +64,7 @@ func LoadSchema(input string) (*Schema, error) {
 			FieldDefinition{
 				Name:        "if",
 				Description: "Skipped when true.",
-				Type:        NamedType("Boolean"),
+				Type:        NonNullType{NamedType("Boolean")},
 			},
 		},
 		Locations: []DirectiveLocation{LocationField, LocationFragmentSpread, LocationInlineFragment},
@@ -76,7 +76,7 @@ func LoadSchema(input string) (*Schema, error) {
 			FieldDefinition{
 				Name:        "if",
 				Description: "Included when true.",
-				Type:        NamedType("Boolean"),
+				Type:        NonNullType{NamedType("Boolean")},
 			},
 		},
 		Locations: []DirectiveLocation{LocationField, LocationFragmentSpread, LocationInlineFragment},

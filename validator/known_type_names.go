@@ -48,7 +48,7 @@ func init() {
 				possibleTypes = append(possibleTypes, t.Name)
 			}
 
-			list := SuggestList(typeName, possibleTypes)
+			list := SuggestListQuoted("Did you mean", typeName, possibleTypes)
 
 			addError(
 				Message(`Unknown type "%s".`, typeName),
