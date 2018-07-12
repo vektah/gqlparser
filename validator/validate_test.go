@@ -3,13 +3,14 @@ package validator
 import (
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/errors"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 type Spec struct {
@@ -36,25 +37,55 @@ func TestSpec(t *testing.T) {
 		schemas = append(schemas, schema)
 	}
 
-	t.Run("FieldsOnCorrectType", runSpec(schemas, deviations, "../spec/validation/FieldsOnCorrectType.yml"))
-	t.Run("FragmentsOnCompositeTypes", runSpec(schemas, deviations, "../spec/validation/FragmentsOnCompositeTypes.yml"))
-	t.Run("KnownArgumentNames", runSpec(schemas, deviations, "../spec/validation/KnownArgumentNames.yml"))
-	t.Run("KnownDirectives", runSpec(schemas, deviations, "../spec/validation/KnownDirectives.yml"))
-	t.Run("KnownFragmentNames", runSpec(schemas, deviations, "../spec/validation/KnownFragmentNames.yml"))
-	t.Run("KnownTypeNames", runSpec(schemas, deviations, "../spec/validation/KnownTypeNames.yml"))
+	files, err := ioutil.ReadDir("../spec/validation/")
+	if err != nil {
+		panic(err)
+	}
 
-	t.Run("LoneAnonymousOperation", runSpec(schemas, deviations, "../spec/validation/LoneAnonymousOperation.yml"))
+	excludes := []string{
+		"schemas.yml",
+		"deviations.yml",
+	}
+	ignores := []string{
+		"ExecutableDefinitions",
+		"NoUndefinedVariables",
+		"NoUnusedFragments",
+		"NoUnusedVariables",
+		"OverlappingFieldsCanBeMerged",
+		"PossibleFragmentSpreads",
+		"ProvidedRequiredArguments",
+		"ValuesOfCorrectType",
+		"VariablesAreInputTypes",
+		"VariablesInAllowedPosition",
+	}
 
-	t.Run("NoFragmentCycles", runSpec(schemas, deviations, "../spec/validation/NoFragmentCycles.yml"))
+file:
+	for _, file := range files {
+		fileName := file.Name()
 
-	t.Run("ScalarLeafs", runSpec(schemas, deviations, "../spec/validation/ScalarLeafs.yml"))
-	t.Run("SingleFieldSubscriptions", runSpec(schemas, deviations, "../spec/validation/SingleFieldSubscriptions.yml"))
-	t.Run("UniqueArgumentNames", runSpec(schemas, deviations, "../spec/validation/UniqueArgumentNames.yml"))
-	t.Run("UniqueDirectivesPerLocation", runSpec(schemas, deviations, "../spec/validation/UniqueDirectivesPerLocation.yml"))
-	t.Run("UniqueFragmentNames", runSpec(schemas, deviations, "../spec/validation/UniqueFragmentNames.yml"))
-	t.Run("UniqueInputFieldNames", runSpec(schemas, deviations, "../spec/validation/UniqueInputFieldNames.yml"))
-	t.Run("UniqueOperationNames", runSpec(schemas, deviations, "../spec/validation/UniqueOperationNames.yml"))
-	t.Run("UniqueVariableNames", runSpec(schemas, deviations, "../spec/validation/UniqueVariableNames.yml"))
+		if !strings.HasSuffix(fileName, ".yml") {
+			continue
+		}
+
+		for _, exclude := range excludes {
+			if exclude == fileName {
+				continue file
+			}
+		}
+
+		ruleName := fileName[:len(fileName)-len(".yml")]
+
+		for _, ignore := range ignores {
+			if ignore == ruleName {
+				t.Run(ruleName, func(t *testing.T) {
+					t.SkipNow()
+				})
+				continue file
+			}
+		}
+
+		t.Run(ruleName, runSpec(schemas, deviations, fmt.Sprintf("../spec/validation/%s", fileName)))
+	}
 }
 
 func runSpec(schemas []*gqlparser.Schema, deviations map[string]*Spec, filename string) func(t *testing.T) {
