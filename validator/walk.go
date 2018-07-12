@@ -16,6 +16,7 @@ type Events struct {
 	fragmentSpread        []func(walker *Walker, parentDef *gqlparser.Definition, fragmentDef *gqlparser.FragmentDefinition, fragmentSpread *gqlparser.FragmentSpread)
 	directive             []func(walker *Walker, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)
 	directiveList         []func(walker *Walker, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)
+	argument              []func(walker *Walker, arg *gqlparser.Argument)
 	value                 []func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value)
 	variable              []func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, variable gqlparser.VariableDefinition)
 }
@@ -44,6 +45,9 @@ func (o *Events) OnDirective(f func(walker *Walker, parentDef *gqlparser.Definit
 func (o *Events) OnDirectiveList(f func(walker *Walker, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)) {
 	o.directiveList = append(o.directiveList, f)
 }
+func (o *Events) OnArgument(f func(walker *Walker, arg *gqlparser.Argument)) {
+	o.argument = append(o.argument, f)
+}
 func (o *Events) OnValue(f func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value)) {
 	o.value = append(o.value, f)
 }
@@ -56,8 +60,6 @@ func Walk(schema *gqlparser.Schema, document *gqlparser.QueryDocument, observers
 		Observers: observers,
 		Schema:    schema,
 		Document:  document,
-
-		validatedFragmentSpreads: make(map[string]bool),
 	}
 	w.walk()
 }
@@ -73,9 +75,11 @@ type Walker struct {
 
 func (w *Walker) walk() {
 	for _, child := range w.Document.Operations {
+		w.validatedFragmentSpreads = make(map[string]bool)
 		w.walkOperation(&child)
 	}
 	for _, child := range w.Document.Fragments {
+		w.validatedFragmentSpreads = make(map[string]bool)
 		w.walkFragment(&child)
 	}
 }
@@ -146,15 +150,12 @@ func (w *Walker) walkDirectives(parentDef *gqlparser.Definition, directives []gq
 		}
 
 		for _, arg := range dir.Arguments {
-			var argType gqlparser.Type
+			var argDef *gqlparser.FieldDefinition
 			if def != nil {
-				argDef := def.Arguments.ForName(arg.Name)
-				if argDef != nil {
-					argType = argDef.Type
-				}
+				argDef = def.Arguments.ForName(arg.Name)
 			}
 
-			w.walkValue(argType, arg.Value)
+			w.walkArgument(argDef, &arg)
 		}
 	}
 }
@@ -183,6 +184,20 @@ func (w *Walker) walkValue(valueType gqlparser.Type, value gqlparser.Value) {
 	}
 }
 
+func (w *Walker) walkArgument(argDef *gqlparser.FieldDefinition, arg *gqlparser.Argument) {
+	for _, v := range w.Observers.argument {
+		v(w, arg)
+	}
+
+	var argType gqlparser.Type
+	if argDef != nil {
+		argType = argDef.Type
+	}
+
+	w.walkValue(argType, arg.Value)
+
+}
+
 func (w *Walker) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selection) {
 	switch it := it.(type) {
 	case gqlparser.Field:
@@ -206,15 +221,12 @@ func (w *Walker) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Sel
 		}
 
 		for _, arg := range it.Arguments {
-			var argType gqlparser.Type
+			var argDef *gqlparser.FieldDefinition
 			if def != nil {
-				argDef := def.Arguments.ForName(arg.Name)
-				if argDef != nil {
-					argType = argDef.Type
-				}
+				argDef = def.Arguments.ForName(arg.Name)
 			}
 
-			w.walkValue(argType, arg.Value)
+			w.walkArgument(argDef, &arg)
 		}
 
 		for _, sel := range it.SelectionSet {
