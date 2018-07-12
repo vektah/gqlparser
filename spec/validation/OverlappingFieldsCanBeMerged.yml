@@ -495,6 +495,61 @@
       locations:
         - {line: 5, column: 15}
         - {line: 8, column: 15}
+- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive'
+  rule: OverlappingFieldsCanBeMerged
+  schema: 1
+  query: |2-
+            
+            {
+              someBox {
+                ... on IntBox {
+                  deepBox {
+                    ...X
+                  }
+                }
+              }
+              someBox {
+                ... on StringBox {
+                  deepBox {
+                    ...Y
+                  }
+                }
+              }
+              memoed: someBox {
+                ... on IntBox {
+                  deepBox {
+                    ...X
+                  }
+                }
+              }
+              memoed: someBox {
+                ... on StringBox {
+                  deepBox {
+                    ...Y
+                  }
+                }
+              }
+              other: someBox {
+                ...X
+              }
+              other: someBox {
+                ...Y
+              }
+            }
+            fragment X on SomeBox {
+              scalar
+            }
+            fragment Y on SomeBox {
+              scalar: unrelatedField
+            }
+            
+  errors:
+    - message: Fields "other" conflict because subfields "scalar" conflict because scalar and unrelatedField are different fields. Use different aliases on the fields to fetch both if this was intentional.
+      locations:
+        - {line: 31, column: 11}
+        - {line: 39, column: 11}
+        - {line: 34, column: 11}
+        - {line: 42, column: 11}
 - name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing return type nullability despite no overlap'
   rule: OverlappingFieldsCanBeMerged
   schema: 1
@@ -566,6 +621,32 @@
       locations:
         - {line: 5, column: 15}
         - {line: 10, column: 15}
+- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing subfields'
+  rule: OverlappingFieldsCanBeMerged
+  schema: 1
+  query: |2-
+            
+            {
+              someBox {
+                ... on IntBox {
+                  box: stringBox {
+                    val: scalar
+                    val: unrelatedField
+                  }
+                }
+                ... on StringBox {
+                  box: stringBox {
+                    val: scalar
+                  }
+                }
+              }
+            }
+            
+  errors:
+    - message: Fields "val" conflict because scalar and unrelatedField are different fields. Use different aliases on the fields to fetch both if this was intentional.
+      locations:
+        - {line: 6, column: 17}
+        - {line: 7, column: 17}
 - name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing deep return types despite no overlap'
   rule: OverlappingFieldsCanBeMerged
   schema: 1

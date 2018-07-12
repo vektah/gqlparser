@@ -38,3 +38,28 @@
     - message: Unknown type "Peettt". Did you mean "Pet"?
       locations:
         - {line: 8, column: 29}
+- name: 'Validate: Known type names/ignores type definitions'
+  rule: KnownTypeNames
+  schema: 0
+  query: |2-
+          
+          type NotInTheSchema {
+            field: FooBar
+          }
+          interface FooBar {
+            field: NotInTheSchema
+          }
+          union U = A | B
+          input Blob {
+            field: UnknownType
+          }
+          query Foo($var: NotInTheSchema) {
+            user(id: $var) {
+              id
+            }
+          }
+          
+  errors:
+    - message: Unknown type "NotInTheSchema".
+      locations:
+        - {line: 12, column: 23}

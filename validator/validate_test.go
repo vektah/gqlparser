@@ -18,6 +18,7 @@ type Spec struct {
 	Schema int
 	Query  string
 	Errors []errors.Validation
+	Skip   bool
 }
 
 func TestSpec(t *testing.T) {
@@ -69,6 +70,9 @@ func runSpec(schemas []*gqlparser.Schema, deviations map[string]*Spec, filename 
 				if deviation := deviations[spec.Name]; deviation != nil {
 					if deviation.Errors != nil {
 						spec.Errors = deviation.Errors
+					}
+					if deviation.Skip {
+						t.SkipNow()
 					}
 				}
 
