@@ -240,8 +240,8 @@ func (t ListType) Name() string    { return t.Type.Name() }
 func (t NonNullType) Name() string { return t.Type.Name() }
 
 func (t NamedType) String() string   { return string(t) }
-func (t ListType) String() string    { return "[" + t.Type.Name() + "]" }
-func (t NonNullType) String() string { return t.Type.Name() + "!" }
+func (t ListType) String() string    { return "[" + t.Type.String() + "]" }
+func (t NonNullType) String() string { return t.Type.String() + "!" }
 
 func (t NamedType) IsRequired() bool   { return false }
 func (t ListType) IsRequired() bool    { return false }
@@ -326,6 +326,10 @@ func (d *Definition) IsAbstractType() bool {
 
 func (d *Definition) IsCompositeType() bool {
 	return d.Kind == Object || d.Kind == Interface || d.Kind == Union
+}
+
+func (d *Definition) IsInputType() bool {
+	return d.Kind == Scalar || d.Kind == Enum || d.Kind == InputObject
 }
 
 func (d *Definition) OneOf(types ...string) bool {

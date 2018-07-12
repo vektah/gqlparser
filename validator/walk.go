@@ -17,6 +17,7 @@ type Events struct {
 	directive             []func(walker *Walker, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)
 	directiveList         []func(walker *Walker, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)
 	value                 []func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value)
+	variable              []func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, variable gqlparser.VariableDefinition)
 }
 
 func (o *Events) OnOperation(f func(walker *Walker, operation *gqlparser.OperationDefinition)) {
@@ -45,6 +46,9 @@ func (o *Events) OnDirectiveList(f func(walker *Walker, parentDef *gqlparser.Def
 }
 func (o *Events) OnValue(f func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value)) {
 	o.value = append(o.value, f)
+}
+func (o *Events) OnVariable(f func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, variable gqlparser.VariableDefinition)) {
+	o.variable = append(o.variable, f)
 }
 
 func Walk(schema *gqlparser.Schema, document *gqlparser.QueryDocument, observers *Events) {
@@ -97,9 +101,13 @@ func (w *Walker) walkOperation(operation *gqlparser.OperationDefinition) {
 
 	w.walkDirectives(def, operation.Directives, loc)
 
-	for _, def := range operation.VariableDefinitions {
-		if def.DefaultValue != nil {
-			w.walkValue(def.Type, def.DefaultValue)
+	for _, varDef := range operation.VariableDefinitions {
+		typeDef := w.Schema.Types[varDef.Type.Name()]
+		for _, v := range w.Observers.variable {
+			v(w, varDef.Type, typeDef, varDef)
+		}
+		if varDef.DefaultValue != nil {
+			w.walkValue(varDef.Type, varDef.DefaultValue)
 		}
 	}
 
