@@ -16,7 +16,6 @@ type Events struct {
 	fragmentSpread        []func(walker *Walker, parentDef *gqlparser.Definition, fragmentDef *gqlparser.FragmentDefinition, fragmentSpread *gqlparser.FragmentSpread)
 	directive             []func(walker *Walker, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)
 	directiveList         []func(walker *Walker, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)
-	argument              []func(walker *Walker, arg *gqlparser.Argument)
 	value                 []func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value)
 	variable              []func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, variable gqlparser.VariableDefinition)
 }
@@ -44,9 +43,6 @@ func (o *Events) OnDirective(f func(walker *Walker, parentDef *gqlparser.Definit
 }
 func (o *Events) OnDirectiveList(f func(walker *Walker, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)) {
 	o.directiveList = append(o.directiveList, f)
-}
-func (o *Events) OnArgument(f func(walker *Walker, arg *gqlparser.Argument)) {
-	o.argument = append(o.argument, f)
 }
 func (o *Events) OnValue(f func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value)) {
 	o.value = append(o.value, f)
@@ -185,10 +181,6 @@ func (w *Walker) walkValue(valueType gqlparser.Type, value gqlparser.Value) {
 }
 
 func (w *Walker) walkArgument(argDef *gqlparser.FieldDefinition, arg *gqlparser.Argument) {
-	for _, v := range w.Observers.argument {
-		v(w, arg)
-	}
-
 	var argType gqlparser.Type
 	if argDef != nil {
 		argType = argDef.Type

@@ -15,24 +15,44 @@ func init() {
 			currentOperation = nil
 		})
 
-		observers.OnArgument(func(walker *Walker, arg *gqlparser.Argument) {
+		observers.OnValue(func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value) {
 			if currentOperation == nil {
 				// not in operation context
 				return
 			}
-			variable, isVariable := arg.Value.(gqlparser.Variable)
-			if !isVariable {
-				return
-			}
-			for _, varDef := range currentOperation.VariableDefinitions {
-				if varDef.Variable == variable {
+
+			var variables []gqlparser.Variable
+			var filterVariable func(value gqlparser.Value)
+			filterVariable = func(value gqlparser.Value) {
+				switch value := value.(type) {
+				case gqlparser.Variable:
+					variables = append(variables, value)
+				case gqlparser.ListValue:
+					for _, v := range value {
+						filterVariable(v)
+					}
+				case gqlparser.ObjectValue:
+					for _, v := range value {
+						filterVariable(v.Value)
+					}
+				default:
 					return
 				}
 			}
-			if currentOperation.Name != "" {
-				addError(Message(`Variable "$%s" is not defined by operation "%s".`, arg.Name, currentOperation.Name))
-			} else {
-				addError(Message(`Variable "$%s" is not defined.`, arg.Name))
+			filterVariable(value)
+
+		variables:
+			for _, variable := range variables {
+				for _, varDef := range currentOperation.VariableDefinitions {
+					if varDef.Variable == variable {
+						continue variables
+					}
+				}
+				if currentOperation.Name != "" {
+					addError(Message(`Variable "$%s" is not defined by operation "%s".`, value, currentOperation.Name))
+				} else {
+					addError(Message(`Variable "$%s" is not defined.`, value))
+				}
 			}
 		})
 	})
