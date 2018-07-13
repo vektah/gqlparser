@@ -1,4 +1,4 @@
-- name: 'Validate: Variables are in allowed positions/Boolean => Boolean'
+- name: Boolean => Boolean
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -11,7 +11,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are in allowed positions/Boolean => Boolean within fragment'
+- name: Boolean => Boolean within fragment
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -27,7 +27,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are in allowed positions/Boolean => Boolean within fragment'
+- name: Boolean => Boolean within fragment
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -43,7 +43,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are in allowed positions/Boolean! => Boolean'
+- name: Boolean! => Boolean
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -56,7 +56,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are in allowed positions/Boolean! => Boolean within fragment'
+- name: Boolean! => Boolean within fragment
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -73,7 +73,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are in allowed positions/[String] => [String]'
+- name: '[String] => [String]'
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -86,7 +86,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are in allowed positions/[String!] => [String]'
+- name: '[String!] => [String]'
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -99,7 +99,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are in allowed positions/String => [String] in item position'
+- name: 'String => [String] in item position'
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -112,7 +112,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are in allowed positions/String! => [String] in item position'
+- name: 'String! => [String] in item position'
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -125,7 +125,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are in allowed positions/ComplexInput => ComplexInput'
+- name: ComplexInput => ComplexInput
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -138,7 +138,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are in allowed positions/ComplexInput => ComplexInput in field position'
+- name: ComplexInput => ComplexInput in field position
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -151,7 +151,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are in allowed positions/Boolean! => Boolean! in directive'
+- name: Boolean! => Boolean! in directive
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -162,7 +162,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are in allowed positions/Int => Int!'
+- name: Int => Int!
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -178,7 +178,7 @@
       locations:
         - {line: 2, column: 19}
         - {line: 4, column: 45}
-- name: 'Validate: Variables are in allowed positions/Int => Int! within fragment'
+- name: Int => Int! within fragment
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -198,7 +198,7 @@
       locations:
         - {line: 6, column: 19}
         - {line: 3, column: 43}
-- name: 'Validate: Variables are in allowed positions/Int => Int! within nested fragment'
+- name: Int => Int! within nested fragment
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -222,7 +222,7 @@
       locations:
         - {line: 10, column: 19}
         - {line: 7, column: 43}
-- name: 'Validate: Variables are in allowed positions/String over Boolean'
+- name: String over Boolean
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -238,7 +238,7 @@
       locations:
         - {line: 2, column: 19}
         - {line: 4, column: 39}
-- name: 'Validate: Variables are in allowed positions/String => [String]'
+- name: 'String => [String]'
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -254,7 +254,7 @@
       locations:
         - {line: 2, column: 19}
         - {line: 4, column: 45}
-- name: 'Validate: Variables are in allowed positions/Boolean => Boolean! in directive'
+- name: Boolean => Boolean! in directive
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -268,7 +268,7 @@
       locations:
         - {line: 2, column: 19}
         - {line: 3, column: 26}
-- name: 'Validate: Variables are in allowed positions/String => Boolean! in directive'
+- name: String => Boolean! in directive
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -282,7 +282,7 @@
       locations:
         - {line: 2, column: 19}
         - {line: 3, column: 26}
-- name: 'Validate: Variables are in allowed positions/[String] => [String!]'
+- name: '[String] => [String!]'
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -299,7 +299,7 @@
       locations:
         - {line: 2, column: 19}
         - {line: 5, column: 59}
-- name: 'Validate: Variables are in allowed positions/Allows optional (nullable) variables with default values/Int => Int! fails when variable provides null default value'
+- name: Allows optional (nullable) variables with default values/Int => Int! fails when variable provides null default value
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -314,7 +314,7 @@
       locations:
         - {line: 2, column: 21}
         - {line: 4, column: 47}
-- name: 'Validate: Variables are in allowed positions/Allows optional (nullable) variables with default values/Int => Int! when variable provides non-null default value'
+- name: Allows optional (nullable) variables with default values/Int => Int! when variable provides non-null default value
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -325,7 +325,7 @@
               }
             }
   errors: []
-- name: 'Validate: Variables are in allowed positions/Allows optional (nullable) variables with default values/Int => Int! when optional argument provides default value'
+- name: Allows optional (nullable) variables with default values/Int => Int! when optional argument provides default value
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -336,7 +336,7 @@
               }
             }
   errors: []
-- name: 'Validate: Variables are in allowed positions/Allows optional (nullable) variables with default values/Boolean => Boolean! in directive with default value with option'
+- name: Allows optional (nullable) variables with default values/Boolean => Boolean! in directive with default value with option
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-

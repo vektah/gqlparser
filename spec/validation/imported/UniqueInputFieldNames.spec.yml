@@ -1,4 +1,4 @@
-- name: 'Validate: Unique input field names/input object with fields'
+- name: input object with fields
   rule: UniqueInputFieldNames
   schema: 0
   query: |2-
@@ -8,7 +8,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique input field names/same input object within two args'
+- name: same input object within two args
   rule: UniqueInputFieldNames
   schema: 0
   query: |2-
@@ -18,7 +18,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique input field names/multiple input object fields'
+- name: multiple input object fields
   rule: UniqueInputFieldNames
   schema: 0
   query: |2-
@@ -28,7 +28,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique input field names/allows for nested input objects with similar fields'
+- name: allows for nested input objects with similar fields
   rule: UniqueInputFieldNames
   schema: 0
   query: |2-
@@ -46,7 +46,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique input field names/duplicate input object fields'
+- name: duplicate input object fields
   rule: UniqueInputFieldNames
   schema: 0
   query: |2-
@@ -60,7 +60,7 @@
       locations:
         - {line: 3, column: 22}
         - {line: 3, column: 35}
-- name: 'Validate: Unique input field names/many duplicate input object fields'
+- name: many duplicate input object fields
   rule: UniqueInputFieldNames
   schema: 0
   query: |2-

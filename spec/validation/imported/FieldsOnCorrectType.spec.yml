@@ -1,4 +1,4 @@
-- name: 'Validate: Fields on correct type/Object field selection'
+- name: Object field selection
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -9,7 +9,7 @@
           }
           
   errors: []
-- name: 'Validate: Fields on correct type/Aliased object field selection'
+- name: Aliased object field selection
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -20,7 +20,7 @@
           }
           
   errors: []
-- name: 'Validate: Fields on correct type/Interface field selection'
+- name: Interface field selection
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -31,7 +31,7 @@
           }
           
   errors: []
-- name: 'Validate: Fields on correct type/Aliased interface field selection'
+- name: Aliased interface field selection
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -41,7 +41,7 @@
           }
           
   errors: []
-- name: 'Validate: Fields on correct type/Lying alias selection'
+- name: Lying alias selection
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -51,7 +51,7 @@
           }
           
   errors: []
-- name: 'Validate: Fields on correct type/Ignores fields on unknown type'
+- name: Ignores fields on unknown type
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -61,7 +61,7 @@
           }
           
   errors: []
-- name: 'Validate: Fields on correct type/reports errors when type is known again'
+- name: reports errors when type is known again
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -80,7 +80,7 @@
     - message: Cannot query field "unknown_cat_field" on type "Cat".
       locations:
         - {line: 5, column: 13}
-- name: 'Validate: Fields on correct type/Field not defined on fragment'
+- name: Field not defined on fragment
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -92,7 +92,7 @@
     - message: Cannot query field "meowVolume" on type "Dog". Did you mean "barkVolume"?
       locations:
         - {line: 3, column: 9}
-- name: 'Validate: Fields on correct type/Ignores deeply unknown field'
+- name: Ignores deeply unknown field
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -106,7 +106,7 @@
     - message: Cannot query field "unknown_field" on type "Dog".
       locations:
         - {line: 3, column: 9}
-- name: 'Validate: Fields on correct type/Sub-field not defined'
+- name: Sub-field not defined
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -120,7 +120,7 @@
     - message: Cannot query field "unknown_field" on type "Pet".
       locations:
         - {line: 4, column: 11}
-- name: 'Validate: Fields on correct type/Field not defined on inline fragment'
+- name: Field not defined on inline fragment
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -134,7 +134,7 @@
     - message: Cannot query field "meowVolume" on type "Dog". Did you mean "barkVolume"?
       locations:
         - {line: 4, column: 11}
-- name: 'Validate: Fields on correct type/Aliased field target not defined'
+- name: Aliased field target not defined
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -146,7 +146,7 @@
     - message: Cannot query field "mooVolume" on type "Dog". Did you mean "barkVolume"?
       locations:
         - {line: 3, column: 9}
-- name: 'Validate: Fields on correct type/Aliased lying field target not defined'
+- name: Aliased lying field target not defined
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -158,7 +158,7 @@
     - message: Cannot query field "kawVolume" on type "Dog". Did you mean "barkVolume"?
       locations:
         - {line: 3, column: 9}
-- name: 'Validate: Fields on correct type/Not defined on interface'
+- name: Not defined on interface
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -170,7 +170,7 @@
     - message: Cannot query field "tailLength" on type "Pet".
       locations:
         - {line: 3, column: 9}
-- name: 'Validate: Fields on correct type/Defined on implementors but not on interface'
+- name: Defined on implementors but not on interface
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -182,7 +182,7 @@
     - message: Cannot query field "nickname" on type "Pet". Did you mean to use an inline fragment on "Dog" or "Cat"?
       locations:
         - {line: 3, column: 9}
-- name: 'Validate: Fields on correct type/Meta field selection on union'
+- name: Meta field selection on union
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -191,7 +191,7 @@
             __typename
           }
   errors: []
-- name: 'Validate: Fields on correct type/Direct field selection on union'
+- name: Direct field selection on union
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -203,7 +203,7 @@
     - message: Cannot query field "directField" on type "CatOrDog".
       locations:
         - {line: 3, column: 9}
-- name: 'Validate: Fields on correct type/Defined on implementors queried on union'
+- name: Defined on implementors queried on union
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-
@@ -215,7 +215,7 @@
     - message: 'Cannot query field "name" on type "CatOrDog". Did you mean to use an inline fragment on "Being", "Pet", "Canine", "Dog", or "Cat"?'
       locations:
         - {line: 3, column: 9}
-- name: 'Validate: Fields on correct type/valid field in inline fragment'
+- name: valid field in inline fragment
   rule: FieldsOnCorrectType
   schema: 0
   query: |2-

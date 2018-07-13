@@ -1,4 +1,4 @@
-- name: 'Validate: Overlapping fields can be merged/unique fields'
+- name: unique fields
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -9,7 +9,7 @@
           }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/identical fields'
+- name: identical fields
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -20,7 +20,7 @@
           }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/identical fields with identical args'
+- name: identical fields with identical args
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -31,7 +31,7 @@
           }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/identical fields with identical directives'
+- name: identical fields with identical directives
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -42,7 +42,7 @@
           }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/different args with different aliases'
+- name: different args with different aliases
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -53,7 +53,7 @@
           }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/different directives with different aliases'
+- name: different directives with different aliases
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -64,7 +64,7 @@
           }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/different skip/include directives accepted'
+- name: different skip/include directives accepted
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -75,7 +75,7 @@
           }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/Same aliases with different field targets'
+- name: Same aliases with different field targets
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -90,7 +90,7 @@
       locations:
         - {line: 3, column: 9}
         - {line: 4, column: 9}
-- name: 'Validate: Overlapping fields can be merged/Same aliases allowed on non-overlapping fields'
+- name: Same aliases allowed on non-overlapping fields
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -105,7 +105,7 @@
           }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/Alias masking direct field access'
+- name: Alias masking direct field access
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -120,7 +120,7 @@
       locations:
         - {line: 3, column: 9}
         - {line: 4, column: 9}
-- name: 'Validate: Overlapping fields can be merged/different args, second adds an argument'
+- name: 'different args, second adds an argument'
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -135,7 +135,7 @@
       locations:
         - {line: 3, column: 9}
         - {line: 4, column: 9}
-- name: 'Validate: Overlapping fields can be merged/different args, second missing an argument'
+- name: 'different args, second missing an argument'
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -150,7 +150,7 @@
       locations:
         - {line: 3, column: 9}
         - {line: 4, column: 9}
-- name: 'Validate: Overlapping fields can be merged/conflicting args'
+- name: conflicting args
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -165,7 +165,7 @@
       locations:
         - {line: 3, column: 9}
         - {line: 4, column: 9}
-- name: 'Validate: Overlapping fields can be merged/allows different args where no conflict is possible'
+- name: allows different args where no conflict is possible
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -180,7 +180,7 @@
           }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/encounters conflict in fragments'
+- name: encounters conflict in fragments
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -201,7 +201,7 @@
       locations:
         - {line: 7, column: 9}
         - {line: 10, column: 9}
-- name: 'Validate: Overlapping fields can be merged/reports each conflict once'
+- name: reports each conflict once
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -241,7 +241,7 @@
       locations:
         - {line: 14, column: 11}
         - {line: 21, column: 9}
-- name: 'Validate: Overlapping fields can be merged/deep conflict'
+- name: deep conflict
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -262,7 +262,7 @@
         - {line: 4, column: 11}
         - {line: 6, column: 9}
         - {line: 7, column: 11}
-- name: 'Validate: Overlapping fields can be merged/deep conflict with multiple issues'
+- name: deep conflict with multiple issues
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -287,7 +287,7 @@
         - {line: 7, column: 9}
         - {line: 8, column: 11}
         - {line: 9, column: 11}
-- name: 'Validate: Overlapping fields can be merged/very deep conflict'
+- name: very deep conflict
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -314,7 +314,7 @@
         - {line: 8, column: 9}
         - {line: 9, column: 11}
         - {line: 10, column: 13}
-- name: 'Validate: Overlapping fields can be merged/reports deep conflict to nearest common ancestor'
+- name: reports deep conflict to nearest common ancestor
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -342,7 +342,7 @@
         - {line: 5, column: 13}
         - {line: 7, column: 11}
         - {line: 8, column: 13}
-- name: 'Validate: Overlapping fields can be merged/reports deep conflict to nearest common ancestor in fragments'
+- name: reports deep conflict to nearest common ancestor in fragments
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -378,7 +378,7 @@
         - {line: 13, column: 13}
         - {line: 15, column: 11}
         - {line: 16, column: 13}
-- name: 'Validate: Overlapping fields can be merged/reports deep conflict in nested fragments'
+- name: reports deep conflict in nested fragments
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -415,7 +415,7 @@
         - {line: 6, column: 9}
         - {line: 22, column: 9}
         - {line: 18, column: 9}
-- name: 'Validate: Overlapping fields can be merged/ignores unknown fragments'
+- name: ignores unknown fragments
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -432,7 +432,7 @@
         }
         
   errors: []
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/conflicting return types which potentially overlap'
+- name: return types must be unambiguous/conflicting return types which potentially overlap
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -453,7 +453,7 @@
       locations:
         - {line: 5, column: 15}
         - {line: 8, column: 15}
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/compatible return shapes on different return types'
+- name: return types must be unambiguous/compatible return shapes on different return types
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -474,7 +474,7 @@
           }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing return types despite no overlap'
+- name: return types must be unambiguous/disallows differing return types despite no overlap
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -495,7 +495,7 @@
       locations:
         - {line: 5, column: 15}
         - {line: 8, column: 15}
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive'
+- name: return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -550,7 +550,7 @@
         - {line: 39, column: 11}
         - {line: 34, column: 11}
         - {line: 42, column: 11}
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing return type nullability despite no overlap'
+- name: return types must be unambiguous/disallows differing return type nullability despite no overlap
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -571,7 +571,7 @@
       locations:
         - {line: 5, column: 15}
         - {line: 8, column: 15}
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing return type list despite no overlap'
+- name: return types must be unambiguous/disallows differing return type list despite no overlap
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -596,7 +596,7 @@
       locations:
         - {line: 5, column: 15}
         - {line: 10, column: 15}
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing return type list despite no overlap'
+- name: return types must be unambiguous/disallows differing return type list despite no overlap
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -621,7 +621,7 @@
       locations:
         - {line: 5, column: 15}
         - {line: 10, column: 15}
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing subfields'
+- name: return types must be unambiguous/disallows differing subfields
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -647,7 +647,7 @@
       locations:
         - {line: 6, column: 17}
         - {line: 7, column: 17}
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing deep return types despite no overlap'
+- name: return types must be unambiguous/disallows differing deep return types despite no overlap
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -674,7 +674,7 @@
         - {line: 6, column: 17}
         - {line: 10, column: 15}
         - {line: 11, column: 17}
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/allows non-conflicting overlaping types'
+- name: return types must be unambiguous/allows non-conflicting overlaping types
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -691,7 +691,7 @@
             }
             
   errors: []
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/same wrapped scalar return types'
+- name: return types must be unambiguous/same wrapped scalar return types
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -708,7 +708,7 @@
             }
             
   errors: []
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/allows inline typeless fragments'
+- name: return types must be unambiguous/allows inline typeless fragments
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -721,7 +721,7 @@
             }
             
   errors: []
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/compares deep types including list'
+- name: return types must be unambiguous/compares deep types including list
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -754,7 +754,7 @@
         - {line: 14, column: 11}
         - {line: 15, column: 13}
         - {line: 16, column: 15}
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/ignores unknown types'
+- name: return types must be unambiguous/ignores unknown types
   rule: OverlappingFieldsCanBeMerged
   schema: 1
   query: |2-
@@ -771,7 +771,7 @@
             }
             
   errors: []
-- name: 'Validate: Overlapping fields can be merged/return types must be unambiguous/works for field names that are JS keywords'
+- name: return types must be unambiguous/works for field names that are JS keywords
   rule: OverlappingFieldsCanBeMerged
   schema: 2
   query: |2-
@@ -781,7 +781,7 @@
               }
             }
   errors: []
-- name: 'Validate: Overlapping fields can be merged/does not infinite loop on recursive fragment'
+- name: does not infinite loop on recursive fragment
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -789,7 +789,7 @@
           fragment fragA on Human { name, relatives { name, ...fragA } }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/does not infinite loop on immediately recursive fragment'
+- name: does not infinite loop on immediately recursive fragment
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -797,7 +797,7 @@
           fragment fragA on Human { name, ...fragA }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/does not infinite loop on transitively recursive fragment'
+- name: does not infinite loop on transitively recursive fragment
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -807,7 +807,7 @@
           fragment fragC on Human { name, ...fragA }
           
   errors: []
-- name: 'Validate: Overlapping fields can be merged/finds invalid case even with immediately recursive fragment'
+- name: finds invalid case even with immediately recursive fragment
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-

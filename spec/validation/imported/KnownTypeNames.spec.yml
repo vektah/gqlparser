@@ -1,4 +1,4 @@
-- name: 'Validate: Known type names/known type names are valid'
+- name: known type names are valid
   rule: KnownTypeNames
   schema: 0
   query: |2-
@@ -13,7 +13,7 @@
           }
           
   errors: []
-- name: 'Validate: Known type names/unknown type names are invalid'
+- name: unknown type names are invalid
   rule: KnownTypeNames
   schema: 0
   query: |2-
@@ -38,7 +38,7 @@
     - message: Unknown type "Peettt". Did you mean "Pet"?
       locations:
         - {line: 8, column: 29}
-- name: 'Validate: Known type names/ignores type definitions'
+- name: ignores type definitions
   rule: KnownTypeNames
   schema: 0
   query: |2-

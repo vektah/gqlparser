@@ -1,4 +1,4 @@
-- name: 'Validate: Known fragment names/known fragment names are valid'
+- name: known fragment names are valid
   rule: KnownFragmentNames
   schema: 0
   query: |2-
@@ -26,7 +26,7 @@
           }
           
   errors: []
-- name: 'Validate: Known fragment names/unknown fragment names are invalid'
+- name: unknown fragment names are invalid
   rule: KnownFragmentNames
   schema: 0
   query: |2-

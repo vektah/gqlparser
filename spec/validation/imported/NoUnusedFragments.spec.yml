@@ -1,4 +1,4 @@
-- name: 'Validate: No unused fragments/all fragment names are used'
+- name: all fragment names are used
   rule: NoUnusedFragments
   schema: 0
   query: |2-
@@ -23,7 +23,7 @@
           }
           
   errors: []
-- name: 'Validate: No unused fragments/all fragment names are used by multiple operations'
+- name: all fragment names are used by multiple operations
   rule: NoUnusedFragments
   schema: 0
   query: |2-
@@ -50,7 +50,7 @@
           }
           
   errors: []
-- name: 'Validate: No unused fragments/contains unknown fragments'
+- name: contains unknown fragments
   rule: NoUnusedFragments
   schema: 0
   query: |2-
@@ -89,7 +89,7 @@
     - message: Fragment "Unused2" is never used.
       locations:
         - {line: 25, column: 7}
-- name: 'Validate: No unused fragments/contains unknown fragments with ref cycle'
+- name: contains unknown fragments with ref cycle
   rule: NoUnusedFragments
   schema: 0
   query: |2-
@@ -130,7 +130,7 @@
     - message: Fragment "Unused2" is never used.
       locations:
         - {line: 26, column: 7}
-- name: 'Validate: No unused fragments/contains unknown and undef fragments'
+- name: contains unknown and undef fragments
   rule: NoUnusedFragments
   schema: 0
   query: |2-

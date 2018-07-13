@@ -1,4 +1,4 @@
-- name: 'Validate: No circular fragment spreads/single reference is valid'
+- name: single reference is valid
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -7,7 +7,7 @@
           fragment fragB on Dog { name }
           
   errors: []
-- name: 'Validate: No circular fragment spreads/spreading twice is not circular'
+- name: spreading twice is not circular
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -16,7 +16,7 @@
           fragment fragB on Dog { name }
           
   errors: []
-- name: 'Validate: No circular fragment spreads/spreading twice indirectly is not circular'
+- name: spreading twice indirectly is not circular
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -26,7 +26,7 @@
           fragment fragC on Dog { name }
           
   errors: []
-- name: 'Validate: No circular fragment spreads/double spread within abstract types'
+- name: double spread within abstract types
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -42,7 +42,7 @@
           }
           
   errors: []
-- name: 'Validate: No circular fragment spreads/does not false positive on unknown fragment'
+- name: does not false positive on unknown fragment
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -52,7 +52,7 @@
           }
           
   errors: []
-- name: 'Validate: No circular fragment spreads/spreading recursively within field fails'
+- name: spreading recursively within field fails
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -63,7 +63,7 @@
     - message: Cannot spread fragment "fragA" within itself.
       locations:
         - {line: 2, column: 45}
-- name: 'Validate: No circular fragment spreads/no spreading itself directly'
+- name: no spreading itself directly
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -74,7 +74,7 @@
     - message: Cannot spread fragment "fragA" within itself.
       locations:
         - {line: 2, column: 31}
-- name: 'Validate: No circular fragment spreads/no spreading itself directly within inline fragment'
+- name: no spreading itself directly within inline fragment
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -89,7 +89,7 @@
     - message: Cannot spread fragment "fragA" within itself.
       locations:
         - {line: 4, column: 11}
-- name: 'Validate: No circular fragment spreads/no spreading itself indirectly'
+- name: no spreading itself indirectly
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -102,7 +102,7 @@
       locations:
         - {line: 2, column: 31}
         - {line: 3, column: 31}
-- name: 'Validate: No circular fragment spreads/no spreading itself indirectly reports opposite order'
+- name: no spreading itself indirectly reports opposite order
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -115,7 +115,7 @@
       locations:
         - {line: 2, column: 31}
         - {line: 3, column: 31}
-- name: 'Validate: No circular fragment spreads/no spreading itself indirectly within inline fragment'
+- name: no spreading itself indirectly within inline fragment
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -136,7 +136,7 @@
       locations:
         - {line: 4, column: 11}
         - {line: 9, column: 11}
-- name: 'Validate: No circular fragment spreads/no spreading itself deeply'
+- name: no spreading itself deeply
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -165,7 +165,7 @@
         - {line: 5, column: 31}
         - {line: 6, column: 31}
         - {line: 7, column: 31}
-- name: 'Validate: No circular fragment spreads/no spreading itself deeply two paths'
+- name: no spreading itself deeply two paths
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -183,7 +183,7 @@
       locations:
         - {line: 2, column: 41}
         - {line: 4, column: 31}
-- name: 'Validate: No circular fragment spreads/no spreading itself deeply two paths -- alt traverse order'
+- name: no spreading itself deeply two paths -- alt traverse order
   rule: NoFragmentCycles
   schema: 0
   query: |2-
@@ -201,7 +201,7 @@
       locations:
         - {line: 4, column: 41}
         - {line: 3, column: 31}
-- name: 'Validate: No circular fragment spreads/no spreading itself deeply and immediately'
+- name: no spreading itself deeply and immediately
   rule: NoFragmentCycles
   schema: 0
   query: |2-

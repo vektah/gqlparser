@@ -1,4 +1,4 @@
-- name: 'Validate: Known argument names/single arg is known'
+- name: single arg is known
   rule: KnownArgumentNames
   schema: 0
   query: |2-
@@ -8,7 +8,7 @@
           }
           
   errors: []
-- name: 'Validate: Known argument names/multiple args are known'
+- name: multiple args are known
   rule: KnownArgumentNames
   schema: 0
   query: |2-
@@ -18,7 +18,7 @@
           }
           
   errors: []
-- name: 'Validate: Known argument names/ignores args of unknown fields'
+- name: ignores args of unknown fields
   rule: KnownArgumentNames
   schema: 0
   query: |2-
@@ -28,7 +28,7 @@
           }
           
   errors: []
-- name: 'Validate: Known argument names/multiple args in reverse order are known'
+- name: multiple args in reverse order are known
   rule: KnownArgumentNames
   schema: 0
   query: |2-
@@ -38,7 +38,7 @@
           }
           
   errors: []
-- name: 'Validate: Known argument names/no args on optional arg'
+- name: no args on optional arg
   rule: KnownArgumentNames
   schema: 0
   query: |2-
@@ -48,7 +48,7 @@
           }
           
   errors: []
-- name: 'Validate: Known argument names/args are known deeply'
+- name: args are known deeply
   rule: KnownArgumentNames
   schema: 0
   query: |2-
@@ -67,7 +67,7 @@
           }
           
   errors: []
-- name: 'Validate: Known argument names/directive args are known'
+- name: directive args are known
   rule: KnownArgumentNames
   schema: 0
   query: |2-
@@ -77,7 +77,7 @@
           }
           
   errors: []
-- name: 'Validate: Known argument names/undirective args are invalid'
+- name: undirective args are invalid
   rule: KnownArgumentNames
   schema: 0
   query: |2-
@@ -90,7 +90,7 @@
     - message: Unknown argument "unless" on directive "@skip".
       locations:
         - {line: 3, column: 19}
-- name: 'Validate: Known argument names/misspelled directive args are reported'
+- name: misspelled directive args are reported
   rule: KnownArgumentNames
   schema: 0
   query: |2-
@@ -103,7 +103,7 @@
     - message: Unknown argument "iff" on directive "@skip". Did you mean "if"?
       locations:
         - {line: 3, column: 19}
-- name: 'Validate: Known argument names/invalid arg name'
+- name: invalid arg name
   rule: KnownArgumentNames
   schema: 0
   query: |2-
@@ -116,7 +116,7 @@
     - message: Unknown argument "unknown" on field "doesKnowCommand" of type "Dog".
       locations:
         - {line: 3, column: 25}
-- name: 'Validate: Known argument names/misspelled arg name is reported'
+- name: misspelled arg name is reported
   rule: KnownArgumentNames
   schema: 0
   query: |2-
@@ -129,7 +129,7 @@
     - message: Unknown argument "dogcommand" on field "doesKnowCommand" of type "Dog". Did you mean "dogCommand"?
       locations:
         - {line: 3, column: 25}
-- name: 'Validate: Known argument names/unknown args amongst known args'
+- name: unknown args amongst known args
   rule: KnownArgumentNames
   schema: 0
   query: |2-
@@ -145,7 +145,7 @@
     - message: Unknown argument "unknown" on field "doesKnowCommand" of type "Dog".
       locations:
         - {line: 3, column: 55}
-- name: 'Validate: Known argument names/unknown args deeply'
+- name: unknown args deeply
   rule: KnownArgumentNames
   schema: 0
   query: |2-

@@ -1,4 +1,4 @@
-- name: 'Validate: Provided required arguments/ignores unknown arguments'
+- name: ignores unknown arguments
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -10,7 +10,7 @@
           }
           
   errors: []
-- name: 'Validate: Provided required arguments/Valid non-nullable value/Arg on optional arg'
+- name: Valid non-nullable value/Arg on optional arg
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -22,7 +22,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Valid non-nullable value/No Arg on optional arg'
+- name: Valid non-nullable value/No Arg on optional arg
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -34,7 +34,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Valid non-nullable value/No arg on non-null field with default'
+- name: Valid non-nullable value/No arg on non-null field with default
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -46,7 +46,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Valid non-nullable value/Multiple args'
+- name: Valid non-nullable value/Multiple args
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -58,7 +58,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Valid non-nullable value/Multiple args reverse order'
+- name: Valid non-nullable value/Multiple args reverse order
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -70,7 +70,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Valid non-nullable value/No args on multiple optional'
+- name: Valid non-nullable value/No args on multiple optional
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -82,7 +82,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Valid non-nullable value/One arg on multiple optional'
+- name: Valid non-nullable value/One arg on multiple optional
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -94,7 +94,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Valid non-nullable value/Second arg on multiple optional'
+- name: Valid non-nullable value/Second arg on multiple optional
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -106,7 +106,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Valid non-nullable value/Multiple reqs on mixedList'
+- name: Valid non-nullable value/Multiple reqs on mixedList
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -118,7 +118,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Valid non-nullable value/Multiple reqs and one opt on mixedList'
+- name: Valid non-nullable value/Multiple reqs and one opt on mixedList
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -130,7 +130,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Valid non-nullable value/All reqs and opts on mixedList'
+- name: Valid non-nullable value/All reqs and opts on mixedList
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -142,7 +142,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Invalid non-nullable value/Missing one non-nullable argument'
+- name: Invalid non-nullable value/Missing one non-nullable argument
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -157,7 +157,7 @@
     - message: Field "multipleReqs" argument "req1" of type "Int!" is required but not provided.
       locations:
         - {line: 4, column: 13}
-- name: 'Validate: Provided required arguments/Invalid non-nullable value/Missing multiple non-nullable arguments'
+- name: Invalid non-nullable value/Missing multiple non-nullable arguments
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -175,7 +175,7 @@
     - message: Field "multipleReqs" argument "req2" of type "Int!" is required but not provided.
       locations:
         - {line: 4, column: 13}
-- name: 'Validate: Provided required arguments/Invalid non-nullable value/Incorrect value and missing argument'
+- name: Invalid non-nullable value/Incorrect value and missing argument
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -190,7 +190,7 @@
     - message: Field "multipleReqs" argument "req2" of type "Int!" is required but not provided.
       locations:
         - {line: 4, column: 13}
-- name: 'Validate: Provided required arguments/Directive arguments/ignores unknown directives'
+- name: Directive arguments/ignores unknown directives
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -200,7 +200,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Directive arguments/with directives of valid types'
+- name: Directive arguments/with directives of valid types
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-
@@ -215,7 +215,7 @@
             }
             
   errors: []
-- name: 'Validate: Provided required arguments/Directive arguments/with directive with missing types'
+- name: Directive arguments/with directive with missing types
   rule: ProvidedRequiredArguments
   schema: 0
   query: |2-

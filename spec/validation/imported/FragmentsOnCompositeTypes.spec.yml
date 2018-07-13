@@ -1,4 +1,4 @@
-- name: 'Validate: Fragments on composite types/object is valid fragment type'
+- name: object is valid fragment type
   rule: FragmentsOnCompositeTypes
   schema: 0
   query: |2-
@@ -8,7 +8,7 @@
           }
           
   errors: []
-- name: 'Validate: Fragments on composite types/interface is valid fragment type'
+- name: interface is valid fragment type
   rule: FragmentsOnCompositeTypes
   schema: 0
   query: |2-
@@ -18,7 +18,7 @@
           }
           
   errors: []
-- name: 'Validate: Fragments on composite types/object is valid inline fragment type'
+- name: object is valid inline fragment type
   rule: FragmentsOnCompositeTypes
   schema: 0
   query: |2-
@@ -30,7 +30,7 @@
           }
           
   errors: []
-- name: 'Validate: Fragments on composite types/inline fragment without type is valid'
+- name: inline fragment without type is valid
   rule: FragmentsOnCompositeTypes
   schema: 0
   query: |2-
@@ -42,7 +42,7 @@
           }
           
   errors: []
-- name: 'Validate: Fragments on composite types/union is valid fragment type'
+- name: union is valid fragment type
   rule: FragmentsOnCompositeTypes
   schema: 0
   query: |2-
@@ -52,7 +52,7 @@
           }
           
   errors: []
-- name: 'Validate: Fragments on composite types/scalar is invalid fragment type'
+- name: scalar is invalid fragment type
   rule: FragmentsOnCompositeTypes
   schema: 0
   query: |2-
@@ -65,7 +65,7 @@
     - message: Fragment "scalarFragment" cannot condition on non composite type "Boolean".
       locations:
         - {line: 2, column: 34}
-- name: 'Validate: Fragments on composite types/enum is invalid fragment type'
+- name: enum is invalid fragment type
   rule: FragmentsOnCompositeTypes
   schema: 0
   query: |2-
@@ -78,7 +78,7 @@
     - message: Fragment "scalarFragment" cannot condition on non composite type "FurColor".
       locations:
         - {line: 2, column: 34}
-- name: 'Validate: Fragments on composite types/input object is invalid fragment type'
+- name: input object is invalid fragment type
   rule: FragmentsOnCompositeTypes
   schema: 0
   query: |2-
@@ -91,7 +91,7 @@
     - message: Fragment "inputFragment" cannot condition on non composite type "ComplexInput".
       locations:
         - {line: 2, column: 33}
-- name: 'Validate: Fragments on composite types/scalar is invalid inline fragment type'
+- name: scalar is invalid inline fragment type
   rule: FragmentsOnCompositeTypes
   schema: 0
   query: |2-

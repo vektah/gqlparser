@@ -1,4 +1,4 @@
-- name: 'Validate: Known directives/with no directives'
+- name: with no directives
   rule: KnownDirectives
   schema: 0
   query: |2-
@@ -13,7 +13,7 @@
           }
           
   errors: []
-- name: 'Validate: Known directives/with known directives'
+- name: with known directives
   rule: KnownDirectives
   schema: 0
   query: |2-
@@ -28,7 +28,7 @@
           }
           
   errors: []
-- name: 'Validate: Known directives/with unknown directive'
+- name: with unknown directive
   rule: KnownDirectives
   schema: 0
   query: |2-
@@ -43,7 +43,7 @@
     - message: Unknown directive "unknown".
       locations:
         - {line: 3, column: 13}
-- name: 'Validate: Known directives/with many unknown directives'
+- name: with many unknown directives
   rule: KnownDirectives
   schema: 0
   query: |2-
@@ -70,7 +70,7 @@
     - message: Unknown directive "unknown".
       locations:
         - {line: 8, column: 16}
-- name: 'Validate: Known directives/with well placed directives'
+- name: with well placed directives
   rule: KnownDirectives
   schema: 0
   query: |2-
@@ -87,7 +87,7 @@
           }
           
   errors: []
-- name: 'Validate: Known directives/with misplaced directives'
+- name: with misplaced directives
   rule: KnownDirectives
   schema: 0
   query: |2-
@@ -114,7 +114,7 @@
     - message: Directive "onQuery" may not be used on MUTATION.
       locations:
         - {line: 7, column: 20}
-- name: 'Validate: Known directives/within schema language/with well placed directives'
+- name: within schema language/with well placed directives
   rule: KnownDirectives
   schema: 0
   query: |2-
@@ -158,7 +158,7 @@
             extend schema @onSchema
             
   errors: []
-- name: 'Validate: Known directives/within schema language/with misplaced directives'
+- name: within schema language/with misplaced directives
   rule: KnownDirectives
   schema: 0
   query: |2-

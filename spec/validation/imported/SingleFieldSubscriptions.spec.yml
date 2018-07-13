@@ -1,4 +1,4 @@
-- name: 'Validate: Subscriptions with single field/valid subscription'
+- name: valid subscription
   rule: SingleFieldSubscriptions
   schema: 0
   query: |2-
@@ -8,7 +8,7 @@
           }
           
   errors: []
-- name: 'Validate: Subscriptions with single field/fails with more than one root field'
+- name: fails with more than one root field
   rule: SingleFieldSubscriptions
   schema: 0
   query: |2-
@@ -22,7 +22,7 @@
     - message: Subscription "ImportantEmails" must select only one top level field.
       locations:
         - {line: 4, column: 9}
-- name: 'Validate: Subscriptions with single field/fails with more than one root field including introspection'
+- name: fails with more than one root field including introspection
   rule: SingleFieldSubscriptions
   schema: 0
   query: |2-
@@ -36,7 +36,7 @@
     - message: Subscription "ImportantEmails" must select only one top level field.
       locations:
         - {line: 4, column: 9}
-- name: 'Validate: Subscriptions with single field/fails with many more than one root field'
+- name: fails with many more than one root field
   rule: SingleFieldSubscriptions
   schema: 0
   query: |2-
@@ -52,7 +52,7 @@
       locations:
         - {line: 4, column: 9}
         - {line: 5, column: 9}
-- name: 'Validate: Subscriptions with single field/fails with more than one root field in anonymous subscriptions'
+- name: fails with more than one root field in anonymous subscriptions
   rule: SingleFieldSubscriptions
   schema: 0
   query: |2-
