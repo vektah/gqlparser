@@ -8,6 +8,9 @@ import (
 	"strings"
 	"testing"
 
+	"os"
+	"path/filepath"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/vektah/gqlparser"
@@ -50,50 +53,18 @@ func TestSpec(t *testing.T) {
 		schemas = append(schemas, schema)
 	}
 
-	files, err := ioutil.ReadDir("../spec/validation/")
-	if err != nil {
-		panic(err)
-	}
-
-	excludes := []string{
-		"schemas.yml",
-		"deviations.yml",
-	}
-	ignores := []string{
-		"ExecutableDefinitions",
-		"OverlappingFieldsCanBeMerged",
-		"PossibleFragmentSpreads",
-		"ProvidedRequiredArguments",
-		"VariablesInAllowedPosition",
-	}
-
-file:
-	for _, file := range files {
-		fileName := file.Name()
-
-		if !strings.HasSuffix(fileName, ".yml") {
-			continue
+	err := filepath.Walk("../spec/validation/", func(path string, info os.FileInfo, err error) error {
+		fmt.Println(path)
+		if info.IsDir() || !strings.HasSuffix(path, ".spec.yml") {
+			return nil
 		}
 
-		for _, exclude := range excludes {
-			if exclude == fileName {
-				continue file
-			}
-		}
+		ruleName := strings.TrimSuffix(filepath.Base(path), ".spec.yml")
 
-		ruleName := fileName[:len(fileName)-len(".yml")]
-
-		for _, ignore := range ignores {
-			if ignore == ruleName {
-				t.Run(ruleName, func(t *testing.T) {
-					t.SkipNow()
-				})
-				continue file
-			}
-		}
-
-		t.Run(ruleName, runSpec(schemas, deviations, fmt.Sprintf("../spec/validation/%s", fileName)))
-	}
+		t.Run(ruleName, runSpec(schemas, deviations, path))
+		return nil
+	})
+	require.NoError(t, err)
 }
 
 func runSpec(schemas []*gqlparser.Schema, deviations []*Deviation, filename string) func(t *testing.T) {
