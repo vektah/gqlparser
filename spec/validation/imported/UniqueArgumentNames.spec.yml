@@ -1,4 +1,4 @@
-- name: 'Validate: Unique argument names/no arguments on field'
+- name: no arguments on field
   rule: UniqueArgumentNames
   schema: 0
   query: |2-
@@ -8,7 +8,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique argument names/no arguments on directive'
+- name: no arguments on directive
   rule: UniqueArgumentNames
   schema: 0
   query: |2-
@@ -18,7 +18,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique argument names/argument on field'
+- name: argument on field
   rule: UniqueArgumentNames
   schema: 0
   query: |2-
@@ -28,7 +28,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique argument names/argument on directive'
+- name: argument on directive
   rule: UniqueArgumentNames
   schema: 0
   query: |2-
@@ -38,7 +38,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique argument names/same argument on two fields'
+- name: same argument on two fields
   rule: UniqueArgumentNames
   schema: 0
   query: |2-
@@ -49,7 +49,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique argument names/same argument on field and directive'
+- name: same argument on field and directive
   rule: UniqueArgumentNames
   schema: 0
   query: |2-
@@ -59,7 +59,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique argument names/same argument on two directives'
+- name: same argument on two directives
   rule: UniqueArgumentNames
   schema: 0
   query: |2-
@@ -69,7 +69,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique argument names/multiple field arguments'
+- name: multiple field arguments
   rule: UniqueArgumentNames
   schema: 0
   query: |2-
@@ -79,7 +79,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique argument names/multiple directive arguments'
+- name: multiple directive arguments
   rule: UniqueArgumentNames
   schema: 0
   query: |2-
@@ -89,7 +89,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique argument names/duplicate field arguments'
+- name: duplicate field arguments
   rule: UniqueArgumentNames
   schema: 0
   query: |2-
@@ -103,7 +103,7 @@
       locations:
         - {line: 3, column: 15}
         - {line: 3, column: 30}
-- name: 'Validate: Unique argument names/many duplicate field arguments'
+- name: many duplicate field arguments
   rule: UniqueArgumentNames
   schema: 0
   query: |2-
@@ -121,7 +121,7 @@
       locations:
         - {line: 3, column: 15}
         - {line: 3, column: 45}
-- name: 'Validate: Unique argument names/duplicate directive arguments'
+- name: duplicate directive arguments
   rule: UniqueArgumentNames
   schema: 0
   query: |2-
@@ -135,7 +135,7 @@
       locations:
         - {line: 3, column: 26}
         - {line: 3, column: 41}
-- name: 'Validate: Unique argument names/many duplicate directive arguments'
+- name: many duplicate directive arguments
   rule: UniqueArgumentNames
   schema: 0
   query: |2-

@@ -1,4 +1,4 @@
-- name: 'Validate: Directives Are Unique Per Location/no directives'
+- name: no directives
   rule: UniqueDirectivesPerLocation
   schema: 0
   query: |2-
@@ -8,7 +8,7 @@
           }
           
   errors: []
-- name: 'Validate: Directives Are Unique Per Location/unique directives in different locations'
+- name: unique directives in different locations
   rule: UniqueDirectivesPerLocation
   schema: 0
   query: |2-
@@ -18,7 +18,7 @@
           }
           
   errors: []
-- name: 'Validate: Directives Are Unique Per Location/unique directives in same locations'
+- name: unique directives in same locations
   rule: UniqueDirectivesPerLocation
   schema: 0
   query: |2-
@@ -28,7 +28,7 @@
           }
           
   errors: []
-- name: 'Validate: Directives Are Unique Per Location/same directives in different locations'
+- name: same directives in different locations
   rule: UniqueDirectivesPerLocation
   schema: 0
   query: |2-
@@ -38,7 +38,7 @@
           }
           
   errors: []
-- name: 'Validate: Directives Are Unique Per Location/same directives in similar locations'
+- name: same directives in similar locations
   rule: UniqueDirectivesPerLocation
   schema: 0
   query: |2-
@@ -49,7 +49,7 @@
           }
           
   errors: []
-- name: 'Validate: Directives Are Unique Per Location/duplicate directives in one location'
+- name: duplicate directives in one location
   rule: UniqueDirectivesPerLocation
   schema: 0
   query: |2-
@@ -63,7 +63,7 @@
       locations:
         - {line: 3, column: 15}
         - {line: 3, column: 26}
-- name: 'Validate: Directives Are Unique Per Location/many duplicate directives in one location'
+- name: many duplicate directives in one location
   rule: UniqueDirectivesPerLocation
   schema: 0
   query: |2-
@@ -81,7 +81,7 @@
       locations:
         - {line: 3, column: 15}
         - {line: 3, column: 37}
-- name: 'Validate: Directives Are Unique Per Location/different duplicate directives in one location'
+- name: different duplicate directives in one location
   rule: UniqueDirectivesPerLocation
   schema: 0
   query: |2-
@@ -99,7 +99,7 @@
       locations:
         - {line: 3, column: 27}
         - {line: 3, column: 51}
-- name: 'Validate: Directives Are Unique Per Location/duplicate directives in many locations'
+- name: duplicate directives in many locations
   rule: UniqueDirectivesPerLocation
   schema: 0
   query: |2-

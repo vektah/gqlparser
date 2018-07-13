@@ -1,4 +1,4 @@
-- name: 'Validate: Unique variable names/unique variable names'
+- name: unique variable names
   rule: UniqueVariableNames
   schema: 0
   query: |2-
@@ -7,7 +7,7 @@
           query B($x: String, $y: Int) { __typename }
           
   errors: []
-- name: 'Validate: Unique variable names/duplicate variable names'
+- name: duplicate variable names
   rule: UniqueVariableNames
   schema: 0
   query: |2-

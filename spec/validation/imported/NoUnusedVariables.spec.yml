@@ -1,4 +1,4 @@
-- name: 'Validate: No unused variables/uses all variables'
+- name: uses all variables
   rule: NoUnusedVariables
   schema: 0
   query: |2-
@@ -8,7 +8,7 @@
           }
           
   errors: []
-- name: 'Validate: No unused variables/uses all variables deeply'
+- name: uses all variables deeply
   rule: NoUnusedVariables
   schema: 0
   query: |2-
@@ -22,7 +22,7 @@
           }
           
   errors: []
-- name: 'Validate: No unused variables/uses all variables deeply in inline fragments'
+- name: uses all variables deeply in inline fragments
   rule: NoUnusedVariables
   schema: 0
   query: |2-
@@ -40,7 +40,7 @@
           }
           
   errors: []
-- name: 'Validate: No unused variables/uses all variables in fragments'
+- name: uses all variables in fragments
   rule: NoUnusedVariables
   schema: 0
   query: |2-
@@ -63,7 +63,7 @@
           }
           
   errors: []
-- name: 'Validate: No unused variables/variable used by fragment in multiple operations'
+- name: variable used by fragment in multiple operations
   rule: NoUnusedVariables
   schema: 0
   query: |2-
@@ -82,7 +82,7 @@
           }
           
   errors: []
-- name: 'Validate: No unused variables/variable used by recursive fragment'
+- name: variable used by recursive fragment
   rule: NoUnusedVariables
   schema: 0
   query: |2-
@@ -97,7 +97,7 @@
           }
           
   errors: []
-- name: 'Validate: No unused variables/variable not used'
+- name: variable not used
   rule: NoUnusedVariables
   schema: 0
   query: |2-
@@ -110,7 +110,7 @@
     - message: Variable "$c" is never used.
       locations:
         - {line: 2, column: 38}
-- name: 'Validate: No unused variables/multiple variables not used'
+- name: multiple variables not used
   rule: NoUnusedVariables
   schema: 0
   query: |2-
@@ -126,7 +126,7 @@
     - message: Variable "$c" is never used in operation "Foo".
       locations:
         - {line: 2, column: 41}
-- name: 'Validate: No unused variables/variable not used in fragments'
+- name: variable not used in fragments
   rule: NoUnusedVariables
   schema: 0
   query: |2-
@@ -152,7 +152,7 @@
     - message: Variable "$c" is never used in operation "Foo".
       locations:
         - {line: 2, column: 41}
-- name: 'Validate: No unused variables/multiple variables not used in fragments'
+- name: multiple variables not used in fragments
   rule: NoUnusedVariables
   schema: 0
   query: |2-
@@ -181,7 +181,7 @@
     - message: Variable "$c" is never used in operation "Foo".
       locations:
         - {line: 2, column: 41}
-- name: 'Validate: No unused variables/variable not used by unreferenced fragment'
+- name: variable not used by unreferenced fragment
   rule: NoUnusedVariables
   schema: 0
   query: |2-
@@ -200,7 +200,7 @@
     - message: Variable "$b" is never used in operation "Foo".
       locations:
         - {line: 2, column: 17}
-- name: 'Validate: No unused variables/variable not used by fragment used by other operation'
+- name: variable not used by fragment used by other operation
   rule: NoUnusedVariables
   schema: 0
   query: |2-

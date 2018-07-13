@@ -1,4 +1,4 @@
-- name: 'Validate: Variables are input types/input types are valid'
+- name: input types are valid
   rule: VariablesAreInputTypes
   schema: 0
   query: |2-
@@ -8,7 +8,7 @@
           }
           
   errors: []
-- name: 'Validate: Variables are input types/output types are invalid'
+- name: output types are invalid
   rule: VariablesAreInputTypes
   schema: 0
   query: |2-

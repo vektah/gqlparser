@@ -1,4 +1,4 @@
-- name: 'Validate: Unique fragment names/no fragments'
+- name: no fragments
   rule: UniqueFragmentNames
   schema: 0
   query: |2-
@@ -8,7 +8,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique fragment names/one fragment'
+- name: one fragment
   rule: UniqueFragmentNames
   schema: 0
   query: |2-
@@ -22,7 +22,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique fragment names/many fragments'
+- name: many fragments
   rule: UniqueFragmentNames
   schema: 0
   query: |2-
@@ -43,7 +43,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique fragment names/inline fragments are always unique'
+- name: inline fragments are always unique
   rule: UniqueFragmentNames
   schema: 0
   query: |2-
@@ -58,7 +58,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique fragment names/fragment and operation named the same'
+- name: fragment and operation named the same
   rule: UniqueFragmentNames
   schema: 0
   query: |2-
@@ -71,7 +71,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique fragment names/fragments named the same'
+- name: fragments named the same
   rule: UniqueFragmentNames
   schema: 0
   query: |2-
@@ -91,7 +91,7 @@
       locations:
         - {line: 5, column: 16}
         - {line: 8, column: 16}
-- name: 'Validate: Unique fragment names/fragments named the same without being referenced'
+- name: fragments named the same without being referenced
   rule: UniqueFragmentNames
   schema: 0
   query: |2-

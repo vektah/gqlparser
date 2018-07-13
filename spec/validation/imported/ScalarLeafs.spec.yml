@@ -1,4 +1,4 @@
-- name: 'Validate: Scalar leafs/valid scalar selection'
+- name: valid scalar selection
   rule: ScalarLeafs
   schema: 0
   query: |2-
@@ -8,7 +8,7 @@
           }
           
   errors: []
-- name: 'Validate: Scalar leafs/object type missing selection'
+- name: object type missing selection
   rule: ScalarLeafs
   schema: 0
   query: |2-
@@ -21,7 +21,7 @@
     - message: 'Field "human" of type "Human" must have a selection of subfields. Did you mean "human { ... }"?'
       locations:
         - {line: 3, column: 9}
-- name: 'Validate: Scalar leafs/interface type missing selection'
+- name: interface type missing selection
   rule: ScalarLeafs
   schema: 0
   query: |2-
@@ -34,7 +34,7 @@
     - message: 'Field "pets" of type "[Pet]" must have a selection of subfields. Did you mean "pets { ... }"?'
       locations:
         - {line: 3, column: 17}
-- name: 'Validate: Scalar leafs/valid scalar selection with args'
+- name: valid scalar selection with args
   rule: ScalarLeafs
   schema: 0
   query: |2-
@@ -44,7 +44,7 @@
           }
           
   errors: []
-- name: 'Validate: Scalar leafs/scalar selection not allowed on Boolean'
+- name: scalar selection not allowed on Boolean
   rule: ScalarLeafs
   schema: 0
   query: |2-
@@ -57,7 +57,7 @@
     - message: Field "barks" must not have a selection since type "Boolean" has no subfields.
       locations:
         - {line: 3, column: 15}
-- name: 'Validate: Scalar leafs/scalar selection not allowed on Enum'
+- name: scalar selection not allowed on Enum
   rule: ScalarLeafs
   schema: 0
   query: |2-
@@ -70,7 +70,7 @@
     - message: Field "furColor" must not have a selection since type "FurColor" has no subfields.
       locations:
         - {line: 3, column: 18}
-- name: 'Validate: Scalar leafs/scalar selection not allowed with args'
+- name: scalar selection not allowed with args
   rule: ScalarLeafs
   schema: 0
   query: |2-
@@ -83,7 +83,7 @@
     - message: Field "doesKnowCommand" must not have a selection since type "Boolean" has no subfields.
       locations:
         - {line: 3, column: 42}
-- name: 'Validate: Scalar leafs/Scalar selection not allowed with directives'
+- name: Scalar selection not allowed with directives
   rule: ScalarLeafs
   schema: 0
   query: |2-
@@ -96,7 +96,7 @@
     - message: Field "name" must not have a selection since type "String" has no subfields.
       locations:
         - {line: 3, column: 33}
-- name: 'Validate: Scalar leafs/Scalar selection not allowed with directives and args'
+- name: Scalar selection not allowed with directives and args
   rule: ScalarLeafs
   schema: 0
   query: |2-

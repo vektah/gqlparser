@@ -1,38 +1,38 @@
-- rule: 'Validate: Executable definitions/.*'
+- rule: 'ExecutableDefinitions/.*'
   skip: "These are impossible to generate because the parser is split between Query and Schema"
 
-- rule: 'Validate: Overlapping fields can be merged/.*'
+- rule: 'OverlappingFieldsCanBeMerged/.*'
   skip: "Not yet implemented"
 
-- rule: 'Validate: Possible fragment spreads/.*'
+- rule: 'PossibleFragmentSpreads/.*'
   skip: "Not yet implemented"
 
-- rule: 'Validate: Provided required arguments/.*'
+- rule: 'ProvidedRequiredArguments/.*'
   skip: "Not yet implemented"
 
-- rule: 'Validate: Variables are in allowed positions/.*'
+- rule: 'VariablesInAllowedPosition/.*'
   skip: "Not yet implemented"
 
-- rule: 'Validate: Fields on correct type/Defined on implementors but not on interface'
+- rule: 'FieldsOnCorrectType/Defined on implementors but not on interface'
   errors:
     - message: Cannot query field "nickname" on type "Pet". Did you mean to use an inline fragment on "Cat" or "Dog"?
       locations:
         - {line: 3, column: 9}
 
-- rule: 'Validate: Known directives/within schema language/with well placed directives'
+- rule: 'KnownDirectives/within schema language/with well placed directives'
   skip: true
 
-- rule: 'Validate: Known directives/within schema language/with misplaced directives'
+- rule: 'KnownDirectives/within schema language/with misplaced directives'
   skip: true
 
-- rule: 'Validate: Known type names/ignores type definitions'
+- rule: 'KnownTypeNames/ignores type definitions'
   skip: true
 
-- rule: 'Validate: Overlapping fields can be merged/return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive'
+- rule: 'OverlappingFieldsCanBeMerged/return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive'
   skip: true
 
-- rule: 'Validate: Overlapping fields can be merged/return types must be unambiguous/disallows differing subfields'
+- rule: 'OverlappingFieldsCanBeMerged/return types must be unambiguous/disallows differing subfields'
   skip: true
 
-- rule: 'Validate: Values of correct type/.*custom scalar.*'
+- rule: 'ValuesOfCorrectType/.*custom scalar.*'
   skip: "Custom scalars are a runtime feature, maybe they dont belong in here?"

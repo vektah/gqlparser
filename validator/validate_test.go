@@ -59,25 +59,26 @@ func TestSpec(t *testing.T) {
 			return nil
 		}
 
-		ruleName := strings.TrimSuffix(filepath.Base(path), ".spec.yml")
-
-		t.Run(ruleName, runSpec(schemas, deviations, path))
+		runSpec(t, schemas, deviations, path)
 		return nil
 	})
 	require.NoError(t, err)
 }
 
-func runSpec(schemas []*gqlparser.Schema, deviations []*Deviation, filename string) func(t *testing.T) {
+func runSpec(t *testing.T, schemas []*gqlparser.Schema, deviations []*Deviation, filename string) {
+	ruleName := strings.TrimSuffix(filepath.Base(filename), ".spec.yml")
+
 	var specs []Spec
 	readYaml(filename, &specs)
-	return func(t *testing.T) {
+	t.Run(ruleName, func(t *testing.T) {
 		for _, spec := range specs {
 			if len(spec.Errors) == 0 {
 				spec.Errors = nil
 			}
 			t.Run(spec.Name, func(t *testing.T) {
+				fmt.Println(ruleName + "/" + spec.Name)
 				for _, deviation := range deviations {
-					if deviation.pattern.MatchString(spec.Name) {
+					if deviation.pattern.MatchString(ruleName + "/" + spec.Name) {
 						if deviation.Skip != "" {
 							t.Skip(deviation.Skip)
 						}
@@ -86,8 +87,6 @@ func runSpec(schemas []*gqlparser.Schema, deviations []*Deviation, filename stri
 						}
 					}
 				}
-
-				t.Logf("name: '%s'", spec.Name)
 
 				query, err := gqlparser.ParseQuery(spec.Query)
 				require.Nil(t, err)
@@ -119,11 +118,12 @@ func runSpec(schemas []*gqlparser.Schema, deviations []*Deviation, filename stri
 				assert.Equal(t, spec.Errors, finalErrors)
 
 				if t.Failed() {
+					t.Logf("name: '%s'", spec.Name)
 					t.Log("\nquery:", spec.Query)
 				}
 			})
 		}
-	}
+	})
 }
 
 func readYaml(filename string, result interface{}) {

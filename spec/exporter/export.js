@@ -59,7 +59,7 @@ const harness = {
     },
     expectPassesRuleWithSchema(schema, rule, queryString, errors) {
         tests.push({
-            name: names.join('/'),
+            name: names.slice(1).join('/'),
             rule: rule.name,
             schema: registerSchema(schema),
             query: normalizeWs(queryString),
@@ -73,7 +73,7 @@ const harness = {
     },
     expectFailsRuleWithSchema(schema, rule, queryString, errors) {
         tests.push({
-            name: names.join('/'),
+            name: names.slice(1).join('/'),
             rule: rule.name,
             schema: registerSchema(schema),
             query: normalizeWs(queryString),

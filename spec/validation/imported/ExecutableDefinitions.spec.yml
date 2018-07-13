@@ -1,4 +1,4 @@
-- name: 'Validate: Executable definitions/with only operation'
+- name: with only operation
   rule: ExecutableDefinitions
   schema: 0
   query: |2-
@@ -10,7 +10,7 @@
           }
           
   errors: []
-- name: 'Validate: Executable definitions/with operation and fragment'
+- name: with operation and fragment
   rule: ExecutableDefinitions
   schema: 0
   query: |2-
@@ -27,7 +27,7 @@
           }
           
   errors: []
-- name: 'Validate: Executable definitions/with type definition'
+- name: with type definition
   rule: ExecutableDefinitions
   schema: 0
   query: |2-
@@ -53,7 +53,7 @@
     - message: The Dog definition is not executable.
       locations:
         - {line: 12, column: 7}
-- name: 'Validate: Executable definitions/with schema definition'
+- name: with schema definition
   rule: ExecutableDefinitions
   schema: 0
   query: |2-

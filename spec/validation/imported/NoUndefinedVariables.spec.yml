@@ -1,4 +1,4 @@
-- name: 'Validate: No undefined variables/all variables defined'
+- name: all variables defined
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -8,7 +8,7 @@
           }
           
   errors: []
-- name: 'Validate: No undefined variables/all variables deeply defined'
+- name: all variables deeply defined
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -22,7 +22,7 @@
           }
           
   errors: []
-- name: 'Validate: No undefined variables/all variables deeply in inline fragments defined'
+- name: all variables deeply in inline fragments defined
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -40,7 +40,7 @@
           }
           
   errors: []
-- name: 'Validate: No undefined variables/all variables in fragments deeply defined'
+- name: all variables in fragments deeply defined
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -63,7 +63,7 @@
           }
           
   errors: []
-- name: 'Validate: No undefined variables/variable within single fragment defined in multiple operations'
+- name: variable within single fragment defined in multiple operations
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -79,7 +79,7 @@
           }
           
   errors: []
-- name: 'Validate: No undefined variables/variable within fragments defined in operations'
+- name: variable within fragments defined in operations
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -98,7 +98,7 @@
           }
           
   errors: []
-- name: 'Validate: No undefined variables/variable within recursive fragment defined'
+- name: variable within recursive fragment defined
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -113,7 +113,7 @@
           }
           
   errors: []
-- name: 'Validate: No undefined variables/variable not defined'
+- name: variable not defined
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -127,7 +127,7 @@
       locations:
         - {line: 3, column: 39}
         - {line: 2, column: 7}
-- name: 'Validate: No undefined variables/variable not defined by un-named query'
+- name: variable not defined by un-named query
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -141,7 +141,7 @@
       locations:
         - {line: 3, column: 18}
         - {line: 2, column: 7}
-- name: 'Validate: No undefined variables/multiple variables not defined'
+- name: multiple variables not defined
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -159,7 +159,7 @@
       locations:
         - {line: 3, column: 32}
         - {line: 2, column: 7}
-- name: 'Validate: No undefined variables/variable in fragment not defined by un-named query'
+- name: variable in fragment not defined by un-named query
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -176,7 +176,7 @@
       locations:
         - {line: 6, column: 18}
         - {line: 2, column: 7}
-- name: 'Validate: No undefined variables/variable in fragment not defined by operation'
+- name: variable in fragment not defined by operation
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -203,7 +203,7 @@
       locations:
         - {line: 16, column: 18}
         - {line: 2, column: 7}
-- name: 'Validate: No undefined variables/multiple variables in fragments not defined'
+- name: multiple variables in fragments not defined
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -234,7 +234,7 @@
       locations:
         - {line: 16, column: 18}
         - {line: 2, column: 7}
-- name: 'Validate: No undefined variables/single variable in fragment not defined by multiple operations'
+- name: single variable in fragment not defined by multiple operations
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -258,7 +258,7 @@
       locations:
         - {line: 9, column: 25}
         - {line: 5, column: 7}
-- name: 'Validate: No undefined variables/variables in fragment not defined by multiple operations'
+- name: variables in fragment not defined by multiple operations
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -282,7 +282,7 @@
       locations:
         - {line: 9, column: 25}
         - {line: 5, column: 7}
-- name: 'Validate: No undefined variables/variable in fragment used by other operation'
+- name: variable in fragment used by other operation
   rule: NoUndefinedVariables
   schema: 0
   query: |2-
@@ -309,7 +309,7 @@
       locations:
         - {line: 12, column: 18}
         - {line: 5, column: 7}
-- name: 'Validate: No undefined variables/multiple undefined variables produce multiple errors'
+- name: multiple undefined variables produce multiple errors
   rule: NoUndefinedVariables
   schema: 0
   query: |2-

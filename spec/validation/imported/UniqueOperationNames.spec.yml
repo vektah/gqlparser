@@ -1,4 +1,4 @@
-- name: 'Validate: Unique operation names/no operations'
+- name: no operations
   rule: UniqueOperationNames
   schema: 0
   query: |2-
@@ -8,7 +8,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique operation names/one anon operation'
+- name: one anon operation
   rule: UniqueOperationNames
   schema: 0
   query: |2-
@@ -18,7 +18,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique operation names/one named operation'
+- name: one named operation
   rule: UniqueOperationNames
   schema: 0
   query: |2-
@@ -28,7 +28,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique operation names/multiple operations'
+- name: multiple operations
   rule: UniqueOperationNames
   schema: 0
   query: |2-
@@ -42,7 +42,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique operation names/multiple operations of different types'
+- name: multiple operations of different types
   rule: UniqueOperationNames
   schema: 0
   query: |2-
@@ -60,7 +60,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique operation names/fragment and operation named the same'
+- name: fragment and operation named the same
   rule: UniqueOperationNames
   schema: 0
   query: |2-
@@ -73,7 +73,7 @@
           }
           
   errors: []
-- name: 'Validate: Unique operation names/multiple operations of same name'
+- name: multiple operations of same name
   rule: UniqueOperationNames
   schema: 0
   query: |2-
@@ -90,7 +90,7 @@
       locations:
         - {line: 2, column: 13}
         - {line: 5, column: 13}
-- name: 'Validate: Unique operation names/multiple ops of same name of different types (mutation)'
+- name: multiple ops of same name of different types (mutation)
   rule: UniqueOperationNames
   schema: 0
   query: |2-
@@ -107,7 +107,7 @@
       locations:
         - {line: 2, column: 13}
         - {line: 5, column: 16}
-- name: 'Validate: Unique operation names/multiple ops of same name of different types (subscription)'
+- name: multiple ops of same name of different types (subscription)
   rule: UniqueOperationNames
   schema: 0
   query: |2-
