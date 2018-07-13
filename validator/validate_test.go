@@ -87,6 +87,8 @@ func runSpec(schemas []*gqlparser.Schema, deviations []*Deviation, filename stri
 					}
 				}
 
+				t.Logf("name: '%s'", spec.Name)
+
 				query, err := gqlparser.ParseQuery(spec.Query)
 				require.Nil(t, err)
 				errs := Validate(schemas[spec.Schema], &query)
