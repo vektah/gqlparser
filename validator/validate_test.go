@@ -34,7 +34,7 @@ type Deviation struct {
 	pattern *regexp.Regexp
 }
 
-func TestSpec(t *testing.T) {
+func TestValidation(t *testing.T) {
 	var rawSchemas []string
 	readYaml("../spec/validation/schemas.yml", &rawSchemas)
 
@@ -54,7 +54,6 @@ func TestSpec(t *testing.T) {
 	}
 
 	err := filepath.Walk("../spec/validation/", func(path string, info os.FileInfo, err error) error {
-		fmt.Println(path)
 		if info.IsDir() || !strings.HasSuffix(path, ".spec.yml") {
 			return nil
 		}

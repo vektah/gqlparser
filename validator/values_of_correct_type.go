@@ -116,6 +116,10 @@ func validateValue(expectedType gqlparser.Type, def *gqlparser.Definition, value
 				)
 			}
 		}
+
+	case gqlparser.Variable:
+		return
+
 	default:
 		panic(fmt.Errorf("unhandled %T", value))
 	}

@@ -72,9 +72,21 @@ type SchemaDocument struct {
 type OperationDefinition struct {
 	Operation           Operation
 	Name                string
-	VariableDefinitions []VariableDefinition
+	VariableDefinitions VariableDefinitions
 	Directives          []Directive
 	SelectionSet        SelectionSet
+}
+
+type VariableDefinitions []VariableDefinition
+
+func (v VariableDefinitions) Find(name string) *VariableDefinition {
+	for i := range v {
+		def := v[i]
+		if string(def.Variable) == name {
+			return &def
+		}
+	}
+	return nil
 }
 
 type VariableDefinition struct {
@@ -233,6 +245,7 @@ type Type interface {
 	Name() string
 	String() string
 	IsRequired() bool
+	IsCompatible(other Type) bool
 }
 
 func (t NamedType) Name() string   { return string(t) }
@@ -246,6 +259,22 @@ func (t NonNullType) String() string { return t.Type.String() + "!" }
 func (t NamedType) IsRequired() bool   { return false }
 func (t ListType) IsRequired() bool    { return false }
 func (t NonNullType) IsRequired() bool { return true }
+
+func (t NamedType) IsCompatible(other Type) bool {
+	otherType, sameType := other.(NamedType)
+	return sameType && otherType == t
+}
+func (t ListType) IsCompatible(other Type) bool {
+	otherType, sameType := other.(ListType)
+	return sameType && t.Type.IsCompatible(otherType.Type)
+}
+func (t NonNullType) IsCompatible(other Type) bool {
+	otherType, sameType := other.(NonNullType)
+	if sameType {
+		return t.Type.IsCompatible(otherType.Type)
+	}
+	return t.Type.IsCompatible(other)
+}
 
 type NamedType string
 
