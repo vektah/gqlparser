@@ -1,3 +1,18 @@
+- rule: 'Validate: Executable definitions/.*'
+  skip: "These are impossible to generate because the parser is split between Query and Schema"
+
+- rule: 'Validate: Overlapping fields can be merged/.*'
+  skip: "Not yet implemented"
+
+- rule: 'Validate: Possible fragment spreads/.*'
+  skip: "Not yet implemented"
+
+- rule: 'Validate: Provided required arguments/.*'
+  skip: "Not yet implemented"
+
+- rule: 'Validate: Variables are in allowed positions/.*'
+  skip: "Not yet implemented"
+
 - rule: 'Validate: Fields on correct type/Defined on implementors but not on interface'
   errors:
     - message: Cannot query field "nickname" on type "Pet". Did you mean to use an inline fragment on "Cat" or "Dog"?

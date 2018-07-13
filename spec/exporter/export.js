@@ -138,7 +138,7 @@ fs.readdirSync("./graphql-js/src/validation/__tests__").forEach(file => {
         noRefs: true,
         lineWidth: 1000,
     });
-    fs.writeFileSync("../validation/"+file.replace('-test.js', '.yml'), dump);
+    fs.writeFileSync("../validation/imported/"+file.replace('-test.js', '.spec.yml'), dump);
 
     tests = [];
 });
