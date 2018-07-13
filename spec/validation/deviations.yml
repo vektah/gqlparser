@@ -4,9 +4,6 @@
 - rule: 'OverlappingFieldsCanBeMerged/.*'
   skip: "Not yet implemented"
 
-- rule: 'PossibleFragmentSpreads/.*'
-  skip: "Not yet implemented"
-
 - rule: 'ProvidedRequiredArguments/.*'
   skip: "Not yet implemented"
 
