@@ -4,9 +4,6 @@
 - rule: 'OverlappingFieldsCanBeMerged/.*'
   skip: "Not yet implemented"
 
-- rule: 'ProvidedRequiredArguments/.*'
-  skip: "Not yet implemented"
-
 - rule: 'FieldsOnCorrectType/Defined on implementors but not on interface'
   errors:
     - message: Cannot query field "nickname" on type "Pet". Did you mean to use an inline fragment on "Cat" or "Dog"?
