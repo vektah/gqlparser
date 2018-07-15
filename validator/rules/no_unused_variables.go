@@ -2,10 +2,11 @@ package validator
 
 import (
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("NoUnusedVariables", func(observers *Events, addError addErrFunc) {
+	AddRule("NoUnusedVariables", func(observers *Events, addError AddErrFunc) {
 
 		var variableNameUsed map[string]bool
 

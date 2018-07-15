@@ -3,16 +3,16 @@ package validator
 import "bytes"
 
 // Given [ A, B, C ] return '"A", "B", or "C"'.
-func quotedOrList(items ...string) string {
+func QuotedOrList(items ...string) string {
 	itemsQuoted := make([]string, len(items))
 	for i, item := range items {
 		itemsQuoted[i] = `"` + item + `"`
 	}
-	return orList(itemsQuoted...)
+	return OrList(itemsQuoted...)
 }
 
 // Given [ A, B, C ] return 'A, B, or C'.
-func orList(items ...string) string {
+func OrList(items ...string) string {
 	var buf bytes.Buffer
 
 	if len(items) > 5 {

@@ -5,10 +5,11 @@ import (
 	"strings"
 
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("NoFragmentCycles", func(observers *Events, addError addErrFunc) {
+	AddRule("NoFragmentCycles", func(observers *Events, addError AddErrFunc) {
 		visitedFrags := make(map[string]bool)
 
 		observers.OnFragment(func(walker *Walker, parentDef *ast.Definition, fragment *ast.FragmentDefinition) {

@@ -2,10 +2,11 @@ package validator
 
 import (
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("UniqueArgumentNames", func(observers *Events, addError addErrFunc) {
+	AddRule("UniqueArgumentNames", func(observers *Events, addError AddErrFunc) {
 		observers.OnField(func(walker *Walker, parentDef *ast.Definition, fieldDef *ast.FieldDefinition, field *ast.Field) {
 			checkUniqueArgs(field.Arguments, addError)
 		})
@@ -16,7 +17,7 @@ func init() {
 	})
 }
 
-func checkUniqueArgs(args []ast.Argument, addError addErrFunc) {
+func checkUniqueArgs(args []ast.Argument, addError AddErrFunc) {
 	knownArgNames := map[string]bool{}
 
 	for _, arg := range args {

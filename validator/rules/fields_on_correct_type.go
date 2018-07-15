@@ -5,10 +5,11 @@ import (
 	"sort"
 
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("FieldsOnCorrectType", func(observers *Events, addError addErrFunc) {
+	AddRule("FieldsOnCorrectType", func(observers *Events, addError AddErrFunc) {
 		observers.OnField(func(walker *Walker, parentDef *ast.Definition, fieldDef *ast.FieldDefinition, field *ast.Field) {
 			if parentDef == nil {
 				return
@@ -21,9 +22,9 @@ func init() {
 			message := fmt.Sprintf(`Cannot query field "%s" on type "%s".`, field.Name, parentDef.Name)
 
 			if suggestedTypeNames := getSuggestedTypeNames(walker, parentDef, field.Name); suggestedTypeNames != nil {
-				message += " Did you mean to use an inline fragment on " + quotedOrList(suggestedTypeNames...) + "?"
+				message += " Did you mean to use an inline fragment on " + QuotedOrList(suggestedTypeNames...) + "?"
 			} else if suggestedFieldNames := getSuggestedFieldNames(parentDef, field.Name); suggestedFieldNames != nil {
-				message += " Did you mean " + quotedOrList(suggestedFieldNames...) + "?"
+				message += " Did you mean " + QuotedOrList(suggestedFieldNames...) + "?"
 			}
 
 			addError(Message(message))
@@ -82,5 +83,5 @@ func getSuggestedFieldNames(parent *ast.Definition, name string) []string {
 		possibleFieldNames = append(possibleFieldNames, field.Name)
 	}
 
-	return suggestionList(name, possibleFieldNames)
+	return SuggestionList(name, possibleFieldNames)
 }

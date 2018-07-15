@@ -4,10 +4,11 @@ import (
 	"strconv"
 
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("SingleFieldSubscriptions", func(observers *Events, addError addErrFunc) {
+	AddRule("SingleFieldSubscriptions", func(observers *Events, addError AddErrFunc) {
 		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
 			if operation.Operation != ast.Subscription {
 				return

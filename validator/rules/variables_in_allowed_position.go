@@ -2,10 +2,11 @@ package validator
 
 import (
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("VariablesInAllowedPosition", func(observers *Events, addError addErrFunc) {
+	AddRule("VariablesInAllowedPosition", func(observers *Events, addError AddErrFunc) {
 		var varDefs ast.VariableDefinitions
 
 		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
@@ -26,7 +27,7 @@ func init() {
 	})
 }
 
-func validateVariable(walker *Walker, expectedType ast.Type, def *ast.Definition, value ast.Value, addError addErrFunc, varDefs ast.VariableDefinitions) {
+func validateVariable(walker *Walker, expectedType ast.Type, def *ast.Definition, value ast.Value, addError AddErrFunc, varDefs ast.VariableDefinitions) {
 	switch value := value.(type) {
 
 	case ast.ListValue:

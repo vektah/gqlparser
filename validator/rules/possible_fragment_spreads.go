@@ -2,10 +2,11 @@ package validator
 
 import (
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("PossibleFragmentSpreads", func(observers *Events, addError addErrFunc) {
+	AddRule("PossibleFragmentSpreads", func(observers *Events, addError AddErrFunc) {
 
 		validate := func(walker *Walker, parentDef *ast.Definition, fragmentName string, emitError func()) {
 			if parentDef == nil {

@@ -2,10 +2,11 @@ package validator
 
 import (
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("ProvidedRequiredArguments", func(observers *Events, addError addErrFunc) {
+	AddRule("ProvidedRequiredArguments", func(observers *Events, addError AddErrFunc) {
 
 		observers.OnField(func(walker *Walker, parentDef *ast.Definition, fieldDef *ast.FieldDefinition, field *ast.Field) {
 			if fieldDef == nil {

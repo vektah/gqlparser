@@ -2,10 +2,11 @@ package validator
 
 import (
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("VariablesAreInputTypes", func(observers *Events, addError addErrFunc) {
+	AddRule("VariablesAreInputTypes", func(observers *Events, addError AddErrFunc) {
 		observers.OnVariable(func(walker *Walker, valueType ast.Type, def *ast.Definition, variable ast.VariableDefinition) {
 			if def == nil {
 				return

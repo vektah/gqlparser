@@ -2,10 +2,11 @@ package validator
 
 import (
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("KnownDirectives", func(observers *Events, addError addErrFunc) {
+	AddRule("KnownDirectives", func(observers *Events, addError AddErrFunc) {
 		observers.OnDirective(func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation) {
 			if directiveDef == nil {
 				addError(

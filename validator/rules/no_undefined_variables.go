@@ -1,9 +1,12 @@
 package validator
 
-import "github.com/vektah/gqlparser/ast"
+import (
+	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
+)
 
 func init() {
-	addRule("NoUndefinedVariables", func(observers *Events, addError addErrFunc) {
+	AddRule("NoUndefinedVariables", func(observers *Events, addError AddErrFunc) {
 
 		var currentOperation *ast.OperationDefinition
 

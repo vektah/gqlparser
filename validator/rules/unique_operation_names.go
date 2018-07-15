@@ -2,10 +2,11 @@ package validator
 
 import (
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("UniqueOperationNames", func(observers *Events, addError addErrFunc) {
+	AddRule("UniqueOperationNames", func(observers *Events, addError AddErrFunc) {
 		seen := map[string]bool{}
 
 		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {

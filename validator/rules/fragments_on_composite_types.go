@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("FragmentsOnCompositeTypes", func(observers *Events, addError addErrFunc) {
+	AddRule("FragmentsOnCompositeTypes", func(observers *Events, addError AddErrFunc) {
 		observers.OnInlineFragment(func(walker *Walker, parentDef *ast.Definition, inlineFragment *ast.InlineFragment) {
 			if parentDef == nil {
 				return

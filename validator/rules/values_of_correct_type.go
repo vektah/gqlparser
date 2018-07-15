@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("ValuesOfCorrectType", func(observers *Events, addError addErrFunc) {
+	AddRule("ValuesOfCorrectType", func(observers *Events, addError AddErrFunc) {
 		observers.OnValue(func(walker *Walker, expectedType ast.Type, def *ast.Definition, value ast.Value) {
 			if def == nil || expectedType == nil {
 				return
@@ -25,7 +26,7 @@ func init() {
 	})
 }
 
-func validateValue(expectedType ast.Type, def *ast.Definition, value ast.Value, addError addErrFunc) {
+func validateValue(expectedType ast.Type, def *ast.Definition, value ast.Value, addError AddErrFunc) {
 	var possibleEnums []string
 	if def.Kind == ast.Enum {
 		for _, val := range def.Values {
@@ -125,6 +126,6 @@ func validateValue(expectedType ast.Type, def *ast.Definition, value ast.Value, 
 	}
 }
 
-func unexpectedTypeMessage(addError addErrFunc, expected, value string) {
+func unexpectedTypeMessage(addError AddErrFunc, expected, value string) {
 	addError(Message("Expected type %s, found %s.", expected, value))
 }

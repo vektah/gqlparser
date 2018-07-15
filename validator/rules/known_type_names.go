@@ -2,10 +2,11 @@ package validator
 
 import (
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("KnownTypeNames", func(observers *Events, addError addErrFunc) {
+	AddRule("KnownTypeNames", func(observers *Events, addError AddErrFunc) {
 		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
 			for _, vdef := range operation.VariableDefinitions {
 				typeName := vdef.Type.Name()

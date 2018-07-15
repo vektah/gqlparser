@@ -2,10 +2,11 @@ package validator
 
 import (
 	"github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/validator"
 )
 
 func init() {
-	addRule("NoUnusedFragments", func(observers *Events, addError addErrFunc) {
+	AddRule("NoUnusedFragments", func(observers *Events, addError AddErrFunc) {
 
 		inFragmentDefinition := false
 		fragmentNameUsed := make(map[string]bool)
