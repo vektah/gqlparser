@@ -9,7 +9,7 @@ import (
 
 func TestLoadSchema(t *testing.T) {
 	t.Run("swapi", func(t *testing.T) {
-		file, err := ioutil.ReadFile("../testdata/swapi.graphql")
+		file, err := ioutil.ReadFile("testdata/swapi.graphql")
 		require.NoError(t, err)
 		s, err := LoadSchema(string(file))
 		require.NoError(t, err)
@@ -29,7 +29,7 @@ func TestLoadSchema(t *testing.T) {
 	})
 
 	t.Run("type extensions", func(t *testing.T) {
-		file, err := ioutil.ReadFile("../testdata/extensions.graphql")
+		file, err := ioutil.ReadFile("testdata/extensions.graphql")
 		require.NoError(t, err)
 		s, err := LoadSchema(string(file))
 		require.NoError(t, err)
