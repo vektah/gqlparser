@@ -1,13 +1,13 @@
 package validator
 
 import (
-	. "github.com/vektah/gqlparser"
+	. "github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/errors"
 )
 
-type addErrFunc func(options ...ErrorOption)
+type AddErrFunc func(options ...ErrorOption)
 
-type ruleFunc func(observers *Events, addError addErrFunc)
+type ruleFunc func(observers *Events, addError AddErrFunc)
 
 type rule struct {
 	name string
@@ -18,7 +18,7 @@ var rules []rule
 
 // addRule to rule set.
 // f is called once each time `Validate` is executed.
-func addRule(name string, f ruleFunc) {
+func AddRule(name string, f ruleFunc) {
 	rules = append(rules, rule{name: name, rule: f})
 }
 

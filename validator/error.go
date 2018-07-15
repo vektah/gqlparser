@@ -15,19 +15,19 @@ func Message(msg string, args ...interface{}) ErrorOption {
 }
 
 func SuggestListQuoted(prefix string, typed string, suggestions []string) ErrorOption {
-	suggested := suggestionList(typed, suggestions)
+	suggested := SuggestionList(typed, suggestions)
 	return func(err *errors.Validation) {
 		if len(suggested) > 0 {
-			err.Message += " " + prefix + " " + quotedOrList(suggested...) + "?"
+			err.Message += " " + prefix + " " + QuotedOrList(suggested...) + "?"
 		}
 	}
 }
 
 func SuggestListUnquoted(prefix string, typed string, suggestions []string) ErrorOption {
-	suggested := suggestionList(typed, suggestions)
+	suggested := SuggestionList(typed, suggestions)
 	return func(err *errors.Validation) {
 		if len(suggested) > 0 {
-			err.Message += " " + prefix + " " + orList(suggested...) + "?"
+			err.Message += " " + prefix + " " + OrList(suggested...) + "?"
 		}
 	}
 }

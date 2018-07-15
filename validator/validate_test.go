@@ -1,21 +1,24 @@
-package validator
+package validator_test
 
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
 	"testing"
 
-	"os"
-	"path/filepath"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/errors"
+	"github.com/vektah/gqlparser/parser"
+	"github.com/vektah/gqlparser/validator"
 	"gopkg.in/yaml.v2"
+
+	_ "github.com/vektah/gqlparser/validator/rules"
 )
 
 type Spec struct {
@@ -44,9 +47,9 @@ func TestValidation(t *testing.T) {
 		d.pattern = regexp.MustCompile("^" + d.Rule + "$")
 	}
 
-	var schemas []*gqlparser.Schema
+	var schemas []*ast.Schema
 	for _, schema := range rawSchemas {
-		schema, err := gqlparser.LoadSchema(schema)
+		schema, err := parser.LoadSchema(schema)
 		if err != nil {
 			panic(err)
 		}
@@ -64,7 +67,7 @@ func TestValidation(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func runSpec(t *testing.T, schemas []*gqlparser.Schema, deviations []*Deviation, filename string) {
+func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filename string) {
 	ruleName := strings.TrimSuffix(filepath.Base(filename), ".spec.yml")
 
 	var specs []Spec
@@ -87,9 +90,9 @@ func runSpec(t *testing.T, schemas []*gqlparser.Schema, deviations []*Deviation,
 					}
 				}
 
-				query, err := gqlparser.ParseQuery(spec.Query)
+				query, err := parser.ParseQuery(spec.Query)
 				require.Nil(t, err)
-				errs := Validate(schemas[spec.Schema], &query)
+				errs := validator.Validate(schemas[spec.Schema], &query)
 
 				var finalErrors []errors.Validation
 				for _, err := range errs {
