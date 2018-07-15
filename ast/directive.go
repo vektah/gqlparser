@@ -29,4 +29,9 @@ const (
 type Directive struct {
 	Name      string
 	Arguments []Argument
+
+	// Requires validation
+	ParentDefinition *Definition
+	Definition       *DirectiveDefinition
+	Location         DirectiveLocation
 }

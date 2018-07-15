@@ -14,8 +14,8 @@ type Events struct {
 	fragment              []func(walker *Walker, fragment *ast.FragmentDefinition)
 	inlineFragment        []func(walker *Walker, inlineFragment *ast.InlineFragment)
 	fragmentSpread        []func(walker *Walker, fragmentSpread *ast.FragmentSpread)
-	directive             []func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation)
-	directiveList         []func(walker *Walker, parentDef *ast.Definition, directives []ast.Directive, location ast.DirectiveLocation)
+	directive             []func(walker *Walker, directive *ast.Directive)
+	directiveList         []func(walker *Walker, directives []*ast.Directive)
 	value                 []func(walker *Walker, valueType ast.Type, def *ast.Definition, value ast.Value)
 	variable              []func(walker *Walker, valueType ast.Type, def *ast.Definition, variable ast.VariableDefinition)
 }
@@ -38,10 +38,10 @@ func (o *Events) OnInlineFragment(f func(walker *Walker, inlineFragment *ast.Inl
 func (o *Events) OnFragmentSpread(f func(walker *Walker, fragmentSpread *ast.FragmentSpread)) {
 	o.fragmentSpread = append(o.fragmentSpread, f)
 }
-func (o *Events) OnDirective(f func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation)) {
+func (o *Events) OnDirective(f func(walker *Walker, directive *ast.Directive)) {
 	o.directive = append(o.directive, f)
 }
-func (o *Events) OnDirectiveList(f func(walker *Walker, parentDef *ast.Definition, directives []ast.Directive, location ast.DirectiveLocation)) {
+func (o *Events) OnDirectiveList(f func(walker *Walker, directives []*ast.Directive)) {
 	o.directiveList = append(o.directiveList, f)
 }
 func (o *Events) OnValue(f func(walker *Walker, valueType ast.Type, def *ast.Definition, value ast.Value)) {
@@ -136,15 +136,14 @@ func (w *Walker) walkFragment(it *ast.FragmentDefinition) {
 	}
 }
 
-func (w *Walker) walkDirectives(parentDef *ast.Definition, directives []ast.Directive, location ast.DirectiveLocation) {
-	for _, v := range w.Observers.directiveList {
-		v(w, parentDef, directives, location)
-	}
-
+func (w *Walker) walkDirectives(parentDef *ast.Definition, directives []*ast.Directive, location ast.DirectiveLocation) {
 	for _, dir := range directives {
 		def := w.Schema.Directives[dir.Name]
+		dir.Definition = def
+		dir.ParentDefinition = parentDef
+		dir.Location = location
 		for _, v := range w.Observers.directive {
-			v(w, parentDef, def, &dir, location)
+			v(w, dir)
 		}
 
 		for _, arg := range dir.Arguments {
@@ -155,6 +154,10 @@ func (w *Walker) walkDirectives(parentDef *ast.Definition, directives []ast.Dire
 
 			w.walkArgument(argDef, &arg)
 		}
+	}
+
+	for _, v := range w.Observers.directiveList {
+		v(w, directives)
 	}
 }
 

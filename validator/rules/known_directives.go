@@ -7,22 +7,22 @@ import (
 
 func init() {
 	AddRule("KnownDirectives", func(observers *Events, addError AddErrFunc) {
-		observers.OnDirective(func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation) {
-			if directiveDef == nil {
+		observers.OnDirective(func(walker *Walker, directive *ast.Directive) {
+			if directive.Definition == nil {
 				addError(
 					Message(`Unknown directive "%s".`, directive.Name),
 				)
 				return
 			}
 
-			for _, loc := range directiveDef.Locations {
-				if loc == location {
+			for _, loc := range directive.Definition.Locations {
+				if loc == directive.Location {
 					return
 				}
 			}
 
 			addError(
-				Message(`Directive "%s" may not be used on %s.`, directive.Name, location),
+				Message(`Directive "%s" may not be used on %s.`, directive.Name, directive.Location),
 			)
 		})
 	})

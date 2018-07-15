@@ -33,7 +33,7 @@ type SchemaDocument struct {
 
 type SchemaDefinition struct {
 	Description    string
-	Directives     []Directive
+	Directives     []*Directive
 	OperationTypes []OperationTypeDefinition
 }
 

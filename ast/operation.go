@@ -12,7 +12,7 @@ type OperationDefinition struct {
 	Operation           Operation
 	Name                string
 	VariableDefinitions VariableDefinitions
-	Directives          []Directive
+	Directives          []*Directive
 	SelectionSet        SelectionSet
 }
 

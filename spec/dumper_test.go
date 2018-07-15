@@ -11,7 +11,7 @@ import (
 
 func TestDump(t *testing.T) {
 	res := DumpAST(ast.SchemaDefinition{
-		Directives: []ast.Directive{
+		Directives: []*ast.Directive{
 			{
 				Name:      "foo",
 				Arguments: []ast.Argument{{Name: "bar"}},

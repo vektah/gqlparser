@@ -31,13 +31,13 @@ func init() {
 			}
 		})
 
-		observers.OnDirective(func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation) {
-			if directiveDef == nil {
+		observers.OnDirective(func(walker *Walker, directive *ast.Directive) {
+			if directive.Definition == nil {
 				return
 			}
 
 		argDef:
-			for _, argDef := range directiveDef.Arguments {
+			for _, argDef := range directive.Definition.Arguments {
 				if !argDef.Type.IsRequired() {
 					continue
 				}
@@ -50,7 +50,7 @@ func init() {
 					}
 				}
 
-				addError(Message(`Directive "@%s" argument "%s" of type "%s" is required but not provided.`, directiveDef.Name, argDef.Name, argDef.Type.String()))
+				addError(Message(`Directive "@%s" argument "%s" of type "%s" is required but not provided.`, directive.Definition.Name, argDef.Name, argDef.Type.String()))
 			}
 		})
 	})

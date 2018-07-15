@@ -23,7 +23,7 @@ type Definition struct {
 	Kind        DefinitionKind
 	Description string
 	Name        string
-	Directives  []Directive
+	Directives  []*Directive
 	Interfaces  []NamedType           // object and input object
 	Fields      FieldList             // object and input object
 	Types       []NamedType           // union
@@ -79,7 +79,7 @@ type FieldDefinition struct {
 	Arguments    FieldList // only for objects
 	DefaultValue Value     // only for input objects
 	Type         Type
-	Directives   []Directive
+	Directives   []*Directive
 }
 
 type FieldList []FieldDefinition
@@ -96,7 +96,7 @@ func (f FieldList) ForName(name string) *FieldDefinition {
 type EnumValueDefinition struct {
 	Description string
 	Name        string
-	Directives  []Directive
+	Directives  []*Directive
 }
 
 // Directive Definitions

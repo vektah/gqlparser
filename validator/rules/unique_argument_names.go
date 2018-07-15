@@ -11,7 +11,7 @@ func init() {
 			checkUniqueArgs(field.Arguments, addError)
 		})
 
-		observers.OnDirective(func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation) {
+		observers.OnDirective(func(walker *Walker, directive *ast.Directive) {
 			checkUniqueArgs(directive.Arguments, addError)
 		})
 	})

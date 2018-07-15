@@ -30,18 +30,18 @@ func init() {
 			}
 		})
 
-		observers.OnDirective(func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation) {
-			if directiveDef == nil {
+		observers.OnDirective(func(walker *Walker, directive *ast.Directive) {
+			if directive.Definition == nil {
 				return
 			}
 			for _, arg := range directive.Arguments {
-				def := directiveDef.Arguments.ForName(arg.Name)
+				def := directive.Definition.Arguments.ForName(arg.Name)
 				if def != nil {
 					continue
 				}
 
 				var suggestions []string
-				for _, argDef := range directiveDef.Arguments {
+				for _, argDef := range directive.Definition.Arguments {
 					suggestions = append(suggestions, argDef.Name)
 				}
 

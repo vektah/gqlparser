@@ -287,8 +287,8 @@ func (p *parser) parseObjectField(isConst bool) ObjectField {
 	return field
 }
 
-func (p *parser) parseDirectives(isConst bool) []Directive {
-	var directives []Directive
+func (p *parser) parseDirectives(isConst bool) []*Directive {
+	var directives []*Directive
 
 	for p.peek().Kind == lexer.At {
 		if p.err != nil {
@@ -299,10 +299,10 @@ func (p *parser) parseDirectives(isConst bool) []Directive {
 	return directives
 }
 
-func (p *parser) parseDirective(isConst bool) Directive {
+func (p *parser) parseDirective(isConst bool) *Directive {
 	p.expect(lexer.At)
 
-	return Directive{
+	return &Directive{
 		Name:      p.parseName(),
 		Arguments: p.parseArguments(isConst),
 	}

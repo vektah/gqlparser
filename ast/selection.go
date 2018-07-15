@@ -14,7 +14,7 @@ type Field struct {
 	Alias        string
 	Name         string
 	Arguments    []Argument
-	Directives   []Directive
+	Directives   []*Directive
 	SelectionSet SelectionSet
 
 	// Require validation
