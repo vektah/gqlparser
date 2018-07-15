@@ -24,5 +24,5 @@ type Field struct {
 
 type Argument struct {
 	Name  string
-	Value Value
+	Value *Value
 }

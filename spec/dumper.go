@@ -23,7 +23,15 @@ type dumper struct {
 	indent int
 }
 
+type Dumpable interface {
+	Dump() string
+}
+
 func (d *dumper) dump(v reflect.Value) {
+	if dumpable, isDumpable := v.Interface().(Dumpable); isDumpable {
+		d.WriteString(dumpable.Dump())
+		return
+	}
 	switch v.Kind() {
 	case reflect.Bool:
 		if v.Bool() {

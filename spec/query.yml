@@ -69,7 +69,7 @@ encoding:
                 Arguments: [Argument]
                 - <Argument>
                     Name: "arg"
-                    Value: StringValue("Has a ਊ multi-byte character.")
+                    Value: "Has a ਊ multi-byte character."
 
 keywords are allowed anywhere a name is:
   - name: on
@@ -138,7 +138,7 @@ ast:
                 Arguments: [Argument]
                 - <Argument>
                     Name: "id"
-                    Value: IntValue("4")
+                    Value: 4
                 SelectionSet: [Selection]
                 - <Field>
                     Name: "id"
@@ -173,7 +173,7 @@ ast:
             Name: "a"
             VariableDefinition: [VariableDefinition]
             - <VariableDefinition>
-                Variable: Variable("v")
+                Variable: "v"
                 Type: NamedType("Boolean")
                 DefaultValue: false
             TypeCondition: NamedType("t")
@@ -183,7 +183,7 @@ ast:
                 Arguments: [Argument]
                 - <Argument>
                     Name: "v"
-                    Value: Variable("v")
+                    Value: $v
 
 
 values:
@@ -199,7 +199,7 @@ values:
                 Arguments: [Argument]
                 - <Argument>
                     Name: "id"
-                    Value: <NullValue>
+                    Value: null
 
   - name: strings
     input: '{ f(long: """long""", short: "short") } '
@@ -213,10 +213,10 @@ values:
                 Arguments: [Argument]
                 - <Argument>
                     Name: "long"
-                    Value: BlockValue("long")
+                    Value: "long"
                 - <Argument>
                     Name: "short"
-                    Value: StringValue("short")
+                    Value: "short"
 
   - name: list
     input: '{ f(id: [1,2]) }'
@@ -230,9 +230,7 @@ values:
                 Arguments: [Argument]
                 - <Argument>
                     Name: "id"
-                    Value: [Value]
-                    - IntValue("1")
-                    - IntValue("2")
+                    Value: [1,2]
 
 types:
   - name: common types
@@ -244,17 +242,17 @@ types:
             Operation: Operation("query")
             VariableDefinitions: [VariableDefinition]
             - <VariableDefinition>
-                Variable: Variable("string")
+                Variable: "string"
                 Type: NamedType("String")
             - <VariableDefinition>
-                Variable: Variable("int")
+                Variable: "int"
                 Type: NamedType("Int")
             - <VariableDefinition>
-                Variable: Variable("arr")
+                Variable: "arr"
                 Type: <ListType>
                   Type: NamedType("Arr")
             - <VariableDefinition>
-                Variable: Variable("notnull")
+                Variable: "notnull"
                 Type: <NonNullType>
                   Type: <ListType>
                     Type: <NonNullType>
@@ -331,12 +329,12 @@ large queries:
             Name: "queryName"
             VariableDefinitions: [VariableDefinition]
             - <VariableDefinition>
-                Variable: Variable("foo")
+                Variable: "foo"
                 Type: NamedType("ComplexType")
             - <VariableDefinition>
-                Variable: Variable("site")
+                Variable: "site"
                 Type: NamedType("Site")
-                DefaultValue: EnumValue("MOBILE")
+                DefaultValue: "MOBILE"
             SelectionSet: [Selection]
             - <Field>
                 Alias: "whoever123is"
@@ -344,9 +342,7 @@ large queries:
                 Arguments: [Argument]
                 - <Argument>
                     Name: "id"
-                    Value: [Value]
-                    - IntValue("123")
-                    - IntValue("456")
+                    Value: [123,456]
                 SelectionSet: [Selection]
                 - <Field>
                     Name: "id"
@@ -367,17 +363,17 @@ large queries:
                             Arguments: [Argument]
                             - <Argument>
                                 Name: "first"
-                                Value: IntValue("10")
+                                Value: 10
                             - <Argument>
                                 Name: "after"
-                                Value: Variable("foo")
+                                Value: $foo
                             Directives: [Directive]
                             - <Directive>
                                 Name: "include"
                                 Arguments: [Argument]
                                 - <Argument>
                                     Name: "if"
-                                    Value: Variable("foo")
+                                    Value: $foo
                             SelectionSet: [Selection]
                             - <Field>
                                 Name: "id"
@@ -390,7 +386,7 @@ large queries:
                         Arguments: [Argument]
                         - <Argument>
                             Name: "unless"
-                            Value: Variable("foo")
+                            Value: $foo
                     SelectionSet: [Selection]
                     - <Field>
                         Name: "id"
@@ -407,7 +403,7 @@ large queries:
                 Arguments: [Argument]
                 - <Argument>
                     Name: "story"
-                    Value: IntValue("123")
+                    Value: 123
                 Directives: [Directive]
                 - <Directive>
                     Name: "defer"
@@ -422,7 +418,7 @@ large queries:
             Name: "StoryLikeSubscription"
             VariableDefinitions: [VariableDefinition]
             - <VariableDefinition>
-                Variable: Variable("input")
+                Variable: "input"
                 Type: NamedType("StoryLikeSubscribeInput")
             SelectionSet: [Selection]
             - <Field>
@@ -430,7 +426,7 @@ large queries:
                 Arguments: [Argument]
                 - <Argument>
                     Name: "input"
-                    Value: Variable("input")
+                    Value: $input
                 SelectionSet: [Selection]
                 - <Field>
                     Name: "story"
@@ -458,7 +454,7 @@ large queries:
                     Value: false
                 - <Argument>
                     Name: "nullish"
-                    Value: <NullValue>
+                    Value: null
             - <Field>
                 Name: "query"
         Fragments: [FragmentDefinition]
@@ -471,16 +467,10 @@ large queries:
                 Arguments: [Argument]
                 - <Argument>
                     Name: "size"
-                    Value: Variable("size")
+                    Value: $size
                 - <Argument>
                     Name: "bar"
-                    Value: Variable("b")
+                    Value: $b
                 - <Argument>
                     Name: "obj"
-                    Value: [ObjectField]
-                    - <ObjectField>
-                        Name: "key"
-                        Value: StringValue("value")
-                    - <ObjectField>
-                        Name: "block"
-                        Value: BlockValue("block string uses \"\"\"")
+                    Value: {"block":"block string uses \"\"\"","key":"value"}

@@ -15,7 +15,7 @@ func init() {
 				addError(
 					Message(
 						`Variable "$%s" cannot be non-input type "%s".`,
-						variable.Variable.String(),
+						variable.Variable,
 						valueType.String(),
 					),
 				)

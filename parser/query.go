@@ -101,9 +101,9 @@ func (p *parser) parseVariableDefinition() VariableDefinition {
 	return def
 }
 
-func (p *parser) parseVariable() Variable {
+func (p *parser) parseVariable() string {
 	p.expect(lexer.Dollar)
-	return Variable(p.parseName())
+	return p.parseName()
 }
 
 func (p *parser) parseSelectionSet() SelectionSet {
@@ -208,77 +208,68 @@ func (p *parser) parseFragmentName() string {
 	return p.parseName()
 }
 
-func (p *parser) parseValueLiteral(isConst bool) Value {
+func (p *parser) parseValueLiteral(isConst bool) *Value {
 	token := p.peek()
 
+	var kind ValueKind
 	switch token.Kind {
 	case lexer.BracketL:
 		return p.parseList(isConst)
 	case lexer.BraceL:
 		return p.parseObject(isConst)
-	case lexer.Int:
-		p.next()
-		return IntValue(token.Value)
-	case lexer.Float:
-		p.next()
-
-		return FloatValue(token.Value)
-
-	case lexer.String, lexer.BlockString:
-		return p.parseStringLiteral()
-
 	case lexer.Dollar:
-		if !isConst {
-			return p.parseVariable()
+		if isConst {
+			p.unexpectedError()
+			return nil
 		}
-
+		return &Value{Raw: p.parseVariable(), Kind: Variable}
+	case lexer.Int:
+		kind = IntValue
+	case lexer.Float:
+		kind = FloatValue
+	case lexer.String:
+		kind = StringValue
+	case lexer.BlockString:
+		kind = BlockValue
 	case lexer.Name:
-		p.next()
 		switch token.Value {
-
 		case "true", "false":
-			return BooleanValue(token.Value == "true")
+			kind = BooleanValue
 		case "null":
-			return NullValue{}
+			kind = NullValue
 		default:
-			return EnumValue(token.Value)
+			kind = EnumValue
 		}
+	default:
+		p.unexpectedError()
+		return nil
 	}
 
-	p.unexpectedError()
-	return nil
+	p.next()
+
+	return &Value{Raw: token.Value, Kind: kind}
 }
 
-func (p *parser) parseStringLiteral() Value {
-	token := p.next()
-
-	if token.Kind == lexer.BlockString {
-		return BlockValue(token.Value)
-	}
-	return StringValue(token.Value)
-}
-
-func (p *parser) parseList(isConst bool) ListValue {
-	var values ListValue
+func (p *parser) parseList(isConst bool) *Value {
+	var values []ChildValue
 	p.many(lexer.BracketL, lexer.BracketR, func() {
-		values = append(values, p.parseValueLiteral(isConst))
+		values = append(values, ChildValue{Value: p.parseValueLiteral(isConst)})
 	})
 
-	return values
+	return &Value{Children: values, Kind: ListValue}
 }
 
-func (p *parser) parseObject(isConst bool) ObjectValue {
-	var fields ObjectValue
+func (p *parser) parseObject(isConst bool) *Value {
+	var fields []ChildValue
 	p.many(lexer.BraceL, lexer.BraceR, func() {
 		fields = append(fields, p.parseObjectField(isConst))
 	})
 
-	return fields
+	return &Value{Children: fields, Kind: ObjectValue}
 }
 
-func (p *parser) parseObjectField(isConst bool) ObjectField {
-	field := ObjectField{}
-
+func (p *parser) parseObjectField(isConst bool) ChildValue {
+	field := ChildValue{}
 	field.Name = p.parseName()
 
 	p.expect(lexer.Colon)

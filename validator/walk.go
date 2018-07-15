@@ -16,7 +16,7 @@ type Events struct {
 	fragmentSpread        []func(walker *Walker, fragmentSpread *ast.FragmentSpread)
 	directive             []func(walker *Walker, directive *ast.Directive)
 	directiveList         []func(walker *Walker, directives []*ast.Directive)
-	value                 []func(walker *Walker, valueType ast.Type, def *ast.Definition, value ast.Value)
+	value                 []func(walker *Walker, valueType ast.Type, def *ast.Definition, value *ast.Value)
 	variable              []func(walker *Walker, valueType ast.Type, def *ast.Definition, variable ast.VariableDefinition)
 }
 
@@ -44,7 +44,7 @@ func (o *Events) OnDirective(f func(walker *Walker, directive *ast.Directive)) {
 func (o *Events) OnDirectiveList(f func(walker *Walker, directives []*ast.Directive)) {
 	o.directiveList = append(o.directiveList, f)
 }
-func (o *Events) OnValue(f func(walker *Walker, valueType ast.Type, def *ast.Definition, value ast.Value)) {
+func (o *Events) OnValue(f func(walker *Walker, valueType ast.Type, def *ast.Definition, value *ast.Value)) {
 	o.value = append(o.value, f)
 }
 func (o *Events) OnVariable(f func(walker *Walker, valueType ast.Type, def *ast.Definition, variable ast.VariableDefinition)) {
@@ -161,7 +161,7 @@ func (w *Walker) walkDirectives(parentDef *ast.Definition, directives []*ast.Dir
 	}
 }
 
-func (w *Walker) walkValue(valueType ast.Type, value ast.Value) {
+func (w *Walker) walkValue(valueType ast.Type, value *ast.Value) {
 	var def *ast.Definition
 	if valueType != nil {
 		def = w.Schema.Types[valueType.Name()]
@@ -171,8 +171,8 @@ func (w *Walker) walkValue(valueType ast.Type, value ast.Value) {
 		v(w, valueType, def, value)
 	}
 
-	if obj, isObj := value.(ast.ObjectValue); isObj {
-		for _, v := range obj {
+	if value.Kind == ast.ObjectValue {
+		for _, v := range value.Children {
 			var fieldType ast.Type
 			if def != nil {
 				fieldDef := def.Field(v.Name)

@@ -21,7 +21,7 @@ type VariableDefinitions []VariableDefinition
 func (v VariableDefinitions) Find(name string) *VariableDefinition {
 	for i := range v {
 		def := v[i]
-		if string(def.Variable) == name {
+		if def.Variable == name {
 			return &def
 		}
 	}
@@ -29,7 +29,7 @@ func (v VariableDefinitions) Find(name string) *VariableDefinition {
 }
 
 type VariableDefinition struct {
-	Variable     Variable
+	Variable     string
 	Type         Type
-	DefaultValue Value
+	DefaultValue *Value
 }

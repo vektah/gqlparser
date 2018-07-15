@@ -18,24 +18,20 @@ func init() {
 			currentOperation = nil
 		})
 
-		observers.OnValue(func(walker *Walker, valueType ast.Type, def *ast.Definition, value ast.Value) {
+		observers.OnValue(func(walker *Walker, valueType ast.Type, def *ast.Definition, value *ast.Value) {
 			if currentOperation == nil {
 				// not in operation context
 				return
 			}
 
-			var variables []ast.Variable
-			var filterVariable func(value ast.Value)
-			filterVariable = func(value ast.Value) {
-				switch value := value.(type) {
+			var variables []string
+			var filterVariable func(value *ast.Value)
+			filterVariable = func(value *ast.Value) {
+				switch value.Kind {
 				case ast.Variable:
-					variables = append(variables, value)
-				case ast.ListValue:
-					for _, v := range value {
-						filterVariable(v)
-					}
-				case ast.ObjectValue:
-					for _, v := range value {
+					variables = append(variables, value.Raw)
+				case ast.ListValue, ast.ObjectValue:
+					for _, v := range value.Children {
 						filterVariable(v.Value)
 					}
 				default:

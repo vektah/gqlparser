@@ -30,16 +30,15 @@ func init() {
 			variableNameUsed = nil
 		})
 
-		observers.OnValue(func(walker *Walker, valueType ast.Type, def *ast.Definition, value ast.Value) {
+		observers.OnValue(func(walker *Walker, valueType ast.Type, def *ast.Definition, value *ast.Value) {
 			if variableNameUsed == nil {
 				// not in operation context
 				return
 			}
-			variable, isVariable := value.(ast.Variable)
-			if !isVariable {
+			if value.Kind != ast.Variable {
 				return
 			}
-			variableNameUsed[string(variable)] = true
+			variableNameUsed[value.Raw] = true
 		})
 	})
 }

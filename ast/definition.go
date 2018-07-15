@@ -77,7 +77,7 @@ type FieldDefinition struct {
 	Description  string
 	Name         string
 	Arguments    FieldList // only for objects
-	DefaultValue Value     // only for input objects
+	DefaultValue *Value    // only for input objects
 	Type         Type
 	Directives   []*Directive
 }

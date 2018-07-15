@@ -17,7 +17,7 @@ func init() {
 			varDefs = nil
 		})
 
-		observers.OnValue(func(walker *Walker, expectedType ast.Type, def *ast.Definition, value ast.Value) {
+		observers.OnValue(func(walker *Walker, expectedType ast.Type, def *ast.Definition, value *ast.Value) {
 			if def == nil || expectedType == nil || varDefs == nil {
 				return
 			}
@@ -27,32 +27,29 @@ func init() {
 	})
 }
 
-func validateVariable(walker *Walker, expectedType ast.Type, def *ast.Definition, value ast.Value, addError AddErrFunc, varDefs ast.VariableDefinitions) {
-	switch value := value.(type) {
-
+func validateVariable(walker *Walker, expectedType ast.Type, def *ast.Definition, value *ast.Value, addError AddErrFunc, varDefs ast.VariableDefinitions) {
+	switch value.Kind {
 	case ast.ListValue:
 		listType, isList := expectedType.(ast.ListType)
 		if !isList {
 			return
 		}
 
-		for _, item := range value {
-			validateVariable(walker, listType.Type, def, item, addError, varDefs)
+		for _, item := range value.Children {
+			validateVariable(walker, listType.Type, def, item.Value, addError, varDefs)
 		}
 
 	case ast.Variable:
-		varDef := varDefs.Find(string(value))
+		varDef := varDefs.Find(value.Raw)
 		if varDef == nil {
 			return
 		}
 
 		// If there is a default non nullable types can be null
-		if varDef.DefaultValue != nil {
-			if _, isNullvalue := varDef.DefaultValue.(ast.NullValue); !isNullvalue {
-				notNull, isNotNull := expectedType.(ast.NonNullType)
-				if isNotNull {
-					expectedType = notNull.Type
-				}
+		if varDef.DefaultValue != nil && varDef.DefaultValue.Kind != ast.NullValue {
+			notNull, isNotNull := expectedType.(ast.NonNullType)
+			if isNotNull {
+				expectedType = notNull.Type
 			}
 		}
 

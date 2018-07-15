@@ -9,7 +9,7 @@ import (
 
 func init() {
 	AddRule("ValuesOfCorrectType", func(observers *Events, addError AddErrFunc) {
-		observers.OnValue(func(walker *Walker, expectedType ast.Type, def *ast.Definition, value ast.Value) {
+		observers.OnValue(func(walker *Walker, expectedType ast.Type, def *ast.Definition, value *ast.Value) {
 			if def == nil || expectedType == nil {
 				return
 			}
@@ -26,7 +26,7 @@ func init() {
 	})
 }
 
-func validateValue(expectedType ast.Type, def *ast.Definition, value ast.Value, addError AddErrFunc) {
+func validateValue(expectedType ast.Type, def *ast.Definition, value *ast.Value, addError AddErrFunc) {
 	var possibleEnums []string
 	if def.Kind == ast.Enum {
 		for _, val := range def.Values {
@@ -39,7 +39,7 @@ func validateValue(expectedType ast.Type, def *ast.Definition, value ast.Value, 
 		unexpectedTypeMessage(addError, expectedType.String(), value.String())
 	}
 
-	switch value := value.(type) {
+	switch value.Kind {
 	case ast.NullValue:
 		if _, nonNullable := expectedType.(ast.NonNullType); nonNullable {
 			unexpectedTypeMessage(addError, expectedType.String(), value.String())
@@ -51,8 +51,8 @@ func validateValue(expectedType ast.Type, def *ast.Definition, value ast.Value, 
 			unexpectedTypeMessage(addError, expectedType.String(), value.String())
 		}
 
-		for _, item := range value {
-			validateValue(listType.Type, def, item, addError)
+		for _, item := range value.Children {
+			validateValue(listType.Type, def, item.Value, addError)
 		}
 
 	case ast.IntValue:
@@ -77,7 +77,7 @@ func validateValue(expectedType ast.Type, def *ast.Definition, value ast.Value, 
 		}
 
 	case ast.EnumValue:
-		if def.Kind != ast.Enum || def.EnumValue(string(value)) == nil {
+		if def.Kind != ast.Enum || def.EnumValue(value.Raw) == nil {
 			rawValStr := fmt.Sprint(rawVal)
 			addError(
 				Message("Expected type %s, found %s.", expectedType.String(), value.String()),
@@ -94,7 +94,7 @@ func validateValue(expectedType ast.Type, def *ast.Definition, value ast.Value, 
 
 		for _, field := range def.Fields {
 			if field.Type.IsRequired() {
-				fieldValue := value.Find(field.Name)
+				fieldValue := value.FieldByName(field.Name)
 				if fieldValue == nil && field.DefaultValue == nil {
 					addError(
 						Message("Field %s.%s of required type %s was not provided.", def.Name, field.Name, field.Type.String()),
@@ -104,7 +104,7 @@ func validateValue(expectedType ast.Type, def *ast.Definition, value ast.Value, 
 			}
 		}
 
-		for _, fieldValue := range value {
+		for _, fieldValue := range value.Children {
 			if def.Field(fieldValue.Name) == nil {
 				var suggestions []string
 				for _, fieldValue := range def.Fields {
