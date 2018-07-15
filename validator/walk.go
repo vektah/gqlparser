@@ -8,22 +8,18 @@ import (
 )
 
 type Events struct {
-	operationVisitor      []func(walker *Walker, operation *ast.OperationDefinition)
-	operationLeaveVisitor []func(walker *Walker, operation *ast.OperationDefinition)
-	field                 []func(walker *Walker, field *ast.Field)
-	fragment              []func(walker *Walker, fragment *ast.FragmentDefinition)
-	inlineFragment        []func(walker *Walker, inlineFragment *ast.InlineFragment)
-	fragmentSpread        []func(walker *Walker, fragmentSpread *ast.FragmentSpread)
-	directive             []func(walker *Walker, directive *ast.Directive)
-	directiveList         []func(walker *Walker, directives []*ast.Directive)
-	value                 []func(walker *Walker, value *ast.Value)
+	operationVisitor []func(walker *Walker, operation *ast.OperationDefinition)
+	field            []func(walker *Walker, field *ast.Field)
+	fragment         []func(walker *Walker, fragment *ast.FragmentDefinition)
+	inlineFragment   []func(walker *Walker, inlineFragment *ast.InlineFragment)
+	fragmentSpread   []func(walker *Walker, fragmentSpread *ast.FragmentSpread)
+	directive        []func(walker *Walker, directive *ast.Directive)
+	directiveList    []func(walker *Walker, directives []*ast.Directive)
+	value            []func(walker *Walker, value *ast.Value)
 }
 
 func (o *Events) OnOperation(f func(walker *Walker, operation *ast.OperationDefinition)) {
 	o.operationVisitor = append(o.operationVisitor, f)
-}
-func (o *Events) OnOperationLeave(f func(walker *Walker, operation *ast.OperationDefinition)) {
-	o.operationLeaveVisitor = append(o.operationLeaveVisitor, f)
 }
 func (o *Events) OnField(f func(walker *Walker, field *ast.Field)) {
 	o.field = append(o.field, f)
@@ -63,6 +59,7 @@ type Walker struct {
 	Document  *ast.QueryDocument
 
 	validatedFragmentSpreads map[string]bool
+	CurrentOperation         *ast.OperationDefinition
 }
 
 func (w *Walker) walk() {
@@ -77,6 +74,7 @@ func (w *Walker) walk() {
 }
 
 func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
+	w.CurrentOperation = operation
 	for _, varDef := range operation.VariableDefinitions {
 		varDef.Definition = w.Schema.Types[varDef.Type.Name()]
 
@@ -84,10 +82,6 @@ func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
 			varDef.DefaultValue.ExpectedType = varDef.Type
 			varDef.DefaultValue.Definition = w.Schema.Types[varDef.Type.Name()]
 		}
-	}
-
-	for _, v := range w.Observers.operationVisitor {
-		v(w, operation)
 	}
 
 	var def *ast.Definition
@@ -116,9 +110,10 @@ func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
 		w.walkSelection(def, v)
 	}
 
-	for _, v := range w.Observers.operationLeaveVisitor {
+	for _, v := range w.Observers.operationVisitor {
 		v(w, operation)
 	}
+	w.CurrentOperation = nil
 }
 
 func (w *Walker) walkFragment(it *ast.FragmentDefinition) {
@@ -163,6 +158,13 @@ func (w *Walker) walkDirectives(parentDef *ast.Definition, directives []*ast.Dir
 }
 
 func (w *Walker) walkValue(value *ast.Value) {
+	if value.Kind == ast.Variable && w.CurrentOperation != nil {
+		value.VariableDefinition = w.CurrentOperation.VariableDefinitions.Find(value.Raw)
+		if value.VariableDefinition != nil {
+			value.VariableDefinition.Used = true
+		}
+	}
+
 	for _, v := range w.Observers.value {
 		v(w, value)
 	}
@@ -190,6 +192,7 @@ func (w *Walker) walkValue(value *ast.Value) {
 			w.walkValue(child.Value)
 		}
 	}
+
 }
 
 func (w *Walker) walkArgument(argDef *ast.FieldDefinition, arg *ast.Argument) {

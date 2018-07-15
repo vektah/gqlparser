@@ -7,40 +7,26 @@ import (
 
 func init() {
 	AddRule("VariablesInAllowedPosition", func(observers *Events, addError AddErrFunc) {
-		var varDefs ast.VariableDefinitions
-
-		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
-			varDefs = operation.VariableDefinitions
-		})
-
-		observers.OnOperationLeave(func(walker *Walker, operation *ast.OperationDefinition) {
-			varDefs = nil
-		})
-
 		observers.OnValue(func(walker *Walker, value *ast.Value) {
-			if value.Kind != ast.Variable || value.ExpectedType == nil {
+			if value.Kind != ast.Variable || value.ExpectedType == nil || value.VariableDefinition == nil || walker.CurrentOperation == nil {
 				return
 			}
 
-			varDef := varDefs.Find(value.Raw)
-			if varDef == nil {
-				return
-			}
-
+			// todo: move me into walk
 			// If there is a default non nullable types can be null
-			if varDef.DefaultValue != nil && varDef.DefaultValue.Kind != ast.NullValue {
+			if value.VariableDefinition.DefaultValue != nil && value.VariableDefinition.DefaultValue.Kind != ast.NullValue {
 				notNull, isNotNull := value.ExpectedType.(ast.NonNullType)
 				if isNotNull {
 					value.ExpectedType = notNull.Type
 				}
 			}
 
-			if !varDef.Type.IsCompatible(value.ExpectedType) {
+			if !value.VariableDefinition.Type.IsCompatible(value.ExpectedType) {
 				addError(
 					Message(
 						`Variable "$%s" of type "%s" used in position expecting type "%s".`,
 						value,
-						varDef.Type.String(),
+						value.VariableDefinition.Type.String(),
 						value.ExpectedType.String(),
 					),
 				)

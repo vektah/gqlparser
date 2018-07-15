@@ -35,4 +35,5 @@ type VariableDefinition struct {
 
 	// Requires validation
 	Definition *Definition
+	Used       bool `dump:"-"`
 }

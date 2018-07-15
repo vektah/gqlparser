@@ -27,8 +27,9 @@ type Value struct {
 	Kind     ValueKind
 
 	// Require validation
-	Definition   *Definition
-	ExpectedType Type
+	Definition         *Definition
+	VariableDefinition *VariableDefinition
+	ExpectedType       Type
 }
 
 type ChildValue struct {
