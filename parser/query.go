@@ -76,8 +76,8 @@ func (p *parser) parseOperationType() Operation {
 	return ""
 }
 
-func (p *parser) parseVariableDefinitions() []VariableDefinition {
-	var defs []VariableDefinition
+func (p *parser) parseVariableDefinitions() VariableDefinitions {
+	var defs []*VariableDefinition
 	p.many(lexer.ParenL, lexer.ParenR, func() {
 		defs = append(defs, p.parseVariableDefinition())
 	})
@@ -85,7 +85,7 @@ func (p *parser) parseVariableDefinitions() []VariableDefinition {
 	return defs
 }
 
-func (p *parser) parseVariableDefinition() VariableDefinition {
+func (p *parser) parseVariableDefinition() *VariableDefinition {
 	var def VariableDefinition
 
 	def.Variable = p.parseVariable()
@@ -98,7 +98,7 @@ func (p *parser) parseVariableDefinition() VariableDefinition {
 		def.DefaultValue = p.parseValueLiteral(true)
 	}
 
-	return def
+	return &def
 }
 
 func (p *parser) parseVariable() string {

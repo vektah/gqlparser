@@ -17,7 +17,6 @@ type Events struct {
 	directive             []func(walker *Walker, directive *ast.Directive)
 	directiveList         []func(walker *Walker, directives []*ast.Directive)
 	value                 []func(walker *Walker, value *ast.Value)
-	variable              []func(walker *Walker, valueType ast.Type, def *ast.Definition, variable ast.VariableDefinition)
 }
 
 func (o *Events) OnOperation(f func(walker *Walker, operation *ast.OperationDefinition)) {
@@ -46,9 +45,6 @@ func (o *Events) OnDirectiveList(f func(walker *Walker, directives []*ast.Direct
 }
 func (o *Events) OnValue(f func(walker *Walker, value *ast.Value)) {
 	o.value = append(o.value, f)
-}
-func (o *Events) OnVariable(f func(walker *Walker, valueType ast.Type, def *ast.Definition, variable ast.VariableDefinition)) {
-	o.variable = append(o.variable, f)
 }
 
 func Walk(schema *ast.Schema, document *ast.QueryDocument, observers *Events) {
@@ -81,6 +77,15 @@ func (w *Walker) walk() {
 }
 
 func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
+	for _, varDef := range operation.VariableDefinitions {
+		varDef.Definition = w.Schema.Types[varDef.Type.Name()]
+
+		if varDef.DefaultValue != nil {
+			varDef.DefaultValue.ExpectedType = varDef.Type
+			varDef.DefaultValue.Definition = w.Schema.Types[varDef.Type.Name()]
+		}
+	}
+
 	for _, v := range w.Observers.operationVisitor {
 		v(w, operation)
 	}
@@ -102,13 +107,7 @@ func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
 	w.walkDirectives(def, operation.Directives, loc)
 
 	for _, varDef := range operation.VariableDefinitions {
-		typeDef := w.Schema.Types[varDef.Type.Name()]
-		for _, v := range w.Observers.variable {
-			v(w, varDef.Type, typeDef, varDef)
-		}
 		if varDef.DefaultValue != nil {
-			varDef.DefaultValue.ExpectedType = varDef.Type
-			varDef.DefaultValue.Definition = w.Schema.Types[varDef.Type.Name()]
 			w.walkValue(varDef.DefaultValue)
 		}
 	}

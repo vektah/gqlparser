@@ -16,13 +16,13 @@ type OperationDefinition struct {
 	SelectionSet        SelectionSet
 }
 
-type VariableDefinitions []VariableDefinition
+type VariableDefinitions []*VariableDefinition
 
 func (v VariableDefinitions) Find(name string) *VariableDefinition {
 	for i := range v {
 		def := v[i]
 		if def.Variable == name {
-			return &def
+			return def
 		}
 	}
 	return nil
@@ -32,4 +32,7 @@ type VariableDefinition struct {
 	Variable     string
 	Type         Type
 	DefaultValue *Value
+
+	// Requires validation
+	Definition *Definition
 }

@@ -7,18 +7,20 @@ import (
 
 func init() {
 	AddRule("VariablesAreInputTypes", func(observers *Events, addError AddErrFunc) {
-		observers.OnVariable(func(walker *Walker, valueType ast.Type, def *ast.Definition, variable ast.VariableDefinition) {
-			if def == nil {
-				return
-			}
-			if !def.IsInputType() {
-				addError(
-					Message(
-						`Variable "$%s" cannot be non-input type "%s".`,
-						variable.Variable,
-						valueType.String(),
-					),
-				)
+		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
+			for _, def := range operation.VariableDefinitions {
+				if def.Definition == nil {
+					continue
+				}
+				if !def.Definition.IsInputType() {
+					addError(
+						Message(
+							`Variable "$%s" cannot be non-input type "%s".`,
+							def.Variable,
+							def.Type.String(),
+						),
+					)
+				}
 			}
 		})
 	})
