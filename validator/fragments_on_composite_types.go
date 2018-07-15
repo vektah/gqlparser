@@ -3,12 +3,12 @@ package validator
 import (
 	"fmt"
 
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 )
 
 func init() {
 	addRule("FragmentsOnCompositeTypes", func(observers *Events, addError addErrFunc) {
-		observers.OnInlineFragment(func(walker *Walker, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment) {
+		observers.OnInlineFragment(func(walker *Walker, parentDef *ast.Definition, inlineFragment *ast.InlineFragment) {
 			if parentDef == nil {
 				return
 			}
@@ -23,7 +23,7 @@ func init() {
 			addError(Message(message))
 		})
 
-		observers.OnFragment(func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition) {
+		observers.OnFragment(func(walker *Walker, parentDef *ast.Definition, fragment *ast.FragmentDefinition) {
 			if parentDef == nil {
 				return
 			}

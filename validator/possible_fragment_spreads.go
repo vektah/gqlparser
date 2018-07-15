@@ -1,22 +1,22 @@
 package validator
 
 import (
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 )
 
 func init() {
 	addRule("PossibleFragmentSpreads", func(observers *Events, addError addErrFunc) {
 
-		validate := func(walker *Walker, parentDef *gqlparser.Definition, fragmentName string, emitError func()) {
+		validate := func(walker *Walker, parentDef *ast.Definition, fragmentName string, emitError func()) {
 			if parentDef == nil {
 				return
 			}
 
-			var parentDefs []*gqlparser.Definition
+			var parentDefs []*ast.Definition
 			switch parentDef.Kind {
-			case gqlparser.Object:
-				parentDefs = []*gqlparser.Definition{parentDef}
-			case gqlparser.Interface, gqlparser.Union:
+			case ast.Object:
+				parentDefs = []*ast.Definition{parentDef}
+			case ast.Interface, ast.Union:
 				parentDefs = walker.Schema.GetPossibleTypes(parentDef)
 			default:
 				panic("unexpected type")
@@ -43,13 +43,13 @@ func init() {
 			emitError()
 		}
 
-		observers.OnInlineFragment(func(walker *Walker, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment) {
+		observers.OnInlineFragment(func(walker *Walker, parentDef *ast.Definition, inlineFragment *ast.InlineFragment) {
 			validate(walker, parentDef, inlineFragment.TypeCondition.Name(), func() {
 				addError(Message(`Fragment cannot be spread here as objects of type "%s" can never be of type "%s".`, parentDef.Name, inlineFragment.TypeCondition.Name()))
 			})
 		})
 
-		observers.OnFragmentSpread(func(walker *Walker, parentDef *gqlparser.Definition, fragmentDef *gqlparser.FragmentDefinition, fragmentSpread *gqlparser.FragmentSpread) {
+		observers.OnFragmentSpread(func(walker *Walker, parentDef *ast.Definition, fragmentDef *ast.FragmentDefinition, fragmentSpread *ast.FragmentSpread) {
 			if fragmentDef == nil {
 				return
 			}

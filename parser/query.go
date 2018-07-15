@@ -1,8 +1,10 @@
-package gqlparser
+package parser
 
 import (
 	"github.com/vektah/gqlparser/errors"
 	"github.com/vektah/gqlparser/lexer"
+
+	. "github.com/vektah/gqlparser/ast"
 )
 
 func ParseQuery(source string) (QueryDocument, *errors.Syntax) {

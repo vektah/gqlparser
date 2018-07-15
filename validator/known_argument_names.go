@@ -1,13 +1,13 @@
 package validator
 
 import (
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 )
 
 func init() {
 	addRule("KnownArgumentNames", func(observers *Events, addError addErrFunc) {
 		// A GraphQL field is only valid if all supplied arguments are defined by that field.
-		observers.OnField(func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field) {
+		observers.OnField(func(walker *Walker, parentDef *ast.Definition, fieldDef *ast.FieldDefinition, field *ast.Field) {
 			if fieldDef == nil {
 				return
 			}
@@ -29,7 +29,7 @@ func init() {
 			}
 		})
 
-		observers.OnDirective(func(walker *Walker, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation) {
+		observers.OnDirective(func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation) {
 			if directiveDef == nil {
 				return
 			}

@@ -1,23 +1,10 @@
-package gqlparser
+package parser
 
 import (
 	"fmt"
+
+	. "github.com/vektah/gqlparser/ast"
 )
-
-type Schema struct {
-	Query        *Definition
-	Mutation     *Definition
-	Subscription *Definition
-
-	Types      map[string]*Definition
-	Directives map[string]*DirectiveDefinition
-
-	possibleTypes map[string][]*Definition
-}
-
-func (s *Schema) addPossibleType(name string, def *Definition) {
-	s.possibleTypes[name] = append(s.possibleTypes[name], def)
-}
 
 func LoadSchema(input string) (*Schema, error) {
 	ast, err := ParseSchema(input)
@@ -28,7 +15,7 @@ func LoadSchema(input string) (*Schema, error) {
 	schema := Schema{
 		Types:         map[string]*Definition{},
 		Directives:    map[string]*DirectiveDefinition{},
-		possibleTypes: map[string][]*Definition{},
+		PossibleTypes: map[string][]*Definition{},
 	}
 
 	schema.Types["Int"] = &Definition{
@@ -90,9 +77,9 @@ func LoadSchema(input string) (*Schema, error) {
 
 		if def.Kind != Interface {
 			for _, intf := range def.Interfaces {
-				schema.addPossibleType(intf.Name(), &ast.Definitions[i])
+				schema.AddPossibleType(intf.Name(), &ast.Definitions[i])
 			}
-			schema.addPossibleType(def.Name, &ast.Definitions[i])
+			schema.AddPossibleType(def.Name, &ast.Definitions[i])
 		}
 	}
 
@@ -159,17 +146,4 @@ func LoadSchema(input string) (*Schema, error) {
 	}
 
 	return &schema, nil
-}
-
-// GetPossibleTypes will enumerate all the definitions for a given interface or union
-func (s *Schema) GetPossibleTypes(def *Definition) []*Definition {
-	if def.Kind == Union {
-		var defs []*Definition
-		for _, t := range def.Types {
-			defs = append(defs, s.Types[t.Name()])
-		}
-		return defs
-	}
-
-	return s.possibleTypes[def.Name]
 }

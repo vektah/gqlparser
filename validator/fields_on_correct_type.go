@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 )
 
 func init() {
 	addRule("FieldsOnCorrectType", func(observers *Events, addError addErrFunc) {
-		observers.OnField(func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field) {
+		observers.OnField(func(walker *Walker, parentDef *ast.Definition, fieldDef *ast.FieldDefinition, field *ast.Field) {
 			if parentDef == nil {
 				return
 			}
@@ -35,7 +35,7 @@ func init() {
 // that they implement. If any of those types include the provided field,
 // suggest them, sorted by how often the type is referenced,  starting
 // with Interfaces.
-func getSuggestedTypeNames(walker *Walker, parent *gqlparser.Definition, name string) []string {
+func getSuggestedTypeNames(walker *Walker, parent *ast.Definition, name string) []string {
 	if !parent.IsAbstractType() {
 		return nil
 	}
@@ -72,8 +72,8 @@ func getSuggestedTypeNames(walker *Walker, parent *gqlparser.Definition, name st
 
 // For the field name provided, determine if there are any similar field names
 // that may be the result of a typo.
-func getSuggestedFieldNames(parent *gqlparser.Definition, name string) []string {
-	if parent.Kind != gqlparser.Object && parent.Kind != gqlparser.Interface {
+func getSuggestedFieldNames(parent *ast.Definition, name string) []string {
+	if parent.Kind != ast.Object && parent.Kind != ast.Interface {
 		return nil
 	}
 

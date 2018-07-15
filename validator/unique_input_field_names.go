@@ -1,13 +1,13 @@
 package validator
 
 import (
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 )
 
 func init() {
 	addRule("UniqueInputFieldNames", func(observers *Events, addError addErrFunc) {
-		observers.OnValue(func(walker *Walker, fieldType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value) {
-			object, isObject := value.(gqlparser.ObjectValue)
+		observers.OnValue(func(walker *Walker, fieldType ast.Type, def *ast.Definition, value ast.Value) {
+			object, isObject := value.(ast.ObjectValue)
 			if !isObject {
 				return
 			}

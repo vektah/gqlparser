@@ -3,17 +3,17 @@ package validator
 import (
 	"fmt"
 
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 )
 
 func init() {
 	addRule("ValuesOfCorrectType", func(observers *Events, addError addErrFunc) {
-		observers.OnValue(func(walker *Walker, expectedType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value) {
+		observers.OnValue(func(walker *Walker, expectedType ast.Type, def *ast.Definition, value ast.Value) {
 			if def == nil || expectedType == nil {
 				return
 			}
 
-			if def.Kind == gqlparser.Scalar {
+			if def.Kind == ast.Scalar {
 				// Skip custom validating scalars
 				if !def.OneOf("Int", "Float", "String", "Boolean", "ID") {
 					return
@@ -25,9 +25,9 @@ func init() {
 	})
 }
 
-func validateValue(expectedType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value, addError addErrFunc) {
+func validateValue(expectedType ast.Type, def *ast.Definition, value ast.Value, addError addErrFunc) {
 	var possibleEnums []string
-	if def.Kind == gqlparser.Enum {
+	if def.Kind == ast.Enum {
 		for _, val := range def.Values {
 			possibleEnums = append(possibleEnums, val.Name)
 		}
@@ -39,13 +39,13 @@ func validateValue(expectedType gqlparser.Type, def *gqlparser.Definition, value
 	}
 
 	switch value := value.(type) {
-	case gqlparser.NullValue:
-		if _, nonNullable := expectedType.(gqlparser.NonNullType); nonNullable {
+	case ast.NullValue:
+		if _, nonNullable := expectedType.(ast.NonNullType); nonNullable {
 			unexpectedTypeMessage(addError, expectedType.String(), value.String())
 		}
 
-	case gqlparser.ListValue:
-		listType, isList := expectedType.(gqlparser.ListType)
+	case ast.ListValue:
+		listType, isList := expectedType.(ast.ListType)
 		if !isList {
 			unexpectedTypeMessage(addError, expectedType.String(), value.String())
 		}
@@ -54,18 +54,18 @@ func validateValue(expectedType gqlparser.Type, def *gqlparser.Definition, value
 			validateValue(listType.Type, def, item, addError)
 		}
 
-	case gqlparser.IntValue:
+	case ast.IntValue:
 		if !def.OneOf("Int", "Float", "ID") {
 			unexpectedTypeMessage(addError, expectedType.String(), value.String())
 		}
 
-	case gqlparser.FloatValue:
+	case ast.FloatValue:
 		if !def.OneOf("Float") {
 			unexpectedTypeMessage(addError, expectedType.String(), value.String())
 		}
 
-	case gqlparser.StringValue, gqlparser.BlockValue:
-		if def.Kind == gqlparser.Enum {
+	case ast.StringValue, ast.BlockValue:
+		if def.Kind == ast.Enum {
 			rawValStr := fmt.Sprint(rawVal)
 			addError(
 				Message("Expected type %s, found %s.", expectedType.String(), value.String()),
@@ -75,8 +75,8 @@ func validateValue(expectedType gqlparser.Type, def *gqlparser.Definition, value
 			unexpectedTypeMessage(addError, expectedType.String(), value.String())
 		}
 
-	case gqlparser.EnumValue:
-		if def.Kind != gqlparser.Enum || def.EnumValue(string(value)) == nil {
+	case ast.EnumValue:
+		if def.Kind != ast.Enum || def.EnumValue(string(value)) == nil {
 			rawValStr := fmt.Sprint(rawVal)
 			addError(
 				Message("Expected type %s, found %s.", expectedType.String(), value.String()),
@@ -84,12 +84,12 @@ func validateValue(expectedType gqlparser.Type, def *gqlparser.Definition, value
 			)
 		}
 
-	case gqlparser.BooleanValue:
+	case ast.BooleanValue:
 		if !def.OneOf("Boolean") {
 			unexpectedTypeMessage(addError, expectedType.String(), value.String())
 		}
 
-	case gqlparser.ObjectValue:
+	case ast.ObjectValue:
 
 		for _, field := range def.Fields {
 			if field.Type.IsRequired() {
@@ -117,7 +117,7 @@ func validateValue(expectedType gqlparser.Type, def *gqlparser.Definition, value
 			}
 		}
 
-	case gqlparser.Variable:
+	case ast.Variable:
 		return
 
 	default:

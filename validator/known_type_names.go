@@ -1,12 +1,12 @@
 package validator
 
 import (
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 )
 
 func init() {
 	addRule("KnownTypeNames", func(observers *Events, addError addErrFunc) {
-		observers.OnOperation(func(walker *Walker, operation *gqlparser.OperationDefinition) {
+		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
 			for _, vdef := range operation.VariableDefinitions {
 				typeName := vdef.Type.Name()
 				def := walker.Schema.Types[typeName]
@@ -20,7 +20,7 @@ func init() {
 			}
 		})
 
-		observers.OnInlineFragment(func(walker *Walker, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment) {
+		observers.OnInlineFragment(func(walker *Walker, parentDef *ast.Definition, inlineFragment *ast.InlineFragment) {
 			typedName := inlineFragment.TypeCondition.Name()
 			if typedName == "" {
 				return
@@ -36,7 +36,7 @@ func init() {
 			)
 		})
 
-		observers.OnFragment(func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition) {
+		observers.OnFragment(func(walker *Walker, parentDef *ast.Definition, fragment *ast.FragmentDefinition) {
 			typeName := fragment.TypeCondition.Name()
 			def := walker.Schema.Types[typeName]
 			if def != nil {

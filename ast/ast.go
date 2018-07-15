@@ -1,4 +1,4 @@
-package gqlparser
+package ast
 
 import "strconv"
 

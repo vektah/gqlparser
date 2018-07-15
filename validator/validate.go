@@ -1,7 +1,7 @@
 package validator
 
 import (
-	. "github.com/vektah/gqlparser"
+	. "github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/errors"
 )
 

@@ -1,22 +1,22 @@
 package validator
 
 import (
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 )
 
 func init() {
 	addRule("VariablesInAllowedPosition", func(observers *Events, addError addErrFunc) {
-		var varDefs gqlparser.VariableDefinitions
+		var varDefs ast.VariableDefinitions
 
-		observers.OnOperation(func(walker *Walker, operation *gqlparser.OperationDefinition) {
+		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
 			varDefs = operation.VariableDefinitions
 		})
 
-		observers.OnOperationLeave(func(walker *Walker, operation *gqlparser.OperationDefinition) {
+		observers.OnOperationLeave(func(walker *Walker, operation *ast.OperationDefinition) {
 			varDefs = nil
 		})
 
-		observers.OnValue(func(walker *Walker, expectedType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value) {
+		observers.OnValue(func(walker *Walker, expectedType ast.Type, def *ast.Definition, value ast.Value) {
 			if def == nil || expectedType == nil || varDefs == nil {
 				return
 			}
@@ -26,11 +26,11 @@ func init() {
 	})
 }
 
-func validateVariable(walker *Walker, expectedType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value, addError addErrFunc, varDefs gqlparser.VariableDefinitions) {
+func validateVariable(walker *Walker, expectedType ast.Type, def *ast.Definition, value ast.Value, addError addErrFunc, varDefs ast.VariableDefinitions) {
 	switch value := value.(type) {
 
-	case gqlparser.ListValue:
-		listType, isList := expectedType.(gqlparser.ListType)
+	case ast.ListValue:
+		listType, isList := expectedType.(ast.ListType)
 		if !isList {
 			return
 		}
@@ -39,7 +39,7 @@ func validateVariable(walker *Walker, expectedType gqlparser.Type, def *gqlparse
 			validateVariable(walker, listType.Type, def, item, addError, varDefs)
 		}
 
-	case gqlparser.Variable:
+	case ast.Variable:
 		varDef := varDefs.Find(string(value))
 		if varDef == nil {
 			return
@@ -47,8 +47,8 @@ func validateVariable(walker *Walker, expectedType gqlparser.Type, def *gqlparse
 
 		// If there is a default non nullable types can be null
 		if varDef.DefaultValue != nil {
-			if _, isNullvalue := varDef.DefaultValue.(gqlparser.NullValue); !isNullvalue {
-				notNull, isNotNull := expectedType.(gqlparser.NonNullType)
+			if _, isNullvalue := varDef.DefaultValue.(ast.NullValue); !isNullvalue {
+				notNull, isNotNull := expectedType.(ast.NonNullType)
 				if isNotNull {
 					expectedType = notNull.Type
 				}

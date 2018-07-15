@@ -4,18 +4,19 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
+	"github.com/vektah/gqlparser/parser"
 )
 
 func TestWalker(t *testing.T) {
-	schema, err := gqlparser.LoadSchema("type Query { name: String }\n schema { query: Query }")
+	schema, err := parser.LoadSchema("type Query { name: String }\n schema { query: Query }")
 	require.Nil(t, err)
-	query, err := gqlparser.ParseQuery("{ as: name }")
+	query, err := parser.ParseQuery("{ as: name }")
 	require.Nil(t, err)
 
 	called := false
 	observers := &Events{}
-	observers.OnField(func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field) {
+	observers.OnField(func(walker *Walker, parentDef *ast.Definition, fieldDef *ast.FieldDefinition, field *ast.Field) {
 		called = true
 
 		require.Equal(t, "name", field.Name)

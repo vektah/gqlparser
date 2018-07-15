@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 )
 
 func init() {
 	addRule("NoFragmentCycles", func(observers *Events, addError addErrFunc) {
 		visitedFrags := make(map[string]bool)
 
-		observers.OnFragment(func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition) {
-			var spreadPath []gqlparser.FragmentSpread
+		observers.OnFragment(func(walker *Walker, parentDef *ast.Definition, fragment *ast.FragmentDefinition) {
+			var spreadPath []ast.FragmentSpread
 			spreadPathIndexByName := make(map[string]int)
 
-			var recursive func(fragment *gqlparser.FragmentDefinition)
-			recursive = func(fragment *gqlparser.FragmentDefinition) {
+			var recursive func(fragment *ast.FragmentDefinition)
+			recursive = func(fragment *ast.FragmentDefinition) {
 				if visitedFrags[fragment.Name] {
 					return
 				}
@@ -64,10 +64,10 @@ func init() {
 	})
 }
 
-func getFragmentSpreads(node gqlparser.SelectionSet) []gqlparser.FragmentSpread {
-	var spreads []gqlparser.FragmentSpread
+func getFragmentSpreads(node ast.SelectionSet) []ast.FragmentSpread {
+	var spreads []ast.FragmentSpread
 
-	setsToVisit := []gqlparser.SelectionSet{node}
+	setsToVisit := []ast.SelectionSet{node}
 
 	for len(setsToVisit) != 0 {
 		set := setsToVisit[len(setsToVisit)-1]
@@ -75,11 +75,11 @@ func getFragmentSpreads(node gqlparser.SelectionSet) []gqlparser.FragmentSpread 
 
 		for _, selection := range set {
 			switch selection := selection.(type) {
-			case gqlparser.FragmentSpread:
+			case ast.FragmentSpread:
 				spreads = append(spreads, selection)
-			case gqlparser.Field:
+			case ast.Field:
 				setsToVisit = append(setsToVisit, selection.SelectionSet)
-			case gqlparser.InlineFragment:
+			case ast.InlineFragment:
 				setsToVisit = append(setsToVisit, selection.SelectionSet)
 			}
 		}

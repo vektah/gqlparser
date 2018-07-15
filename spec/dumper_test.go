@@ -6,17 +6,17 @@ import (
 
 	"github.com/andreyvit/diff"
 	"github.com/stretchr/testify/require"
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 )
 
 func TestDump(t *testing.T) {
-	res := DumpAST(gqlparser.SchemaDefinition{
-		Directives: []gqlparser.Directive{
+	res := DumpAST(ast.SchemaDefinition{
+		Directives: []ast.Directive{
 			{
 				Name:      "foo",
-				Arguments: []gqlparser.Argument{{Name: "bar"}},
+				Arguments: []ast.Argument{{Name: "bar"}},
 			},
-			{Arguments: []gqlparser.Argument{}},
+			{Arguments: []ast.Argument{}},
 		},
 	})
 

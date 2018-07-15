@@ -4,54 +4,54 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 )
 
 type Events struct {
-	operationVisitor      []func(walker *Walker, operation *gqlparser.OperationDefinition)
-	operationLeaveVisitor []func(walker *Walker, operation *gqlparser.OperationDefinition)
-	field                 []func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)
-	fragment              []func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)
-	inlineFragment        []func(walker *Walker, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)
-	fragmentSpread        []func(walker *Walker, parentDef *gqlparser.Definition, fragmentDef *gqlparser.FragmentDefinition, fragmentSpread *gqlparser.FragmentSpread)
-	directive             []func(walker *Walker, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)
-	directiveList         []func(walker *Walker, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)
-	value                 []func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value)
-	variable              []func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, variable gqlparser.VariableDefinition)
+	operationVisitor      []func(walker *Walker, operation *ast.OperationDefinition)
+	operationLeaveVisitor []func(walker *Walker, operation *ast.OperationDefinition)
+	field                 []func(walker *Walker, parentDef *ast.Definition, fieldDef *ast.FieldDefinition, field *ast.Field)
+	fragment              []func(walker *Walker, parentDef *ast.Definition, fragment *ast.FragmentDefinition)
+	inlineFragment        []func(walker *Walker, parentDef *ast.Definition, inlineFragment *ast.InlineFragment)
+	fragmentSpread        []func(walker *Walker, parentDef *ast.Definition, fragmentDef *ast.FragmentDefinition, fragmentSpread *ast.FragmentSpread)
+	directive             []func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation)
+	directiveList         []func(walker *Walker, parentDef *ast.Definition, directives []ast.Directive, location ast.DirectiveLocation)
+	value                 []func(walker *Walker, valueType ast.Type, def *ast.Definition, value ast.Value)
+	variable              []func(walker *Walker, valueType ast.Type, def *ast.Definition, variable ast.VariableDefinition)
 }
 
-func (o *Events) OnOperation(f func(walker *Walker, operation *gqlparser.OperationDefinition)) {
+func (o *Events) OnOperation(f func(walker *Walker, operation *ast.OperationDefinition)) {
 	o.operationVisitor = append(o.operationVisitor, f)
 }
-func (o *Events) OnOperationLeave(f func(walker *Walker, operation *gqlparser.OperationDefinition)) {
+func (o *Events) OnOperationLeave(f func(walker *Walker, operation *ast.OperationDefinition)) {
 	o.operationLeaveVisitor = append(o.operationLeaveVisitor, f)
 }
-func (o *Events) OnField(f func(walker *Walker, parentDef *gqlparser.Definition, fieldDef *gqlparser.FieldDefinition, field *gqlparser.Field)) {
+func (o *Events) OnField(f func(walker *Walker, parentDef *ast.Definition, fieldDef *ast.FieldDefinition, field *ast.Field)) {
 	o.field = append(o.field, f)
 }
-func (o *Events) OnFragment(f func(walker *Walker, parentDef *gqlparser.Definition, fragment *gqlparser.FragmentDefinition)) {
+func (o *Events) OnFragment(f func(walker *Walker, parentDef *ast.Definition, fragment *ast.FragmentDefinition)) {
 	o.fragment = append(o.fragment, f)
 }
-func (o *Events) OnInlineFragment(f func(walker *Walker, parentDef *gqlparser.Definition, inlineFragment *gqlparser.InlineFragment)) {
+func (o *Events) OnInlineFragment(f func(walker *Walker, parentDef *ast.Definition, inlineFragment *ast.InlineFragment)) {
 	o.inlineFragment = append(o.inlineFragment, f)
 }
-func (o *Events) OnFragmentSpread(f func(walker *Walker, parentDef *gqlparser.Definition, fragmentDef *gqlparser.FragmentDefinition, fragmentSpread *gqlparser.FragmentSpread)) {
+func (o *Events) OnFragmentSpread(f func(walker *Walker, parentDef *ast.Definition, fragmentDef *ast.FragmentDefinition, fragmentSpread *ast.FragmentSpread)) {
 	o.fragmentSpread = append(o.fragmentSpread, f)
 }
-func (o *Events) OnDirective(f func(walker *Walker, parentDef *gqlparser.Definition, directiveDef *gqlparser.DirectiveDefinition, directive *gqlparser.Directive, location gqlparser.DirectiveLocation)) {
+func (o *Events) OnDirective(f func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation)) {
 	o.directive = append(o.directive, f)
 }
-func (o *Events) OnDirectiveList(f func(walker *Walker, parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation)) {
+func (o *Events) OnDirectiveList(f func(walker *Walker, parentDef *ast.Definition, directives []ast.Directive, location ast.DirectiveLocation)) {
 	o.directiveList = append(o.directiveList, f)
 }
-func (o *Events) OnValue(f func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value)) {
+func (o *Events) OnValue(f func(walker *Walker, valueType ast.Type, def *ast.Definition, value ast.Value)) {
 	o.value = append(o.value, f)
 }
-func (o *Events) OnVariable(f func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, variable gqlparser.VariableDefinition)) {
+func (o *Events) OnVariable(f func(walker *Walker, valueType ast.Type, def *ast.Definition, variable ast.VariableDefinition)) {
 	o.variable = append(o.variable, f)
 }
 
-func Walk(schema *gqlparser.Schema, document *gqlparser.QueryDocument, observers *Events) {
+func Walk(schema *ast.Schema, document *ast.QueryDocument, observers *Events) {
 	w := Walker{
 		Observers: observers,
 		Schema:    schema,
@@ -63,8 +63,8 @@ func Walk(schema *gqlparser.Schema, document *gqlparser.QueryDocument, observers
 type Walker struct {
 	Context   context.Context
 	Observers *Events
-	Schema    *gqlparser.Schema
-	Document  *gqlparser.QueryDocument
+	Schema    *ast.Schema
+	Document  *ast.QueryDocument
 
 	validatedFragmentSpreads map[string]bool
 }
@@ -80,23 +80,23 @@ func (w *Walker) walk() {
 	}
 }
 
-func (w *Walker) walkOperation(operation *gqlparser.OperationDefinition) {
+func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
 	for _, v := range w.Observers.operationVisitor {
 		v(w, operation)
 	}
 
-	var def *gqlparser.Definition
-	var loc gqlparser.DirectiveLocation
+	var def *ast.Definition
+	var loc ast.DirectiveLocation
 	switch operation.Operation {
-	case gqlparser.Query, "":
+	case ast.Query, "":
 		def = w.Schema.Query
-		loc = gqlparser.LocationQuery
-	case gqlparser.Mutation:
+		loc = ast.LocationQuery
+	case ast.Mutation:
 		def = w.Schema.Mutation
-		loc = gqlparser.LocationMutation
-	case gqlparser.Subscription:
+		loc = ast.LocationMutation
+	case ast.Subscription:
 		def = w.Schema.Subscription
-		loc = gqlparser.LocationSubscription
+		loc = ast.LocationSubscription
 	}
 
 	w.walkDirectives(def, operation.Directives, loc)
@@ -120,10 +120,10 @@ func (w *Walker) walkOperation(operation *gqlparser.OperationDefinition) {
 	}
 }
 
-func (w *Walker) walkFragment(it *gqlparser.FragmentDefinition) {
+func (w *Walker) walkFragment(it *ast.FragmentDefinition) {
 	parentDef := w.Schema.Types[it.TypeCondition.Name()]
 
-	w.walkDirectives(parentDef, it.Directives, gqlparser.LocationFragmentDefinition)
+	w.walkDirectives(parentDef, it.Directives, ast.LocationFragmentDefinition)
 
 	for _, v := range w.Observers.fragment {
 		v(w, parentDef, it)
@@ -134,7 +134,7 @@ func (w *Walker) walkFragment(it *gqlparser.FragmentDefinition) {
 	}
 }
 
-func (w *Walker) walkDirectives(parentDef *gqlparser.Definition, directives []gqlparser.Directive, location gqlparser.DirectiveLocation) {
+func (w *Walker) walkDirectives(parentDef *ast.Definition, directives []ast.Directive, location ast.DirectiveLocation) {
 	for _, v := range w.Observers.directiveList {
 		v(w, parentDef, directives, location)
 	}
@@ -146,7 +146,7 @@ func (w *Walker) walkDirectives(parentDef *gqlparser.Definition, directives []gq
 		}
 
 		for _, arg := range dir.Arguments {
-			var argDef *gqlparser.FieldDefinition
+			var argDef *ast.FieldDefinition
 			if def != nil {
 				argDef = def.Arguments.ForName(arg.Name)
 			}
@@ -156,8 +156,8 @@ func (w *Walker) walkDirectives(parentDef *gqlparser.Definition, directives []gq
 	}
 }
 
-func (w *Walker) walkValue(valueType gqlparser.Type, value gqlparser.Value) {
-	var def *gqlparser.Definition
+func (w *Walker) walkValue(valueType ast.Type, value ast.Value) {
+	var def *ast.Definition
 	if valueType != nil {
 		def = w.Schema.Types[valueType.Name()]
 	}
@@ -166,9 +166,9 @@ func (w *Walker) walkValue(valueType gqlparser.Type, value gqlparser.Value) {
 		v(w, valueType, def, value)
 	}
 
-	if obj, isObj := value.(gqlparser.ObjectValue); isObj {
+	if obj, isObj := value.(ast.ObjectValue); isObj {
 		for _, v := range obj {
-			var fieldType gqlparser.Type
+			var fieldType ast.Type
 			if def != nil {
 				fieldDef := def.Field(v.Name)
 				if fieldDef != nil {
@@ -180,8 +180,8 @@ func (w *Walker) walkValue(valueType gqlparser.Type, value gqlparser.Value) {
 	}
 }
 
-func (w *Walker) walkArgument(argDef *gqlparser.FieldDefinition, arg *gqlparser.Argument) {
-	var argType gqlparser.Type
+func (w *Walker) walkArgument(argDef *ast.FieldDefinition, arg *ast.Argument) {
+	var argType ast.Type
 	if argDef != nil {
 		argType = argDef.Type
 	}
@@ -190,14 +190,14 @@ func (w *Walker) walkArgument(argDef *gqlparser.FieldDefinition, arg *gqlparser.
 
 }
 
-func (w *Walker) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Selection) {
+func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 	switch it := it.(type) {
-	case gqlparser.Field:
-		var def *gqlparser.FieldDefinition
+	case ast.Field:
+		var def *ast.FieldDefinition
 		if it.Name == "__typename" {
-			def = &gqlparser.FieldDefinition{
+			def = &ast.FieldDefinition{
 				Name: "__typename",
-				Type: gqlparser.NamedType("String"),
+				Type: ast.NamedType("String"),
 			}
 		} else if parentDef != nil {
 			def = parentDef.Field(it.Name)
@@ -207,13 +207,13 @@ func (w *Walker) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Sel
 			v(w, parentDef, def, &it)
 		}
 
-		var nextParentDef *gqlparser.Definition
+		var nextParentDef *ast.Definition
 		if def != nil {
 			nextParentDef = w.Schema.Types[def.Type.Name()]
 		}
 
 		for _, arg := range it.Arguments {
-			var argDef *gqlparser.FieldDefinition
+			var argDef *ast.FieldDefinition
 			if def != nil {
 				argDef = def.Arguments.ForName(arg.Name)
 			}
@@ -225,37 +225,37 @@ func (w *Walker) walkSelection(parentDef *gqlparser.Definition, it gqlparser.Sel
 			w.walkSelection(nextParentDef, sel)
 		}
 
-		w.walkDirectives(nextParentDef, it.Directives, gqlparser.LocationField)
+		w.walkDirectives(nextParentDef, it.Directives, ast.LocationField)
 
-	case gqlparser.InlineFragment:
+	case ast.InlineFragment:
 		for _, v := range w.Observers.inlineFragment {
 			v(w, parentDef, &it)
 		}
 
-		var nextParentDef *gqlparser.Definition
+		var nextParentDef *ast.Definition
 		if it.TypeCondition.Name() != "" {
 			nextParentDef = w.Schema.Types[it.TypeCondition.Name()]
 		}
 
-		w.walkDirectives(nextParentDef, it.Directives, gqlparser.LocationInlineFragment)
+		w.walkDirectives(nextParentDef, it.Directives, ast.LocationInlineFragment)
 
 		for _, sel := range it.SelectionSet {
 			w.walkSelection(nextParentDef, sel)
 		}
 
-	case gqlparser.FragmentSpread:
+	case ast.FragmentSpread:
 		def := w.Document.GetFragment(it.Name)
 
 		for _, v := range w.Observers.fragmentSpread {
 			v(w, parentDef, def, &it)
 		}
 
-		var nextParentDef *gqlparser.Definition
+		var nextParentDef *ast.Definition
 		if def != nil {
 			nextParentDef = w.Schema.Types[def.TypeCondition.Name()]
 		}
 
-		w.walkDirectives(nextParentDef, it.Directives, gqlparser.LocationFragmentSpread)
+		w.walkDirectives(nextParentDef, it.Directives, ast.LocationFragmentSpread)
 
 		if def != nil && !w.validatedFragmentSpreads[def.Name] {
 			// prevent inifinite recursion

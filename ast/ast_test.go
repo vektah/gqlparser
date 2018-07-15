@@ -1,14 +1,17 @@
-package gqlparser
+package ast_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	. "github.com/vektah/gqlparser/ast"
+	"github.com/vektah/gqlparser/parser"
 )
 
 func TestQueryDocMethods(t *testing.T) {
-	doc, err := ParseQuery(`
+	doc, err := parser.ParseQuery(`
 		query Bob { foo { ...Frag } }
 		fragment Frag on Foo {
 			bar

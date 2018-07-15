@@ -3,12 +3,12 @@ package validator
 import (
 	"fmt"
 
-	"github.com/vektah/gqlparser"
+	"github.com/vektah/gqlparser/ast"
 )
 
 func init() {
 	addRule("KnownFragmentNames", func(observers *Events, addError addErrFunc) {
-		observers.OnFragmentSpread(func(walker *Walker, parentDef *gqlparser.Definition, fragmentDef *gqlparser.FragmentDefinition, fragmentSpread *gqlparser.FragmentSpread) {
+		observers.OnFragmentSpread(func(walker *Walker, parentDef *ast.Definition, fragmentDef *ast.FragmentDefinition, fragmentSpread *ast.FragmentSpread) {
 			if fragmentDef != nil {
 				return
 			}

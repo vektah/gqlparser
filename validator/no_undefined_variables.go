@@ -1,37 +1,37 @@
 package validator
 
-import "github.com/vektah/gqlparser"
+import "github.com/vektah/gqlparser/ast"
 
 func init() {
 	addRule("NoUndefinedVariables", func(observers *Events, addError addErrFunc) {
 
-		var currentOperation *gqlparser.OperationDefinition
+		var currentOperation *ast.OperationDefinition
 
-		observers.OnOperation(func(walker *Walker, operation *gqlparser.OperationDefinition) {
+		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
 			currentOperation = operation
 		})
 
-		observers.OnOperationLeave(func(walker *Walker, operation *gqlparser.OperationDefinition) {
+		observers.OnOperationLeave(func(walker *Walker, operation *ast.OperationDefinition) {
 			currentOperation = nil
 		})
 
-		observers.OnValue(func(walker *Walker, valueType gqlparser.Type, def *gqlparser.Definition, value gqlparser.Value) {
+		observers.OnValue(func(walker *Walker, valueType ast.Type, def *ast.Definition, value ast.Value) {
 			if currentOperation == nil {
 				// not in operation context
 				return
 			}
 
-			var variables []gqlparser.Variable
-			var filterVariable func(value gqlparser.Value)
-			filterVariable = func(value gqlparser.Value) {
+			var variables []ast.Variable
+			var filterVariable func(value ast.Value)
+			filterVariable = func(value ast.Value) {
 				switch value := value.(type) {
-				case gqlparser.Variable:
+				case ast.Variable:
 					variables = append(variables, value)
-				case gqlparser.ListValue:
+				case ast.ListValue:
 					for _, v := range value {
 						filterVariable(v)
 					}
-				case gqlparser.ObjectValue:
+				case ast.ObjectValue:
 					for _, v := range value {
 						filterVariable(v.Value)
 					}

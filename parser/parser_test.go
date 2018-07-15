@@ -1,4 +1,4 @@
-package gqlparser
+package parser
 
 import (
 	"testing"
