@@ -25,6 +25,10 @@ type Value struct {
 	Raw      string
 	Children []ChildValue
 	Kind     ValueKind
+
+	// Require validation
+	Definition   *Definition
+	ExpectedType Type
 }
 
 type ChildValue struct {

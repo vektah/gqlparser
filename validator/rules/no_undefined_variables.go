@@ -18,7 +18,7 @@ func init() {
 			currentOperation = nil
 		})
 
-		observers.OnValue(func(walker *Walker, valueType ast.Type, def *ast.Definition, value *ast.Value) {
+		observers.OnValue(func(walker *Walker, value *ast.Value) {
 			if currentOperation == nil {
 				// not in operation context
 				return

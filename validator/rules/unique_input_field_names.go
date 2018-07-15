@@ -7,7 +7,7 @@ import (
 
 func init() {
 	AddRule("UniqueInputFieldNames", func(observers *Events, addError AddErrFunc) {
-		observers.OnValue(func(walker *Walker, fieldType ast.Type, def *ast.Definition, value *ast.Value) {
+		observers.OnValue(func(walker *Walker, value *ast.Value) {
 			if value.Kind != ast.ObjectValue {
 				return
 			}

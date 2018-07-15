@@ -16,7 +16,7 @@ type Events struct {
 	fragmentSpread        []func(walker *Walker, fragmentSpread *ast.FragmentSpread)
 	directive             []func(walker *Walker, directive *ast.Directive)
 	directiveList         []func(walker *Walker, directives []*ast.Directive)
-	value                 []func(walker *Walker, valueType ast.Type, def *ast.Definition, value *ast.Value)
+	value                 []func(walker *Walker, value *ast.Value)
 	variable              []func(walker *Walker, valueType ast.Type, def *ast.Definition, variable ast.VariableDefinition)
 }
 
@@ -44,7 +44,7 @@ func (o *Events) OnDirective(f func(walker *Walker, directive *ast.Directive)) {
 func (o *Events) OnDirectiveList(f func(walker *Walker, directives []*ast.Directive)) {
 	o.directiveList = append(o.directiveList, f)
 }
-func (o *Events) OnValue(f func(walker *Walker, valueType ast.Type, def *ast.Definition, value *ast.Value)) {
+func (o *Events) OnValue(f func(walker *Walker, value *ast.Value)) {
 	o.value = append(o.value, f)
 }
 func (o *Events) OnVariable(f func(walker *Walker, valueType ast.Type, def *ast.Definition, variable ast.VariableDefinition)) {
@@ -107,7 +107,9 @@ func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
 			v(w, varDef.Type, typeDef, varDef)
 		}
 		if varDef.DefaultValue != nil {
-			w.walkValue(varDef.Type, varDef.DefaultValue)
+			varDef.DefaultValue.ExpectedType = varDef.Type
+			varDef.DefaultValue.Definition = w.Schema.Types[varDef.Type.Name()]
+			w.walkValue(varDef.DefaultValue)
 		}
 	}
 
@@ -161,38 +163,43 @@ func (w *Walker) walkDirectives(parentDef *ast.Definition, directives []*ast.Dir
 	}
 }
 
-func (w *Walker) walkValue(valueType ast.Type, value *ast.Value) {
-	var def *ast.Definition
-	if valueType != nil {
-		def = w.Schema.Types[valueType.Name()]
-	}
-
+func (w *Walker) walkValue(value *ast.Value) {
 	for _, v := range w.Observers.value {
-		v(w, valueType, def, value)
+		v(w, value)
 	}
 
 	if value.Kind == ast.ObjectValue {
-		for _, v := range value.Children {
-			var fieldType ast.Type
-			if def != nil {
-				fieldDef := def.Field(v.Name)
+		for _, child := range value.Children {
+			if value.Definition != nil {
+				fieldDef := value.Definition.Field(child.Name)
 				if fieldDef != nil {
-					fieldType = fieldDef.Type
+					child.Value.ExpectedType = fieldDef.Type
+					child.Value.Definition = w.Schema.Types[fieldDef.Type.Name()]
 				}
 			}
-			w.walkValue(fieldType, v.Value)
+			w.walkValue(child.Value)
+		}
+	}
+
+	if value.Kind == ast.ListValue {
+		for _, child := range value.Children {
+			if listType, isList := value.ExpectedType.(ast.ListType); isList {
+				child.Value.ExpectedType = listType.Type
+				child.Value.Definition = value.Definition
+			}
+
+			w.walkValue(child.Value)
 		}
 	}
 }
 
 func (w *Walker) walkArgument(argDef *ast.FieldDefinition, arg *ast.Argument) {
-	var argType ast.Type
 	if argDef != nil {
-		argType = argDef.Type
+		arg.Value.ExpectedType = argDef.Type
+		arg.Value.Definition = w.Schema.Types[argDef.Type.Name()]
 	}
 
-	w.walkValue(argType, arg.Value)
-
+	w.walkValue(arg.Value)
 }
 
 func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
