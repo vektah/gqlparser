@@ -24,14 +24,8 @@ func init() {
 			addError(Message(message))
 		})
 
-		observers.OnFragment(func(walker *Walker, parentDef *ast.Definition, fragment *ast.FragmentDefinition) {
-			if parentDef == nil {
-				return
-			}
-
-			if fragment.TypeCondition.Name() == "" {
-				return
-			} else if parentDef != nil && parentDef.IsCompositeType() {
+		observers.OnFragment(func(walker *Walker, fragment *ast.FragmentDefinition) {
+			if fragment.Definition == nil || fragment.TypeCondition.Name() == "" || fragment.Definition.IsCompositeType() {
 				return
 			}
 

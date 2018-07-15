@@ -12,7 +12,7 @@ func init() {
 	AddRule("NoFragmentCycles", func(observers *Events, addError AddErrFunc) {
 		visitedFrags := make(map[string]bool)
 
-		observers.OnFragment(func(walker *Walker, parentDef *ast.Definition, fragment *ast.FragmentDefinition) {
+		observers.OnFragment(func(walker *Walker, fragment *ast.FragmentDefinition) {
 			var spreadPath []ast.FragmentSpread
 			spreadPathIndexByName := make(map[string]int)
 

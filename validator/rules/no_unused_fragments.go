@@ -17,7 +17,7 @@ func init() {
 			}
 		})
 
-		observers.OnFragment(func(walker *Walker, parentDef *ast.Definition, fragment *ast.FragmentDefinition) {
+		observers.OnFragment(func(walker *Walker, fragment *ast.FragmentDefinition) {
 			inFragmentDefinition = true
 			if !fragmentNameUsed[fragment.Name] {
 				addError(Message(`Fragment "%s" is never used.`, fragment.Name))

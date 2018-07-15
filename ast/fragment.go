@@ -19,4 +19,6 @@ type FragmentDefinition struct {
 	TypeCondition      NamedType
 	Directives         []Directive
 	SelectionSet       SelectionSet
+
+	Definition *Definition
 }

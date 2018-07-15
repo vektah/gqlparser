@@ -37,7 +37,7 @@ func init() {
 			)
 		})
 
-		observers.OnFragment(func(walker *Walker, parentDef *ast.Definition, fragment *ast.FragmentDefinition) {
+		observers.OnFragment(func(walker *Walker, fragment *ast.FragmentDefinition) {
 			typeName := fragment.TypeCondition.Name()
 			def := walker.Schema.Types[typeName]
 			if def != nil {

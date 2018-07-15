@@ -11,7 +11,7 @@ type Events struct {
 	operationVisitor      []func(walker *Walker, operation *ast.OperationDefinition)
 	operationLeaveVisitor []func(walker *Walker, operation *ast.OperationDefinition)
 	field                 []func(walker *Walker, field *ast.Field)
-	fragment              []func(walker *Walker, parentDef *ast.Definition, fragment *ast.FragmentDefinition)
+	fragment              []func(walker *Walker, fragment *ast.FragmentDefinition)
 	inlineFragment        []func(walker *Walker, parentDef *ast.Definition, inlineFragment *ast.InlineFragment)
 	fragmentSpread        []func(walker *Walker, parentDef *ast.Definition, fragmentDef *ast.FragmentDefinition, fragmentSpread *ast.FragmentSpread)
 	directive             []func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation)
@@ -29,7 +29,7 @@ func (o *Events) OnOperationLeave(f func(walker *Walker, operation *ast.Operatio
 func (o *Events) OnField(f func(walker *Walker, field *ast.Field)) {
 	o.field = append(o.field, f)
 }
-func (o *Events) OnFragment(f func(walker *Walker, parentDef *ast.Definition, fragment *ast.FragmentDefinition)) {
+func (o *Events) OnFragment(f func(walker *Walker, fragment *ast.FragmentDefinition)) {
 	o.fragment = append(o.fragment, f)
 }
 func (o *Events) OnInlineFragment(f func(walker *Walker, parentDef *ast.Definition, inlineFragment *ast.InlineFragment)) {
@@ -121,16 +121,18 @@ func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
 }
 
 func (w *Walker) walkFragment(it *ast.FragmentDefinition) {
-	parentDef := w.Schema.Types[it.TypeCondition.Name()]
+	def := w.Schema.Types[it.TypeCondition.Name()]
 
-	w.walkDirectives(parentDef, it.Directives, ast.LocationFragmentDefinition)
+	it.Definition = def
+
+	w.walkDirectives(def, it.Directives, ast.LocationFragmentDefinition)
 
 	for _, v := range w.Observers.fragment {
-		v(w, parentDef, it)
+		v(w, it)
 	}
 
 	for _, child := range it.SelectionSet {
-		w.walkSelection(parentDef, child)
+		w.walkSelection(def, child)
 	}
 }
 
