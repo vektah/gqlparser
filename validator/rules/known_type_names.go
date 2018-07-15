@@ -21,7 +21,7 @@ func init() {
 			}
 		})
 
-		observers.OnInlineFragment(func(walker *Walker, parentDef *ast.Definition, inlineFragment *ast.InlineFragment) {
+		observers.OnInlineFragment(func(walker *Walker, inlineFragment *ast.InlineFragment) {
 			typedName := inlineFragment.TypeCondition.Name()
 			if typedName == "" {
 				return

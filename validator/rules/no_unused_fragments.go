@@ -11,7 +11,7 @@ func init() {
 		inFragmentDefinition := false
 		fragmentNameUsed := make(map[string]bool)
 
-		observers.OnFragmentSpread(func(walker *Walker, parentDef *ast.Definition, fragmentDef *ast.FragmentDefinition, fragmentSpread *ast.FragmentSpread) {
+		observers.OnFragmentSpread(func(walker *Walker, fragmentSpread *ast.FragmentSpread) {
 			if !inFragmentDefinition {
 				fragmentNameUsed[fragmentSpread.Name] = true
 			}

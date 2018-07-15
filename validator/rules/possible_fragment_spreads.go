@@ -44,18 +44,18 @@ func init() {
 			emitError()
 		}
 
-		observers.OnInlineFragment(func(walker *Walker, parentDef *ast.Definition, inlineFragment *ast.InlineFragment) {
-			validate(walker, parentDef, inlineFragment.TypeCondition.Name(), func() {
-				addError(Message(`Fragment cannot be spread here as objects of type "%s" can never be of type "%s".`, parentDef.Name, inlineFragment.TypeCondition.Name()))
+		observers.OnInlineFragment(func(walker *Walker, inlineFragment *ast.InlineFragment) {
+			validate(walker, inlineFragment.ObjectDefinition, inlineFragment.TypeCondition.Name(), func() {
+				addError(Message(`Fragment cannot be spread here as objects of type "%s" can never be of type "%s".`, inlineFragment.ObjectDefinition.Name, inlineFragment.TypeCondition.Name()))
 			})
 		})
 
-		observers.OnFragmentSpread(func(walker *Walker, parentDef *ast.Definition, fragmentDef *ast.FragmentDefinition, fragmentSpread *ast.FragmentSpread) {
-			if fragmentDef == nil {
+		observers.OnFragmentSpread(func(walker *Walker, fragmentSpread *ast.FragmentSpread) {
+			if fragmentSpread.Definition == nil {
 				return
 			}
-			validate(walker, parentDef, fragmentDef.TypeCondition.Name(), func() {
-				addError(Message(`Fragment "%s" cannot be spread here as objects of type "%s" can never be of type "%s".`, fragmentSpread.Name, parentDef.Name, fragmentDef.TypeCondition.Name()))
+			validate(walker, fragmentSpread.ObjectDefinition, fragmentSpread.Definition.TypeCondition.Name(), func() {
+				addError(Message(`Fragment "%s" cannot be spread here as objects of type "%s" can never be of type "%s".`, fragmentSpread.Name, fragmentSpread.ObjectDefinition.Name, fragmentSpread.Definition.TypeCondition.Name()))
 			})
 		})
 	})

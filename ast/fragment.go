@@ -3,12 +3,19 @@ package ast
 type FragmentSpread struct {
 	Name       string
 	Directives []Directive
+
+	// Require validation
+	ObjectDefinition *Definition
+	Definition       *FragmentDefinition
 }
 
 type InlineFragment struct {
 	TypeCondition NamedType
 	Directives    []Directive
 	SelectionSet  SelectionSet
+
+	// Require validation
+	ObjectDefinition *Definition
 }
 
 type FragmentDefinition struct {
@@ -20,5 +27,6 @@ type FragmentDefinition struct {
 	Directives         []Directive
 	SelectionSet       SelectionSet
 
+	// Require validation
 	Definition *Definition
 }

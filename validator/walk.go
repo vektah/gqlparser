@@ -12,8 +12,8 @@ type Events struct {
 	operationLeaveVisitor []func(walker *Walker, operation *ast.OperationDefinition)
 	field                 []func(walker *Walker, field *ast.Field)
 	fragment              []func(walker *Walker, fragment *ast.FragmentDefinition)
-	inlineFragment        []func(walker *Walker, parentDef *ast.Definition, inlineFragment *ast.InlineFragment)
-	fragmentSpread        []func(walker *Walker, parentDef *ast.Definition, fragmentDef *ast.FragmentDefinition, fragmentSpread *ast.FragmentSpread)
+	inlineFragment        []func(walker *Walker, inlineFragment *ast.InlineFragment)
+	fragmentSpread        []func(walker *Walker, fragmentSpread *ast.FragmentSpread)
 	directive             []func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation)
 	directiveList         []func(walker *Walker, parentDef *ast.Definition, directives []ast.Directive, location ast.DirectiveLocation)
 	value                 []func(walker *Walker, valueType ast.Type, def *ast.Definition, value ast.Value)
@@ -32,10 +32,10 @@ func (o *Events) OnField(f func(walker *Walker, field *ast.Field)) {
 func (o *Events) OnFragment(f func(walker *Walker, fragment *ast.FragmentDefinition)) {
 	o.fragment = append(o.fragment, f)
 }
-func (o *Events) OnInlineFragment(f func(walker *Walker, parentDef *ast.Definition, inlineFragment *ast.InlineFragment)) {
+func (o *Events) OnInlineFragment(f func(walker *Walker, inlineFragment *ast.InlineFragment)) {
 	o.inlineFragment = append(o.inlineFragment, f)
 }
-func (o *Events) OnFragmentSpread(f func(walker *Walker, parentDef *ast.Definition, fragmentDef *ast.FragmentDefinition, fragmentSpread *ast.FragmentSpread)) {
+func (o *Events) OnFragmentSpread(f func(walker *Walker, fragmentSpread *ast.FragmentSpread)) {
 	o.fragmentSpread = append(o.fragmentSpread, f)
 }
 func (o *Events) OnDirective(f func(walker *Walker, parentDef *ast.Definition, directiveDef *ast.DirectiveDefinition, directive *ast.Directive, location ast.DirectiveLocation)) {
@@ -192,7 +192,7 @@ func (w *Walker) walkArgument(argDef *ast.FieldDefinition, arg *ast.Argument) {
 
 }
 
-func (w *Walker) walkSelection(objectDef *ast.Definition, it ast.Selection) {
+func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 	switch it := it.(type) {
 	case ast.Field:
 		var def *ast.FieldDefinition
@@ -201,12 +201,12 @@ func (w *Walker) walkSelection(objectDef *ast.Definition, it ast.Selection) {
 				Name: "__typename",
 				Type: ast.NamedType("String"),
 			}
-		} else if objectDef != nil {
-			def = objectDef.Field(it.Name)
+		} else if parentDef != nil {
+			def = parentDef.Field(it.Name)
 		}
 
 		it.Definition = def
-		it.ObjectDefinition = objectDef
+		it.ObjectDefinition = parentDef
 
 		for _, v := range w.Observers.field {
 			v(w, &it)
@@ -233,8 +233,9 @@ func (w *Walker) walkSelection(objectDef *ast.Definition, it ast.Selection) {
 		w.walkDirectives(nextParentDef, it.Directives, ast.LocationField)
 
 	case ast.InlineFragment:
+		it.ObjectDefinition = parentDef
 		for _, v := range w.Observers.inlineFragment {
-			v(w, objectDef, &it)
+			v(w, &it)
 		}
 
 		var nextParentDef *ast.Definition
@@ -250,9 +251,11 @@ func (w *Walker) walkSelection(objectDef *ast.Definition, it ast.Selection) {
 
 	case ast.FragmentSpread:
 		def := w.Document.GetFragment(it.Name)
+		it.Definition = def
+		it.ObjectDefinition = parentDef
 
 		for _, v := range w.Observers.fragmentSpread {
-			v(w, objectDef, def, &it)
+			v(w, &it)
 		}
 
 		var nextParentDef *ast.Definition
