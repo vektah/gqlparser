@@ -10,20 +10,16 @@ import (
 
 func init() {
 	AddRule("FieldsOnCorrectType", func(observers *Events, addError AddErrFunc) {
-		observers.OnField(func(walker *Walker, parentDef *ast.Definition, fieldDef *ast.FieldDefinition, field *ast.Field) {
-			if parentDef == nil {
+		observers.OnField(func(walker *Walker, field *ast.Field) {
+			if field.ObjectDefinition == nil || field.Definition != nil {
 				return
 			}
 
-			if fieldDef != nil {
-				return
-			}
+			message := fmt.Sprintf(`Cannot query field "%s" on type "%s".`, field.Name, field.ObjectDefinition.Name)
 
-			message := fmt.Sprintf(`Cannot query field "%s" on type "%s".`, field.Name, parentDef.Name)
-
-			if suggestedTypeNames := getSuggestedTypeNames(walker, parentDef, field.Name); suggestedTypeNames != nil {
+			if suggestedTypeNames := getSuggestedTypeNames(walker, field.ObjectDefinition, field.Name); suggestedTypeNames != nil {
 				message += " Did you mean to use an inline fragment on " + QuotedOrList(suggestedTypeNames...) + "?"
-			} else if suggestedFieldNames := getSuggestedFieldNames(parentDef, field.Name); suggestedFieldNames != nil {
+			} else if suggestedFieldNames := getSuggestedFieldNames(field.ObjectDefinition, field.Name); suggestedFieldNames != nil {
 				message += " Did you mean " + QuotedOrList(suggestedFieldNames...) + "?"
 			}
 

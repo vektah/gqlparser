@@ -16,6 +16,10 @@ type Field struct {
 	Arguments    []Argument
 	Directives   []Directive
 	SelectionSet SelectionSet
+
+	// Require validation
+	Definition       *FieldDefinition
+	ObjectDefinition *Definition
 }
 
 type Argument struct {

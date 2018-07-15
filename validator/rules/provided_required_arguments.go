@@ -8,13 +8,13 @@ import (
 func init() {
 	AddRule("ProvidedRequiredArguments", func(observers *Events, addError AddErrFunc) {
 
-		observers.OnField(func(walker *Walker, parentDef *ast.Definition, fieldDef *ast.FieldDefinition, field *ast.Field) {
-			if fieldDef == nil {
+		observers.OnField(func(walker *Walker, field *ast.Field) {
+			if field.Definition == nil {
 				return
 			}
 
 		argDef:
-			for _, argDef := range fieldDef.Arguments {
+			for _, argDef := range field.Definition.Arguments {
 				if !argDef.Type.IsRequired() {
 					continue
 				}

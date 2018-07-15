@@ -7,12 +7,12 @@ import (
 
 func init() {
 	AddRule("ScalarLeafs", func(observers *Events, addError AddErrFunc) {
-		observers.OnField(func(walker *Walker, parentDef *ast.Definition, fieldDef *ast.FieldDefinition, field *ast.Field) {
-			if fieldDef == nil {
+		observers.OnField(func(walker *Walker, field *ast.Field) {
+			if field.Definition == nil {
 				return
 			}
 
-			fieldType := walker.Schema.Types[fieldDef.Type.Name()]
+			fieldType := walker.Schema.Types[field.Definition.Type.Name()]
 			if fieldType == nil {
 				return
 			}
@@ -25,7 +25,7 @@ func init() {
 
 			if !fieldType.IsLeafType() && len(field.SelectionSet) == 0 {
 				addError(
-					Message(`Field "%s" of type "%s" must have a selection of subfields.`, field.Name, fieldDef.Type.String()),
+					Message(`Field "%s" of type "%s" must have a selection of subfields.`, field.Name, field.Definition.Type.String()),
 					Suggestf(`"%s { ... }"`, field.Name),
 				)
 			}

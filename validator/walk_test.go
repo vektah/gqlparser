@@ -16,12 +16,13 @@ func TestWalker(t *testing.T) {
 
 	called := false
 	observers := &Events{}
-	observers.OnField(func(walker *Walker, parentDef *ast.Definition, fieldDef *ast.FieldDefinition, field *ast.Field) {
+	observers.OnField(func(walker *Walker, field *ast.Field) {
 		called = true
 
 		require.Equal(t, "name", field.Name)
 		require.Equal(t, "as", field.Alias)
-		require.Equal(t, "Query", parentDef.Name)
+		require.Equal(t, "name", field.Definition.Name)
+		require.Equal(t, "Query", field.ObjectDefinition.Name)
 	})
 
 	Walk(schema, &query, observers)
