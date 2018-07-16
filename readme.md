@@ -1,4 +1,4 @@
-gqlparser [![CircleCI](https://circleci.com/gh/vektah/gqlparser.svg?style=shield)](https://circleci.com/gh/vektah/gqlparser) [![Go Report Card](https://goreportcard.com/badge/github.com/vektah/gqlparser)](https://goreportcard.com/report/github.com/vektah/gqlparser) [![Coverage Status](https://coveralls.io/repos/github/vektah/gqlparser/badge.svg?branch=master)](https://coveralls.io/github/vektah/gqlparser?branch=master)
+gqlparser [![CircleCI](https://img.shields.io/circleci/project/github/RedSparr0w/node-csgo-parser/master.svg)](https://circleci.com/gh/vektah/gqlparser) [![Go Report Card](https://goreportcard.com/badge/github.com/vektah/gqlparser)](https://goreportcard.com/report/github.com/vektah/gqlparser) [![Coverage Status](https://img.shields.io/coveralls/github/vektah/gqlparser/master.svg)](https://coveralls.io/github/vektah/gqlparser?branch=master)
 ===
 
 *This repo is still under heavy development. APIs will break, use it at your own peril.*
