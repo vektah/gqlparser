@@ -24,9 +24,9 @@ type Definition struct {
 	Description string
 	Name        string
 	Directives  []*Directive
-	Interfaces  []NamedType           // object and input object
+	Interfaces  []string              // object and input object
 	Fields      FieldList             // object and input object
-	Types       []NamedType           // union
+	Types       []string              // union
 	Values      []EnumValueDefinition // enum
 }
 
@@ -78,7 +78,7 @@ type FieldDefinition struct {
 	Name         string
 	Arguments    FieldList // only for objects
 	DefaultValue *Value    // only for input objects
-	Type         Type
+	Type         *Type
 	Directives   []*Directive
 }
 

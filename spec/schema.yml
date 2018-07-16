@@ -13,7 +13,7 @@ object types:
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Type: NamedType("String")
+                Type: String
 
   - name: with description
     input: |
@@ -31,7 +31,7 @@ object types:
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Type: NamedType("String")
+                Type: String
 
   - name: with block description
     input: |
@@ -52,7 +52,7 @@ object types:
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Type: NamedType("String")
+                Type: String
   - name: with field arg
     input: |
       type Hello {
@@ -70,8 +70,8 @@ object types:
                 Arguments: [FieldDefinition]
                 - <FieldDefinition>
                     Name: "flag"
-                    Type: NamedType("Boolean")
-                Type: NamedType("String")
+                    Type: Boolean
+                Type: String
 
   - name: with field arg and default value
     input: |
@@ -91,8 +91,8 @@ object types:
                 - <FieldDefinition>
                     Name: "flag"
                     DefaultValue: true
-                    Type: NamedType("Boolean")
-                Type: NamedType("String")
+                    Type: Boolean
+                Type: String
 
   - name: with field list arg
     input: |
@@ -111,9 +111,8 @@ object types:
                 Arguments: [FieldDefinition]
                 - <FieldDefinition>
                     Name: "things"
-                    Type: <ListType>
-                      Type: NamedType("String")
-                Type: NamedType("String")
+                    Type: [String]
+                Type: String
 
   - name: with two args
     input: |
@@ -132,11 +131,11 @@ object types:
                 Arguments: [FieldDefinition]
                 - <FieldDefinition>
                     Name: "argOne"
-                    Type: NamedType("Boolean")
+                    Type: Boolean
                 - <FieldDefinition>
                     Name: "argTwo"
-                    Type: NamedType("Int")
-                Type: NamedType("String")
+                    Type: Int
+                Type: String
 
 type extensions:
   - name: Object extension
@@ -153,7 +152,7 @@ type extensions:
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Type: NamedType("String")
+                Type: String
 
   - name: without any fields
     input: "extend type Hello implements Greeting"
@@ -163,8 +162,8 @@ type extensions:
         - <Definition>
             Kind: DefinitionKind("OBJECT")
             Name: "Hello"
-            Interfaces: [NamedType]
-            - NamedType("Greeting")
+            Interfaces: [string]
+            - "Greeting"
 
   - name: without fields twice
     input: |
@@ -176,13 +175,13 @@ type extensions:
         - <Definition>
             Kind: DefinitionKind("OBJECT")
             Name: "Hello"
-            Interfaces: [NamedType]
-            - NamedType("Greeting")
+            Interfaces: [string]
+            - "Greeting"
         - <Definition>
             Kind: DefinitionKind("OBJECT")
             Name: "Hello"
-            Interfaces: [NamedType]
-            - NamedType("SecondGreeting")
+            Interfaces: [string]
+            - "SecondGreeting"
 
   - name: without anything errors
     input: "extend type Hello"
@@ -222,7 +221,7 @@ schema definition:
             OperationTypes: [OperationTypeDefinition]
             - <OperationTypeDefinition>
                 Operation: Operation("query")
-                Type: NamedType("Query")
+                Type: "Query"
 
 schema extensions:
   - name: simple
@@ -237,7 +236,7 @@ schema extensions:
             OperationTypes: [OperationTypeDefinition]
             - <OperationTypeDefinition>
                 Operation: Operation("mutation")
-                Type: NamedType("Mutation")
+                Type: "Mutation"
 
   - name: directive only
     input: "extend schema @directive"
@@ -314,12 +313,12 @@ inheritance:
         - <Definition>
             Kind: DefinitionKind("OBJECT")
             Name: "Hello"
-            Interfaces: [NamedType]
-            - NamedType("World")
+            Interfaces: [string]
+            - "World"
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "field"
-                Type: NamedType("String")
+                Type: String
 
   - name: multi
     input: "type Hello implements Wo & rld { field: String }"
@@ -329,13 +328,13 @@ inheritance:
         - <Definition>
             Kind: DefinitionKind("OBJECT")
             Name: "Hello"
-            Interfaces: [NamedType]
-            - NamedType("Wo")
-            - NamedType("rld")
+            Interfaces: [string]
+            - "Wo"
+            - "rld"
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "field"
-                Type: NamedType("String")
+                Type: String
 
   - name: multi with leading amp
     input: "type Hello implements & Wo & rld { field: String }"
@@ -345,13 +344,13 @@ inheritance:
         - <Definition>
             Kind: DefinitionKind("OBJECT")
             Name: "Hello"
-            Interfaces: [NamedType]
-            - NamedType("Wo")
-            - NamedType("rld")
+            Interfaces: [string]
+            - "Wo"
+            - "rld"
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "field"
-                Type: NamedType("String")
+                Type: String
 
 enums:
   - name: single value
@@ -395,7 +394,7 @@ interface:
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Type: NamedType("String")
+                Type: String
 
 unions:
   - name: simple
@@ -406,8 +405,8 @@ unions:
         - <Definition>
             Kind: DefinitionKind("UNION")
             Name: "Hello"
-            Types: [NamedType]
-            - NamedType("World")
+            Types: [string]
+            - "World"
 
   - name: with two types
     input: "union Hello = Wo | Rld"
@@ -417,9 +416,9 @@ unions:
         - <Definition>
             Kind: DefinitionKind("UNION")
             Name: "Hello"
-            Types: [NamedType]
-            - NamedType("Wo")
-            - NamedType("Rld")
+            Types: [string]
+            - "Wo"
+            - "Rld"
 
   - name: with leading pipe
     input: "union Hello = | Wo | Rld"
@@ -429,9 +428,9 @@ unions:
         - <Definition>
             Kind: DefinitionKind("UNION")
             Name: "Hello"
-            Types: [NamedType]
-            - NamedType("Wo")
-            - NamedType("Rld")
+            Types: [string]
+            - "Wo"
+            - "Rld"
 
   - name: cant be empty
     input: "union Hello = || Wo | Rld"
@@ -476,7 +475,7 @@ input object:
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Type: NamedType("String")
+                Type: String
 
   - name: can not have args
     input: |

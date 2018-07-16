@@ -34,21 +34,21 @@ func TestNamedTypeCompatability(t *testing.T) {
 	assert.True(t, NamedType("A").IsCompatible(NamedType("A")))
 	assert.False(t, NamedType("A").IsCompatible(NamedType("B")))
 
-	assert.True(t, ListType{NamedType("A")}.IsCompatible(ListType{NamedType("A")}))
-	assert.False(t, ListType{NamedType("A")}.IsCompatible(ListType{NamedType("B")}))
-	assert.False(t, ListType{NamedType("A")}.IsCompatible(ListType{NamedType("B")}))
+	assert.True(t, ListType(NamedType("A")).IsCompatible(ListType(NamedType("A"))))
+	assert.False(t, ListType(NamedType("A")).IsCompatible(ListType(NamedType("B"))))
+	assert.False(t, ListType(NamedType("A")).IsCompatible(ListType(NamedType("B"))))
 
-	assert.True(t, ListType{NamedType("A")}.IsCompatible(ListType{NamedType("A")}))
-	assert.False(t, ListType{NamedType("A")}.IsCompatible(ListType{NamedType("B")}))
-	assert.False(t, ListType{NamedType("A")}.IsCompatible(ListType{NamedType("B")}))
+	assert.True(t, ListType(NamedType("A")).IsCompatible(ListType(NamedType("A"))))
+	assert.False(t, ListType(NamedType("A")).IsCompatible(ListType(NamedType("B"))))
+	assert.False(t, ListType(NamedType("A")).IsCompatible(ListType(NamedType("B"))))
 
-	assert.True(t, NonNullType{NamedType("A")}.IsCompatible(NamedType("A")))
-	assert.False(t, NamedType("A").IsCompatible(NonNullType{NamedType("A")}))
+	assert.True(t, NonNullNamedType("A").IsCompatible(NamedType("A")))
+	assert.False(t, NamedType("A").IsCompatible(NonNullNamedType("A")))
 
-	assert.True(t, NonNullType{ListType{NamedType("String")}}.IsCompatible(NonNullType{ListType{NamedType("String")}}))
-	assert.True(t, NonNullType{ListType{NamedType("String")}}.IsCompatible(ListType{NamedType("String")}))
-	assert.False(t, ListType{NamedType("String")}.IsCompatible(NonNullType{ListType{NamedType("String")}}))
+	assert.True(t, NonNullListType(NamedType("String")).IsCompatible(NonNullListType(NamedType("String"))))
+	assert.True(t, NonNullListType(NamedType("String")).IsCompatible(ListType(NamedType("String"))))
+	assert.False(t, ListType(NamedType("String")).IsCompatible(NonNullListType(NamedType("String"))))
 
-	assert.True(t, ListType{NonNullType{NamedType("String")}}.IsCompatible(ListType{NamedType("String")}))
-	assert.False(t, ListType{NamedType("String")}.IsCompatible(ListType{NonNullType{NamedType("String")}}))
+	assert.True(t, ListType(NonNullNamedType("String")).IsCompatible(ListType(NamedType("String"))))
+	assert.False(t, ListType(NamedType("String")).IsCompatible(ListType(NonNullNamedType("String"))))
 }

@@ -174,9 +174,9 @@ ast:
             VariableDefinition: [VariableDefinition]
             - <VariableDefinition>
                 Variable: "v"
-                Type: NamedType("Boolean")
+                Type: Boolean
                 DefaultValue: false
-            TypeCondition: NamedType("t")
+            TypeCondition: "t"
             SelectionSet: [Selection]
             - <Field>
                 Name: "f"
@@ -243,20 +243,16 @@ types:
             VariableDefinitions: [VariableDefinition]
             - <VariableDefinition>
                 Variable: "string"
-                Type: NamedType("String")
+                Type: String
             - <VariableDefinition>
                 Variable: "int"
-                Type: NamedType("Int")
+                Type: Int
             - <VariableDefinition>
                 Variable: "arr"
-                Type: <ListType>
-                  Type: NamedType("Arr")
+                Type: [Arr]
             - <VariableDefinition>
                 Variable: "notnull"
-                Type: <NonNullType>
-                  Type: <ListType>
-                    Type: <NonNullType>
-                      Type: NamedType("Arr")
+                Type: [Arr!]!
             SelectionSet: [Selection]
             - <Field>
                 Name: "f"
@@ -330,10 +326,10 @@ large queries:
             VariableDefinitions: [VariableDefinition]
             - <VariableDefinition>
                 Variable: "foo"
-                Type: NamedType("ComplexType")
+                Type: ComplexType
             - <VariableDefinition>
                 Variable: "site"
-                Type: NamedType("Site")
+                Type: Site
                 DefaultValue: "MOBILE"
             SelectionSet: [Selection]
             - <Field>
@@ -347,7 +343,7 @@ large queries:
                 - <Field>
                     Name: "id"
                 - <InlineFragment>
-                    TypeCondition: NamedType("User")
+                    TypeCondition: "User"
                     Directives: [Directive]
                     - <Directive>
                         Name: "defer"
@@ -419,7 +415,7 @@ large queries:
             VariableDefinitions: [VariableDefinition]
             - <VariableDefinition>
                 Variable: "input"
-                Type: NamedType("StoryLikeSubscribeInput")
+                Type: StoryLikeSubscribeInput
             SelectionSet: [Selection]
             - <Field>
                 Name: "storyLikeSubscribe"
@@ -460,7 +456,7 @@ large queries:
         Fragments: [FragmentDefinition]
         - <FragmentDefinition>
             Name: "frag"
-            TypeCondition: NamedType("Friend")
+            TypeCondition: "Friend"
             SelectionSet: [Selection]
             - <Field>
                 Name: "foo"

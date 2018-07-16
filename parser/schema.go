@@ -104,7 +104,7 @@ func (p *parser) parseOperationTypeDefinition() OperationTypeDefinition {
 	var op OperationTypeDefinition
 	op.Operation = p.parseOperationType()
 	p.expect(lexer.Colon)
-	op.Type = p.parseNamedType()
+	op.Type = p.parseName()
 	return op
 }
 
@@ -132,16 +132,16 @@ func (p *parser) parseObjectTypeDefinition(description string) Definition {
 	return def
 }
 
-func (p *parser) parseImplementsInterfaces() []NamedType {
-	var types []NamedType
+func (p *parser) parseImplementsInterfaces() []string {
+	var types []string
 	if p.peek().Value == "implements" {
 		p.next()
 		// optional leading ampersand
 		p.skip(lexer.Amp)
 
-		types = append(types, p.parseNamedType())
+		types = append(types, p.parseName())
 		for p.skip(lexer.Amp) && p.err == nil {
-			types = append(types, p.parseNamedType())
+			types = append(types, p.parseName())
 		}
 	}
 	return types
@@ -213,15 +213,15 @@ func (p *parser) parseUnionTypeDefinition(description string) Definition {
 	return def
 }
 
-func (p *parser) parseUnionMemberTypes() []NamedType {
-	var types []NamedType
+func (p *parser) parseUnionMemberTypes() []string {
+	var types []string
 	if p.skip(lexer.Equals) {
 		// optional leading pipe
 		p.skip(lexer.Pipe)
 
-		types = append(types, p.parseNamedType())
+		types = append(types, p.parseName())
 		for p.skip(lexer.Pipe) && p.err == nil {
-			types = append(types, p.parseNamedType())
+			types = append(types, p.parseName())
 		}
 	}
 	return types

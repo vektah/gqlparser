@@ -39,7 +39,7 @@ type SchemaDefinition struct {
 
 type OperationTypeDefinition struct {
 	Operation Operation
-	Type      NamedType
+	Type      string
 }
 
 type Schema struct {
@@ -62,7 +62,7 @@ func (s *Schema) GetPossibleTypes(def *Definition) []*Definition {
 	if def.Kind == Union {
 		var defs []*Definition
 		for _, t := range def.Types {
-			defs = append(defs, s.Types[t.Name()])
+			defs = append(defs, s.Types[t])
 		}
 		return defs
 	}

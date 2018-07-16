@@ -117,7 +117,7 @@ func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
 }
 
 func (w *Walker) walkFragment(it *ast.FragmentDefinition) {
-	def := w.Schema.Types[it.TypeCondition.Name()]
+	def := w.Schema.Types[it.TypeCondition]
 
 	it.Definition = def
 
@@ -184,8 +184,8 @@ func (w *Walker) walkValue(value *ast.Value) {
 
 	if value.Kind == ast.ListValue {
 		for _, child := range value.Children {
-			if listType, isList := value.ExpectedType.(ast.ListType); isList {
-				child.Value.ExpectedType = listType.Type
+			if value.ExpectedType.Elem != nil {
+				child.Value.ExpectedType = value.ExpectedType.Elem
 				child.Value.Definition = value.Definition
 			}
 
@@ -211,7 +211,7 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		if it.Name == "__typename" {
 			def = &ast.FieldDefinition{
 				Name: "__typename",
-				Type: ast.NamedType("String"),
+				Type: ast.NamedType("string"),
 			}
 		} else if parentDef != nil {
 			def = parentDef.Field(it.Name)
@@ -251,8 +251,8 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		}
 
 		var nextParentDef *ast.Definition
-		if it.TypeCondition.Name() != "" {
-			nextParentDef = w.Schema.Types[it.TypeCondition.Name()]
+		if it.TypeCondition != "" {
+			nextParentDef = w.Schema.Types[it.TypeCondition]
 		}
 
 		w.walkDirectives(nextParentDef, it.Directives, ast.LocationInlineFragment)
@@ -272,7 +272,7 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 
 		var nextParentDef *ast.Definition
 		if def != nil {
-			nextParentDef = w.Schema.Types[def.TypeCondition.Name()]
+			nextParentDef = w.Schema.Types[def.TypeCondition]
 		}
 
 		w.walkDirectives(nextParentDef, it.Directives, ast.LocationFragmentSpread)

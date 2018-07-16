@@ -30,7 +30,7 @@ func (v VariableDefinitions) Find(name string) *VariableDefinition {
 
 type VariableDefinition struct {
 	Variable     string
-	Type         Type
+	Type         *Type
 	DefaultValue *Value
 
 	// Requires validation

@@ -145,7 +145,7 @@ func isZero(v reflect.Value) bool {
 	case reflect.String:
 		return v.String() == ""
 	}
-	fmt.Println(strconv.Quote(v.String()), strconv.Quote(reflect.Zero(v.Type()).String()))
+
 	// Compare other types directly:
 	return reflect.DeepEqual(v.Interface(), reflect.Zero(v.Type()))
 }

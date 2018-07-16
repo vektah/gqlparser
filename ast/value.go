@@ -29,7 +29,7 @@ type Value struct {
 	// Require validation
 	Definition         *Definition
 	VariableDefinition *VariableDefinition
-	ExpectedType       Type
+	ExpectedType       *Type
 }
 
 type ChildValue struct {

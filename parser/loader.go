@@ -51,7 +51,7 @@ func LoadSchema(input string) (*Schema, error) {
 			FieldDefinition{
 				Name:        "if",
 				Description: "Skipped when true.",
-				Type:        NonNullType{NamedType("Boolean")},
+				Type:        NonNullNamedType("Boolean"),
 			},
 		},
 		Locations: []DirectiveLocation{LocationField, LocationFragmentSpread, LocationInlineFragment},
@@ -63,7 +63,7 @@ func LoadSchema(input string) (*Schema, error) {
 			FieldDefinition{
 				Name:        "if",
 				Description: "Included when true.",
-				Type:        NonNullType{NamedType("Boolean")},
+				Type:        NonNullNamedType("Boolean"),
 			},
 		},
 		Locations: []DirectiveLocation{LocationField, LocationFragmentSpread, LocationInlineFragment},
@@ -77,7 +77,7 @@ func LoadSchema(input string) (*Schema, error) {
 
 		if def.Kind != Interface {
 			for _, intf := range def.Interfaces {
-				schema.AddPossibleType(intf.Name(), &ast.Definitions[i])
+				schema.AddPossibleType(intf, &ast.Definitions[i])
 			}
 			schema.AddPossibleType(def.Name, &ast.Definitions[i])
 		}
@@ -113,7 +113,7 @@ func LoadSchema(input string) (*Schema, error) {
 
 	if len(ast.Schema) == 1 {
 		for _, entrypoint := range ast.Schema[0].OperationTypes {
-			def := schema.Types[entrypoint.Type.Name()]
+			def := schema.Types[entrypoint.Type]
 			if def == nil {
 				return nil, fmt.Errorf("Schema root %s refers to a type %s that does not exist.", entrypoint.Operation, entrypoint.Type)
 			}
@@ -130,7 +130,7 @@ func LoadSchema(input string) (*Schema, error) {
 
 	for _, ext := range ast.SchemaExtension {
 		for _, entrypoint := range ext.OperationTypes {
-			def := schema.Types[entrypoint.Type.Name()]
+			def := schema.Types[entrypoint.Type]
 			if def == nil {
 				return nil, fmt.Errorf("Schema root %s refers to a type %s that does not exist.", entrypoint.Operation, entrypoint.Type)
 			}
