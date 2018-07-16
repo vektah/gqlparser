@@ -35,13 +35,12 @@ func init() {
 
 			switch value.Kind {
 			case ast.NullValue:
-				if _, nonNullable := value.ExpectedType.(ast.NonNullType); nonNullable {
+				if value.ExpectedType.NonNull {
 					unexpectedTypeMessage(addError, value.ExpectedType.String(), value.String())
 				}
 
 			case ast.ListValue:
-				_, isList := value.ExpectedType.(ast.ListType)
-				if !isList {
+				if value.ExpectedType.Elem == nil {
 					unexpectedTypeMessage(addError, value.ExpectedType.String(), value.String())
 					return
 				}
@@ -84,7 +83,7 @@ func init() {
 			case ast.ObjectValue:
 
 				for _, field := range value.Definition.Fields {
-					if field.Type.IsRequired() {
+					if field.Type.NonNull {
 						fieldValue := value.FieldByName(field.Name)
 						if fieldValue == nil && field.DefaultValue == nil {
 							addError(

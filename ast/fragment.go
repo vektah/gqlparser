@@ -10,7 +10,7 @@ type FragmentSpread struct {
 }
 
 type InlineFragment struct {
-	TypeCondition NamedType
+	TypeCondition string
 	Directives    []*Directive
 	SelectionSet  SelectionSet
 
@@ -23,7 +23,7 @@ type FragmentDefinition struct {
 	// Note: fragment variable definitions are experimental and may be changed
 	// or removed in the future.
 	VariableDefinition VariableDefinitions
-	TypeCondition      NamedType
+	TypeCondition      string
 	Directives         []*Directive
 	SelectionSet       SelectionSet
 

@@ -176,7 +176,7 @@ func (p *parser) parseFragment() Selection {
 	if p.peek().Value == "on" {
 		p.next() // "on"
 
-		def.TypeCondition = p.parseNamedType()
+		def.TypeCondition = p.parseName()
 	}
 
 	def.Directives = p.parseDirectives(false)
@@ -193,7 +193,7 @@ func (p *parser) parseFragmentDefinition() FragmentDefinition {
 
 	p.expectKeyword("on")
 
-	def.TypeCondition = p.parseNamedType()
+	def.TypeCondition = p.parseName()
 	def.Directives = p.parseDirectives(false)
 	def.SelectionSet = p.parseSelectionSet()
 	return def
@@ -299,30 +299,20 @@ func (p *parser) parseDirective(isConst bool) *Directive {
 	}
 }
 
-func (p *parser) parseTypeReference() Type {
+func (p *parser) parseTypeReference() *Type {
 	var typ Type
 
 	if p.skip(lexer.BracketL) {
-		typ = p.parseTypeReference()
-
-		typ = ListType{
-			Type: typ,
-		}
+		typ.Elem = p.parseTypeReference()
 		p.expect(lexer.BracketR)
 	} else {
-		typ = p.parseNamedType()
+		typ.NamedType = p.parseName()
 	}
 
 	if p.skip(lexer.Bang) {
-		typ = NonNullType{
-			Type: typ,
-		}
+		typ.NonNull = true
 	}
-	return typ
-}
-
-func (p *parser) parseNamedType() NamedType {
-	return NamedType(p.parseName())
+	return &typ
 }
 
 func (p *parser) parseName() string {

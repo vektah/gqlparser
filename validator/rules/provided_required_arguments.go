@@ -15,7 +15,7 @@ func init() {
 
 		argDef:
 			for _, argDef := range field.Definition.Arguments {
-				if !argDef.Type.IsRequired() {
+				if !argDef.Type.NonNull {
 					continue
 				}
 				if argDef.DefaultValue != nil {
@@ -38,7 +38,7 @@ func init() {
 
 		argDef:
 			for _, argDef := range directive.Definition.Arguments {
-				if !argDef.Type.IsRequired() {
+				if !argDef.Type.NonNull {
 					continue
 				}
 				if argDef.DefaultValue != nil {

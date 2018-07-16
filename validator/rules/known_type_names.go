@@ -22,7 +22,7 @@ func init() {
 		})
 
 		observers.OnInlineFragment(func(walker *Walker, inlineFragment *ast.InlineFragment) {
-			typedName := inlineFragment.TypeCondition.Name()
+			typedName := inlineFragment.TypeCondition
 			if typedName == "" {
 				return
 			}
@@ -38,7 +38,7 @@ func init() {
 		})
 
 		observers.OnFragment(func(walker *Walker, fragment *ast.FragmentDefinition) {
-			typeName := fragment.TypeCondition.Name()
+			typeName := fragment.TypeCondition
 			def := walker.Schema.Types[typeName]
 			if def != nil {
 				return

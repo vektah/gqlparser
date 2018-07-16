@@ -1,46 +1,67 @@
 package ast
 
-type Type interface {
-	Name() string
-	String() string
-	IsRequired() bool
-	IsCompatible(other Type) bool
+func NonNullNamedType(named string) *Type {
+	return &Type{NamedType: named, NonNull: true}
 }
 
-func (t NamedType) Name() string   { return string(t) }
-func (t ListType) Name() string    { return t.Type.Name() }
-func (t NonNullType) Name() string { return t.Type.Name() }
-
-func (t NamedType) String() string   { return string(t) }
-func (t ListType) String() string    { return "[" + t.Type.String() + "]" }
-func (t NonNullType) String() string { return t.Type.String() + "!" }
-
-func (t NamedType) IsRequired() bool   { return false }
-func (t ListType) IsRequired() bool    { return false }
-func (t NonNullType) IsRequired() bool { return true }
-
-func (t NamedType) IsCompatible(other Type) bool {
-	otherType, sameType := other.(NamedType)
-	return sameType && otherType == t
+func NamedType(named string) *Type {
+	return &Type{NamedType: named, NonNull: false}
 }
-func (t ListType) IsCompatible(other Type) bool {
-	otherType, sameType := other.(ListType)
-	return sameType && t.Type.IsCompatible(otherType.Type)
+
+func NonNullListType(elem *Type) *Type {
+	return &Type{Elem: elem, NonNull: true}
 }
-func (t NonNullType) IsCompatible(other Type) bool {
-	otherType, sameType := other.(NonNullType)
-	if sameType {
-		return t.Type.IsCompatible(otherType.Type)
+
+func ListType(elem *Type) *Type {
+	return &Type{Elem: elem, NonNull: false}
+}
+
+type Type struct {
+	NamedType string
+	Elem      *Type
+	NonNull   bool
+}
+
+func (t *Type) Name() string {
+	if t.NamedType != "" {
+		return t.NamedType
 	}
-	return t.Type.IsCompatible(other)
+
+	return t.Elem.Name()
 }
 
-type NamedType string
+func (t *Type) String() string {
+	nn := ""
+	if t.NonNull {
+		nn = "!"
+	}
+	if t.NamedType != "" {
+		return t.NamedType + nn
+	}
 
-type ListType struct {
-	Type Type
+	return "[" + t.Elem.String() + "]" + nn
 }
 
-type NonNullType struct {
-	Type Type
+func (t *Type) IsCompatible(other *Type) bool {
+	if t.NamedType != other.NamedType {
+		return false
+	}
+
+	if t.Elem != nil && other.Elem == nil {
+		return false
+	}
+
+	if t.Elem != nil && !t.Elem.IsCompatible(other.Elem) {
+		return false
+	}
+
+	if other.NonNull {
+		return t.NonNull
+	}
+
+	return true
+}
+
+func (v *Type) Dump() string {
+	return v.String()
 }

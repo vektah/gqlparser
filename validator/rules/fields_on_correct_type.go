@@ -50,12 +50,12 @@ func getSuggestedTypeNames(walker *Walker, parent *ast.Definition, name string) 
 		suggestedObjectTypes = append(suggestedObjectTypes, possibleType.Name)
 
 		for _, possibleInterface := range possibleType.Interfaces {
-			interfaceField := walker.Schema.Types[possibleInterface.Name()]
+			interfaceField := walker.Schema.Types[possibleInterface]
 			if interfaceField != nil && interfaceField.Field(name) != nil {
-				if interfaceUsageCount[possibleInterface.Name()] == 0 {
-					suggestedInterfaceTypes = append(suggestedInterfaceTypes, possibleInterface.Name())
+				if interfaceUsageCount[possibleInterface] == 0 {
+					suggestedInterfaceTypes = append(suggestedInterfaceTypes, possibleInterface)
 				}
-				interfaceUsageCount[possibleInterface.Name()]++
+				interfaceUsageCount[possibleInterface]++
 			}
 		}
 	}
