@@ -7,18 +7,18 @@ import (
 	. "github.com/vektah/gqlparser/ast"
 )
 
-func ParseQuery(source string) (QueryDocument, *errors.Syntax) {
+func ParseQuery(source string) (*QueryDocument, *errors.Syntax) {
 	p := parser{
 		lexer: lexer.New(source),
 	}
 	return p.parseQueryDocument(), p.err
 }
 
-func (p *parser) parseQueryDocument() QueryDocument {
+func (p *parser) parseQueryDocument() *QueryDocument {
 	var doc QueryDocument
 	for p.peek().Kind != lexer.EOF {
 		if p.err != nil {
-			return doc
+			return &doc
 		}
 		switch p.peek().Kind {
 		case lexer.Name:
@@ -37,7 +37,7 @@ func (p *parser) parseQueryDocument() QueryDocument {
 		}
 	}
 
-	return doc
+	return &doc
 }
 
 func (p *parser) parseOperationDefinition() OperationDefinition {

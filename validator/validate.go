@@ -22,7 +22,7 @@ func AddRule(name string, f ruleFunc) {
 	rules = append(rules, rule{name: name, rule: f})
 }
 
-func Validate(schema *Schema, doc *QueryDocument) []errors.Validation {
+func Validate(schema *Schema, doc *QueryDocument) errors.ValidationErrors {
 	var errs []errors.Validation
 
 	observers := &Events{}

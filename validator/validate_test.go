@@ -12,10 +12,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/errors"
-	"github.com/vektah/gqlparser/parser"
-	"github.com/vektah/gqlparser/validator"
 	"gopkg.in/yaml.v2"
 
 	_ "github.com/vektah/gqlparser/validator/rules"
@@ -49,7 +48,7 @@ func TestValidation(t *testing.T) {
 
 	var schemas []*ast.Schema
 	for _, schema := range rawSchemas {
-		schema, err := parser.LoadSchema(schema)
+		schema, err := gqlparser.LoadSchema(schema)
 		if err != nil {
 			panic(err)
 		}
@@ -78,7 +77,6 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 				spec.Errors = nil
 			}
 			t.Run(spec.Name, func(t *testing.T) {
-				fmt.Println(ruleName + "/" + spec.Name)
 				for _, deviation := range deviations {
 					if deviation.pattern.MatchString(ruleName + "/" + spec.Name) {
 						if deviation.Skip != "" {
@@ -90,12 +88,14 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 					}
 				}
 
-				query, err := parser.ParseQuery(spec.Query)
-				require.Nil(t, err)
-				errs := validator.Validate(schemas[spec.Schema], &query)
+				_, err := gqlparser.LoadQuery(schemas[spec.Schema], spec.Query)
+				if err, isSyntax := err.(*errors.Syntax); isSyntax {
+					require.NoError(t, err)
+				}
 
+				var validationErrs, _ = err.(errors.ValidationErrors)
 				var finalErrors []errors.Validation
-				for _, err := range errs {
+				for _, err := range validationErrs {
 					// ignore errors from other rules
 					if err.Rule != spec.Rule {
 						continue

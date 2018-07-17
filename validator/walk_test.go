@@ -25,7 +25,7 @@ func TestWalker(t *testing.T) {
 		require.Equal(t, "Query", field.ObjectDefinition.Name)
 	})
 
-	Walk(schema, &query, observers)
+	Walk(schema, query, observers)
 
 	require.True(t, called)
 }
