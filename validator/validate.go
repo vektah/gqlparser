@@ -2,7 +2,7 @@ package validator
 
 import (
 	. "github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/errors"
+	"github.com/vektah/gqlparser/gqlerror"
 )
 
 type AddErrFunc func(options ...ErrorOption)
@@ -22,18 +22,18 @@ func AddRule(name string, f ruleFunc) {
 	rules = append(rules, rule{name: name, rule: f})
 }
 
-func Validate(schema *Schema, doc *QueryDocument) errors.ValidationErrors {
-	var errs []errors.Validation
+func Validate(schema *Schema, doc *QueryDocument) gqlerror.List {
+	var errs gqlerror.List
 
 	observers := &Events{}
 	for i := range rules {
 		rule := rules[i]
 		rule.rule(observers, func(options ...ErrorOption) {
-			err := errors.Validation{
+			err := &gqlerror.Error{
 				Rule: rule.name,
 			}
 			for _, o := range options {
-				o(&err)
+				o(err)
 			}
 			errs = append(errs, err)
 		})

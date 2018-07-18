@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/vektah/gqlparser/errors"
+	"github.com/vektah/gqlparser/gqlerror"
 	"github.com/vektah/gqlparser/lexer"
 )
 
 type parser struct {
 	lexer lexer.Lexer
-	err   *errors.Syntax
+	err   *gqlerror.Error
 
 	peeked    bool
 	peekToken lexer.Token
-	peekError *errors.Syntax
+	peekError *gqlerror.Error
 
 	prev lexer.Token
 }
@@ -36,9 +36,9 @@ func (p *parser) error(tok lexer.Token, format string, args ...interface{}) {
 	if p.err != nil {
 		return
 	}
-	p.err = &errors.Syntax{
+	p.err = &gqlerror.Error{
 		Message: fmt.Sprintf(format, args...),
-		Locations: []errors.Location{
+		Locations: []gqlerror.Location{
 			{Line: tok.Line, Column: tok.Column},
 		},
 	}

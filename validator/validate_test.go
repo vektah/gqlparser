@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/errors"
+	"github.com/vektah/gqlparser/gqlerror"
 	"gopkg.in/yaml.v2"
 
 	_ "github.com/vektah/gqlparser/validator/rules"
@@ -25,12 +25,12 @@ type Spec struct {
 	Rule   string
 	Schema int
 	Query  string
-	Errors []errors.Validation
+	Errors gqlerror.List
 }
 
 type Deviation struct {
 	Rule   string
-	Errors []errors.Validation
+	Errors []*gqlerror.Error
 	Skip   string
 
 	pattern *regexp.Regexp
@@ -89,13 +89,8 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 				}
 
 				_, err := gqlparser.LoadQuery(schemas[spec.Schema], spec.Query)
-				if err, isSyntax := err.(*errors.Syntax); isSyntax {
-					require.NoError(t, err)
-				}
-
-				var validationErrs, _ = err.(errors.ValidationErrors)
-				var finalErrors []errors.Validation
-				for _, err := range validationErrs {
+				var finalErrors gqlerror.List
+				for _, err := range err {
 					// ignore errors from other rules
 					if err.Rule != spec.Rule {
 						continue
