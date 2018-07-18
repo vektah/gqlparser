@@ -43,6 +43,7 @@ func (p *parser) parseQueryDocument() *QueryDocument {
 func (p *parser) parseOperationDefinition() *OperationDefinition {
 	if p.peek().Kind == lexer.BraceL {
 		return &OperationDefinition{
+			Operation:    Query,
 			SelectionSet: p.parseSelectionSet(),
 		}
 	}

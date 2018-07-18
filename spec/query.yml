@@ -63,6 +63,7 @@ encoding:
       <QueryDocument>
         Operations: [OperationDefinition]
         - <OperationDefinition>
+            Operation: Operation("query")
             SelectionSet: [Selection]
             - <Field>
                 Alias: "field"
@@ -133,6 +134,7 @@ ast:
       <QueryDocument>
         Operations: [OperationDefinition]
         - <OperationDefinition>
+            Operation: Operation("query")
             SelectionSet: [Selection]
             - <Field>
                 Alias: "node"
@@ -200,6 +202,7 @@ values:
       <QueryDocument>
         Operations: [OperationDefinition]
         - <OperationDefinition>
+            Operation: Operation("query")
             SelectionSet: [Selection]
             - <Field>
                 Alias: "f"
@@ -215,6 +218,7 @@ values:
       <QueryDocument>
         Operations: [OperationDefinition]
         - <OperationDefinition>
+            Operation: Operation("query")
             SelectionSet: [Selection]
             - <Field>
                 Alias: "f"
@@ -233,6 +237,7 @@ values:
       <QueryDocument>
         Operations: [OperationDefinition]
         - <OperationDefinition>
+            Operation: Operation("query")
             SelectionSet: [Selection]
             - <Field>
                 Alias: "f"
@@ -464,6 +469,7 @@ large queries:
                             Alias: "text"
                             Name: "text"
         - <OperationDefinition>
+            Operation: Operation("query")
             SelectionSet: [Selection]
             - <Field>
                 Alias: "unnamed"
