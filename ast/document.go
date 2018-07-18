@@ -1,40 +1,22 @@
 package ast
 
 type QueryDocument struct {
-	Operations []OperationDefinition
-	Fragments  []FragmentDefinition
-}
-
-func (d QueryDocument) GetOperation(name string) *OperationDefinition {
-	for _, o := range d.Operations {
-		if o.Name == name {
-			return &o
-		}
-	}
-	return nil
-}
-
-func (d QueryDocument) GetFragment(name string) *FragmentDefinition {
-	for _, f := range d.Fragments {
-		if f.Name == name {
-			return &f
-		}
-	}
-	return nil
+	Operations OperationList
+	Fragments  FragmentDefinitionList
 }
 
 type SchemaDocument struct {
-	Schema          []SchemaDefinition
-	SchemaExtension []SchemaDefinition
-	Directives      []DirectiveDefinition
-	Definitions     []Definition
-	Extensions      []Definition
+	Schema          SchemaDefinitionList
+	SchemaExtension SchemaDefinitionList
+	Directives      DirectiveDefinitionList
+	Definitions     DefinitionList
+	Extensions      DefinitionList
 }
 
 type SchemaDefinition struct {
 	Description    string
-	Directives     []*Directive
-	OperationTypes []OperationTypeDefinition
+	Directives     DirectiveList
+	OperationTypes OperationTypeDefinitionList
 }
 
 type OperationTypeDefinition struct {

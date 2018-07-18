@@ -65,11 +65,11 @@ type Walker struct {
 func (w *Walker) walk() {
 	for _, child := range w.Document.Operations {
 		w.validatedFragmentSpreads = make(map[string]bool)
-		w.walkOperation(&child)
+		w.walkOperation(child)
 	}
 	for _, child := range w.Document.Fragments {
 		w.validatedFragmentSpreads = make(map[string]bool)
-		w.walkFragment(&child)
+		w.walkFragment(child)
 	}
 }
 
@@ -148,7 +148,7 @@ func (w *Walker) walkDirectives(parentDef *ast.Definition, directives []*ast.Dir
 				argDef = def.Arguments.ForName(arg.Name)
 			}
 
-			w.walkArgument(argDef, &arg)
+			w.walkArgument(argDef, arg)
 		}
 	}
 
@@ -159,7 +159,7 @@ func (w *Walker) walkDirectives(parentDef *ast.Definition, directives []*ast.Dir
 
 func (w *Walker) walkValue(value *ast.Value) {
 	if value.Kind == ast.Variable && w.CurrentOperation != nil {
-		value.VariableDefinition = w.CurrentOperation.VariableDefinitions.Find(value.Raw)
+		value.VariableDefinition = w.CurrentOperation.VariableDefinitions.ForName(value.Raw)
 		if value.VariableDefinition != nil {
 			value.VariableDefinition.Used = true
 		}
@@ -172,7 +172,7 @@ func (w *Walker) walkValue(value *ast.Value) {
 	if value.Kind == ast.ObjectValue {
 		for _, child := range value.Children {
 			if value.Definition != nil {
-				fieldDef := value.Definition.Field(child.Name)
+				fieldDef := value.Definition.Fields.ForName(child.Name)
 				if fieldDef != nil {
 					child.Value.ExpectedType = fieldDef.Type
 					child.Value.Definition = w.Schema.Types[fieldDef.Type.Name()]
@@ -206,7 +206,7 @@ func (w *Walker) walkArgument(argDef *ast.FieldDefinition, arg *ast.Argument) {
 
 func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 	switch it := it.(type) {
-	case ast.Field:
+	case *ast.Field:
 		var def *ast.FieldDefinition
 		if it.Name == "__typename" {
 			def = &ast.FieldDefinition{
@@ -214,14 +214,14 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 				Type: ast.NamedType("string"),
 			}
 		} else if parentDef != nil {
-			def = parentDef.Field(it.Name)
+			def = parentDef.Fields.ForName(it.Name)
 		}
 
 		it.Definition = def
 		it.ObjectDefinition = parentDef
 
 		for _, v := range w.Observers.field {
-			v(w, &it)
+			v(w, it)
 		}
 
 		var nextParentDef *ast.Definition
@@ -235,7 +235,7 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 				argDef = def.Arguments.ForName(arg.Name)
 			}
 
-			w.walkArgument(argDef, &arg)
+			w.walkArgument(argDef, arg)
 		}
 
 		for _, sel := range it.SelectionSet {
@@ -244,10 +244,10 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 
 		w.walkDirectives(nextParentDef, it.Directives, ast.LocationField)
 
-	case ast.InlineFragment:
+	case *ast.InlineFragment:
 		it.ObjectDefinition = parentDef
 		for _, v := range w.Observers.inlineFragment {
-			v(w, &it)
+			v(w, it)
 		}
 
 		var nextParentDef *ast.Definition
@@ -261,13 +261,13 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 			w.walkSelection(nextParentDef, sel)
 		}
 
-	case ast.FragmentSpread:
-		def := w.Document.GetFragment(it.Name)
+	case *ast.FragmentSpread:
+		def := w.Document.Fragments.ForName(it.Name)
 		it.Definition = def
 		it.ObjectDefinition = parentDef
 
 		for _, v := range w.Observers.fragmentSpread {
-			v(w, &it)
+			v(w, it)
 		}
 
 		var nextParentDef *ast.Definition

@@ -6,15 +6,15 @@ type Selection interface {
 	isSelection()
 }
 
-func (Field) isSelection()          {}
-func (FragmentSpread) isSelection() {}
-func (InlineFragment) isSelection() {}
+func (*Field) isSelection()          {}
+func (*FragmentSpread) isSelection() {}
+func (*InlineFragment) isSelection() {}
 
 type Field struct {
 	Alias        string
 	Name         string
-	Arguments    []Argument
-	Directives   []*Directive
+	Arguments    ArgumentList
+	Directives   DirectiveList
 	SelectionSet SelectionSet
 
 	// Require validation

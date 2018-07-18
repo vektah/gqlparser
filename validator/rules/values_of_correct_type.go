@@ -23,7 +23,7 @@ func init() {
 
 			var possibleEnums []string
 			if value.Definition.Kind == ast.Enum {
-				for _, val := range value.Definition.Values {
+				for _, val := range value.Definition.EnumValues {
 					possibleEnums = append(possibleEnums, val.Name)
 				}
 			}
@@ -67,7 +67,7 @@ func init() {
 				}
 
 			case ast.EnumValue:
-				if value.Definition.Kind != ast.Enum || value.Definition.EnumValue(value.Raw) == nil {
+				if value.Definition.Kind != ast.Enum || value.Definition.EnumValues.ForName(value.Raw) == nil {
 					rawValStr := fmt.Sprint(rawVal)
 					addError(
 						Message("Expected type %s, found %s.", value.ExpectedType.String(), value.String()),
@@ -84,7 +84,7 @@ func init() {
 
 				for _, field := range value.Definition.Fields {
 					if field.Type.NonNull {
-						fieldValue := value.FieldByName(field.Name)
+						fieldValue := value.Children.ForName(field.Name)
 						if fieldValue == nil && field.DefaultValue == nil {
 							addError(
 								Message("Field %s.%s of required type %s was not provided.", value.Definition.Name, field.Name, field.Type.String()),
@@ -95,7 +95,7 @@ func init() {
 				}
 
 				for _, fieldValue := range value.Children {
-					if value.Definition.Field(fieldValue.Name) == nil {
+					if value.Definition.Fields.ForName(fieldValue.Name) == nil {
 						var suggestions []string
 						for _, fieldValue := range value.Definition.Fields {
 							suggestions = append(suggestions, fieldValue.Name)

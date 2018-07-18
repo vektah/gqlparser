@@ -2,7 +2,7 @@ package ast
 
 type FragmentSpread struct {
 	Name       string
-	Directives []*Directive
+	Directives DirectiveList
 
 	// Require validation
 	ObjectDefinition *Definition
@@ -11,7 +11,7 @@ type FragmentSpread struct {
 
 type InlineFragment struct {
 	TypeCondition string
-	Directives    []*Directive
+	Directives    DirectiveList
 	SelectionSet  SelectionSet
 
 	// Require validation
@@ -22,9 +22,9 @@ type FragmentDefinition struct {
 	Name string
 	// Note: fragment variable definitions are experimental and may be changed
 	// or removed in the future.
-	VariableDefinition VariableDefinitions
+	VariableDefinition VariableDefinitionList
 	TypeCondition      string
-	Directives         []*Directive
+	Directives         DirectiveList
 	SelectionSet       SelectionSet
 
 	// Require validation

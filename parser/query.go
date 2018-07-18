@@ -40,9 +40,9 @@ func (p *parser) parseQueryDocument() *QueryDocument {
 	return &doc
 }
 
-func (p *parser) parseOperationDefinition() OperationDefinition {
+func (p *parser) parseOperationDefinition() *OperationDefinition {
 	if p.peek().Kind == lexer.BraceL {
-		return OperationDefinition{
+		return &OperationDefinition{
 			SelectionSet: p.parseSelectionSet(),
 		}
 	}
@@ -59,7 +59,7 @@ func (p *parser) parseOperationDefinition() OperationDefinition {
 	od.Directives = p.parseDirectives(false)
 	od.SelectionSet = p.parseSelectionSet()
 
-	return od
+	return &od
 }
 
 func (p *parser) parseOperationType() Operation {
@@ -76,7 +76,7 @@ func (p *parser) parseOperationType() Operation {
 	return ""
 }
 
-func (p *parser) parseVariableDefinitions() VariableDefinitions {
+func (p *parser) parseVariableDefinitions() VariableDefinitionList {
 	var defs []*VariableDefinition
 	p.many(lexer.ParenL, lexer.ParenR, func() {
 		defs = append(defs, p.parseVariableDefinition())
@@ -122,7 +122,7 @@ func (p *parser) parseSelection() Selection {
 	return p.parseField()
 }
 
-func (p *parser) parseField() Field {
+func (p *parser) parseField() *Field {
 	var field Field
 
 	field.Alias = p.parseName()
@@ -139,11 +139,11 @@ func (p *parser) parseField() Field {
 		field.SelectionSet = p.parseSelectionSet()
 	}
 
-	return field
+	return &field
 }
 
-func (p *parser) parseArguments(isConst bool) []Argument {
-	var arguments []Argument
+func (p *parser) parseArguments(isConst bool) ArgumentList {
+	var arguments ArgumentList
 	p.many(lexer.ParenL, lexer.ParenR, func() {
 		arguments = append(arguments, p.parseArgument(isConst))
 	})
@@ -151,21 +151,21 @@ func (p *parser) parseArguments(isConst bool) []Argument {
 	return arguments
 }
 
-func (p *parser) parseArgument(isConst bool) Argument {
+func (p *parser) parseArgument(isConst bool) *Argument {
 	arg := Argument{}
 
 	arg.Name = p.parseName()
 	p.expect(lexer.Colon)
 
 	arg.Value = p.parseValueLiteral(isConst)
-	return arg
+	return &arg
 }
 
 func (p *parser) parseFragment() Selection {
 	p.expect(lexer.Spread)
 
 	if peek := p.peek(); peek.Kind == lexer.Name && peek.Value != "on" {
-		return FragmentSpread{
+		return &FragmentSpread{
 			Name:       p.parseFragmentName(),
 			Directives: p.parseDirectives(false),
 		}
@@ -180,10 +180,10 @@ func (p *parser) parseFragment() Selection {
 
 	def.Directives = p.parseDirectives(false)
 	def.SelectionSet = p.parseSelectionSet()
-	return def
+	return &def
 }
 
-func (p *parser) parseFragmentDefinition() FragmentDefinition {
+func (p *parser) parseFragmentDefinition() *FragmentDefinition {
 	var def FragmentDefinition
 	p.expectKeyword("fragment")
 
@@ -195,7 +195,7 @@ func (p *parser) parseFragmentDefinition() FragmentDefinition {
 	def.TypeCondition = p.parseName()
 	def.Directives = p.parseDirectives(false)
 	def.SelectionSet = p.parseSelectionSet()
-	return def
+	return &def
 }
 
 func (p *parser) parseFragmentName() string {
@@ -250,16 +250,16 @@ func (p *parser) parseValueLiteral(isConst bool) *Value {
 }
 
 func (p *parser) parseList(isConst bool) *Value {
-	var values []ChildValue
+	var values ChildValueList
 	p.many(lexer.BracketL, lexer.BracketR, func() {
-		values = append(values, ChildValue{Value: p.parseValueLiteral(isConst)})
+		values = append(values, &ChildValue{Value: p.parseValueLiteral(isConst)})
 	})
 
 	return &Value{Children: values, Kind: ListValue}
 }
 
 func (p *parser) parseObject(isConst bool) *Value {
-	var fields []ChildValue
+	var fields ChildValueList
 	p.many(lexer.BraceL, lexer.BraceR, func() {
 		fields = append(fields, p.parseObjectField(isConst))
 	})
@@ -267,14 +267,14 @@ func (p *parser) parseObject(isConst bool) *Value {
 	return &Value{Children: fields, Kind: ObjectValue}
 }
 
-func (p *parser) parseObjectField(isConst bool) ChildValue {
+func (p *parser) parseObjectField(isConst bool) *ChildValue {
 	field := ChildValue{}
 	field.Name = p.parseName()
 
 	p.expect(lexer.Colon)
 
 	field.Value = p.parseValueLiteral(isConst)
-	return field
+	return &field
 }
 
 func (p *parser) parseDirectives(isConst bool) []*Directive {

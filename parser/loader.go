@@ -73,13 +73,13 @@ func LoadSchema(input string) (*Schema, error) {
 		if schema.Types[def.Name] != nil {
 			return nil, fmt.Errorf("Cannot redeclare type %s.", def.Name)
 		}
-		schema.Types[def.Name] = &ast.Definitions[i]
+		schema.Types[def.Name] = ast.Definitions[i]
 
 		if def.Kind != Interface {
 			for _, intf := range def.Interfaces {
-				schema.AddPossibleType(intf, &ast.Definitions[i])
+				schema.AddPossibleType(intf, ast.Definitions[i])
 			}
-			schema.AddPossibleType(def.Name, &ast.Definitions[i])
+			schema.AddPossibleType(def.Name, ast.Definitions[i])
 		}
 	}
 
@@ -97,14 +97,14 @@ func LoadSchema(input string) (*Schema, error) {
 		def.Interfaces = append(def.Interfaces, ext.Interfaces...)
 		def.Fields = append(def.Fields, ext.Fields...)
 		def.Types = append(def.Types, ext.Types...)
-		def.Values = append(def.Values, ext.Values...)
+		def.EnumValues = append(def.EnumValues, ext.EnumValues...)
 	}
 
 	for i, dir := range ast.Directives {
 		if schema.Directives[dir.Name] != nil {
 			return nil, fmt.Errorf("Cannot redeclare directive %s.", dir.Name)
 		}
-		schema.Directives[dir.Name] = &ast.Directives[i]
+		schema.Directives[dir.Name] = ast.Directives[i]
 	}
 
 	if len(ast.Schema) > 1 {

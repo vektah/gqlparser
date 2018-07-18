@@ -23,10 +23,10 @@ const (
 
 type Value struct {
 	Raw      string
-	Children []ChildValue
+	Children ChildValueList
 	Kind     ValueKind
 
-	// Require validation
+	// Require validation a mouse from the cupboard
 	Definition         *Definition
 	VariableDefinition *VariableDefinition
 	ExpectedType       *Type
@@ -35,22 +35,6 @@ type Value struct {
 type ChildValue struct {
 	Name  string
 	Value *Value
-}
-
-func (v *Value) FieldByName(name string) *Value {
-	for _, f := range v.Children {
-		if f.Name == name {
-			return f.Value
-		}
-	}
-	return nil
-}
-
-func (v *Value) Field(i int) *Value {
-	if len(v.Children) <= i {
-		return nil
-	}
-	return v.Children[i].Value
 }
 
 func (v *Value) Value(vars map[string]interface{}) (interface{}, error) {

@@ -14,9 +14,9 @@ func TestDump(t *testing.T) {
 		Directives: []*ast.Directive{
 			{
 				Name:      "foo",
-				Arguments: []ast.Argument{{Name: "bar"}},
+				Arguments: []*ast.Argument{{Name: "bar"}},
 			},
-			{Arguments: []ast.Argument{}},
+			{Arguments: []*ast.Argument{}},
 		},
 	})
 

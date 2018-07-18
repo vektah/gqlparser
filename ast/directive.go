@@ -28,30 +28,10 @@ const (
 
 type Directive struct {
 	Name      string
-	Arguments []Argument
+	Arguments ArgumentList
 
 	// Requires validation
 	ParentDefinition *Definition
 	Definition       *DirectiveDefinition
 	Location         DirectiveLocation
-}
-
-type Directives []*Directive
-
-func (d Directives) Get(name string) *Directive {
-	for _, directive := range d {
-		if directive.Name == name {
-			return directive
-		}
-	}
-	return nil
-}
-
-func (d Directive) GetArg(name string) *Argument {
-	for i := range d.Arguments {
-		if d.Arguments[i].Name == name {
-			return &d.Arguments[i]
-		}
-	}
-	return nil
 }

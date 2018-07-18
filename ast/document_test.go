@@ -20,13 +20,13 @@ func TestQueryDocMethods(t *testing.T) {
 
 	require.Nil(t, err)
 	t.Run("GetOperation", func(t *testing.T) {
-		require.EqualValues(t, "Bob", doc.GetOperation("Bob").Name)
-		require.Nil(t, doc.GetOperation("Alice"))
+		require.EqualValues(t, "Bob", doc.Operations.ForName("Bob").Name)
+		require.Nil(t, doc.Operations.ForName("Alice"))
 	})
 
 	t.Run("GetFragment", func(t *testing.T) {
-		require.EqualValues(t, "Frag", doc.GetFragment("Frag").Name)
-		require.Nil(t, doc.GetOperation("Alice"))
+		require.EqualValues(t, "Frag", doc.Fragments.ForName("Frag").Name)
+		require.Nil(t, doc.Fragments.ForName("Alice"))
 	})
 }
 

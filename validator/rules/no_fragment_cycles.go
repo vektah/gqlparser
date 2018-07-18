@@ -13,7 +13,7 @@ func init() {
 		visitedFrags := make(map[string]bool)
 
 		observers.OnFragment(func(walker *Walker, fragment *ast.FragmentDefinition) {
-			var spreadPath []ast.FragmentSpread
+			var spreadPath []*ast.FragmentSpread
 			spreadPathIndexByName := make(map[string]int)
 
 			var recursive func(fragment *ast.FragmentDefinition)
@@ -37,7 +37,7 @@ func init() {
 
 					spreadPath = append(spreadPath, spreadNode)
 					if !ok {
-						spreadFragment := walker.Document.GetFragment(spreadName)
+						spreadFragment := walker.Document.Fragments.ForName(spreadName)
 						if spreadFragment != nil {
 							recursive(spreadFragment)
 						}
@@ -65,8 +65,8 @@ func init() {
 	})
 }
 
-func getFragmentSpreads(node ast.SelectionSet) []ast.FragmentSpread {
-	var spreads []ast.FragmentSpread
+func getFragmentSpreads(node ast.SelectionSet) []*ast.FragmentSpread {
+	var spreads []*ast.FragmentSpread
 
 	setsToVisit := []ast.SelectionSet{node}
 
@@ -76,11 +76,11 @@ func getFragmentSpreads(node ast.SelectionSet) []ast.FragmentSpread {
 
 		for _, selection := range set {
 			switch selection := selection.(type) {
-			case ast.FragmentSpread:
+			case *ast.FragmentSpread:
 				spreads = append(spreads, selection)
-			case ast.Field:
+			case *ast.Field:
 				setsToVisit = append(setsToVisit, selection.SelectionSet)
-			case ast.InlineFragment:
+			case *ast.InlineFragment:
 				setsToVisit = append(setsToVisit, selection.SelectionSet)
 			}
 		}

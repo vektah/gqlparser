@@ -23,29 +23,11 @@ type Definition struct {
 	Kind        DefinitionKind
 	Description string
 	Name        string
-	Directives  Directives
-	Interfaces  []string              // object and input object
-	Fields      FieldList             // object and input object
-	Types       []string              // union
-	Values      []EnumValueDefinition // enum
-}
-
-func (d *Definition) Field(name string) *FieldDefinition {
-	for _, f := range d.Fields {
-		if f.Name == name {
-			return f
-		}
-	}
-	return nil
-}
-
-func (d *Definition) EnumValue(name string) *EnumValueDefinition {
-	for _, e := range d.Values {
-		if e.Name == name {
-			return &e
-		}
-	}
-	return nil
+	Directives  DirectiveList
+	Interfaces  []string      // object and input object
+	Fields      FieldList     // object and input object
+	Types       []string      // union
+	EnumValues  EnumValueList // enum
 }
 
 func (d *Definition) IsLeafType() bool {
@@ -79,24 +61,13 @@ type FieldDefinition struct {
 	Arguments    FieldList // only for objects
 	DefaultValue *Value    // only for input objects
 	Type         *Type
-	Directives   Directives
-}
-
-type FieldList []*FieldDefinition
-
-func (f FieldList) ForName(name string) *FieldDefinition {
-	for _, field := range f {
-		if field.Name == name {
-			return field
-		}
-	}
-	return nil
+	Directives   DirectiveList
 }
 
 type EnumValueDefinition struct {
 	Description string
 	Name        string
-	Directives  Directives
+	Directives  DirectiveList
 }
 
 // Directive Definitions
