@@ -36,6 +36,9 @@ func (l DirectiveList) ForName(name string) *Directive {
 type OperationList []*OperationDefinition
 
 func (l OperationList) ForName(name string) *OperationDefinition {
+	if name == "" && len(l) == 1 {
+		return l[0]
+	}
 	for _, it := range l {
 		if it.Name == name {
 			return it
