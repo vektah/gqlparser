@@ -143,7 +143,7 @@ func (pairSet *pairSet) Has(a *ast.FragmentSpread, b *ast.FragmentSpread, areMut
 	return true
 }
 
-type fieldsMap struct {
+type sequentialFieldsMap struct {
 	// We can't use map[string][]*ast.Field. because map is not stable...
 	seq  []string
 	data map[string][]*ast.Field
@@ -154,33 +154,33 @@ type fieldIterateEntry struct {
 	Fields       []*ast.Field
 }
 
-func (fieldsMap *fieldsMap) Push(responseName string, field *ast.Field) {
-	fields, ok := fieldsMap.data[responseName]
+func (m *sequentialFieldsMap) Push(responseName string, field *ast.Field) {
+	fields, ok := m.data[responseName]
 	if !ok {
-		fieldsMap.seq = append(fieldsMap.seq, responseName)
+		m.seq = append(m.seq, responseName)
 	}
 	fields = append(fields, field)
-	fieldsMap.data[responseName] = fields
+	m.data[responseName] = fields
 }
 
-func (fieldsMap *fieldsMap) Get(responseName string) ([]*ast.Field, bool) {
-	fields, ok := fieldsMap.data[responseName]
+func (m *sequentialFieldsMap) Get(responseName string) ([]*ast.Field, bool) {
+	fields, ok := m.data[responseName]
 	return fields, ok
 }
 
-func (fieldsMap *fieldsMap) Iterator() [][]*ast.Field {
-	fieldsList := make([][]*ast.Field, 0, len(fieldsMap.seq))
-	for _, responseName := range fieldsMap.seq {
-		fields := fieldsMap.data[responseName]
+func (m *sequentialFieldsMap) Iterator() [][]*ast.Field {
+	fieldsList := make([][]*ast.Field, 0, len(m.seq))
+	for _, responseName := range m.seq {
+		fields := m.data[responseName]
 		fieldsList = append(fieldsList, fields)
 	}
 	return fieldsList
 }
 
-func (fieldsMap *fieldsMap) KeyValueIterator() []*fieldIterateEntry {
-	fieldEntriesList := make([]*fieldIterateEntry, 0, len(fieldsMap.seq))
-	for _, responseName := range fieldsMap.seq {
-		fields := fieldsMap.data[responseName]
+func (m *sequentialFieldsMap) KeyValueIterator() []*fieldIterateEntry {
+	fieldEntriesList := make([]*fieldIterateEntry, 0, len(m.seq))
+	for _, responseName := range m.seq {
+		fields := m.data[responseName]
 		fieldEntriesList = append(fieldEntriesList, &fieldIterateEntry{
 			ResponseName: responseName,
 			Fields:       fields,
@@ -265,7 +265,7 @@ func (m *overlappingFieldsCanBeMergedManager) findConflictsWithinSelectionSet(se
 	return conflicts.Conflicts
 }
 
-func (m *overlappingFieldsCanBeMergedManager) collectConflictsBetweenFieldsAndFragment(conflicts *conflictMessageContainer, areMutuallyExclusive bool, fieldsMap *fieldsMap, fragmentSpread *ast.FragmentSpread) {
+func (m *overlappingFieldsCanBeMergedManager) collectConflictsBetweenFieldsAndFragment(conflicts *conflictMessageContainer, areMutuallyExclusive bool, fieldsMap *sequentialFieldsMap, fragmentSpread *ast.FragmentSpread) {
 	if m.comparedFragments[fragmentSpread.Name] {
 		return
 	}
@@ -375,7 +375,7 @@ func (m *overlappingFieldsCanBeMergedManager) findConflictsBetweenSubSelectionSe
 	return &conflicts
 }
 
-func (m *overlappingFieldsCanBeMergedManager) collectConflictsWithin(conflicts *conflictMessageContainer, fieldsMap *fieldsMap) {
+func (m *overlappingFieldsCanBeMergedManager) collectConflictsWithin(conflicts *conflictMessageContainer, fieldsMap *sequentialFieldsMap) {
 	for _, fields := range fieldsMap.Iterator() {
 		for idx, fieldA := range fields {
 			for _, fieldB := range fields[idx+1:] {
@@ -388,7 +388,7 @@ func (m *overlappingFieldsCanBeMergedManager) collectConflictsWithin(conflicts *
 	}
 }
 
-func (m *overlappingFieldsCanBeMergedManager) collectConflictsBetween(conflicts *conflictMessageContainer, parentFieldsAreMutuallyExclusive bool, fieldsMapA *fieldsMap, fieldsMapB *fieldsMap) {
+func (m *overlappingFieldsCanBeMergedManager) collectConflictsBetween(conflicts *conflictMessageContainer, parentFieldsAreMutuallyExclusive bool, fieldsMapA *sequentialFieldsMap, fieldsMapB *sequentialFieldsMap) {
 	for _, fieldsEntryA := range fieldsMapA.KeyValueIterator() {
 		fieldsB, ok := fieldsMapB.Get(fieldsEntryA.ResponseName)
 		if !ok {
@@ -514,8 +514,8 @@ func doTypesConflict(walker *Walker, type1 *ast.Type, type2 *ast.Type) bool {
 	return false
 }
 
-func getFieldsAndFragmentNames(selectionSet ast.SelectionSet) (*fieldsMap, []*ast.FragmentSpread) {
-	fieldsMap := fieldsMap{
+func getFieldsAndFragmentNames(selectionSet ast.SelectionSet) (*sequentialFieldsMap, []*ast.FragmentSpread) {
+	fieldsMap := sequentialFieldsMap{
 		data: make(map[string][]*ast.Field),
 	}
 	var fragmentSpreads []*ast.FragmentSpread
