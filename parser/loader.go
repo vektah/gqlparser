@@ -145,5 +145,17 @@ func LoadSchema(input string) (*Schema, error) {
 		}
 	}
 
+	if schema.Query == nil && schema.Types["Query"] != nil {
+		schema.Query = schema.Types["Query"]
+	}
+
+	if schema.Mutation == nil && schema.Types["Mutation"] != nil {
+		schema.Mutation = schema.Types["Mutation"]
+	}
+
+	if schema.Subscription == nil && schema.Types["Subscription"] != nil {
+		schema.Subscription = schema.Types["Subscription"]
+	}
+
 	return &schema, nil
 }
