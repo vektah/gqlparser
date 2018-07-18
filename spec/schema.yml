@@ -361,7 +361,7 @@ enums:
         - <Definition>
             Kind: DefinitionKind("ENUM")
             Name: "Hello"
-            Values: [EnumValueDefinition]
+            EnumValues: [EnumValueDefinition]
             - <EnumValueDefinition>
                 Name: "WORLD"
 
@@ -373,7 +373,7 @@ enums:
         - <Definition>
             Kind: DefinitionKind("ENUM")
             Name: "Hello"
-            Values: [EnumValueDefinition]
+            EnumValues: [EnumValueDefinition]
             - <EnumValueDefinition>
                 Name: "WO"
             - <EnumValueDefinition>

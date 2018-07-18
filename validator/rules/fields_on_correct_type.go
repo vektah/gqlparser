@@ -42,7 +42,7 @@ func getSuggestedTypeNames(walker *Walker, parent *ast.Definition, name string) 
 	interfaceUsageCount := map[string]int{}
 
 	for _, possibleType := range walker.Schema.GetPossibleTypes(parent) {
-		field := possibleType.Field(name)
+		field := possibleType.Fields.ForName(name)
 		if field == nil {
 			continue
 		}
@@ -51,7 +51,7 @@ func getSuggestedTypeNames(walker *Walker, parent *ast.Definition, name string) 
 
 		for _, possibleInterface := range possibleType.Interfaces {
 			interfaceField := walker.Schema.Types[possibleInterface]
-			if interfaceField != nil && interfaceField.Field(name) != nil {
+			if interfaceField != nil && interfaceField.Fields.ForName(name) != nil {
 				if interfaceUsageCount[possibleInterface] == 0 {
 					suggestedInterfaceTypes = append(suggestedInterfaceTypes, possibleInterface)
 				}

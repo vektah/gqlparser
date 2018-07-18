@@ -17,7 +17,7 @@ func init() {
 	})
 }
 
-func checkUniqueArgs(args []ast.Argument, addError AddErrFunc) {
+func checkUniqueArgs(args ast.ArgumentList, addError AddErrFunc) {
 	knownArgNames := map[string]bool{}
 
 	for _, arg := range args {
