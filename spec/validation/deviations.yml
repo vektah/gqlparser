@@ -1,29 +1,20 @@
 - rule: 'ExecutableDefinitions/.*'
   skip: "These are impossible to generate because the parser is split between Query and Schema"
 
-- rule: 'OverlappingFieldsCanBeMerged/.*'
-  skip: "Not yet implemented"
-
 - rule: 'FieldsOnCorrectType/Defined on implementors but not on interface'
   errors:
     - message: Cannot query field "nickname" on type "Pet". Did you mean to use an inline fragment on "Cat" or "Dog"?
       locations:
         - {line: 3, column: 9}
 
-- rule: 'KnownDirectives/within schema language/with well placed directives'
-  skip: true
-
 - rule: 'KnownDirectives/within schema language/with misplaced directives'
-  skip: true
+  skip: "When the syntax of schema is mixed in query, parser can't consume schema syntax and ignore it"
 
 - rule: 'KnownTypeNames/ignores type definitions'
-  skip: true
+  skip: "When the syntax of schema is mixed in query, parser can't consume schema syntax and ignore it"
 
 - rule: 'OverlappingFieldsCanBeMerged/return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive'
-  skip: true
-
-- rule: 'OverlappingFieldsCanBeMerged/return types must be unambiguous/disallows differing subfields'
-  skip: true
+  skip: "Spec issue? scalar is not exists on SomeBox"
 
 - rule: 'ValuesOfCorrectType/.*custom scalar.*'
   skip: "Custom scalars are a runtime feature, maybe they dont belong in here?"

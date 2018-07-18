@@ -149,6 +149,28 @@
     complicatedArgs: ComplicatedArgs
     invalidArg(arg: Invalid): String
     anyArg(arg: Any): String
+
+    # add by manual
+    field: T
+    f1: Type
+    f2: Type
+    f3: Type
+  }
+
+  # add by manual
+  type Type {
+    a: String
+    b: String
+    c: String
+  }
+  type T {
+    a: String
+    b: String
+    c: String
+    d: String
+    y: String
+    deepField: T
+    deeperField: T
   }
 - |
   schema {
