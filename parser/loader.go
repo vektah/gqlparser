@@ -157,5 +157,22 @@ func LoadSchema(input string) (*Schema, error) {
 		schema.Subscription = schema.Types["Subscription"]
 	}
 
+	if schema.Query != nil {
+		schema.Query.Fields = append(
+			schema.Query.Fields,
+			&FieldDefinition{
+				Name: "__schema",
+				Type: NonNullNamedType("__Schema"),
+			},
+			&FieldDefinition{
+				Name: "__type",
+				Type: NonNullNamedType("__Type"),
+				Arguments: FieldList{
+					{Name: "name", Type: NamedType("String")},
+				},
+			},
+		)
+	}
+
 	return &schema, nil
 }
