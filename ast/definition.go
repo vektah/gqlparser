@@ -23,7 +23,7 @@ type Definition struct {
 	Kind        DefinitionKind
 	Description string
 	Name        string
-	Directives  []*Directive
+	Directives  Directives
 	Interfaces  []string              // object and input object
 	Fields      FieldList             // object and input object
 	Types       []string              // union
@@ -33,7 +33,7 @@ type Definition struct {
 func (d *Definition) Field(name string) *FieldDefinition {
 	for _, f := range d.Fields {
 		if f.Name == name {
-			return &f
+			return f
 		}
 	}
 	return nil
@@ -79,15 +79,15 @@ type FieldDefinition struct {
 	Arguments    FieldList // only for objects
 	DefaultValue *Value    // only for input objects
 	Type         *Type
-	Directives   []*Directive
+	Directives   Directives
 }
 
-type FieldList []FieldDefinition
+type FieldList []*FieldDefinition
 
 func (f FieldList) ForName(name string) *FieldDefinition {
 	for _, field := range f {
 		if field.Name == name {
-			return &field
+			return field
 		}
 	}
 	return nil
@@ -96,7 +96,7 @@ func (f FieldList) ForName(name string) *FieldDefinition {
 type EnumValueDefinition struct {
 	Description string
 	Name        string
-	Directives  []*Directive
+	Directives  Directives
 }
 
 // Directive Definitions

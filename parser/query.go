@@ -1,13 +1,13 @@
 package parser
 
 import (
-	"github.com/vektah/gqlparser/errors"
+	"github.com/vektah/gqlparser/gqlerror"
 	"github.com/vektah/gqlparser/lexer"
 
 	. "github.com/vektah/gqlparser/ast"
 )
 
-func ParseQuery(source string) (*QueryDocument, *errors.Syntax) {
+func ParseQuery(source string) (*QueryDocument, *gqlerror.Error) {
 	p := parser{
 		lexer: lexer.New(source),
 	}
@@ -125,13 +125,12 @@ func (p *parser) parseSelection() Selection {
 func (p *parser) parseField() Field {
 	var field Field
 
-	nameOrAlias := p.parseName()
+	field.Alias = p.parseName()
 
 	if p.skip(lexer.Colon) {
-		field.Alias = nameOrAlias
 		field.Name = p.parseName()
 	} else {
-		field.Name = nameOrAlias
+		field.Name = field.Alias
 	}
 
 	field.Arguments = p.parseArguments(false)

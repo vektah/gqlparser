@@ -2,11 +2,11 @@ package parser
 
 import (
 	. "github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/errors"
+	"github.com/vektah/gqlparser/gqlerror"
 	"github.com/vektah/gqlparser/lexer"
 )
 
-func ParseSchema(source string) (SchemaDocument, *errors.Syntax) {
+func ParseSchema(source string) (SchemaDocument, *gqlerror.Error) {
 	p := parser{
 		lexer: lexer.New(source),
 	}
@@ -155,7 +155,7 @@ func (p *parser) parseFieldsDefinition() FieldList {
 	return defs
 }
 
-func (p *parser) parseFieldDefinition() FieldDefinition {
+func (p *parser) parseFieldDefinition() *FieldDefinition {
 	var def FieldDefinition
 
 	def.Description = p.parseDescription()
@@ -165,7 +165,7 @@ func (p *parser) parseFieldDefinition() FieldDefinition {
 	def.Type = p.parseTypeReference()
 	def.Directives = p.parseDirectives(true)
 
-	return def
+	return &def
 }
 
 func (p *parser) parseArgumentDefs() FieldList {
@@ -176,7 +176,7 @@ func (p *parser) parseArgumentDefs() FieldList {
 	return args
 }
 
-func (p *parser) parseInputValueDef() FieldDefinition {
+func (p *parser) parseInputValueDef() *FieldDefinition {
 	var def FieldDefinition
 	def.Description = p.parseDescription()
 	def.Name = p.parseName()
@@ -186,7 +186,7 @@ func (p *parser) parseInputValueDef() FieldDefinition {
 		def.DefaultValue = p.parseValueLiteral(true)
 	}
 	def.Directives = p.parseDirectives(true)
-	return def
+	return &def
 }
 
 func (p *parser) parseInterfaceTypeDefinition(description string) Definition {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"unicode/utf8"
 
-	"github.com/vektah/gqlparser/errors"
+	"github.com/vektah/gqlparser/gqlerror"
 )
 
 // Lexer turns graphql request and schema strings into tokens
@@ -38,11 +38,11 @@ func (s *Lexer) peek() (rune, int) {
 	return utf8.DecodeRuneInString(s.input[s.end:])
 }
 
-func (s *Lexer) makeToken(kind Type) (Token, *errors.Syntax) {
+func (s *Lexer) makeToken(kind Type) (Token, *gqlerror.Error) {
 	return s.makeValueToken(kind, s.input[s.start:s.end])
 }
 
-func (s *Lexer) makeValueToken(kind Type, value string) (Token, *errors.Syntax) {
+func (s *Lexer) makeValueToken(kind Type, value string) (Token, *gqlerror.Error) {
 	return Token{
 		Kind:   kind,
 		Start:  s.startRunes,
@@ -53,7 +53,7 @@ func (s *Lexer) makeValueToken(kind Type, value string) (Token, *errors.Syntax) 
 	}, nil
 }
 
-func (s *Lexer) makeError(format string, args ...interface{}) (Token, *errors.Syntax) {
+func (s *Lexer) makeError(format string, args ...interface{}) (Token, *gqlerror.Error) {
 	column := s.endRunes - s.lineStartRunes + 1
 	return Token{
 			Kind:   Invalid,
@@ -61,9 +61,9 @@ func (s *Lexer) makeError(format string, args ...interface{}) (Token, *errors.Sy
 			End:    s.endRunes,
 			Line:   s.line,
 			Column: column,
-		}, &errors.Syntax{
+		}, &gqlerror.Error{
 			Message: fmt.Sprintf(format, args...),
-			Locations: []errors.Location{
+			Locations: []gqlerror.Location{
 				{Line: s.line, Column: column},
 			},
 		}
@@ -74,7 +74,7 @@ func (s *Lexer) makeError(format string, args ...interface{}) (Token, *errors.Sy
 // This skips over whitespace and comments until it finds the next lexable
 // token, then lexes punctuators immediately or calls the appropriate helper
 // function for more complicated tokens.
-func (s *Lexer) ReadToken() (token Token, err *errors.Syntax) {
+func (s *Lexer) ReadToken() (token Token, err *gqlerror.Error) {
 
 	s.ws()
 	s.start = s.end
@@ -192,7 +192,7 @@ func (s *Lexer) ws() {
 // readComment from the input
 //
 // #[\u0009\u0020-\uFFFF]*
-func (s *Lexer) readComment() (Token, *errors.Syntax) {
+func (s *Lexer) readComment() (Token, *gqlerror.Error) {
 	for s.end < len(s.input) {
 		r, w := s.peek()
 
@@ -213,7 +213,7 @@ func (s *Lexer) readComment() (Token, *errors.Syntax) {
 //
 // Int:   -?(0|[1-9][0-9]*)
 // Float: -?(0|[1-9][0-9]*)(\.[0-9]+)?((E|e)(+|-)?[0-9]+)?
-func (s *Lexer) readNumber() (Token, *errors.Syntax) {
+func (s *Lexer) readNumber() (Token, *gqlerror.Error) {
 	float := false
 
 	// backup to the first digit
@@ -299,7 +299,7 @@ func (s *Lexer) describeNext() string {
 // readString from the input
 //
 // "([^"\\\u000A\u000D]|(\\(u[0-9a-fA-F]{4}|["\\/bfnrt])))*"
-func (s *Lexer) readString() (Token, *errors.Syntax) {
+func (s *Lexer) readString() (Token, *gqlerror.Error) {
 	inputLen := len(s.input)
 
 	// this buffer is lazily created only if there are escape characters.
@@ -409,7 +409,7 @@ func (s *Lexer) readString() (Token, *errors.Syntax) {
 // readBlockString from the input
 //
 // """("?"?(\\"""|\\(?!=""")|[^"\\]))*"""
-func (s *Lexer) readBlockString() (Token, *errors.Syntax) {
+func (s *Lexer) readBlockString() (Token, *gqlerror.Error) {
 	inputLen := len(s.input)
 
 	var buf bytes.Buffer
@@ -494,7 +494,7 @@ func unhex(b string) (v rune, ok bool) {
 // readName from the input
 //
 // [_A-Za-z][_0-9A-Za-z]*
-func (s *Lexer) readName() (Token, *errors.Syntax) {
+func (s *Lexer) readName() (Token, *gqlerror.Error) {
 	for s.end < len(s.input) {
 		r, w := s.peek()
 

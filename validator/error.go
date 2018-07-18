@@ -3,20 +3,20 @@ package validator
 import (
 	"fmt"
 
-	"github.com/vektah/gqlparser/errors"
+	"github.com/vektah/gqlparser/gqlerror"
 )
 
-type ErrorOption func(err *errors.Validation)
+type ErrorOption func(err *gqlerror.Error)
 
 func Message(msg string, args ...interface{}) ErrorOption {
-	return func(err *errors.Validation) {
+	return func(err *gqlerror.Error) {
 		err.Message += fmt.Sprintf(msg, args...)
 	}
 }
 
 func SuggestListQuoted(prefix string, typed string, suggestions []string) ErrorOption {
 	suggested := SuggestionList(typed, suggestions)
-	return func(err *errors.Validation) {
+	return func(err *gqlerror.Error) {
 		if len(suggested) > 0 {
 			err.Message += " " + prefix + " " + QuotedOrList(suggested...) + "?"
 		}
@@ -25,7 +25,7 @@ func SuggestListQuoted(prefix string, typed string, suggestions []string) ErrorO
 
 func SuggestListUnquoted(prefix string, typed string, suggestions []string) ErrorOption {
 	suggested := SuggestionList(typed, suggestions)
-	return func(err *errors.Validation) {
+	return func(err *gqlerror.Error) {
 		if len(suggested) > 0 {
 			err.Message += " " + prefix + " " + OrList(suggested...) + "?"
 		}
@@ -33,7 +33,7 @@ func SuggestListUnquoted(prefix string, typed string, suggestions []string) Erro
 }
 
 func Suggestf(suggestion string, args ...interface{}) ErrorOption {
-	return func(err *errors.Validation) {
+	return func(err *gqlerror.Error) {
 		err.Message += " Did you mean " + fmt.Sprintf(suggestion, args...) + "?"
 	}
 }

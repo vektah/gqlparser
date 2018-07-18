@@ -65,6 +65,7 @@ encoding:
         - <OperationDefinition>
             SelectionSet: [Selection]
             - <Field>
+                Alias: "field"
                 Name: "field"
                 Arguments: [Argument]
                 - <Argument>
@@ -134,6 +135,7 @@ ast:
         - <OperationDefinition>
             SelectionSet: [Selection]
             - <Field>
+                Alias: "node"
                 Name: "node"
                 Arguments: [Argument]
                 - <Argument>
@@ -141,8 +143,10 @@ ast:
                     Value: 4
                 SelectionSet: [Selection]
                 - <Field>
+                    Alias: "id"
                     Name: "id"
                 - <Field>
+                    Alias: "name"
                     Name: "name"
 
   - name: nameless query with no variables
@@ -159,9 +163,11 @@ ast:
             Operation: Operation("query")
             SelectionSet: [Selection]
             - <Field>
+                Alias: "node"
                 Name: "node"
                 SelectionSet: [Selection]
                 - <Field>
+                    Alias: "id"
                     Name: "id"
 
   - name: fragment defined variables
@@ -179,6 +185,7 @@ ast:
             TypeCondition: "t"
             SelectionSet: [Selection]
             - <Field>
+                Alias: "f"
                 Name: "f"
                 Arguments: [Argument]
                 - <Argument>
@@ -195,6 +202,7 @@ values:
         - <OperationDefinition>
             SelectionSet: [Selection]
             - <Field>
+                Alias: "f"
                 Name: "f"
                 Arguments: [Argument]
                 - <Argument>
@@ -209,6 +217,7 @@ values:
         - <OperationDefinition>
             SelectionSet: [Selection]
             - <Field>
+                Alias: "f"
                 Name: "f"
                 Arguments: [Argument]
                 - <Argument>
@@ -226,6 +235,7 @@ values:
         - <OperationDefinition>
             SelectionSet: [Selection]
             - <Field>
+                Alias: "f"
                 Name: "f"
                 Arguments: [Argument]
                 - <Argument>
@@ -255,6 +265,7 @@ types:
                 Type: [Arr!]!
             SelectionSet: [Selection]
             - <Field>
+                Alias: "f"
                 Name: "f"
 
 large queries:
@@ -341,6 +352,7 @@ large queries:
                     Value: [123,456]
                 SelectionSet: [Selection]
                 - <Field>
+                    Alias: "id"
                     Name: "id"
                 - <InlineFragment>
                     TypeCondition: "User"
@@ -349,9 +361,11 @@ large queries:
                         Name: "defer"
                     SelectionSet: [Selection]
                     - <Field>
+                        Alias: "field2"
                         Name: "field2"
                         SelectionSet: [Selection]
                         - <Field>
+                            Alias: "id"
                             Name: "id"
                         - <Field>
                             Alias: "alias"
@@ -372,6 +386,7 @@ large queries:
                                     Value: $foo
                             SelectionSet: [Selection]
                             - <Field>
+                                Alias: "id"
                                 Name: "id"
                             - <FragmentSpread>
                                 Name: "frag"
@@ -385,16 +400,19 @@ large queries:
                             Value: $foo
                     SelectionSet: [Selection]
                     - <Field>
+                        Alias: "id"
                         Name: "id"
                 - <InlineFragment>
                     SelectionSet: [Selection]
                     - <Field>
+                        Alias: "id"
                         Name: "id"
         - <OperationDefinition>
             Operation: Operation("mutation")
             Name: "likeStory"
             SelectionSet: [Selection]
             - <Field>
+                Alias: "like"
                 Name: "like"
                 Arguments: [Argument]
                 - <Argument>
@@ -405,9 +423,11 @@ large queries:
                     Name: "defer"
                 SelectionSet: [Selection]
                 - <Field>
+                    Alias: "story"
                     Name: "story"
                     SelectionSet: [Selection]
                     - <Field>
+                        Alias: "id"
                         Name: "id"
         - <OperationDefinition>
             Operation: Operation("subscription")
@@ -418,6 +438,7 @@ large queries:
                 Type: StoryLikeSubscribeInput
             SelectionSet: [Selection]
             - <Field>
+                Alias: "storyLikeSubscribe"
                 Name: "storyLikeSubscribe"
                 Arguments: [Argument]
                 - <Argument>
@@ -425,21 +446,27 @@ large queries:
                     Value: $input
                 SelectionSet: [Selection]
                 - <Field>
+                    Alias: "story"
                     Name: "story"
                     SelectionSet: [Selection]
                     - <Field>
+                        Alias: "likers"
                         Name: "likers"
                         SelectionSet: [Selection]
                         - <Field>
+                            Alias: "count"
                             Name: "count"
                     - <Field>
+                        Alias: "likeSentence"
                         Name: "likeSentence"
                         SelectionSet: [Selection]
                         - <Field>
+                            Alias: "text"
                             Name: "text"
         - <OperationDefinition>
             SelectionSet: [Selection]
             - <Field>
+                Alias: "unnamed"
                 Name: "unnamed"
                 Arguments: [Argument]
                 - <Argument>
@@ -452,6 +479,7 @@ large queries:
                     Name: "nullish"
                     Value: null
             - <Field>
+                Alias: "query"
                 Name: "query"
         Fragments: [FragmentDefinition]
         - <FragmentDefinition>
@@ -459,6 +487,7 @@ large queries:
             TypeCondition: "Friend"
             SelectionSet: [Selection]
             - <Field>
+                Alias: "foo"
                 Name: "foo"
                 Arguments: [Argument]
                 - <Argument>

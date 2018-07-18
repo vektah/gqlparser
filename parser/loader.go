@@ -48,7 +48,7 @@ func LoadSchema(input string) (*Schema, error) {
 		Name:        "skip",
 		Description: "Directs the executor to skip this field or fragment when the `if` argument is true.",
 		Arguments: FieldList{
-			FieldDefinition{
+			&FieldDefinition{
 				Name:        "if",
 				Description: "Skipped when true.",
 				Type:        NonNullNamedType("Boolean"),
@@ -60,7 +60,7 @@ func LoadSchema(input string) (*Schema, error) {
 		Name:        "include",
 		Description: "Directs the executor to include this field or fragment only when the `if` argument is true.",
 		Arguments: FieldList{
-			FieldDefinition{
+			&FieldDefinition{
 				Name:        "if",
 				Description: "Included when true.",
 				Type:        NonNullNamedType("Boolean"),
