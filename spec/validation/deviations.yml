@@ -7,14 +7,14 @@
       locations:
         - {line: 3, column: 9}
 
-- rule: 'KnownDirectives/within schema language/with well placed directives'
-  skip: "from upstream library. https://github.com/graph-gophers/graphql-go/blob/bb9738501bd42a6536227b96068349b814379d6e/internal/validation/testdata/export.js#L77-L109"
 - rule: 'KnownDirectives/within schema language/with misplaced directives'
-  skip: "from upstream library. https://github.com/graph-gophers/graphql-go/blob/bb9738501bd42a6536227b96068349b814379d6e/internal/validation/testdata/export.js#L77-L109"
+  skip: "When the syntax of schema is mixed in query, parser can't consume schema syntax and ignore it"
+
 - rule: 'KnownTypeNames/ignores type definitions'
-  skip: "from upstream library. https://github.com/graph-gophers/graphql-go/blob/bb9738501bd42a6536227b96068349b814379d6e/internal/validation/testdata/export.js#L77-L109"
+  skip: "When the syntax of schema is mixed in query, parser can't consume schema syntax and ignore it"
+
 - rule: 'OverlappingFieldsCanBeMerged/return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive'
-  skip: "from upstream library. https://github.com/graph-gophers/graphql-go/blob/bb9738501bd42a6536227b96068349b814379d6e/internal/validation/testdata/export.js#L77-L109"
+  skip: "Spec issue? scalar is not exists on SomeBox"
 
 - rule: 'ValuesOfCorrectType/.*custom scalar.*'
   skip: "Custom scalars are a runtime feature, maybe they dont belong in here?"
