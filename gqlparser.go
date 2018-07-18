@@ -5,6 +5,8 @@ import (
 	"github.com/vektah/gqlparser/gqlerror"
 	"github.com/vektah/gqlparser/parser"
 	"github.com/vektah/gqlparser/validator"
+
+	_ "github.com/vektah/gqlparser/validator/rules"
 )
 
 func LoadSchema(str string) (*ast.Schema, error) {

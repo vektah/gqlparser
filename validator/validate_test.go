@@ -16,8 +16,6 @@ import (
 	"github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/gqlerror"
 	"gopkg.in/yaml.v2"
-
-	_ "github.com/vektah/gqlparser/validator/rules"
 )
 
 type Spec struct {
