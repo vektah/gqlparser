@@ -28,6 +28,7 @@ type Token struct {
 	End    int
 	Line   int
 	Column int
+	Src    string
 }
 
 func (t Token) String() string {
@@ -101,6 +102,9 @@ func Test(t *testing.T, filename string, f func(t *testing.T, input string) Spec
 							}
 							if expected.Column != 0 && expected.Column != tok.Column {
 								t.Errorf("token[%d].column should be %d, was %d", i, expected.Column, tok.Column)
+							}
+							if tok.Src != "spec" {
+								t.Errorf("token[%d].source.name should be spec, was %s", i, strconv.Quote(tok.Src))
 							}
 						}
 					}

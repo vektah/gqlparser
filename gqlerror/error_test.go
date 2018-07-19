@@ -14,5 +14,5 @@ func TestErrorFormatting(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, `kabloom (line 66, column 33)`, err.Error())
+	require.Equal(t, `input:66 kabloom`, err.Error())
 }

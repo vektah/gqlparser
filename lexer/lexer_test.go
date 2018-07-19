@@ -3,12 +3,13 @@ package lexer
 import (
 	"testing"
 
+	"github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/spec"
 )
 
 func TestLexer(t *testing.T) {
 	spec.Test(t, "../spec/lexer.yml", func(t *testing.T, input string) spec.Spec {
-		l := New(input)
+		l := New(&ast.Source{Input: input, Name: "spec"})
 
 		ret := spec.Spec{}
 		for {
@@ -30,6 +31,7 @@ func TestLexer(t *testing.T) {
 				Column: tok.Column,
 				Start:  tok.Start,
 				End:    tok.End,
+				Src:    tok.Src.Name,
 			})
 		}
 

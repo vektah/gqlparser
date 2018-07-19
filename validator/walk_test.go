@@ -9,9 +9,9 @@ import (
 )
 
 func TestWalker(t *testing.T) {
-	schema, err := parser.LoadSchema("type Query { name: String }\n schema { query: Query }")
+	schema, err := parser.LoadSchema(&ast.Source{Input: "type Query { name: String }\n schema { query: Query }"})
 	require.Nil(t, err)
-	query, err := parser.ParseQuery("{ as: name }")
+	query, err := parser.ParseQuery(&ast.Source{Input: "{ as: name }"})
 	require.Nil(t, err)
 
 	called := false

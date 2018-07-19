@@ -13,6 +13,14 @@ type SchemaDocument struct {
 	Extensions      DefinitionList
 }
 
+func (d *SchemaDocument) Merge(other *SchemaDocument) {
+	d.Schema = append(d.Schema, other.Schema...)
+	d.SchemaExtension = append(d.SchemaExtension, other.SchemaExtension...)
+	d.Directives = append(d.Directives, other.Directives...)
+	d.Definitions = append(d.Definitions, other.Definitions...)
+	d.Extensions = append(d.Extensions, other.Extensions...)
+}
+
 type SchemaDefinition struct {
 	Description    string
 	Directives     DirectiveList

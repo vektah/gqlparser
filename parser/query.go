@@ -7,7 +7,7 @@ import (
 	. "github.com/vektah/gqlparser/ast"
 )
 
-func ParseQuery(source string) (*QueryDocument, *gqlerror.Error) {
+func ParseQuery(source *Source) (*QueryDocument, *gqlerror.Error) {
 	p := parser{
 		lexer: lexer.New(source),
 	}

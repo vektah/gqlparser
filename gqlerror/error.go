@@ -3,6 +3,7 @@ package gqlerror
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 )
 
 // Error is the standard graphql error type described in https://facebook.github.io/graphql/draft/#sec-Errors
@@ -22,11 +23,16 @@ type Location struct {
 type List []*Error
 
 func (err *Error) Error() string {
-	str := err.Message
-	for _, loc := range err.Locations {
-		str += fmt.Sprintf(" (line %d, column %d)", loc.Line, loc.Column)
+	filename, _ := err.Extensions["file"].(string)
+	if filename == "" {
+		filename = "input"
 	}
-	return str
+
+	if len(err.Locations) > 0 {
+		filename += ":" + strconv.Itoa(err.Locations[0].Line)
+	}
+
+	return filename + " " + err.Message
 }
 
 func (errs List) Error() string {
@@ -41,5 +47,17 @@ func (errs List) Error() string {
 func Errorf(message string, args ...interface{}) *Error {
 	return &Error{
 		Message: fmt.Sprintf(message, args...),
+	}
+}
+
+func ErrorLocf(file string, line int, col int, message string, args ...interface{}) *Error {
+	return &Error{
+		Message: fmt.Sprintf(message, args...),
+		Extensions: map[string]interface{}{
+			"file": file,
+		},
+		Locations: []Location{
+			{Line: line, Column: col},
+		},
 	}
 }
