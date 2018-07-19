@@ -1,25 +1,26 @@
 package ast
 
-func NonNullNamedType(named string) *Type {
-	return &Type{NamedType: named, NonNull: true}
+func NonNullNamedType(named string, pos *Position) *Type {
+	return &Type{NamedType: named, NonNull: true, Position: pos}
 }
 
-func NamedType(named string) *Type {
-	return &Type{NamedType: named, NonNull: false}
+func NamedType(named string, pos *Position) *Type {
+	return &Type{NamedType: named, NonNull: false, Position: pos}
 }
 
-func NonNullListType(elem *Type) *Type {
-	return &Type{Elem: elem, NonNull: true}
+func NonNullListType(elem *Type, pos *Position) *Type {
+	return &Type{Elem: elem, NonNull: true, Position: pos}
 }
 
-func ListType(elem *Type) *Type {
-	return &Type{Elem: elem, NonNull: false}
+func ListType(elem *Type, pos *Position) *Type {
+	return &Type{Elem: elem, NonNull: false, Position: pos}
 }
 
 type Type struct {
 	NamedType string
 	Elem      *Type
 	NonNull   bool
+	Position  *Position `dump:"-"`
 }
 
 func (t *Type) Name() string {

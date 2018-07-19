@@ -28,6 +28,8 @@ type Definition struct {
 	Fields      FieldList     // object and input object
 	Types       []string      // union
 	EnumValues  EnumValueList // enum
+
+	Position *Position `dump:"-"`
 }
 
 func (d *Definition) IsLeafType() bool {
@@ -62,12 +64,14 @@ type FieldDefinition struct {
 	DefaultValue *Value    // only for input objects
 	Type         *Type
 	Directives   DirectiveList
+	Position     *Position `dump:"-"`
 }
 
 type EnumValueDefinition struct {
 	Description string
 	Name        string
 	Directives  DirectiveList
+	Position    *Position `dump:"-"`
 }
 
 // Directive Definitions
@@ -77,4 +81,5 @@ type DirectiveDefinition struct {
 	Name        string
 	Arguments   FieldList
 	Locations   []DirectiveLocation
+	Position    *Position `dump:"-"`
 }

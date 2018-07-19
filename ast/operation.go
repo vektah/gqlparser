@@ -14,12 +14,14 @@ type OperationDefinition struct {
 	VariableDefinitions VariableDefinitionList
 	Directives          DirectiveList
 	SelectionSet        SelectionSet
+	Position            *Position `dump:"-"`
 }
 
 type VariableDefinition struct {
 	Variable     string
 	Type         *Type
 	DefaultValue *Value
+	Position     *Position `dump:"-"`
 
 	// Requires validation
 	Definition *Definition

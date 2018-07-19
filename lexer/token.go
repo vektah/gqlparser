@@ -135,13 +135,9 @@ func (t Type) String() string {
 type Type int
 
 type Token struct {
-	Kind   Type        // The token type.
-	Value  string      // The literal value consumed.
-	Start  int         // The starting position, in runes, of this token in the input.
-	End    int         // The end position, in runes, of this token in the input.
-	Line   int         // The line number at the start of this item.
-	Column int         // The line number at the start of this item.
-	Src    *ast.Source // The source document this token belongs to
+	Kind  Type         // The token type.
+	Value string       // The literal value consumed.
+	Pos   ast.Position // The file and line this token was read from
 }
 
 func (t Token) String() string {

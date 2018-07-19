@@ -3,6 +3,7 @@ package parser
 import (
 	"strconv"
 
+	"github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/gqlerror"
 	"github.com/vektah/gqlparser/lexer"
 )
@@ -16,6 +17,15 @@ type parser struct {
 	peekError *gqlerror.Error
 
 	prev lexer.Token
+}
+
+func (p *parser) peekPos() *ast.Position {
+	if p.err != nil {
+		return nil
+	}
+
+	peek := p.peek()
+	return &peek.Pos
 }
 
 func (p *parser) peek() lexer.Token {
@@ -35,7 +45,7 @@ func (p *parser) error(tok lexer.Token, format string, args ...interface{}) {
 	if p.err != nil {
 		return
 	}
-	p.err = gqlerror.ErrorLocf(tok.Src.Name, tok.Line, tok.Column, format, args...)
+	p.err = gqlerror.ErrorLocf(tok.Pos.Src.Name, tok.Pos.Line, tok.Pos.Column, format, args...)
 }
 
 func (p *parser) next() lexer.Token {

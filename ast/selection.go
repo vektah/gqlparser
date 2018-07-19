@@ -16,6 +16,7 @@ type Field struct {
 	Arguments    ArgumentList
 	Directives   DirectiveList
 	SelectionSet SelectionSet
+	Position     *Position `dump:"-"`
 
 	// Require validation
 	Definition       *FieldDefinition
@@ -23,6 +24,7 @@ type Field struct {
 }
 
 type Argument struct {
-	Name  string
-	Value *Value
+	Name     string
+	Value    *Value
+	Position *Position `dump:"-"`
 }

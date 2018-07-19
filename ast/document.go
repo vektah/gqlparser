@@ -3,6 +3,7 @@ package ast
 type QueryDocument struct {
 	Operations OperationList
 	Fragments  FragmentDefinitionList
+	Position   *Position `dump:"-"`
 }
 
 type SchemaDocument struct {
@@ -11,6 +12,7 @@ type SchemaDocument struct {
 	Directives      DirectiveDefinitionList
 	Definitions     DefinitionList
 	Extensions      DefinitionList
+	Position        *Position `dump:"-"`
 }
 
 func (d *SchemaDocument) Merge(other *SchemaDocument) {
@@ -25,11 +27,13 @@ type SchemaDefinition struct {
 	Description    string
 	Directives     DirectiveList
 	OperationTypes OperationTypeDefinitionList
+	Position       *Position `dump:"-"`
 }
 
 type OperationTypeDefinition struct {
 	Operation Operation
 	Type      string
+	Position  *Position `dump:"-"`
 }
 
 type Schema struct {

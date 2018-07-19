@@ -15,6 +15,7 @@ func ParseSchema(source *Source) (*SchemaDocument, *gqlerror.Error) {
 
 func (p *parser) parseSchemaDocument() *SchemaDocument {
 	var doc SchemaDocument
+	doc.Position = p.peekPos()
 	for p.peek().Kind != lexer.EOF {
 		if p.err != nil {
 			return nil
@@ -91,6 +92,7 @@ func (p *parser) parseSchemaDefinition(description string) *SchemaDefinition {
 	p.expectKeyword("schema")
 
 	def := SchemaDefinition{Description: description}
+	def.Position = p.peekPos()
 	def.Description = description
 	def.Directives = p.parseDirectives(true)
 
@@ -102,6 +104,7 @@ func (p *parser) parseSchemaDefinition(description string) *SchemaDefinition {
 
 func (p *parser) parseOperationTypeDefinition() *OperationTypeDefinition {
 	var op OperationTypeDefinition
+	op.Position = p.peekPos()
 	op.Operation = p.parseOperationType()
 	p.expect(lexer.Colon)
 	op.Type = p.parseName()
@@ -112,6 +115,7 @@ func (p *parser) parseScalarTypeDefinition(description string) *Definition {
 	p.expectKeyword("scalar")
 
 	var def Definition
+	def.Position = p.peekPos()
 	def.Kind = Scalar
 	def.Description = description
 	def.Name = p.parseName()
@@ -123,6 +127,7 @@ func (p *parser) parseObjectTypeDefinition(description string) *Definition {
 	p.expectKeyword("type")
 
 	var def Definition
+	def.Position = p.peekPos()
 	def.Kind = Object
 	def.Description = description
 	def.Name = p.parseName()
@@ -157,7 +162,7 @@ func (p *parser) parseFieldsDefinition() FieldList {
 
 func (p *parser) parseFieldDefinition() *FieldDefinition {
 	var def FieldDefinition
-
+	def.Position = p.peekPos()
 	def.Description = p.parseDescription()
 	def.Name = p.parseName()
 	def.Arguments = p.parseArgumentDefs()
@@ -178,6 +183,7 @@ func (p *parser) parseArgumentDefs() FieldList {
 
 func (p *parser) parseInputValueDef() *FieldDefinition {
 	var def FieldDefinition
+	def.Position = p.peekPos()
 	def.Description = p.parseDescription()
 	def.Name = p.parseName()
 	p.expect(lexer.Colon)
@@ -193,6 +199,7 @@ func (p *parser) parseInterfaceTypeDefinition(description string) *Definition {
 	p.expectKeyword("interface")
 
 	var def Definition
+	def.Position = p.peekPos()
 	def.Kind = Interface
 	def.Description = description
 	def.Name = p.parseName()
@@ -205,6 +212,7 @@ func (p *parser) parseUnionTypeDefinition(description string) *Definition {
 	p.expectKeyword("union")
 
 	var def Definition
+	def.Position = p.peekPos()
 	def.Kind = Union
 	def.Description = description
 	def.Name = p.parseName()
@@ -231,6 +239,7 @@ func (p *parser) parseEnumTypeDefinition(description string) *Definition {
 	p.expectKeyword("enum")
 
 	var def Definition
+	def.Position = p.peekPos()
 	def.Kind = Enum
 	def.Description = description
 	def.Name = p.parseName()
@@ -249,6 +258,7 @@ func (p *parser) parseEnumValuesDefinition() EnumValueList {
 
 func (p *parser) parseEnumValueDefinition() *EnumValueDefinition {
 	return &EnumValueDefinition{
+		Position:    p.peekPos(),
 		Description: p.parseDescription(),
 		Name:        p.parseName(),
 		Directives:  p.parseDirectives(true),
@@ -259,6 +269,7 @@ func (p *parser) parseInputObjectTypeDefinition(description string) *Definition 
 	p.expectKeyword("input")
 
 	var def Definition
+	def.Position = p.peekPos()
 	def.Kind = InputObject
 	def.Description = description
 	def.Name = p.parseName()
@@ -302,6 +313,7 @@ func (p *parser) parseSchemaExtension() *SchemaDefinition {
 	p.expectKeyword("schema")
 
 	var def SchemaDefinition
+	def.Position = p.peekPos()
 	def.Directives = p.parseDirectives(true)
 	p.many(lexer.BraceL, lexer.BraceR, func() {
 		def.OperationTypes = append(def.OperationTypes, p.parseOperationTypeDefinition())
@@ -316,6 +328,7 @@ func (p *parser) parseScalarTypeExtension() *Definition {
 	p.expectKeyword("scalar")
 
 	var def Definition
+	def.Position = p.peekPos()
 	def.Kind = Scalar
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
@@ -329,6 +342,7 @@ func (p *parser) parseObjectTypeExtension() *Definition {
 	p.expectKeyword("type")
 
 	var def Definition
+	def.Position = p.peekPos()
 	def.Kind = Object
 	def.Name = p.parseName()
 	def.Interfaces = p.parseImplementsInterfaces()
@@ -344,6 +358,7 @@ func (p *parser) parseInterfaceTypeExtension() *Definition {
 	p.expectKeyword("interface")
 
 	var def Definition
+	def.Position = p.peekPos()
 	def.Kind = Interface
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
@@ -358,6 +373,7 @@ func (p *parser) parseUnionTypeExtension() *Definition {
 	p.expectKeyword("union")
 
 	var def Definition
+	def.Position = p.peekPos()
 	def.Kind = Union
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
@@ -373,6 +389,7 @@ func (p *parser) parseEnumTypeExtension() *Definition {
 	p.expectKeyword("enum")
 
 	var def Definition
+	def.Position = p.peekPos()
 	def.Kind = Enum
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
@@ -387,6 +404,7 @@ func (p *parser) parseInputObjectTypeExtension() *Definition {
 	p.expectKeyword("input")
 
 	var def Definition
+	def.Position = p.peekPos()
 	def.Kind = InputObject
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(false)
@@ -402,6 +420,7 @@ func (p *parser) parseDirectiveDefinition(description string) *DirectiveDefiniti
 	p.expect(lexer.At)
 
 	var def DirectiveDefinition
+	def.Position = p.peekPos()
 	def.Description = description
 	def.Name = p.parseName()
 	def.Arguments = p.parseArgumentDefs()

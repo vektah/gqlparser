@@ -20,6 +20,7 @@ func (p *parser) parseQueryDocument() *QueryDocument {
 		if p.err != nil {
 			return &doc
 		}
+		doc.Position = p.peekPos()
 		switch p.peek().Kind {
 		case lexer.Name:
 			switch p.peek().Value {
@@ -43,13 +44,14 @@ func (p *parser) parseQueryDocument() *QueryDocument {
 func (p *parser) parseOperationDefinition() *OperationDefinition {
 	if p.peek().Kind == lexer.BraceL {
 		return &OperationDefinition{
+			Position:     p.peekPos(),
 			Operation:    Query,
 			SelectionSet: p.parseSelectionSet(),
 		}
 	}
 
 	var od OperationDefinition
-
+	od.Position = p.peekPos()
 	od.Operation = p.parseOperationType()
 
 	if p.peek().Kind == lexer.Name {
@@ -88,7 +90,7 @@ func (p *parser) parseVariableDefinitions() VariableDefinitionList {
 
 func (p *parser) parseVariableDefinition() *VariableDefinition {
 	var def VariableDefinition
-
+	def.Position = p.peekPos()
 	def.Variable = p.parseVariable()
 
 	p.expect(lexer.Colon)
@@ -125,7 +127,7 @@ func (p *parser) parseSelection() Selection {
 
 func (p *parser) parseField() *Field {
 	var field Field
-
+	field.Position = p.peekPos()
 	field.Alias = p.parseName()
 
 	if p.skip(lexer.Colon) {
@@ -154,7 +156,7 @@ func (p *parser) parseArguments(isConst bool) ArgumentList {
 
 func (p *parser) parseArgument(isConst bool) *Argument {
 	arg := Argument{}
-
+	arg.Position = p.peekPos()
 	arg.Name = p.parseName()
 	p.expect(lexer.Colon)
 
@@ -167,12 +169,14 @@ func (p *parser) parseFragment() Selection {
 
 	if peek := p.peek(); peek.Kind == lexer.Name && peek.Value != "on" {
 		return &FragmentSpread{
+			Position:   p.peekPos(),
 			Name:       p.parseFragmentName(),
 			Directives: p.parseDirectives(false),
 		}
 	}
 
 	var def InlineFragment
+	def.Position = p.peekPos()
 	if p.peek().Value == "on" {
 		p.next() // "on"
 
@@ -186,6 +190,7 @@ func (p *parser) parseFragment() Selection {
 
 func (p *parser) parseFragmentDefinition() *FragmentDefinition {
 	var def FragmentDefinition
+	def.Position = p.peekPos()
 	p.expectKeyword("fragment")
 
 	def.Name = p.parseFragmentName()
@@ -222,7 +227,7 @@ func (p *parser) parseValueLiteral(isConst bool) *Value {
 			p.unexpectedError()
 			return nil
 		}
-		return &Value{Raw: p.parseVariable(), Kind: Variable}
+		return &Value{Position: &token.Pos, Raw: p.parseVariable(), Kind: Variable}
 	case lexer.Int:
 		kind = IntValue
 	case lexer.Float:
@@ -247,7 +252,7 @@ func (p *parser) parseValueLiteral(isConst bool) *Value {
 
 	p.next()
 
-	return &Value{Raw: token.Value, Kind: kind}
+	return &Value{Position: &token.Pos, Raw: token.Value, Kind: kind}
 }
 
 func (p *parser) parseList(isConst bool) *Value {
@@ -270,6 +275,7 @@ func (p *parser) parseObject(isConst bool) *Value {
 
 func (p *parser) parseObjectField(isConst bool) *ChildValue {
 	field := ChildValue{}
+	field.Position = p.peekPos()
 	field.Name = p.parseName()
 
 	p.expect(lexer.Colon)
@@ -294,6 +300,7 @@ func (p *parser) parseDirective(isConst bool) *Directive {
 	p.expect(lexer.At)
 
 	return &Directive{
+		Position:  p.peekPos(),
 		Name:      p.parseName(),
 		Arguments: p.parseArguments(isConst),
 	}
@@ -303,13 +310,16 @@ func (p *parser) parseTypeReference() *Type {
 	var typ Type
 
 	if p.skip(lexer.BracketL) {
+		typ.Position = p.peekPos()
 		typ.Elem = p.parseTypeReference()
 		p.expect(lexer.BracketR)
 	} else {
+		typ.Position = p.peekPos()
 		typ.NamedType = p.parseName()
 	}
 
 	if p.skip(lexer.Bang) {
+		typ.Position = p.peekPos()
 		typ.NonNull = true
 	}
 	return &typ
