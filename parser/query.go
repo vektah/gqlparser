@@ -257,20 +257,22 @@ func (p *parser) parseValueLiteral(isConst bool) *Value {
 
 func (p *parser) parseList(isConst bool) *Value {
 	var values ChildValueList
+	pos := p.peekPos()
 	p.many(lexer.BracketL, lexer.BracketR, func() {
 		values = append(values, &ChildValue{Value: p.parseValueLiteral(isConst)})
 	})
 
-	return &Value{Children: values, Kind: ListValue}
+	return &Value{Children: values, Kind: ListValue, Position: pos}
 }
 
 func (p *parser) parseObject(isConst bool) *Value {
 	var fields ChildValueList
+	pos := p.peekPos()
 	p.many(lexer.BraceL, lexer.BraceR, func() {
 		fields = append(fields, p.parseObjectField(isConst))
 	})
 
-	return &Value{Children: fields, Kind: ObjectValue}
+	return &Value{Children: fields, Kind: ObjectValue, Position: pos}
 }
 
 func (p *parser) parseObjectField(isConst bool) *ChildValue {

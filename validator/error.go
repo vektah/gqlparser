@@ -3,6 +3,7 @@ package validator
 import (
 	"fmt"
 
+	"github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/gqlerror"
 )
 
@@ -11,6 +12,21 @@ type ErrorOption func(err *gqlerror.Error)
 func Message(msg string, args ...interface{}) ErrorOption {
 	return func(err *gqlerror.Error) {
 		err.Message += fmt.Sprintf(msg, args...)
+	}
+}
+
+func At(position *ast.Position) ErrorOption {
+	return func(err *gqlerror.Error) {
+		if position == nil {
+			return
+		}
+		err.Locations = append(err.Locations, gqlerror.Location{
+			Line:   position.Line,
+			Column: position.Column,
+		})
+		if position.Src.Name != "" {
+			err.SetFile(position.Src.Name)
+		}
 	}
 }
 

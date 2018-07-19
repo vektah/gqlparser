@@ -198,6 +198,7 @@ type ConflictMessage struct {
 	ResponseName string
 	Names        []string
 	SubMessage   []*ConflictMessage
+	Position     *ast.Position
 }
 
 func (m *ConflictMessage) String(buf *bytes.Buffer) {
@@ -220,7 +221,10 @@ func (m *ConflictMessage) String(buf *bytes.Buffer) {
 func (m *ConflictMessage) addFieldsConflictMessage(addError AddErrFunc) {
 	var buf bytes.Buffer
 	m.String(&buf)
-	addError(Message(`Fields "%s" conflict because %s. Use different aliases on the fields to fetch both if this was intentional.`, m.ResponseName, buf.String()))
+	addError(
+		Message(`Fields "%s" conflict because %s. Use different aliases on the fields to fetch both if this was intentional.`, m.ResponseName, buf.String()),
+		At(m.Position),
+	)
 }
 
 type overlappingFieldsCanBeMergedManager struct {
@@ -429,6 +433,7 @@ func (m *overlappingFieldsCanBeMergedManager) findConflict(parentFieldsAreMutual
 			return &ConflictMessage{
 				ResponseName: fieldNameA,
 				Message:      fmt.Sprintf(`%s and %s are different fields`, fieldA.Name, fieldB.Name),
+				Position:     fieldB.Position,
 			}
 		}
 
@@ -437,6 +442,7 @@ func (m *overlappingFieldsCanBeMergedManager) findConflict(parentFieldsAreMutual
 			return &ConflictMessage{
 				ResponseName: fieldNameA,
 				Message:      "they have differing arguments",
+				Position:     fieldB.Position,
 			}
 		}
 	}
@@ -445,6 +451,7 @@ func (m *overlappingFieldsCanBeMergedManager) findConflict(parentFieldsAreMutual
 		return &ConflictMessage{
 			ResponseName: fieldNameA,
 			Message:      fmt.Sprintf(`they return conflicting types %s and %s`, fieldA.Definition.Type.String(), fieldB.Definition.Type.String()),
+			Position:     fieldB.Position,
 		}
 	}
 
@@ -458,6 +465,7 @@ func (m *overlappingFieldsCanBeMergedManager) findConflict(parentFieldsAreMutual
 	return &ConflictMessage{
 		ResponseName: fieldNameA,
 		SubMessage:   conflicts.Conflicts,
+		Position:     fieldB.Position,
 	}
 }
 

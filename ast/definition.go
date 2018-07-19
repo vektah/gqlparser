@@ -74,8 +74,6 @@ type EnumValueDefinition struct {
 	Position    *Position `dump:"-"`
 }
 
-// Directive Definitions
-
 type DirectiveDefinition struct {
 	Description string
 	Name        string

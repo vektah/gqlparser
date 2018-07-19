@@ -14,7 +14,7 @@ func init() {
 				return
 			}
 
-			if len(operation.SelectionSet) != 1 {
+			if len(operation.SelectionSet) > 1 {
 				name := "Anonymous Subscription"
 				if operation.Name != "" {
 					name = `Subscription ` + strconv.Quote(operation.Name)
@@ -22,6 +22,7 @@ func init() {
 
 				addError(
 					Message(`%s must select only one top level field.`, name),
+					At(operation.SelectionSet[1].GetPosition()),
 				)
 			}
 		})

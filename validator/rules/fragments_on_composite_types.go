@@ -17,7 +17,10 @@ func init() {
 
 			message := fmt.Sprintf(`Fragment cannot condition on non composite type "%s".`, inlineFragment.TypeCondition)
 
-			addError(Message(message))
+			addError(
+				Message(message),
+				At(inlineFragment.Position),
+			)
 		})
 
 		observers.OnFragment(func(walker *Walker, fragment *ast.FragmentDefinition) {
@@ -27,7 +30,10 @@ func init() {
 
 			message := fmt.Sprintf(`Fragment "%s" cannot condition on non composite type "%s".`, fragment.Name, fragment.TypeCondition)
 
-			addError(Message(message))
+			addError(
+				Message(message),
+				At(fragment.Position),
+			)
 		})
 	})
 }

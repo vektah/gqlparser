@@ -51,7 +51,10 @@ func init() {
 						if len(fragmentNames) != 0 {
 							via = fmt.Sprintf(" via %s", strings.Join(fragmentNames, ", "))
 						}
-						addError(Message(`Cannot spread fragment "%s" within itself%s.`, spreadName, via))
+						addError(
+							Message(`Cannot spread fragment "%s" within itself%s.`, spreadName, via),
+							At(spreadNode.Position),
+						)
 					}
 
 					spreadPath = spreadPath[:len(spreadPath)-1]

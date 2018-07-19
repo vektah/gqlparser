@@ -213,7 +213,7 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		if it.Name == "__typename" {
 			def = &ast.FieldDefinition{
 				Name: "__typename",
-				Type: ast.NamedType("string"),
+				Type: ast.NamedType("string", nil),
 			}
 		} else if parentDef != nil {
 			def = parentDef.Fields.ForName(it.Name)

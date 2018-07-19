@@ -17,6 +17,7 @@ func init() {
 				if seen[field.Name] {
 					addError(
 						Message(`There can be only one input field named "%s".`, field.Name),
+						At(field.Position),
 					)
 				}
 				seen[field.Name] = true

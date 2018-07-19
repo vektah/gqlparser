@@ -20,7 +20,10 @@ func init() {
 		observers.OnFragment(func(walker *Walker, fragment *ast.FragmentDefinition) {
 			inFragmentDefinition = true
 			if !fragmentNameUsed[fragment.Name] {
-				addError(Message(`Fragment "%s" is never used.`, fragment.Name))
+				addError(
+					Message(`Fragment "%s" is never used.`, fragment.Name),
+					At(fragment.Position),
+				)
 			}
 		})
 	})

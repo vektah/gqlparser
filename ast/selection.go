@@ -4,11 +4,16 @@ type SelectionSet []Selection
 
 type Selection interface {
 	isSelection()
+	GetPosition() *Position
 }
 
 func (*Field) isSelection()          {}
 func (*FragmentSpread) isSelection() {}
 func (*InlineFragment) isSelection() {}
+
+func (s *Field) GetPosition() *Position          { return s.Position }
+func (s *FragmentSpread) GetPosition() *Position { return s.Position }
+func (s *InlineFragment) GetPosition() *Position { return s.Position }
 
 type Field struct {
 	Alias        string

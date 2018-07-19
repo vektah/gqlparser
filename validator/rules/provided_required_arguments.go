@@ -27,7 +27,10 @@ func init() {
 					}
 				}
 
-				addError(Message(`Field "%s" argument "%s" of type "%s" is required but not provided.`, field.Name, argDef.Name, argDef.Type.String()))
+				addError(
+					Message(`Field "%s" argument "%s" of type "%s" is required but not provided.`, field.Name, argDef.Name, argDef.Type.String()),
+					At(field.Position),
+				)
 			}
 		})
 
@@ -50,7 +53,10 @@ func init() {
 					}
 				}
 
-				addError(Message(`Directive "@%s" argument "%s" of type "%s" is required but not provided.`, directive.Definition.Name, argDef.Name, argDef.Type.String()))
+				addError(
+					Message(`Directive "@%s" argument "%s" of type "%s" is required but not provided.`, directive.Definition.Name, argDef.Name, argDef.Type.String()),
+					At(directive.Position),
+				)
 			}
 		})
 	})

@@ -19,6 +19,7 @@ func init() {
 							def.Variable,
 							def.Type.String(),
 						),
+						At(def.Position),
 					)
 				}
 			}

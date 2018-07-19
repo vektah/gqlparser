@@ -17,6 +17,7 @@ func init() {
 
 				addError(
 					Message(`Unknown type "%s".`, typeName),
+					At(operation.Position),
 				)
 			}
 		})
@@ -34,6 +35,7 @@ func init() {
 
 			addError(
 				Message(`Unknown type "%s".`, typedName),
+				At(inlineFragment.Position),
 			)
 		})
 
@@ -49,11 +51,10 @@ func init() {
 				possibleTypes = append(possibleTypes, t.Name)
 			}
 
-			list := SuggestListQuoted("Did you mean", typeName, possibleTypes)
-
 			addError(
 				Message(`Unknown type "%s".`, typeName),
-				list,
+				SuggestListQuoted("Did you mean", typeName, possibleTypes),
+				At(fragment.Position),
 			)
 		})
 	})
