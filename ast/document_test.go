@@ -11,12 +11,12 @@ import (
 )
 
 func TestQueryDocMethods(t *testing.T) {
-	doc, err := parser.ParseQuery(`
+	doc, err := parser.ParseQuery(&Source{Input: `
 		query Bob { foo { ...Frag } }
 		fragment Frag on Foo {
 			bar
 		}
-	`)
+	`})
 
 	require.Nil(t, err)
 	t.Run("GetOperation", func(t *testing.T) {

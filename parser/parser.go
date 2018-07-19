@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/vektah/gqlparser/gqlerror"
@@ -36,12 +35,7 @@ func (p *parser) error(tok lexer.Token, format string, args ...interface{}) {
 	if p.err != nil {
 		return
 	}
-	p.err = &gqlerror.Error{
-		Message: fmt.Sprintf(format, args...),
-		Locations: []gqlerror.Location{
-			{Line: tok.Line, Column: tok.Column},
-		},
-	}
+	p.err = gqlerror.ErrorLocf(tok.Src.Name, tok.Line, tok.Column, format, args...)
 }
 
 func (p *parser) next() lexer.Token {

@@ -45,8 +45,8 @@ func TestValidation(t *testing.T) {
 	}
 
 	var schemas []*ast.Schema
-	for _, schema := range rawSchemas {
-		schema, err := gqlparser.LoadSchema(schema)
+	for i, schema := range rawSchemas {
+		schema, err := gqlparser.LoadSchema(&ast.Source{Input: schema, Name: fmt.Sprintf("schemas.yml[%d]", i)})
 		if err != nil {
 			panic(err)
 		}

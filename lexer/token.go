@@ -2,6 +2,8 @@ package lexer
 
 import (
 	"strconv"
+
+	"github.com/vektah/gqlparser/ast"
 )
 
 const (
@@ -133,12 +135,13 @@ func (t Type) String() string {
 type Type int
 
 type Token struct {
-	Kind   Type   // The token type.
-	Value  string // The literal value consumed.
-	Start  int    // The starting position, in runes, of this token in the input.
-	End    int    // The end position, in runes, of this token in the input.
-	Line   int    // The line number at the start of this item.
-	Column int    // The line number at the start of this item.
+	Kind   Type        // The token type.
+	Value  string      // The literal value consumed.
+	Start  int         // The starting position, in runes, of this token in the input.
+	End    int         // The end position, in runes, of this token in the input.
+	Line   int         // The line number at the start of this item.
+	Column int         // The line number at the start of this item.
+	Src    *ast.Source // The source document this token belongs to
 }
 
 func (t Token) String() string {

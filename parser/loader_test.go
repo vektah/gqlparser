@@ -5,14 +5,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/vektah/gqlparser/ast"
 )
 
 func TestLoadSchema(t *testing.T) {
 	t.Run("swapi", func(t *testing.T) {
 		file, err := ioutil.ReadFile("testdata/swapi.graphql")
-		require.NoError(t, err)
-		s, err := LoadSchema(string(file))
-		require.NoError(t, err)
+		require.Nil(t, err)
+		s, err := LoadSchema(&ast.Source{Input: string(file), Name: "TestLoadSchema"})
+		require.Nil(t, err)
 
 		require.Equal(t, "Query", s.Query.Name)
 		require.Equal(t, "hero", s.Query.Fields[0].Name)
@@ -30,9 +31,9 @@ func TestLoadSchema(t *testing.T) {
 
 	t.Run("type extensions", func(t *testing.T) {
 		file, err := ioutil.ReadFile("testdata/extensions.graphql")
-		require.NoError(t, err)
-		s, err := LoadSchema(string(file))
-		require.NoError(t, err)
+		require.Nil(t, err)
+		s, err := LoadSchema(&ast.Source{Input: string(file), Name: "TestLoadSchema"})
+		require.Nil(t, err)
 
 		require.Equal(t, "Subscription", s.Subscription.Name)
 		require.Equal(t, "dogEvents", s.Subscription.Fields[0].Name)

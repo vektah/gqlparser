@@ -6,18 +6,18 @@ import (
 	"github.com/vektah/gqlparser/lexer"
 )
 
-func ParseSchema(source string) (SchemaDocument, *gqlerror.Error) {
+func ParseSchema(source *Source) (*SchemaDocument, *gqlerror.Error) {
 	p := parser{
 		lexer: lexer.New(source),
 	}
 	return p.parseSchemaDocument(), p.err
 }
 
-func (p *parser) parseSchemaDocument() SchemaDocument {
+func (p *parser) parseSchemaDocument() *SchemaDocument {
 	var doc SchemaDocument
 	for p.peek().Kind != lexer.EOF {
 		if p.err != nil {
-			return doc
+			return nil
 		}
 
 		var description string
@@ -44,11 +44,11 @@ func (p *parser) parseSchemaDocument() SchemaDocument {
 			p.parseTypeSystemExtension(&doc)
 		default:
 			p.unexpectedError()
-			return doc
+			return nil
 		}
 	}
 
-	return doc
+	return &doc
 }
 
 func (p *parser) parseDescription() string {
