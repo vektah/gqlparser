@@ -51,11 +51,13 @@ func Errorf(message string, args ...interface{}) *Error {
 }
 
 func ErrorLocf(file string, line int, col int, message string, args ...interface{}) *Error {
+	var extensions map[string]interface{}
+	if file != "" {
+		extensions = map[string]interface{}{"file": file}
+	}
 	return &Error{
-		Message: fmt.Sprintf(message, args...),
-		Extensions: map[string]interface{}{
-			"file": file,
-		},
+		Message:    fmt.Sprintf(message, args...),
+		Extensions: extensions,
 		Locations: []Location{
 			{Line: line, Column: col},
 		},

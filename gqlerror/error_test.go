@@ -7,12 +7,17 @@ import (
 )
 
 func TestErrorFormatting(t *testing.T) {
-	err := Error{
-		Message: "kabloom",
-		Locations: []Location{
-			{Line: 66, Column: 33},
-		},
-	}
+	t.Run("without filename", func(t *testing.T) {
+		err := ErrorLocf("", 66, 2, "kabloom")
 
-	require.Equal(t, `input:66 kabloom`, err.Error())
+		require.Equal(t, `input:66 kabloom`, err.Error())
+		require.Equal(t, nil, err.Extensions["file"])
+	})
+
+	t.Run("with filename", func(t *testing.T) {
+		err := ErrorLocf("schema.graphql", 66, 2, "kabloom")
+
+		require.Equal(t, `schema.graphql:66 kabloom`, err.Error())
+		require.Equal(t, "schema.graphql", err.Extensions["file"])
+	})
 }
