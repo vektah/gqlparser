@@ -20,6 +20,7 @@ func init() {
 			if fieldType.IsLeafType() && len(field.SelectionSet) > 0 {
 				addError(
 					Message(`Field "%s" must not have a selection since type "%s" has no subfields.`, field.Name, fieldType.Name),
+					At(field.Position),
 				)
 			}
 
@@ -27,6 +28,7 @@ func init() {
 				addError(
 					Message(`Field "%s" of type "%s" must have a selection of subfields.`, field.Name, field.Definition.Type.String()),
 					Suggestf(`"%s { ... }"`, field.Name),
+					At(field.Position),
 				)
 			}
 		})

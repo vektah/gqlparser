@@ -15,6 +15,17 @@ type Error struct {
 	Rule       string                 `json:"-"`
 }
 
+func (err *Error) SetFile(file string) {
+	if file == "" {
+		return
+	}
+	if err.Extensions == nil {
+		err.Extensions = map[string]interface{}{}
+	}
+
+	err.Extensions["file"] = file
+}
+
 type Location struct {
 	Line   int `json:"line,omitempty"`
 	Column int `json:"column,omitempty"`

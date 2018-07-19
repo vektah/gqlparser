@@ -7,6 +7,8 @@ type FragmentSpread struct {
 	// Require validation
 	ObjectDefinition *Definition
 	Definition       *FragmentDefinition
+
+	Position *Position `dump:"-"`
 }
 
 type InlineFragment struct {
@@ -16,6 +18,8 @@ type InlineFragment struct {
 
 	// Require validation
 	ObjectDefinition *Definition
+
+	Position *Position `dump:"-"`
 }
 
 type FragmentDefinition struct {
@@ -29,4 +33,6 @@ type FragmentDefinition struct {
 
 	// Require validation
 	Definition *Definition
+
+	Position *Position `dump:"-"`
 }

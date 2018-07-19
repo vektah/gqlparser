@@ -43,25 +43,29 @@ func (s *Lexer) makeToken(kind Type) (Token, *gqlerror.Error) {
 
 func (s *Lexer) makeValueToken(kind Type, value string) (Token, *gqlerror.Error) {
 	return Token{
-		Kind:   kind,
-		Start:  s.startRunes,
-		End:    s.endRunes,
-		Value:  value,
-		Line:   s.line,
-		Column: s.startRunes - s.lineStartRunes + 1,
-		Src:    s.Source,
+		Kind:  kind,
+		Value: value,
+		Pos: ast.Position{
+			Start:  s.startRunes,
+			End:    s.endRunes,
+			Line:   s.line,
+			Column: s.startRunes - s.lineStartRunes + 1,
+			Src:    s.Source,
+		},
 	}, nil
 }
 
 func (s *Lexer) makeError(format string, args ...interface{}) (Token, *gqlerror.Error) {
 	column := s.endRunes - s.lineStartRunes + 1
 	return Token{
-		Kind:   Invalid,
-		Start:  s.startRunes,
-		End:    s.endRunes,
-		Line:   s.line,
-		Column: column,
-		Src:    s.Source,
+		Kind: Invalid,
+		Pos: ast.Position{
+			Start:  s.startRunes,
+			End:    s.endRunes,
+			Line:   s.line,
+			Column: column,
+			Src:    s.Source,
+		},
 	}, gqlerror.ErrorLocf(s.Source.Name, s.line, column, format, args...)
 }
 
@@ -332,8 +336,8 @@ func (s *Lexer) readString() (Token, *gqlerror.Error) {
 		case '"':
 			t, err := s.makeToken(String)
 			// the token should not include the quotes in its value, but should cover them in its position
-			t.Start--
-			t.End++
+			t.Pos.Start--
+			t.Pos.End++
 
 			if buf != nil {
 				t.Value = buf.String()
@@ -424,8 +428,8 @@ func (s *Lexer) readBlockString() (Token, *gqlerror.Error) {
 			t, err := s.makeValueToken(BlockString, blockStringValue(buf.String()))
 
 			// the token should not include the quotes in its value, but should cover them in its position
-			t.Start -= 3
-			t.End += 3
+			t.Pos.Start -= 3
+			t.Pos.End += 3
 
 			// skip the close quote
 			s.end += 3

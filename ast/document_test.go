@@ -31,24 +31,24 @@ func TestQueryDocMethods(t *testing.T) {
 }
 
 func TestNamedTypeCompatability(t *testing.T) {
-	assert.True(t, NamedType("A").IsCompatible(NamedType("A")))
-	assert.False(t, NamedType("A").IsCompatible(NamedType("B")))
+	assert.True(t, NamedType("A", nil).IsCompatible(NamedType("A", nil)))
+	assert.False(t, NamedType("A", nil).IsCompatible(NamedType("B", nil)))
 
-	assert.True(t, ListType(NamedType("A")).IsCompatible(ListType(NamedType("A"))))
-	assert.False(t, ListType(NamedType("A")).IsCompatible(ListType(NamedType("B"))))
-	assert.False(t, ListType(NamedType("A")).IsCompatible(ListType(NamedType("B"))))
+	assert.True(t, ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("A", nil), nil)))
+	assert.False(t, ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("B", nil), nil)))
+	assert.False(t, ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("B", nil), nil)))
 
-	assert.True(t, ListType(NamedType("A")).IsCompatible(ListType(NamedType("A"))))
-	assert.False(t, ListType(NamedType("A")).IsCompatible(ListType(NamedType("B"))))
-	assert.False(t, ListType(NamedType("A")).IsCompatible(ListType(NamedType("B"))))
+	assert.True(t, ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("A", nil), nil)))
+	assert.False(t, ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("B", nil), nil)))
+	assert.False(t, ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("B", nil), nil)))
 
-	assert.True(t, NonNullNamedType("A").IsCompatible(NamedType("A")))
-	assert.False(t, NamedType("A").IsCompatible(NonNullNamedType("A")))
+	assert.True(t, NonNullNamedType("A", nil).IsCompatible(NamedType("A", nil)))
+	assert.False(t, NamedType("A", nil).IsCompatible(NonNullNamedType("A", nil)))
 
-	assert.True(t, NonNullListType(NamedType("String")).IsCompatible(NonNullListType(NamedType("String"))))
-	assert.True(t, NonNullListType(NamedType("String")).IsCompatible(ListType(NamedType("String"))))
-	assert.False(t, ListType(NamedType("String")).IsCompatible(NonNullListType(NamedType("String"))))
+	assert.True(t, NonNullListType(NamedType("String", nil), nil).IsCompatible(NonNullListType(NamedType("String", nil), nil)))
+	assert.True(t, NonNullListType(NamedType("String", nil), nil).IsCompatible(ListType(NamedType("String", nil), nil)))
+	assert.False(t, ListType(NamedType("String", nil), nil).IsCompatible(NonNullListType(NamedType("String", nil), nil)))
 
-	assert.True(t, ListType(NonNullNamedType("String")).IsCompatible(ListType(NamedType("String"))))
-	assert.False(t, ListType(NamedType("String")).IsCompatible(ListType(NonNullNamedType("String"))))
+	assert.True(t, ListType(NonNullNamedType("String", nil), nil).IsCompatible(ListType(NamedType("String", nil), nil)))
+	assert.False(t, ListType(NamedType("String", nil), nil).IsCompatible(ListType(NonNullNamedType("String", nil), nil)))
 }

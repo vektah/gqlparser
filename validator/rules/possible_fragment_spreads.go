@@ -46,7 +46,10 @@ func init() {
 
 		observers.OnInlineFragment(func(walker *Walker, inlineFragment *ast.InlineFragment) {
 			validate(walker, inlineFragment.ObjectDefinition, inlineFragment.TypeCondition, func() {
-				addError(Message(`Fragment cannot be spread here as objects of type "%s" can never be of type "%s".`, inlineFragment.ObjectDefinition.Name, inlineFragment.TypeCondition))
+				addError(
+					Message(`Fragment cannot be spread here as objects of type "%s" can never be of type "%s".`, inlineFragment.ObjectDefinition.Name, inlineFragment.TypeCondition),
+					At(inlineFragment.Position),
+				)
 			})
 		})
 
@@ -55,7 +58,10 @@ func init() {
 				return
 			}
 			validate(walker, fragmentSpread.ObjectDefinition, fragmentSpread.Definition.TypeCondition, func() {
-				addError(Message(`Fragment "%s" cannot be spread here as objects of type "%s" can never be of type "%s".`, fragmentSpread.Name, fragmentSpread.ObjectDefinition.Name, fragmentSpread.Definition.TypeCondition))
+				addError(
+					Message(`Fragment "%s" cannot be spread here as objects of type "%s" can never be of type "%s".`, fragmentSpread.Name, fragmentSpread.ObjectDefinition.Name, fragmentSpread.Definition.TypeCondition),
+					At(fragmentSpread.Position),
+				)
 			})
 		})
 	})

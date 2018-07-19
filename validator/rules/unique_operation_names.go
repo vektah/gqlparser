@@ -13,6 +13,7 @@ func init() {
 			if seen[operation.Name] {
 				addError(
 					Message(`There can be only one operation named "%s".`, operation.Name),
+					At(operation.Position),
 				)
 			}
 			seen[operation.Name] = true

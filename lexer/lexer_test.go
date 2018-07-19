@@ -27,11 +27,11 @@ func TestLexer(t *testing.T) {
 			ret.Tokens = append(ret.Tokens, spec.Token{
 				Kind:   tok.Kind.Name(),
 				Value:  tok.Value,
-				Line:   tok.Line,
-				Column: tok.Column,
-				Start:  tok.Start,
-				End:    tok.End,
-				Src:    tok.Src.Name,
+				Line:   tok.Pos.Line,
+				Column: tok.Pos.Column,
+				Start:  tok.Pos.Start,
+				End:    tok.Pos.End,
+				Src:    tok.Pos.Src.Name,
 			})
 		}
 

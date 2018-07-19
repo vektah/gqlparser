@@ -28,6 +28,7 @@ func init() {
 						value.VariableDefinition.Type.String(),
 						value.ExpectedType.String(),
 					),
+					At(value.Position),
 				)
 			}
 		})

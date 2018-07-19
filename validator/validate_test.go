@@ -10,7 +10,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
@@ -96,9 +95,7 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 					finalErrors = append(finalErrors, err)
 				}
 
-				// todo: location is currently not supported by the parser/
 				for i := range spec.Errors {
-					spec.Errors[i].Locations = nil
 					spec.Errors[i].Rule = spec.Rule
 
 					// remove inconsistent use of ;
@@ -110,7 +107,43 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 				sort.Slice(finalErrors, func(i, j int) bool {
 					return strings.Compare(finalErrors[i].Message, finalErrors[j].Message) > 0
 				})
-				assert.Equal(t, spec.Errors, finalErrors)
+
+				if len(finalErrors) != len(spec.Errors) {
+					t.Errorf("wrong number of errors returned\ngot:\n%s\nwant:\n%s", finalErrors.Error(), spec.Errors)
+				} else {
+					for i := range spec.Errors {
+						expected := spec.Errors[i]
+						actual := finalErrors[i]
+						if actual.Rule != spec.Rule {
+							continue
+						}
+						var errLocs []string
+						if expected.Message != actual.Message {
+							errLocs = append(errLocs, "message mismatch")
+						}
+						if len(expected.Locations) > 0 && len(actual.Locations) == 0 {
+							errLocs = append(errLocs, "missing location")
+						}
+						if len(expected.Locations) > 0 && len(actual.Locations) > 0 {
+							found := false
+							for _, loc := range expected.Locations {
+								//fmt.Println(actual.Locations, expected.Locations)
+								if actual.Locations[0].Line == loc.Line {
+									found = true
+									break
+								}
+							}
+
+							if !found {
+								errLocs = append(errLocs, "line")
+							}
+						}
+
+						if len(errLocs) > 0 {
+							t.Errorf("%s\ngot:  %s\nwant: %s", strings.Join(errLocs, ", "), finalErrors[i].Error(), spec.Errors[i].Error())
+						}
+					}
+				}
 
 				if t.Failed() {
 					t.Logf("name: '%s'", spec.Name)

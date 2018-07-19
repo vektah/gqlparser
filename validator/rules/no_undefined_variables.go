@@ -13,9 +13,15 @@ func init() {
 			}
 
 			if walker.CurrentOperation.Name != "" {
-				addError(Message(`Variable "$%s" is not defined by operation "%s".`, value, walker.CurrentOperation.Name))
+				addError(
+					Message(`Variable "$%s" is not defined by operation "%s".`, value, walker.CurrentOperation.Name),
+					At(walker.CurrentOperation.Position),
+				)
 			} else {
-				addError(Message(`Variable "$%s" is not defined.`, value))
+				addError(
+					Message(`Variable "$%s" is not defined.`, value),
+					At(value.Position),
+				)
 			}
 		})
 	})

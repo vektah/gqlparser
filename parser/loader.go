@@ -115,13 +115,13 @@ func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {
 			schema.Query.Fields,
 			&FieldDefinition{
 				Name: "__schema",
-				Type: NonNullNamedType("__Schema"),
+				Type: NonNullNamedType("__Schema", nil),
 			},
 			&FieldDefinition{
 				Name: "__type",
-				Type: NonNullNamedType("__Type"),
+				Type: NonNullNamedType("__Type", nil),
 				Arguments: FieldList{
-					{Name: "name", Type: NamedType("String")},
+					{Name: "name", Type: NamedType("String", nil)},
 				},
 			},
 		)

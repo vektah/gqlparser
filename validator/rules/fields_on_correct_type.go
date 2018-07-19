@@ -23,7 +23,10 @@ func init() {
 				message += " Did you mean " + QuotedOrList(suggestedFieldNames...) + "?"
 			}
 
-			addError(Message(message))
+			addError(
+				Message(message),
+				At(field.Position),
+			)
 		})
 	})
 }

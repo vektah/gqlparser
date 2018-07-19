@@ -30,29 +30,29 @@ func init() {
 
 			rawVal, err := value.Value(nil)
 			if err != nil {
-				unexpectedTypeMessage(addError, value.ExpectedType.String(), value.String())
+				unexpectedTypeMessage(addError, value)
 			}
 
 			switch value.Kind {
 			case ast.NullValue:
 				if value.ExpectedType.NonNull {
-					unexpectedTypeMessage(addError, value.ExpectedType.String(), value.String())
+					unexpectedTypeMessage(addError, value)
 				}
 
 			case ast.ListValue:
 				if value.ExpectedType.Elem == nil {
-					unexpectedTypeMessage(addError, value.ExpectedType.String(), value.String())
+					unexpectedTypeMessage(addError, value)
 					return
 				}
 
 			case ast.IntValue:
 				if !value.Definition.OneOf("Int", "Float", "ID") {
-					unexpectedTypeMessage(addError, value.ExpectedType.String(), value.String())
+					unexpectedTypeMessage(addError, value)
 				}
 
 			case ast.FloatValue:
 				if !value.Definition.OneOf("Float") {
-					unexpectedTypeMessage(addError, value.ExpectedType.String(), value.String())
+					unexpectedTypeMessage(addError, value)
 				}
 
 			case ast.StringValue, ast.BlockValue:
@@ -61,9 +61,10 @@ func init() {
 					addError(
 						Message("Expected type %s, found %s.", value.ExpectedType.String(), value.String()),
 						SuggestListUnquoted("Did you mean the enum value", rawValStr, possibleEnums),
+						At(value.Position),
 					)
 				} else if !value.Definition.OneOf("String", "ID") {
-					unexpectedTypeMessage(addError, value.ExpectedType.String(), value.String())
+					unexpectedTypeMessage(addError, value)
 				}
 
 			case ast.EnumValue:
@@ -72,12 +73,13 @@ func init() {
 					addError(
 						Message("Expected type %s, found %s.", value.ExpectedType.String(), value.String()),
 						SuggestListUnquoted("Did you mean the enum value", rawValStr, possibleEnums),
+						At(value.Position),
 					)
 				}
 
 			case ast.BooleanValue:
 				if !value.Definition.OneOf("Boolean") {
-					unexpectedTypeMessage(addError, value.ExpectedType.String(), value.String())
+					unexpectedTypeMessage(addError, value)
 				}
 
 			case ast.ObjectValue:
@@ -88,6 +90,7 @@ func init() {
 						if fieldValue == nil && field.DefaultValue == nil {
 							addError(
 								Message("Field %s.%s of required type %s was not provided.", value.Definition.Name, field.Name, field.Type.String()),
+								At(value.Position),
 							)
 							continue
 						}
@@ -104,6 +107,7 @@ func init() {
 						addError(
 							Message(`Field "%s" is not defined by type %s.`, fieldValue.Name, value.Definition.Name),
 							SuggestListUnquoted("Did you mean", fieldValue.Name, suggestions),
+							At(fieldValue.Position),
 						)
 					}
 				}
@@ -118,6 +122,9 @@ func init() {
 	})
 }
 
-func unexpectedTypeMessage(addError AddErrFunc, expected, value string) {
-	addError(Message("Expected type %s, found %s.", expected, value))
+func unexpectedTypeMessage(addError AddErrFunc, v *ast.Value) {
+	addError(
+		Message("Expected type %s, found %s.", v.ExpectedType.String(), v.String()),
+		At(v.Position),
+	)
 }

@@ -24,6 +24,7 @@ func checkUniqueArgs(args ast.ArgumentList, addError AddErrFunc) {
 		if knownArgNames[arg.Name] {
 			addError(
 				Message(`There can be only one argument named "%s".`, arg.Name),
+				At(arg.Position),
 			)
 		}
 

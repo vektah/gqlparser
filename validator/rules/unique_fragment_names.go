@@ -13,6 +13,7 @@ func init() {
 			if seenFragments[fragment.Name] {
 				addError(
 					Message(`There can be only one fragment named "%s".`, fragment.Name),
+					At(fragment.Position),
 				)
 			}
 			seenFragments[fragment.Name] = true
