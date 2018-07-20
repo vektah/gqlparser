@@ -10,7 +10,7 @@ import (
 
 func main() {
 	out := bytes.Buffer{}
-	out.WriteString("package gqlparser\n\n")
+	out.WriteString("package validator\n\n")
 	out.WriteString(`var Prelude = &ast.Source{Name: "prelude.graphql", Input: `)
 
 	file, err := ioutil.ReadFile("prelude.graphql")

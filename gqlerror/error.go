@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
+
+	"github.com/vektah/gqlparser/ast"
 )
 
 // Error is the standard graphql error type described in https://facebook.github.io/graphql/draft/#sec-Errors
@@ -59,6 +61,16 @@ func Errorf(message string, args ...interface{}) *Error {
 	return &Error{
 		Message: fmt.Sprintf(message, args...),
 	}
+}
+
+func ErrorPosf(pos *ast.Position, message string, args ...interface{}) *Error {
+	return ErrorLocf(
+		pos.Src.Name,
+		pos.Line,
+		pos.Column,
+		message,
+		args...,
+	)
 }
 
 func ErrorLocf(file string, line int, col int, message string, args ...interface{}) *Error {

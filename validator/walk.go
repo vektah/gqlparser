@@ -43,7 +43,7 @@ func (o *Events) OnValue(f func(walker *Walker, value *ast.Value)) {
 	o.value = append(o.value, f)
 }
 
-func Walk(schema *ast.Schema, document *ast.QueryDocument, observers *Events) {
+func Walk(schema *Schema, document *ast.QueryDocument, observers *Events) {
 	w := Walker{
 		Observers: observers,
 		Schema:    schema,
@@ -56,7 +56,7 @@ func Walk(schema *ast.Schema, document *ast.QueryDocument, observers *Events) {
 type Walker struct {
 	Context   context.Context
 	Observers *Events
-	Schema    *ast.Schema
+	Schema    *Schema
 	Document  *ast.QueryDocument
 
 	validatedFragmentSpreads map[string]bool
@@ -136,7 +136,7 @@ func (w *Walker) walkDirectives(parentDef *ast.Definition, directives []*ast.Dir
 		dir.Location = location
 
 		for _, arg := range dir.Arguments {
-			var argDef *ast.FieldDefinition
+			var argDef *ast.ArgumentDefinition
 			if def != nil {
 				argDef = def.Arguments.ForName(arg.Name)
 			}
@@ -191,7 +191,7 @@ func (w *Walker) walkValue(value *ast.Value) {
 	}
 }
 
-func (w *Walker) walkArgument(argDef *ast.FieldDefinition, arg *ast.Argument) {
+func (w *Walker) walkArgument(argDef *ast.ArgumentDefinition, arg *ast.Argument) {
 	if argDef != nil {
 		arg.Value.ExpectedType = argDef.Type
 		arg.Value.Definition = w.Schema.Types[argDef.Type.Name()]
@@ -228,7 +228,7 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		}
 
 		for _, arg := range it.Arguments {
-			var argDef *ast.FieldDefinition
+			var argDef *ast.ArgumentDefinition
 			if def != nil {
 				argDef = def.Arguments.ForName(arg.Name)
 			}

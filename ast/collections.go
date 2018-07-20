@@ -80,6 +80,17 @@ func (l ArgumentList) ForName(name string) *Argument {
 	return nil
 }
 
+type ArgumentDefinitionList []*ArgumentDefinition
+
+func (l ArgumentDefinitionList) ForName(name string) *ArgumentDefinition {
+	for _, it := range l {
+		if it.Name == name {
+			return it
+		}
+	}
+	return nil
+}
+
 type SchemaDefinitionList []*SchemaDefinition
 
 type DirectiveDefinitionList []*DirectiveDefinition

@@ -1,4 +1,4 @@
-package parser
+package validator
 
 import (
 	"io/ioutil"
@@ -6,13 +6,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/vektah/gqlparser/ast"
+	"github.com/vektah/gqlparser/parser/testrunner"
 )
 
 func TestLoadSchema(t *testing.T) {
 	t.Run("swapi", func(t *testing.T) {
 		file, err := ioutil.ReadFile("testdata/swapi.graphql")
 		require.Nil(t, err)
-		s, err := LoadSchema(&ast.Source{Input: string(file), Name: "TestLoadSchema"})
+		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
 		require.Nil(t, err)
 
 		require.Equal(t, "Query", s.Query.Name)
@@ -32,12 +33,19 @@ func TestLoadSchema(t *testing.T) {
 	t.Run("type extensions", func(t *testing.T) {
 		file, err := ioutil.ReadFile("testdata/extensions.graphql")
 		require.Nil(t, err)
-		s, err := LoadSchema(&ast.Source{Input: string(file), Name: "TestLoadSchema"})
+		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
 		require.Nil(t, err)
 
 		require.Equal(t, "Subscription", s.Subscription.Name)
 		require.Equal(t, "dogEvents", s.Subscription.Fields[0].Name)
 
 		require.Equal(t, "owner", s.Types["Dog"].Fields[1].Name)
+	})
+
+	testrunner.Test(t, "./schema_test.yml", func(t *testing.T, input string) testrunner.Spec {
+		_, err := LoadSchema(Prelude, &ast.Source{Input: input})
+		return testrunner.Spec{
+			Error: err,
+		}
 	})
 }

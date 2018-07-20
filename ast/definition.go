@@ -60,8 +60,17 @@ func (d *Definition) OneOf(types ...string) bool {
 type FieldDefinition struct {
 	Description  string
 	Name         string
-	Arguments    FieldList // only for objects
-	DefaultValue *Value    // only for input objects
+	Arguments    ArgumentDefinitionList // only for objects
+	DefaultValue *Value                 // only for input objects
+	Type         *Type
+	Directives   DirectiveList
+	Position     *Position `dump:"-"`
+}
+
+type ArgumentDefinition struct {
+	Description  string
+	Name         string
+	DefaultValue *Value
 	Type         *Type
 	Directives   DirectiveList
 	Position     *Position `dump:"-"`
@@ -77,7 +86,7 @@ type EnumValueDefinition struct {
 type DirectiveDefinition struct {
 	Description string
 	Name        string
-	Arguments   FieldList
+	Arguments   ArgumentDefinitionList
 	Locations   []DirectiveLocation
 	Position    *Position `dump:"-"`
 }
