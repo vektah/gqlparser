@@ -173,12 +173,26 @@ func (p *parser) parseFieldDefinition() *FieldDefinition {
 	return &def
 }
 
-func (p *parser) parseArgumentDefs() FieldList {
-	var args FieldList
+func (p *parser) parseArgumentDefs() ArgumentDefinitionList {
+	var args ArgumentDefinitionList
 	p.many(lexer.ParenL, lexer.ParenR, func() {
-		args = append(args, p.parseInputValueDef())
+		args = append(args, p.parseArgumentDef())
 	})
 	return args
+}
+
+func (p *parser) parseArgumentDef() *ArgumentDefinition {
+	var def ArgumentDefinition
+	def.Position = p.peekPos()
+	def.Description = p.parseDescription()
+	def.Name = p.parseName()
+	p.expect(lexer.Colon)
+	def.Type = p.parseTypeReference()
+	if p.skip(lexer.Equals) {
+		def.DefaultValue = p.parseValueLiteral(true)
+	}
+	def.Directives = p.parseDirectives(true)
+	return &def
 }
 
 func (p *parser) parseInputValueDef() *FieldDefinition {

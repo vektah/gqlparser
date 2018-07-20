@@ -1,5 +1,3 @@
-//go:generate go run ./inliner/inliner.go
-
 package gqlparser
 
 import (
@@ -11,19 +9,19 @@ import (
 	_ "github.com/vektah/gqlparser/validator/rules"
 )
 
-func LoadSchema(str ...*ast.Source) (*ast.Schema, *gqlerror.Error) {
-	return parser.LoadSchema(append([]*ast.Source{Prelude}, str...)...)
+func LoadSchema(str ...*ast.Source) (*validator.Schema, *gqlerror.Error) {
+	return validator.LoadSchema(append([]*ast.Source{validator.Prelude}, str...)...)
 }
 
-func MustLoadSchema(str ...*ast.Source) *ast.Schema {
-	s, err := parser.LoadSchema(append([]*ast.Source{Prelude}, str...)...)
+func MustLoadSchema(str ...*ast.Source) *validator.Schema {
+	s, err := validator.LoadSchema(append([]*ast.Source{validator.Prelude}, str...)...)
 	if err != nil {
 		panic(err)
 	}
 	return s
 }
 
-func LoadQuery(schema *ast.Schema, str string) (*ast.QueryDocument, gqlerror.List) {
+func LoadQuery(schema *validator.Schema, str string) (*ast.QueryDocument, gqlerror.List) {
 	query, err := parser.ParseQuery(&ast.Source{Input: str})
 	if err != nil {
 		return nil, gqlerror.List{err}

@@ -67,8 +67,8 @@ object types:
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Arguments: [FieldDefinition]
-                - <FieldDefinition>
+                Arguments: [ArgumentDefinition]
+                - <ArgumentDefinition>
                     Name: "flag"
                     Type: Boolean
                 Type: String
@@ -87,8 +87,8 @@ object types:
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Arguments: [FieldDefinition]
-                - <FieldDefinition>
+                Arguments: [ArgumentDefinition]
+                - <ArgumentDefinition>
                     Name: "flag"
                     DefaultValue: true
                     Type: Boolean
@@ -108,8 +108,8 @@ object types:
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Arguments: [FieldDefinition]
-                - <FieldDefinition>
+                Arguments: [ArgumentDefinition]
+                - <ArgumentDefinition>
                     Name: "things"
                     Type: [String]
                 Type: String
@@ -128,11 +128,11 @@ object types:
             Fields: [FieldDefinition]
             - <FieldDefinition>
                 Name: "world"
-                Arguments: [FieldDefinition]
-                - <FieldDefinition>
+                Arguments: [ArgumentDefinition]
+                - <ArgumentDefinition>
                     Name: "argOne"
                     Type: Boolean
-                - <FieldDefinition>
+                - <ArgumentDefinition>
                     Name: "argTwo"
                     Type: Int
                 Type: String
