@@ -35,10 +35,10 @@ type Deviation struct {
 
 func TestValidation(t *testing.T) {
 	var rawSchemas []string
-	readYaml("../spec/validation/schemas.yml", &rawSchemas)
+	readYaml("./imported/spec/schemas.yml", &rawSchemas)
 
 	var deviations []*Deviation
-	readYaml("../spec/validation/deviations.yml", &deviations)
+	readYaml("./imported/deviations.yml", &deviations)
 	for _, d := range deviations {
 		d.pattern = regexp.MustCompile("^" + d.Rule + "$")
 	}
@@ -52,7 +52,7 @@ func TestValidation(t *testing.T) {
 		schemas = append(schemas, schema)
 	}
 
-	err := filepath.Walk("../spec/validation/", func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk("./imported/spec/", func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() || !strings.HasSuffix(path, ".spec.yml") {
 			return nil
 		}
@@ -127,7 +127,6 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 						if len(expected.Locations) > 0 && len(actual.Locations) > 0 {
 							found := false
 							for _, loc := range expected.Locations {
-								//fmt.Println(actual.Locations, expected.Locations)
 								if actual.Locations[0].Line == loc.Line {
 									found = true
 									break
