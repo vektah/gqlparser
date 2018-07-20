@@ -138,15 +138,42 @@ fs.readdirSync("./graphql-js/src/validation/__tests__").forEach(file => {
         noRefs: true,
         lineWidth: 1000,
     });
-    fs.writeFileSync("../validation/imported/"+file.replace('-test.js', '.spec.yml'), dump);
+    fs.writeFileSync("./spec/"+file.replace('-test.js', '.spec.yml'), dump);
 
     tests = [];
 });
 
-let dump = safeDump(schemas.map(s => printSchema(s)), {
+let schemaList = schemas.map(s => printSchema(s));
+
+
+schemaList[0] += `
+# injected becuase upstream spec is missing some types  
+extend type QueryRoot {
+    field: T
+    f1: Type
+    f2: Type
+    f3: Type
+}
+
+type Type {
+    a: String
+    b: String
+    c: String
+}
+type T {
+    a: String
+    b: String
+    c: String
+    d: String
+    y: String
+    deepField: T
+    deeperField: T
+}`;
+
+let dump = safeDump(schemaList, {
     skipInvalid: true,
     flowLevel: 5,
     noRefs: true,
     lineWidth: 1000,
 });
-fs.writeFileSync("../validation/schemas.yml", dump);
+fs.writeFileSync("./spec/schemas.yml", dump);

@@ -1,4 +1,4 @@
-package spec
+package testrunner
 
 import (
 	"io/ioutil"

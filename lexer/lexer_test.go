@@ -4,14 +4,14 @@ import (
 	"testing"
 
 	"github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/spec"
+	"github.com/vektah/gqlparser/parser/testrunner"
 )
 
 func TestLexer(t *testing.T) {
-	spec.Test(t, "../spec/lexer.yml", func(t *testing.T, input string) spec.Spec {
+	testrunner.Test(t, "lexer_test.yml", func(t *testing.T, input string) testrunner.Spec {
 		l := New(&ast.Source{Input: input, Name: "spec"})
 
-		ret := spec.Spec{}
+		ret := testrunner.Spec{}
 		for {
 			tok, err := l.ReadToken()
 
@@ -24,7 +24,7 @@ func TestLexer(t *testing.T) {
 				break
 			}
 
-			ret.Tokens = append(ret.Tokens, spec.Token{
+			ret.Tokens = append(ret.Tokens, testrunner.Token{
 				Kind:   tok.Kind.Name(),
 				Value:  tok.Value,
 				Line:   tok.Pos.Line,

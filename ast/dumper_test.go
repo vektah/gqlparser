@@ -1,4 +1,4 @@
-package spec
+package ast
 
 import (
 	"fmt"
@@ -6,17 +6,16 @@ import (
 
 	"github.com/andreyvit/diff"
 	"github.com/stretchr/testify/require"
-	"github.com/vektah/gqlparser/ast"
 )
 
 func TestDump(t *testing.T) {
-	res := DumpAST(ast.SchemaDefinition{
-		Directives: []*ast.Directive{
+	res := Dump(SchemaDefinition{
+		Directives: []*Directive{
 			{
 				Name:      "foo",
-				Arguments: []*ast.Argument{{Name: "bar"}},
+				Arguments: []*Argument{{Name: "bar"}},
 			},
-			{Arguments: []*ast.Argument{}},
+			{Arguments: []*Argument{}},
 		},
 	})
 

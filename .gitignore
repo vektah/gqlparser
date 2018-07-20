@@ -1,5 +1,5 @@
 /vendor
-/spec/exporter/node_modules
-/spec/exporter/graphql-js
+/validator/imported/node_modules
+/validator/imported/graphql-js
 
 .idea/
