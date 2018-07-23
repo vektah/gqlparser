@@ -176,7 +176,7 @@ func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {
 }
 
 func validateDirective(schema *Schema, def *DirectiveDefinition) *gqlerror.Error {
-	return validateArgs(schema, def.Arguments)
+	return validateArgs(schema, def.Arguments, def)
 }
 
 func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
@@ -184,15 +184,15 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		if err := validateTypeRef(schema, field.Type); err != nil {
 			return err
 		}
-		if err := validateArgs(schema, field.Arguments); err != nil {
+		if err := validateArgs(schema, field.Arguments, nil); err != nil {
 			return err
 		}
-		if err := validateDirectives(schema, field.Directives); err != nil {
+		if err := validateDirectives(schema, field.Directives, nil); err != nil {
 			return err
 		}
 	}
 
-	return validateDirectives(schema, def.Directives)
+	return validateDirectives(schema, def.Directives, nil)
 }
 
 func validateTypeRef(schema *Schema, typ *Type) *gqlerror.Error {
@@ -202,20 +202,23 @@ func validateTypeRef(schema *Schema, typ *Type) *gqlerror.Error {
 	return nil
 }
 
-func validateArgs(schema *Schema, args ArgumentDefinitionList) *gqlerror.Error {
+func validateArgs(schema *Schema, args ArgumentDefinitionList, currentDirective *DirectiveDefinition) *gqlerror.Error {
 	for _, arg := range args {
 		if err := validateTypeRef(schema, arg.Type); err != nil {
 			return err
 		}
-		if err := validateDirectives(schema, arg.Directives); err != nil {
+		if err := validateDirectives(schema, arg.Directives, currentDirective); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func validateDirectives(schema *Schema, dirs DirectiveList) *gqlerror.Error {
+func validateDirectives(schema *Schema, dirs DirectiveList, currentDirective *DirectiveDefinition) *gqlerror.Error {
 	for _, dir := range dirs {
+		if currentDirective != nil && dir.Name == currentDirective.Name {
+			return gqlerror.ErrorPosf(dir.Position, "Directive %s cannot refer to itself.", currentDirective.Name)
+		}
 		if schema.Directives[dir.Name] == nil {
 			return gqlerror.ErrorPosf(dir.Position, "Undefined directive %s.", dir.Name)
 		}
