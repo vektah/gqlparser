@@ -49,6 +49,13 @@ directives:
       message: "Undefined directive foo."
       locations: [{line: 2, column: 17}]
 
+  - name: cannot be self-referential
+    input: |
+      directive @A(foo: Int! @A) on FIELD_DEFINITION
+    error:
+      message: "Directive A cannot refer to itself."
+      locations: [{line: 1, column: 25}]
+
 entry points:
   - name: multiple schema entry points
     input: |
