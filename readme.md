@@ -1,7 +1,7 @@
 gqlparser [![CircleCI](https://img.shields.io/circleci/project/github/vektah/gqlparser/master.svg)](https://circleci.com/gh/vektah/gqlparser) [![Go Report Card](https://goreportcard.com/badge/github.com/vektah/gqlparser)](https://goreportcard.com/report/github.com/vektah/gqlparser) [![Coverage Status](https://img.shields.io/coveralls/github/vektah/gqlparser/master.svg)](https://coveralls.io/github/vektah/gqlparser?branch=master)
 ===
 
-*This repo is still under heavy development. APIs will break, use it at your own peril.*
+*This repo is still under heavy development while it is being integrated with gqlgen. APIs will break, use it at your own peril.*
 
 
 This is a parser for graphql, written to mirror the graphql-js reference implementation as closely as possible.
@@ -21,12 +21,3 @@ Guiding principles:
  - fast: Where it doesnt impact on the above it should be fast. Avoid unnecessary allocs in hot paths.
  - close to reference: Where it doesnt impact on the above, it should stay close to the [graphql/graphql-js](github.com/graphql/graphql-js) reference implementation.
 
-## progress
-
-| feature | readyness |
-| ------| ------------|
-| lexer | done |
-| query parser | done |
-| schema parser | done |
-| schema loader | done |
-| validator | doing |
