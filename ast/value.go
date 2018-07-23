@@ -51,7 +51,7 @@ func (v *Value) Value(vars map[string]interface{}) (interface{}, error) {
 		if v.VariableDefinition != nil && v.VariableDefinition.DefaultValue != nil {
 			return v.VariableDefinition.DefaultValue.Value(vars)
 		}
-		return nil, fmt.Errorf("variable not provided: %s", v.Raw)
+		return nil, nil
 	case IntValue:
 		return strconv.ParseInt(v.Raw, 10, 64)
 	case FloatValue:
