@@ -14,7 +14,6 @@ import (
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/gqlerror"
-	"github.com/vektah/gqlparser/validator"
 	"gopkg.in/yaml.v2"
 )
 
@@ -44,7 +43,7 @@ func TestValidation(t *testing.T) {
 		d.pattern = regexp.MustCompile("^" + d.Rule + "$")
 	}
 
-	var schemas []*validator.Schema
+	var schemas []*ast.Schema
 	for i, schema := range rawSchemas {
 		schema, err := gqlparser.LoadSchema(&ast.Source{Input: schema, Name: fmt.Sprintf("schemas.yml[%d]", i)})
 		if err != nil {
@@ -64,7 +63,7 @@ func TestValidation(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func runSpec(t *testing.T, schemas []*validator.Schema, deviations []*Deviation, filename string) {
+func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filename string) {
 	ruleName := strings.TrimSuffix(filepath.Base(filename), ".spec.yml")
 
 	var specs []Spec
