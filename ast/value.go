@@ -45,7 +45,13 @@ func (v *Value) Value(vars map[string]interface{}) (interface{}, error) {
 	}
 	switch v.Kind {
 	case Variable:
-		return vars[v.Raw], nil
+		if value, ok := vars[v.Raw]; ok {
+			return value, nil
+		}
+		if v.VariableDefinition != nil && v.VariableDefinition.DefaultValue != nil {
+			return v.VariableDefinition.DefaultValue.Value(vars)
+		}
+		return nil, fmt.Errorf("variable not provided: %s", v.Raw)
 	case IntValue:
 		return strconv.ParseInt(v.Raw, 10, 64)
 	case FloatValue:
