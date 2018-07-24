@@ -52,7 +52,7 @@ func TestValidation(t *testing.T) {
 		schemas = append(schemas, schema)
 	}
 
-	err := filepath.Walk("./imported/spec/", func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk("./", func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() || !strings.HasSuffix(path, ".spec.yml") {
 			return nil
 		}

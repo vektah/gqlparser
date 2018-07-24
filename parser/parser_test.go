@@ -63,7 +63,7 @@ func TestParserUtils(t *testing.T) {
 				p.error(p.peek(), "boom")
 			}
 		})
-		require.EqualError(t, p.err, "input.graphql:1 boom")
+		require.EqualError(t, p.err, "input.graphql:1: boom")
 		require.Equal(t, []string{"a", "b"}, arr)
 	})
 
@@ -74,7 +74,7 @@ func TestParserUtils(t *testing.T) {
 		p.error(p.peek(), "test error")
 		p.error(p.peek(), "secondary error")
 
-		require.EqualError(t, p.err, "input.graphql:1 test error")
+		require.EqualError(t, p.err, "input.graphql:1: test error")
 
 		require.Equal(t, "foo", p.peek().Value)
 		require.Equal(t, "foo", p.next().Value)
@@ -84,27 +84,27 @@ func TestParserUtils(t *testing.T) {
 	t.Run("unexpected error", func(t *testing.T) {
 		p := newParser("1 3")
 		p.unexpectedError()
-		require.EqualError(t, p.err, "input.graphql:1 Unexpected Int \"1\"")
+		require.EqualError(t, p.err, "input.graphql:1: Unexpected Int \"1\"")
 	})
 
 	t.Run("unexpected error", func(t *testing.T) {
 		p := newParser("1 3")
 		p.unexpectedToken(p.next())
-		require.EqualError(t, p.err, "input.graphql:1 Unexpected Int \"1\"")
+		require.EqualError(t, p.err, "input.graphql:1: Unexpected Int \"1\"")
 	})
 
 	t.Run("expect error", func(t *testing.T) {
 		p := newParser("foo bar")
 		p.expect(lexer.Float)
 
-		require.EqualError(t, p.err, "input.graphql:1 Expected Float, found Name")
+		require.EqualError(t, p.err, "input.graphql:1: Expected Float, found Name")
 	})
 
 	t.Run("expectKeyword error", func(t *testing.T) {
 		p := newParser("foo bar")
 		p.expectKeyword("baz")
 
-		require.EqualError(t, p.err, "input.graphql:1 Expected \"baz\", found Name \"foo\"")
+		require.EqualError(t, p.err, "input.graphql:1: Expected \"baz\", found Name \"foo\"")
 	})
 }
 

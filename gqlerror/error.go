@@ -36,16 +36,47 @@ type Location struct {
 type List []*Error
 
 func (err *Error) Error() string {
+	var res bytes.Buffer
+	if err == nil {
+		return ""
+	}
 	filename, _ := err.Extensions["file"].(string)
 	if filename == "" {
 		filename = "input"
 	}
+	res.WriteString(filename)
 
 	if len(err.Locations) > 0 {
-		filename += ":" + strconv.Itoa(err.Locations[0].Line)
+		res.WriteByte(':')
+		res.WriteString(strconv.Itoa(err.Locations[0].Line))
 	}
 
-	return filename + " " + err.Message
+	res.WriteString(": ")
+	if ps := err.pathString(); ps != "" {
+		res.WriteString(ps)
+		res.WriteByte(' ')
+	}
+
+	res.WriteString(err.Message)
+
+	return res.String()
+}
+
+func (err Error) pathString() string {
+	var str bytes.Buffer
+	for i, v := range err.Path {
+
+		switch v := v.(type) {
+		case int, int64:
+			str.WriteString(fmt.Sprintf("[%d]", v))
+		default:
+			if i != 0 {
+				str.WriteByte('.')
+			}
+			str.WriteString(fmt.Sprint(v))
+		}
+	}
+	return str.String()
 }
 
 func (errs List) Error() string {
@@ -57,9 +88,23 @@ func (errs List) Error() string {
 	return buf.String()
 }
 
+func WrapPath(path []interface{}, err error) *Error {
+	return &Error{
+		Message: err.Error(),
+		Path:    path,
+	}
+}
+
 func Errorf(message string, args ...interface{}) *Error {
 	return &Error{
 		Message: fmt.Sprintf(message, args...),
+	}
+}
+
+func ErrorPathf(path []interface{}, message string, args ...interface{}) *Error {
+	return &Error{
+		Message: fmt.Sprintf(message, args...),
+		Path:    path,
 	}
 }
 
