@@ -25,14 +25,24 @@ func TestDefaultValue(t *testing.T) {
 		require.Equal(t, int64(123), value)
 	})
 
-	t.Run("resolves default value when variable not provided", func(t *testing.T) {
+	t.Run("resolves default value from query when variable not provided", func(t *testing.T) {
 		value, _ := v.Value(make(map[string]interface{}))
 		require.Equal(t, int64(99), value)
 	})
 
-	t.Run("returns error when variable has no default", func(t *testing.T) {
-		v := Value{Raw: "foo", Kind: Variable, VariableDefinition: &VariableDefinition{}}
-		_, err := v.Value(make(map[string]interface{}))
-		require.Error(t, err)
+	t.Run("resolves default value from schema when variable not provided", func(t *testing.T) {
+		v := Value{
+			Raw:  "foo",
+			Kind: Variable,
+			FieldDefinition: &FieldDefinition{
+				DefaultValue: &Value{
+					Raw:  "88",
+					Kind: IntValue,
+				},
+			},
+		}
+		v.VariableDefinition = nil
+		value, _ := v.Value(make(map[string]interface{}))
+		require.Equal(t, int64(88), value)
 	})
 }

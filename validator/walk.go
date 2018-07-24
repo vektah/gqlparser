@@ -167,6 +167,7 @@ func (w *Walker) walkValue(value *ast.Value) {
 			if value.Definition != nil {
 				fieldDef := value.Definition.Fields.ForName(child.Name)
 				if fieldDef != nil {
+					child.Value.FieldDefinition = fieldDef
 					child.Value.ExpectedType = fieldDef.Type
 					child.Value.Definition = w.Schema.Types[fieldDef.Type.Name()]
 				}

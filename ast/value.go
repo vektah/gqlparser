@@ -30,6 +30,7 @@ type Value struct {
 	// Require validation
 	Definition         *Definition
 	VariableDefinition *VariableDefinition
+	FieldDefinition    *FieldDefinition
 	ExpectedType       *Type
 }
 
@@ -50,6 +51,9 @@ func (v *Value) Value(vars map[string]interface{}) (interface{}, error) {
 		}
 		if v.VariableDefinition != nil && v.VariableDefinition.DefaultValue != nil {
 			return v.VariableDefinition.DefaultValue.Value(vars)
+		}
+		if v.FieldDefinition != nil && v.FieldDefinition.DefaultValue != nil {
+			return v.FieldDefinition.DefaultValue.Value(vars)
 		}
 		return nil, nil
 	case IntValue:
