@@ -9,5 +9,5 @@
       "PartitionStrategy": "packages"
     }
   },
-  "Disable": ["golint","gocyclo", "goconst", "gas", "interfacer", "vet"]
+  "Disable": ["golint","gocyclo", "goconst", "gas", "interfacer", "vet","gosec"]
 }
