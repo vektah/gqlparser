@@ -33,3 +33,11 @@ func LoadQuery(schema *ast.Schema, str string) (*ast.QueryDocument, gqlerror.Lis
 
 	return query, nil
 }
+
+func MustLoadQuery(schema *ast.Schema, str string) *ast.QueryDocument {
+	q, err := LoadQuery(schema, str)
+	if err != nil {
+		panic(err)
+	}
+	return q
+}
