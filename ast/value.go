@@ -113,3 +113,29 @@ func (v *Value) Dump() string {
 	enc, _ := json.Marshal(val)
 	return string(enc)
 }
+
+func (v ValueKind) String() string {
+	switch v {
+	case Variable:
+		return "Variable"
+	case IntValue:
+		return "IntValue"
+	case FloatValue:
+		return "FloatValue"
+	case StringValue:
+		return "StringValue"
+	case BlockValue:
+		return "BlockValue"
+	case BooleanValue:
+		return "BooleanValue"
+	case NullValue:
+		return "NullValue"
+	case EnumValue:
+		return "EnumValue"
+	case ListValue:
+		return "ListValue"
+	case ObjectValue:
+		return "ObjectValue"
+	}
+	return "Unknown"
+}

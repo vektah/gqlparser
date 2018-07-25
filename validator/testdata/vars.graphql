@@ -1,5 +1,10 @@
 type Query {
     intArg(i: Int!): Boolean!
+    stringArg(i: String): Boolean!
+    boolArg(i: Boolean!): Boolean!
+    floatArg(i: Float!): Boolean!
+    idArg(i: ID!): Boolean!
+    scalarArg(i: Custom!): Boolean!
     structArg(i: InputType!): Boolean!
     arrayArg(i: [InputType!]): Boolean!
 }
@@ -7,3 +12,5 @@ type Query {
 input InputType {
     name: String!
 }
+
+scalar Custom
