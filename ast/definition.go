@@ -58,13 +58,14 @@ func (d *Definition) OneOf(types ...string) bool {
 }
 
 type FieldDefinition struct {
-	Description  string
-	Name         string
-	Arguments    ArgumentDefinitionList // only for objects
-	DefaultValue *Value                 // only for input objects
-	Type         *Type
-	Directives   DirectiveList
-	Position     *Position `dump:"-"`
+	Description      string
+	Name             string
+	Arguments        ArgumentDefinitionList // only for objects
+	DefaultValue     *Value                 // only for input objects
+	Type             *Type
+	ResultDefinition *Definition
+	Directives       DirectiveList
+	Position         *Position `dump:"-"`
 }
 
 type ArgumentDefinition struct {

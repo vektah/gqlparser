@@ -1,9 +1,9 @@
 package ast
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type ValueKind int
@@ -88,28 +88,33 @@ func (v *Value) Value(vars map[string]interface{}) (interface{}, error) {
 }
 
 func (v *Value) String() string {
+	if v == nil {
+		return "<nil>"
+	}
 	switch v.Kind {
-	case Variable, IntValue, FloatValue, EnumValue, BooleanValue, NullValue:
+	case Variable:
+		return "$" + v.Raw
+	case IntValue, FloatValue, EnumValue, BooleanValue, NullValue:
 		return v.Raw
 	case StringValue, BlockValue:
 		return strconv.Quote(v.Raw)
 	case ListValue:
-		return "list"
+		var val []string
+		for _, elem := range v.Children {
+			val = append(val, elem.Value.String())
+		}
+		return "[" + strings.Join(val, ",") + "]"
 	case ObjectValue:
-		return "object"
+		var val []string
+		for _, elem := range v.Children {
+			val = append(val, strconv.Quote(elem.Name)+":"+elem.Value.String())
+		}
+		return "{" + strings.Join(val, ",") + "}"
 	default:
 		panic(fmt.Errorf("unknown value kind %d", v.Kind))
 	}
 }
 
 func (v *Value) Dump() string {
-	if v == nil {
-		return "<nil>"
-	}
-	if v.Kind == Variable {
-		return "$" + v.Raw
-	}
-	val, _ := v.Value(nil)
-	enc, _ := json.Marshal(val)
-	return string(enc)
+	return v.String()
 }

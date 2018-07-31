@@ -2,6 +2,7 @@ package validator
 
 import (
 	. "github.com/vektah/gqlparser/ast"
+	"github.com/vektah/gqlparser/coerce"
 	"github.com/vektah/gqlparser/gqlerror"
 )
 
@@ -22,7 +23,7 @@ func AddRule(name string, f ruleFunc) {
 	rules = append(rules, rule{name: name, rule: f})
 }
 
-func Validate(schema *Schema, doc *QueryDocument) gqlerror.List {
+func Validate(schema *Schema, doc *QueryDocument, inputFunc coerce.ScalarFunc) gqlerror.List {
 	var errs gqlerror.List
 
 	observers := &Events{}
@@ -39,6 +40,6 @@ func Validate(schema *Schema, doc *QueryDocument) gqlerror.List {
 		})
 	}
 
-	Walk(schema, doc, observers)
+	Walk(schema, doc, observers, inputFunc)
 	return errs
 }

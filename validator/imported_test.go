@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
+	"github.com/vektah/gqlparser/coerce"
 	"github.com/vektah/gqlparser/gqlerror"
 	"gopkg.in/yaml.v2"
 )
@@ -85,7 +86,7 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 					}
 				}
 
-				_, err := gqlparser.LoadQuery(schemas[spec.Schema], spec.Query)
+				_, err := gqlparser.LoadQuery(schemas[spec.Schema], spec.Query, ImportedTestScalars)
 				var finalErrors gqlerror.List
 				for _, err := range err {
 					// ignore errors from other rules
@@ -162,4 +163,11 @@ func readYaml(filename string, result interface{}) {
 	if err != nil {
 		panic(fmt.Errorf("unable to load %s: %s", filename, err.Error()))
 	}
+}
+
+func ImportedTestScalars(expected *ast.Type, def *ast.Definition, value interface{}) (interface{}, error) {
+	if expected.NamedType == "Invalid" {
+		return nil, fmt.Errorf("Invalid scalar is always invalid: %v", value)
+	}
+	return coerce.DefaultScalar(expected, def, value)
 }

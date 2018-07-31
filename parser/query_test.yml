@@ -346,7 +346,7 @@ large queries:
             - <VariableDefinition>
                 Variable: "site"
                 Type: Site
-                DefaultValue: "MOBILE"
+                DefaultValue: MOBILE
             SelectionSet: [Selection]
             - <Field>
                 Alias: "whoever123is"
@@ -504,4 +504,4 @@ large queries:
                     Value: $b
                 - <Argument>
                     Name: "obj"
-                    Value: {"block":"block string uses \"\"\"","key":"value"}
+                    Value: {"key":"value","block":"block string uses \"\"\""}

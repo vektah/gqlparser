@@ -4,8 +4,21 @@ import (
 	"fmt"
 
 	"github.com/vektah/gqlparser/ast"
+	"github.com/vektah/gqlparser/coerce"
 	. "github.com/vektah/gqlparser/validator"
 )
+
+func isEnumIssue(value *ast.Value) bool {
+	if (value.Kind == ast.StringValue || value.Kind == ast.BlockValue) && value.Definition.Kind == ast.Enum {
+		return true
+	}
+
+	if value.Kind == ast.EnumValue && (value.Definition.Kind != ast.Enum || value.Definition.EnumValues.ForName(value.Raw) == nil) {
+		return true
+	}
+
+	return false
+}
 
 func init() {
 	AddRule("ValuesOfCorrectType", func(observers *Events, addError AddErrFunc) {
@@ -14,76 +27,42 @@ func init() {
 				return
 			}
 
-			if value.Definition.Kind == ast.Scalar {
-				// Skip custom validating scalars
-				if !value.Definition.OneOf("Int", "Float", "String", "Boolean", "ID") {
-					return
-				}
+			if value.Kind == ast.Variable {
+				return
 			}
 
-			var possibleEnums []string
-			if value.Definition.Kind == ast.Enum {
-				for _, val := range value.Definition.EnumValues {
-					possibleEnums = append(possibleEnums, val.Name)
-				}
-			}
-
-			rawVal, err := value.Value(nil)
-			if err != nil {
-				unexpectedTypeMessage(addError, value)
-			}
-
-			switch value.Kind {
-			case ast.NullValue:
-				if value.ExpectedType.NonNull {
-					unexpectedTypeMessage(addError, value)
-				}
-
-			case ast.ListValue:
-				if value.ExpectedType.Elem == nil {
-					unexpectedTypeMessage(addError, value)
-					return
-				}
-
-			case ast.IntValue:
-				if !value.Definition.OneOf("Int", "Float", "ID") {
-					unexpectedTypeMessage(addError, value)
-				}
-
-			case ast.FloatValue:
-				if !value.Definition.OneOf("Float") {
-					unexpectedTypeMessage(addError, value)
-				}
-
-			case ast.StringValue, ast.BlockValue:
+			if isEnumIssue(value) {
+				var possibleEnums []string
 				if value.Definition.Kind == ast.Enum {
-					rawValStr := fmt.Sprint(rawVal)
+					for _, val := range value.Definition.EnumValues {
+						possibleEnums = append(possibleEnums, val.Name)
+					}
+				}
+
+				addError(
+					Message("Expected type %s, found %s.", value.ExpectedType.String(), value.String()),
+					SuggestListUnquoted("Did you mean the enum value", value.Raw, possibleEnums),
+					At(value.Position),
+				)
+				return
+			}
+
+			if err := validateType(walker, value); err != nil {
+				if err == coerce.UnexpectedType {
 					addError(
 						Message("Expected type %s, found %s.", value.ExpectedType.String(), value.String()),
-						SuggestListUnquoted("Did you mean the enum value", rawValStr, possibleEnums),
 						At(value.Position),
 					)
-				} else if !value.Definition.OneOf("String", "ID") {
-					unexpectedTypeMessage(addError, value)
-				}
-
-			case ast.EnumValue:
-				if value.Definition.Kind != ast.Enum || value.Definition.EnumValues.ForName(value.Raw) == nil {
-					rawValStr := fmt.Sprint(rawVal)
+				} else {
 					addError(
-						Message("Expected type %s, found %s.", value.ExpectedType.String(), value.String()),
-						SuggestListUnquoted("Did you mean the enum value", rawValStr, possibleEnums),
+						Message("Expected type %s, found %s; "+err.Error(), value.ExpectedType.String(), value.String()),
 						At(value.Position),
 					)
 				}
+				return
+			}
 
-			case ast.BooleanValue:
-				if !value.Definition.OneOf("Boolean") {
-					unexpectedTypeMessage(addError, value)
-				}
-
-			case ast.ObjectValue:
-
+			if value.ExpectedType.NamedType != "" && value.Definition.Kind == ast.InputObject {
 				for _, field := range value.Definition.Fields {
 					if field.Type.NonNull {
 						fieldValue := value.Children.ForName(field.Name)
@@ -111,20 +90,48 @@ func init() {
 						)
 					}
 				}
-
-			case ast.Variable:
 				return
-
-			default:
-				panic(fmt.Errorf("unhandled %T", value))
 			}
 		})
 	})
 }
 
-func unexpectedTypeMessage(addError AddErrFunc, v *ast.Value) {
-	addError(
-		Message("Expected type %s, found %s.", v.ExpectedType.String(), v.String()),
-		At(v.Position),
-	)
+func validateType(walker *Walker, value *ast.Value) error {
+	if value.Kind == ast.Variable {
+		return nil
+	}
+
+	if value.Kind == ast.NullValue {
+		if value.ExpectedType.NonNull {
+			return coerce.UnexpectedType
+		}
+		return nil
+	}
+
+	if value.ExpectedType.Elem != nil {
+		if value.Kind != ast.ListValue {
+			cpy := *value
+			cpy.ExpectedType = cpy.ExpectedType.Elem
+			return validateType(walker, &cpy)
+		}
+		return nil
+	}
+
+	if value.Definition.Kind == ast.InputObject {
+		if value.Kind != ast.ObjectValue {
+			return coerce.UnexpectedType
+		}
+		return nil
+	}
+
+	if value.ExpectedType.Elem == nil && value.Definition.IsLeafType() {
+		goVal, err := value.Value(nil)
+		if err != nil {
+			return coerce.UnexpectedType
+		}
+		_, err = walker.CoerceScalar(value.ExpectedType, value.Definition, goVal)
+		return err
+	}
+
+	return fmt.Errorf("Unexpected type passed to isTypeValid %s expected %s", value.String(), value.ExpectedType.String())
 }
