@@ -1,18 +1,21 @@
 package validator
 
 import (
-	"fmt"
 	"reflect"
+
+	"fmt"
 
 	"github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/gqlerror"
 )
 
-// CoerceVariableValues checks the variables for a given operation are valid. mutates variables to include default values where they were not provided
-func CoerceVariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables map[string]interface{}) (map[string]interface{}, *gqlerror.Error) {
+var UnexpectedType = fmt.Errorf("Unexpected Type")
+
+// VariableValues coerces and validates variable values
+func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables map[string]interface{}) (map[string]interface{}, *gqlerror.Error) {
 	coercedVars := map[string]interface{}{}
 
-	validator := operationValidator{
+	validator := varValidator{
 		path:   []interface{}{"variable"},
 		schema: schema,
 	}
@@ -28,7 +31,7 @@ func CoerceVariableValues(schema *ast.Schema, op *ast.OperationDefinition, varia
 		if !hasValue {
 			if v.DefaultValue != nil {
 				var err error
-				val, err = v.DefaultValue.Value(variables)
+				val, err = v.DefaultValue.Value(nil)
 				if err != nil {
 					return nil, gqlerror.WrapPath(validator.path, err)
 				}
@@ -38,20 +41,20 @@ func CoerceVariableValues(schema *ast.Schema, op *ast.OperationDefinition, varia
 			}
 		}
 
-		rv := reflect.ValueOf(val)
-		if v.Type.NonNull && val == nil {
-			return nil, gqlerror.ErrorPathf(validator.path, "cannot be null")
-		}
-
-		if rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
-			rv = rv.Elem()
-		}
-
-		if err := validator.validateVarType(v.Type, rv); err != nil {
-			return nil, err
-		}
-
 		if hasValue {
+			rv := reflect.ValueOf(val)
+			if v.Type.NonNull && val == nil {
+				return nil, gqlerror.ErrorPathf(validator.path, "cannot be null")
+			}
+
+			if rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
+				rv = rv.Elem()
+			}
+
+			if err := validator.validateVarType(v.Type, rv); err != nil {
+				return nil, err
+			}
+
 			coercedVars[v.Variable] = val
 		}
 
@@ -61,12 +64,12 @@ func CoerceVariableValues(schema *ast.Schema, op *ast.OperationDefinition, varia
 	return coercedVars, nil
 }
 
-type operationValidator struct {
+type varValidator struct {
 	path   []interface{}
 	schema *ast.Schema
 }
 
-func (v *operationValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerror.Error {
+func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerror.Error {
 	if typ.Elem != nil {
 		if val.Kind() != reflect.Slice {
 			return gqlerror.ErrorPathf(v.path, "must be an array")
@@ -76,7 +79,6 @@ func (v *operationValidator) validateVarType(typ *ast.Type, val reflect.Value) *
 			v.path = append(v.path, i)
 			field := val.Index(i)
 
-			fmt.Println(field.Kind(), field.IsNil())
 			if field.Kind() == reflect.Ptr || field.Kind() == reflect.Interface {
 				if typ.Elem.NonNull && field.IsNil() {
 					return gqlerror.ErrorPathf(v.path, "cannot be null")
@@ -100,8 +102,42 @@ func (v *operationValidator) validateVarType(typ *ast.Type, val reflect.Value) *
 	}
 
 	switch def.Kind {
-	case ast.Scalar, ast.Enum:
-		// todo scalar coercion, assuming valid for now
+	case ast.Enum:
+		kind := val.Type().Kind()
+		if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 || kind == reflect.String {
+			return nil
+		}
+		return gqlerror.ErrorPathf(v.path, "enums must be ints or strings")
+	case ast.Scalar:
+		kind := val.Type().Kind()
+		switch typ.NamedType {
+		case "Int":
+			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
+				return nil
+			}
+		case "Float":
+			if kind == reflect.Float32 || kind == reflect.Float64 || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
+				return nil
+			}
+		case "String":
+			if kind == reflect.String {
+				return nil
+			}
+
+		case "Boolean":
+			if kind == reflect.Bool {
+				return nil
+			}
+
+		case "ID":
+			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 || kind == reflect.String {
+				return nil
+			}
+		default:
+			// assume custom scalars are ok
+			return nil
+		}
+		return gqlerror.ErrorPathf(v.path, "cannot use %s as %s", kind.String(), typ.NamedType)
 	case ast.InputObject:
 		if val.Kind() != reflect.Map {
 			return gqlerror.ErrorPathf(v.path, "must be a %s", def.Name)
