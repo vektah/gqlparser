@@ -1,9 +1,0 @@
-type Query {
-    intArg(i: Int!): Boolean!
-    structArg(i: InputType!): Boolean!
-    arrayArg(i: [InputType!]): Boolean!
-}
-
-input InputType {
-    name: String!
-}

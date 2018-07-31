@@ -5,8 +5,8 @@ import (
 	"github.com/vektah/gqlparser/gqlerror"
 	"github.com/vektah/gqlparser/parser"
 	"github.com/vektah/gqlparser/validator"
-
 	_ "github.com/vektah/gqlparser/validator/rules"
+	"github.com/vektah/gqlparser/variable"
 )
 
 func LoadSchema(str ...*ast.Source) (*ast.Schema, *gqlerror.Error) {
@@ -21,12 +21,12 @@ func MustLoadSchema(str ...*ast.Source) *ast.Schema {
 	return s
 }
 
-func LoadQuery(schema *ast.Schema, str string) (*ast.QueryDocument, gqlerror.List) {
+func LoadQuery(schema *ast.Schema, str string, coercion variable.CoerceInputScalarFunc) (*ast.QueryDocument, gqlerror.List) {
 	query, err := parser.ParseQuery(&ast.Source{Input: str})
 	if err != nil {
 		return nil, gqlerror.List{err}
 	}
-	errs := validator.Validate(schema, query)
+	errs := validator.Validate(schema, query, coercion)
 	if errs != nil {
 		return nil, errs
 	}
@@ -34,8 +34,8 @@ func LoadQuery(schema *ast.Schema, str string) (*ast.QueryDocument, gqlerror.Lis
 	return query, nil
 }
 
-func MustLoadQuery(schema *ast.Schema, str string) *ast.QueryDocument {
-	q, err := LoadQuery(schema, str)
+func MustLoadQuery(schema *ast.Schema, str string, coercion variable.CoerceInputScalarFunc) *ast.QueryDocument {
+	q, err := LoadQuery(schema, str, coercion)
 	if err != nil {
 		panic(err)
 	}

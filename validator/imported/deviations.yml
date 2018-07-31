@@ -15,6 +15,3 @@
 
 - rule: 'OverlappingFieldsCanBeMerged/return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive'
   skip: "Spec issue? scalar is not exists on SomeBox"
-
-- rule: 'ValuesOfCorrectType/.*custom scalar.*'
-  skip: "Custom scalars are a runtime feature, maybe they dont belong in here?"

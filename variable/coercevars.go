@@ -1,4 +1,4 @@
-package validator
+package variable
 
 import (
 	"fmt"
@@ -8,11 +8,11 @@ import (
 	"github.com/vektah/gqlparser/gqlerror"
 )
 
-// CoerceVariableValues checks the variables for a given operation are valid. mutates variables to include default values where they were not provided
-func CoerceVariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables map[string]interface{}) (map[string]interface{}, *gqlerror.Error) {
-	coercedVars := map[string]interface{}{}
+// coerceVariableValues checks the variables for a given operation are valid. mutates variables to include default values where they were not provided
+func (b *Bag) coerceVariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables map[string]interface{}) *gqlerror.Error {
+	b.coercedVars = map[string]interface{}{}
 
-	validator := operationValidator{
+	validator := validator{
 		path:   []interface{}{"variable"},
 		schema: schema,
 	}
@@ -21,26 +21,26 @@ func CoerceVariableValues(schema *ast.Schema, op *ast.OperationDefinition, varia
 		validator.path = append(validator.path, v.Variable)
 
 		if !v.Definition.IsInputType() {
-			return nil, gqlerror.ErrorPathf(validator.path, "must an input type")
+			return gqlerror.ErrorPathf(validator.path, "must an input type")
 		}
 
 		val, hasValue := variables[v.Variable]
 		if !hasValue {
 			if v.DefaultValue != nil {
 				var err error
-				val, err = v.DefaultValue.Value(variables)
+				val, err = b.CoerceValue(v.DefaultValue)
 				if err != nil {
-					return nil, gqlerror.WrapPath(validator.path, err)
+					return gqlerror.WrapPath(validator.path, err)
 				}
 				hasValue = true
 			} else if v.Type.NonNull {
-				return nil, gqlerror.ErrorPathf(validator.path, "must be defined")
+				return gqlerror.ErrorPathf(validator.path, "must be defined")
 			}
 		}
 
 		rv := reflect.ValueOf(val)
 		if v.Type.NonNull && val == nil {
-			return nil, gqlerror.ErrorPathf(validator.path, "cannot be null")
+			return gqlerror.ErrorPathf(validator.path, "cannot be null")
 		}
 
 		if rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
@@ -48,25 +48,26 @@ func CoerceVariableValues(schema *ast.Schema, op *ast.OperationDefinition, varia
 		}
 
 		if err := validator.validateVarType(v.Type, rv); err != nil {
-			return nil, err
+			return err
 		}
 
 		if hasValue {
-			coercedVars[v.Variable] = val
+			b.coercedVars[v.Variable] = val
 		}
 
 		validator.path = validator.path[0 : len(validator.path)-1]
 	}
 
-	return coercedVars, nil
+	return nil
 }
 
-type operationValidator struct {
+type validator struct {
 	path   []interface{}
 	schema *ast.Schema
+	vars   *Bag
 }
 
-func (v *operationValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerror.Error {
+func (v *validator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerror.Error {
 	if typ.Elem != nil {
 		if val.Kind() != reflect.Slice {
 			return gqlerror.ErrorPathf(v.path, "must be an array")
@@ -76,7 +77,6 @@ func (v *operationValidator) validateVarType(typ *ast.Type, val reflect.Value) *
 			v.path = append(v.path, i)
 			field := val.Index(i)
 
-			fmt.Println(field.Kind(), field.IsNil())
 			if field.Kind() == reflect.Ptr || field.Kind() == reflect.Interface {
 				if typ.Elem.NonNull && field.IsNil() {
 					return gqlerror.ErrorPathf(v.path, "cannot be null")

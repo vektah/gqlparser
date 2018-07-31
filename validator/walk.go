@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/vektah/gqlparser/ast"
+	"github.com/vektah/gqlparser/variable"
 )
 
 type Events struct {
@@ -43,21 +44,23 @@ func (o *Events) OnValue(f func(walker *Walker, value *ast.Value)) {
 	o.value = append(o.value, f)
 }
 
-func Walk(schema *ast.Schema, document *ast.QueryDocument, observers *Events) {
+func Walk(schema *ast.Schema, document *ast.QueryDocument, observers *Events, inputFunc variable.CoerceInputScalarFunc) {
 	w := Walker{
-		Observers: observers,
-		Schema:    schema,
-		Document:  document,
+		Observers:   observers,
+		Schema:      schema,
+		Document:    document,
+		EmptyVarBag: variable.NewEmptyBag(inputFunc),
 	}
 
 	w.walk()
 }
 
 type Walker struct {
-	Context   context.Context
-	Observers *Events
-	Schema    *ast.Schema
-	Document  *ast.QueryDocument
+	Context     context.Context
+	Observers   *Events
+	Schema      *ast.Schema
+	Document    *ast.QueryDocument
+	EmptyVarBag *variable.Bag
 
 	validatedFragmentSpreads map[string]bool
 	CurrentOperation         *ast.OperationDefinition
@@ -177,7 +180,7 @@ func (w *Walker) walkValue(value *ast.Value) {
 
 	if value.Kind == ast.ListValue {
 		for _, child := range value.Children {
-			if value.ExpectedType.Elem != nil {
+			if value.ExpectedType != nil && value.ExpectedType.Elem != nil {
 				child.Value.ExpectedType = value.ExpectedType.Elem
 				child.Value.Definition = value.Definition
 			}

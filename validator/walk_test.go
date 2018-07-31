@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/parser"
+	"github.com/vektah/gqlparser/variable"
 )
 
 func TestWalker(t *testing.T) {
@@ -25,7 +26,7 @@ func TestWalker(t *testing.T) {
 		require.Equal(t, "Query", field.ObjectDefinition.Name)
 	})
 
-	Walk(schema, query, observers)
+	Walk(schema, query, observers, variable.DefaultInputCoercion)
 
 	require.True(t, called)
 }
