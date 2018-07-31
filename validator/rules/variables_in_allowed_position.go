@@ -23,7 +23,7 @@ func init() {
 			if !value.VariableDefinition.Type.IsCompatible(value.ExpectedType) {
 				addError(
 					Message(
-						`Variable "$%s" of type "%s" used in position expecting type "%s".`,
+						`Variable "%s" of type "%s" used in position expecting type "%s".`,
 						value,
 						value.VariableDefinition.Type.String(),
 						value.ExpectedType.String(),

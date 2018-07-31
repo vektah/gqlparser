@@ -177,7 +177,7 @@ func (w *Walker) walkValue(value *ast.Value) {
 
 	if value.Kind == ast.ListValue {
 		for _, child := range value.Children {
-			if value.ExpectedType.Elem != nil {
+			if value.ExpectedType != nil && value.ExpectedType.Elem != nil {
 				child.Value.ExpectedType = value.ExpectedType.Elem
 				child.Value.Definition = value.Definition
 			}
@@ -213,7 +213,7 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		if it.Name == "__typename" {
 			def = &ast.FieldDefinition{
 				Name: "__typename",
-				Type: ast.NamedType("string", nil),
+				Type: ast.NamedType("String", nil),
 			}
 		} else if parentDef != nil {
 			def = parentDef.Fields.ForName(it.Name)

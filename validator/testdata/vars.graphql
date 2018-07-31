@@ -1,9 +1,18 @@
 type Query {
+    optionalIntArg(i: Int): Boolean!
     intArg(i: Int!): Boolean!
+    stringArg(i: String): Boolean!
+    boolArg(i: Boolean!): Boolean!
+    floatArg(i: Float!): Boolean!
+    idArg(i: ID!): Boolean!
+    scalarArg(i: Custom!): Boolean!
     structArg(i: InputType!): Boolean!
+    defaultStructArg(i: InputType! = {name: "foo"}): Boolean!
     arrayArg(i: [InputType!]): Boolean!
 }
 
 input InputType {
     name: String!
 }
+
+scalar Custom
