@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/vektah/gqlparser/ast"
+	"github.com/vektah/gqlparser/coerce"
 )
 
 type Events struct {
@@ -43,21 +44,23 @@ func (o *Events) OnValue(f func(walker *Walker, value *ast.Value)) {
 	o.value = append(o.value, f)
 }
 
-func Walk(schema *ast.Schema, document *ast.QueryDocument, observers *Events) {
+func Walk(schema *ast.Schema, document *ast.QueryDocument, observers *Events, inputFunc coerce.ScalarFunc) {
 	w := Walker{
-		Observers: observers,
-		Schema:    schema,
-		Document:  document,
+		Observers:    observers,
+		Schema:       schema,
+		Document:     document,
+		CoerceScalar: inputFunc,
 	}
 
 	w.walk()
 }
 
 type Walker struct {
-	Context   context.Context
-	Observers *Events
-	Schema    *ast.Schema
-	Document  *ast.QueryDocument
+	Context      context.Context
+	Observers    *Events
+	Schema       *ast.Schema
+	Document     *ast.QueryDocument
+	CoerceScalar coerce.ScalarFunc
 
 	validatedFragmentSpreads map[string]bool
 	CurrentOperation         *ast.OperationDefinition
@@ -177,7 +180,7 @@ func (w *Walker) walkValue(value *ast.Value) {
 
 	if value.Kind == ast.ListValue {
 		for _, child := range value.Children {
-			if value.ExpectedType.Elem != nil {
+			if value.ExpectedType != nil && value.ExpectedType.Elem != nil {
 				child.Value.ExpectedType = value.ExpectedType.Elem
 				child.Value.Definition = value.Definition
 			}
@@ -212,8 +215,9 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		var def *ast.FieldDefinition
 		if it.Name == "__typename" {
 			def = &ast.FieldDefinition{
-				Name: "__typename",
-				Type: ast.NamedType("string", nil),
+				Name:             "__typename",
+				Type:             ast.NamedType("String", nil),
+				ResultDefinition: w.Schema.Types["String"],
 			}
 		} else if parentDef != nil {
 			def = parentDef.Fields.ForName(it.Name)

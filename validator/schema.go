@@ -131,8 +131,9 @@ func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {
 		schema.Query.Fields = append(
 			schema.Query.Fields,
 			&FieldDefinition{
-				Name: "__schema",
-				Type: NonNullNamedType("__Schema", nil),
+				Name:             "__schema",
+				Type:             NonNullNamedType("__Schema", nil),
+				ResultDefinition: schema.Types["__Schema"],
 			},
 			&FieldDefinition{
 				Name: "__type",
@@ -140,6 +141,7 @@ func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {
 				Arguments: ArgumentDefinitionList{
 					{Name: "name", Type: NamedType("String", nil)},
 				},
+				ResultDefinition: schema.Types["__Type"],
 			},
 		)
 	}
@@ -162,6 +164,7 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		if err := validateDirectives(schema, field.Directives, nil); err != nil {
 			return err
 		}
+		field.ResultDefinition = schema.Types[field.Type.Name()]
 	}
 
 	return validateDirectives(schema, def.Directives, nil)
