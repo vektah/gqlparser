@@ -194,6 +194,7 @@ func validateDirectives(schema *Schema, dirs DirectiveList, currentDirective *Di
 		if schema.Directives[dir.Name] == nil {
 			return gqlerror.ErrorPosf(dir.Position, "Undefined directive %s.", dir.Name)
 		}
+		dir.Definition = schema.Directives[dir.Name]
 	}
 	return nil
 }
