@@ -33,3 +33,7 @@ type Argument struct {
 	Value    *Value
 	Position *Position `dump:"-"`
 }
+
+func (f *Field) ArgumentMap(vars map[string]interface{}) map[string]interface{} {
+	return arg2map(f.Definition.Arguments, f.Arguments, vars)
+}
