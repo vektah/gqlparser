@@ -36,3 +36,7 @@ type Directive struct {
 	Definition       *DirectiveDefinition
 	Location         DirectiveLocation
 }
+
+func (d *Directive) ArgumentMap(vars map[string]interface{}) map[string]interface{} {
+	return arg2map(d.Definition.Arguments, d.Arguments, vars)
+}
