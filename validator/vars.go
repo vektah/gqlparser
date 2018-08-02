@@ -112,11 +112,11 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 		kind := val.Type().Kind()
 		switch typ.NamedType {
 		case "Int":
-			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
+			if kind == reflect.String || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
 				return nil
 			}
 		case "Float":
-			if kind == reflect.Float32 || kind == reflect.Float64 || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
+			if kind == reflect.String || kind == reflect.Float32 || kind == reflect.Float64 || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
 				return nil
 			}
 		case "String":
