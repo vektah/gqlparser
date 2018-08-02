@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"testing"
 
+	"encoding/json"
+
 	"github.com/stretchr/testify/require"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
@@ -187,6 +189,15 @@ func TestValidateVars(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int) { optionalIntArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.Nil(t, gerr)
+		})
+
+		t.Run("Json Number -> Int", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int) { optionalIntArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": json.Number("10"),
+			})
+			require.Nil(t, gerr)
+			require.Equal(t, json.Number("10"), vars["var"])
 		})
 
 		t.Run("Bool -> Int", func(t *testing.T) {
