@@ -1,4 +1,4 @@
-gqlparser [![CircleCI](https://img.shields.io/circleci/project/github/vektah/gqlparser/master.svg)](https://circleci.com/gh/vektah/gqlparser) [![Go Report Card](https://goreportcard.com/badge/github.com/vektah/gqlparser)](https://goreportcard.com/report/github.com/vektah/gqlparser) [![Coverage Status](https://img.shields.io/coveralls/github/vektah/gqlparser/master.svg)](https://coveralls.io/github/vektah/gqlparser?branch=master)
+gqlparser [![CircleCI](https://badgen.net/circleci/github/vektah/gqlparser)](https://circleci.com/gh/vektah/gqlparser) [![Go Report Card](https://goreportcard.com/badge/github.com/vektah/gqlparser)](https://goreportcard.com/report/github.com/vektah/gqlparser) [![Coverage Status](https://badgen.net/coveralls/c/github/vektah/gqlparser)](https://coveralls.io/github/vektah/gqlparser?branch=master)
 ===
 
 *This repo is still under heavy development while it is being integrated with gqlgen. APIs will break, use it at your own peril.*
@@ -9,7 +9,7 @@ This is a parser for graphql, written to mirror the graphql-js reference impleme
 spec target: 06614fb52871bbaf940f8cac7148db26df00c562 (master 2018-04-29)
 
 
-This parser aims to replace the one in [graph-gophers/internal](https://github.com/graph-gophers/graphql-go/tree/master/internal) for use by [gqlgen](https://github.com/vektah/gqlgen).
+This parser aims to replace the one in [graph-gophers/internal](https://github.com/graph-gophers/graphql-go/tree/master/internal) for use by [gqlgen](https://github.com/99designs/gqlgen).
 
 
 Guiding principles:
