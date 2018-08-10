@@ -13,6 +13,7 @@ type Query {
 
 input InputType {
     name: String!
+    nullName: String
 }
 
 scalar Custom
