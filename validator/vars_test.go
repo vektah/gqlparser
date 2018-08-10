@@ -200,6 +200,15 @@ func TestValidateVars(t *testing.T) {
 			require.Equal(t, json.Number("10"), vars["var"])
 		})
 
+		t.Run("Nil -> Int", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int) { optionalIntArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": nil,
+			})
+			require.Nil(t, gerr)
+			require.Equal(t, nil, vars["var"])
+		})
+
 		t.Run("Bool -> Int", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int!) { intArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
