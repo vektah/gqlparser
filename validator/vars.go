@@ -174,7 +174,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 					return gqlerror.ErrorPathf(v.path, "cannot be null")
 				}
 				//allow null object field and skip it
-				if fieldDef.Type.NonNull == false && field.IsNil() {
+				if !fieldDef.Type.NonNull && field.IsNil() {
 					continue
 				}
 				field = field.Elem()

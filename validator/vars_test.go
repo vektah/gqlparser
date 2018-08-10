@@ -228,8 +228,6 @@ func TestValidateVars(t *testing.T) {
 			})
 			require.EqualError(t, gerr, "input: variable.var cannot use bool as Int")
 		})
-
-
 	})
 }
 
