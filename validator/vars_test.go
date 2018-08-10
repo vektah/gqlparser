@@ -75,6 +75,18 @@ func TestValidateVars(t *testing.T) {
 			require.EqualValues(t, map[string]interface{}{"name": "foobar"}, vars["var"])
 		})
 
+		t.Run("null object field", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": map[string]interface{}{
+					"name": "foobar",
+					"nullName":nil,
+				},
+			})
+			require.Nil(t, gerr)
+			require.EqualValues(t, map[string]interface{}{"name": "foobar","nullName":nil}, vars["var"])
+		})
+
 		t.Run("missing required values", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
@@ -216,6 +228,8 @@ func TestValidateVars(t *testing.T) {
 			})
 			require.EqualError(t, gerr, "input: variable.var cannot use bool as Int")
 		})
+
+
 	})
 }
 
