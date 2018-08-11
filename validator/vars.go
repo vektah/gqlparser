@@ -148,10 +148,13 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 
 		// check for unknown fields
 		for _, name := range val.MapKeys() {
+			switch name.String() {
+			case "__typename" :
+				return nil
+			}
 			val.MapIndex(name)
 			fieldDef := def.Fields.ForName(name.String())
 			v.path = append(v.path, name)
-
 			if fieldDef == nil {
 				return gqlerror.ErrorPathf(v.path, "unknown field")
 			}
