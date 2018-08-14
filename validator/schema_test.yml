@@ -11,6 +11,37 @@ types:
       message: "Cannot redeclare type A."
       locations: [{line: 4, column: 6}]
 
+interfaces:
+  - name: must exist
+    input: |
+      type Thing implements Object {
+        id: ID!
+      }
+
+      type Query {
+        Things: [Thing!]!
+      }
+    error:
+      message: 'Undefined type "Object".'
+      locations: [{line: 1, column: 6}]
+
+  - name: must be an interface
+    input: |
+      type Thing implements Object {
+        id: ID!
+      }
+
+      type Query {
+        Things: [Thing!]!
+      }
+
+      type Object {
+        name: String
+      }
+    error:
+      message: '"Object" is a non interface type OBJECT.'
+      locations: [{line: 1, column: 6}]
+
 type extensions:
   - name: cannot extend non existant types
     input: |
