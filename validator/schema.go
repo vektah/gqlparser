@@ -3,6 +3,8 @@
 package validator
 
 import (
+	"strconv"
+
 	. "github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/gqlerror"
 	"github.com/vektah/gqlparser/parser"
@@ -161,6 +163,16 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		}
 		if err := validateDirectives(schema, field.Directives, nil); err != nil {
 			return err
+		}
+	}
+
+	for _, intf := range def.Interfaces {
+		intDef := schema.Types[intf]
+		if intDef == nil {
+			return gqlerror.ErrorPosf(def.Position, "Undefined type %s.", strconv.Quote(intf))
+		}
+		if intDef.Kind != Interface {
+			return gqlerror.ErrorPosf(def.Position, "%s is a non interface type %s.", strconv.Quote(intf), intDef.Kind)
 		}
 	}
 
