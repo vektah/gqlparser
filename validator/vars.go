@@ -112,6 +112,9 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 		}
 		return gqlerror.ErrorPathf(v.path, "enums must be ints or strings")
 	case ast.Scalar:
+		if !val.IsValid() {
+			return nil
+		}
 		kind := val.Type().Kind()
 		switch typ.NamedType {
 		case "Int":
