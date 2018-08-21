@@ -246,7 +246,7 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 	case *ast.InlineFragment:
 		it.ObjectDefinition = parentDef
 
-		var nextParentDef *ast.Definition
+		nextParentDef := parentDef
 		if it.TypeCondition != "" {
 			nextParentDef = w.Schema.Types[it.TypeCondition]
 		}
