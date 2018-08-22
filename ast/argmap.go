@@ -5,25 +5,31 @@ func arg2map(defs ArgumentDefinitionList, args ArgumentList, vars map[string]int
 	var err error
 
 	for _, argDef := range defs {
-		argValue := args.ForName(argDef.Name)
-		if argValue == nil {
-			if argDef.DefaultValue != nil {
-				result[argDef.Name], err = argDef.DefaultValue.Value(vars)
+		var val interface{}
+		var hasValue bool
+
+		if argValue := args.ForName(argDef.Name); argValue != nil {
+			if argValue.Value.Kind == Variable {
+				val, hasValue = vars[argValue.Value.Raw]
+			} else {
+				val, err = argValue.Value.Value(vars)
 				if err != nil {
 					panic(err)
 				}
+				hasValue = true
 			}
-			continue
 		}
-		if argValue.Value.Kind == Variable {
-			if val, ok := vars[argValue.Value.Raw]; ok {
-				result[argDef.Name] = val
+
+		if !hasValue && argDef.DefaultValue != nil {
+			val, err = argDef.DefaultValue.Value(vars)
+			if err != nil {
+				panic(err)
 			}
-			continue
+			hasValue = true
 		}
-		result[argDef.Name], err = argValue.Value.Value(vars)
-		if err != nil {
-			panic(err)
+
+		if hasValue {
+			result[argDef.Name] = val
 		}
 	}
 
