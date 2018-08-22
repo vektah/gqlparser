@@ -43,7 +43,7 @@ func TestArg2Map(t *testing.T) {
 			{Name: "A", Value: &Value{Kind: Variable, Raw: "VarA"}},
 			{Name: "B", Value: &Value{Kind: Variable, Raw: "VarB"}},
 		}, map[string]interface{}{})
-		require.NotContains(t, args, "A")
+		require.Equal(t, "defaultA", args["A"])
 		require.NotContains(t, args, "B")
 	})
 
