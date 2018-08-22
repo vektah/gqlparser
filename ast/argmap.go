@@ -18,6 +18,11 @@ func arg2map(defs ArgumentDefinitionList, args ArgumentList, vars map[string]int
 		if argValue.Value.Kind == Variable {
 			if val, ok := vars[argValue.Value.Raw]; ok {
 				result[argDef.Name] = val
+			} else if argDef.DefaultValue != nil {
+				result[argDef.Name], err = argDef.DefaultValue.Value(vars)
+				if err != nil {
+					panic(err)
+				}
 			}
 			continue
 		}
