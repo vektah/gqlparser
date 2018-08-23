@@ -89,7 +89,7 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 				var finalErrors gqlerror.List
 				for _, err := range err {
 					// ignore errors from other rules
-					if err.Rule != spec.Rule {
+					if spec.Rule != "" && err.Rule != spec.Rule {
 						continue
 					}
 					finalErrors = append(finalErrors, err)
