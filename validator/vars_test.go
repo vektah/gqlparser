@@ -115,6 +115,18 @@ func TestValidateVars(t *testing.T) {
 			})
 			require.EqualError(t, gerr, "input: variable.var.foobard unknown field")
 		})
+		t.Run("default field __typename", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
+			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": map[string]interface{}{
+					"name":    "foobar",
+					"__typename": "InputType",
+				},
+			})
+			require.Nil(t, gerr)
+		})
+
+
 	})
 
 	t.Run("array", func(t *testing.T) {
