@@ -79,12 +79,12 @@ func TestValidateVars(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{
-					"name": "foobar",
-					"nullName":nil,
+					"name":     "foobar",
+					"nullName": nil,
 				},
 			})
 			require.Nil(t, gerr)
-			require.EqualValues(t, map[string]interface{}{"name": "foobar","nullName":nil}, vars["var"])
+			require.EqualValues(t, map[string]interface{}{"name": "foobar", "nullName": nil}, vars["var"])
 		})
 
 		t.Run("missing required values", func(t *testing.T) {
@@ -113,7 +113,7 @@ func TestValidateVars(t *testing.T) {
 					"foobard": true,
 				},
 			})
-			require.EqualError(t, gerr, "input: variable.var.foobard unknown field")
+			require.EqualError(t, gerr, "input: variable.var.foobard unknown field foobar")
 		})
 	})
 
