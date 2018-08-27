@@ -153,7 +153,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 			v.path = append(v.path, name)
 
 			if fieldDef == nil {
-				return gqlerror.ErrorPathf(v.path, "unknown field")
+				return gqlerror.ErrorPathf(v.path, "unknown field %s", name.String())
 			}
 			v.path = v.path[0 : len(v.path)-1]
 		}
