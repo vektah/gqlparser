@@ -1,16 +1,11 @@
 gqlparser [![CircleCI](https://badgen.net/circleci/github/vektah/gqlparser/master)](https://circleci.com/gh/vektah/gqlparser) [![Go Report Card](https://goreportcard.com/badge/github.com/vektah/gqlparser)](https://goreportcard.com/report/github.com/vektah/gqlparser) [![Coverage Status](https://badgen.net/coveralls/c/github/vektah/gqlparser)](https://coveralls.io/github/vektah/gqlparser?branch=master)
 ===
 
-*This repo is still under heavy development while it is being integrated with gqlgen. APIs will break, use it at your own peril.*
+This is a parser for graphql, written to mirror the graphql-js reference implementation as closely while remaining idiomatic and easy to use.
 
+spec target: June 2018 (Schema definition language, block strings as descriptions, error paths & extension)
 
-This is a parser for graphql, written to mirror the graphql-js reference implementation as closely as possible.
-
-spec target: 06614fb52871bbaf940f8cac7148db26df00c562 (master 2018-04-29)
-
-
-This parser aims to replace the one in [graph-gophers/internal](https://github.com/graph-gophers/graphql-go/tree/master/internal) for use by [gqlgen](https://github.com/99designs/gqlgen).
-
+This parser is used by [gqlgen](https://github.com/99designs/gqlgen), and it should be reasonablly stable.
 
 Guiding principles:
 
@@ -20,4 +15,3 @@ Guiding principles:
  - idiomatic & stable api: It should follow go best practices, especially around forwards compatibility.
  - fast: Where it doesnt impact on the above it should be fast. Avoid unnecessary allocs in hot paths.
  - close to reference: Where it doesnt impact on the above, it should stay close to the [graphql/graphql-js](github.com/graphql/graphql-js) reference implementation.
-
