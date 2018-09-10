@@ -25,6 +25,7 @@ func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {
 		Types:         map[string]*Definition{},
 		Directives:    map[string]*DirectiveDefinition{},
 		PossibleTypes: map[string][]*Definition{},
+		Implements:    map[string][]*Definition{},
 	}
 
 	for i, def := range ast.Definitions {
@@ -32,13 +33,6 @@ func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {
 			return nil, gqlerror.ErrorPosf(def.Position, "Cannot redeclare type %s.", def.Name)
 		}
 		schema.Types[def.Name] = ast.Definitions[i]
-
-		if def.Kind != Interface {
-			for _, intf := range def.Interfaces {
-				schema.AddPossibleType(intf, ast.Definitions[i])
-			}
-			schema.AddPossibleType(def.Name, ast.Definitions[i])
-		}
 	}
 
 	for _, ext := range ast.Extensions {
@@ -56,6 +50,22 @@ func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {
 		def.Fields = append(def.Fields, ext.Fields...)
 		def.Types = append(def.Types, ext.Types...)
 		def.EnumValues = append(def.EnumValues, ext.EnumValues...)
+	}
+
+	for _, def := range ast.Definitions {
+		switch def.Kind {
+		case Union:
+			for _, t := range def.Types {
+				schema.AddPossibleType(def.Name, schema.Types[t])
+				schema.AddImplements(t, def)
+			}
+		case InputObject, Object:
+			for _, intf := range def.Interfaces {
+				schema.AddPossibleType(intf, def)
+				schema.AddImplements(def.Name, schema.Types[intf])
+			}
+			schema.AddPossibleType(def.Name, def)
+		}
 	}
 
 	for i, dir := range ast.Directives {
