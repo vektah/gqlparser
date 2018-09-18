@@ -11,16 +11,14 @@ import (
 )
 
 func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {
-	ast := &SchemaDocument{}
-	for _, input := range inputs {
-		inputAst, err := parser.ParseSchema(input)
-		if err != nil {
-			return nil, err
-		}
-
-		ast.Merge(inputAst)
+	ast, err := parser.ParseSchemas(inputs...)
+	if err != nil {
+		return nil, err
 	}
+	return ValidateSchemaDocument(ast)
+}
 
+func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 	schema := Schema{
 		Types:         map[string]*Definition{},
 		Directives:    map[string]*DirectiveDefinition{},
