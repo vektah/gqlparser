@@ -13,6 +13,18 @@ func ParseSchema(source *Source) (*SchemaDocument, *gqlerror.Error) {
 	return p.parseSchemaDocument(), p.err
 }
 
+func ParseSchemas(inputs ...*Source) (*SchemaDocument, *gqlerror.Error) {
+	ast := &SchemaDocument{}
+	for _, input := range inputs {
+		inputAst, err := ParseSchema(input)
+		if err != nil {
+			return nil, err
+		}
+		ast.Merge(inputAst)
+	}
+	return ast, nil
+}
+
 func (p *parser) parseSchemaDocument() *SchemaDocument {
 	var doc SchemaDocument
 	doc.Position = p.peekPos()
