@@ -150,7 +150,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 		for _, name := range val.MapKeys() {
 			val.MapIndex(name)
 			fieldDef := def.Fields.ForName(name.String())
-			v.path = append(v.path, name)
+			v.path = append(v.path, name.String())
 
 			if fieldDef == nil {
 				return gqlerror.ErrorPathf(v.path, "unknown field")
