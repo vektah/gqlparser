@@ -28,6 +28,11 @@ func TestLoadSchema(t *testing.T) {
 		require.Len(t, possibleCharacters, 2)
 		require.Equal(t, "Human", possibleCharacters[0].Name)
 		require.Equal(t, "Droid", possibleCharacters[1].Name)
+
+		implements := s.GetImplements(s.Types["Droid"])
+		require.Len(t, implements, 2)
+		require.Equal(t, "Character", implements[0].Name)    // interface
+		require.Equal(t, "SearchResult", implements[1].Name) // union
 	})
 
 	t.Run("type extensions", func(t *testing.T) {
