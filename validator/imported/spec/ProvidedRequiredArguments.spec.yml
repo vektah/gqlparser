@@ -154,7 +154,7 @@
             }
             
   errors:
-    - message: Field "multipleReqs" argument "req1" of type "Int!" is required but not provided.
+    - message: Field "multipleReqs" argument "req1" of type "Int!" is required, but not provided.
       locations:
         - {line: 4, column: 13}
 - name: Invalid non-nullable value/Missing multiple non-nullable arguments
@@ -169,10 +169,10 @@
             }
             
   errors:
-    - message: Field "multipleReqs" argument "req1" of type "Int!" is required but not provided.
+    - message: Field "multipleReqs" argument "req1" of type "Int!" is required, but not provided.
       locations:
         - {line: 4, column: 13}
-    - message: Field "multipleReqs" argument "req2" of type "Int!" is required but not provided.
+    - message: Field "multipleReqs" argument "req2" of type "Int!" is required, but not provided.
       locations:
         - {line: 4, column: 13}
 - name: Invalid non-nullable value/Incorrect value and missing argument
@@ -187,7 +187,7 @@
             }
             
   errors:
-    - message: Field "multipleReqs" argument "req2" of type "Int!" is required but not provided.
+    - message: Field "multipleReqs" argument "req2" of type "Int!" is required, but not provided.
       locations:
         - {line: 4, column: 13}
 - name: Directive arguments/ignores unknown directives
@@ -227,9 +227,9 @@
             }
             
   errors:
-    - message: Directive "@include" argument "if" of type "Boolean!" is required but not provided.
+    - message: Directive "@include" argument "if" of type "Boolean!" is required, but not provided.
       locations:
         - {line: 3, column: 15}
-    - message: Directive "@skip" argument "if" of type "Boolean!" is required but not provided.
+    - message: Directive "@skip" argument "if" of type "Boolean!" is required, but not provided.
       locations:
         - {line: 4, column: 18}
