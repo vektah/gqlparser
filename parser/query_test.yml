@@ -504,4 +504,4 @@ large queries:
                     Value: $b
                 - <Argument>
                     Name: "obj"
-                    Value: {"key":"value","block":"block string uses \"\"\""}
+                    Value: {key:"value",block:"block string uses \"\"\""}
