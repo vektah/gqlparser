@@ -11,6 +11,30 @@ types:
       message: "Cannot redeclare type A."
       locations: [{line: 4, column: 6}]
 
+objects:
+  - name: must define one or more fields
+    input: |
+      directive @D on OBJECT
+
+      type InvalidObject1 {}
+
+      # TODO can't detect this pattern now...
+      type InvalidObject2 {}
+      extend type InvalidObject2 {
+        id: ID
+      }
+
+      type ValidObject {
+        id: ID
+      }
+      extend type ValidObject @D
+      extend type ValidObject {
+        b: Int
+      }
+    error:
+      message: 'OBJECT must define one or more fields.'
+      locations: [{line: 3, column: 6}]
+
 interfaces:
   - name: must exist
     input: |
@@ -41,6 +65,77 @@ interfaces:
     error:
       message: '"Object" is a non interface type OBJECT.'
       locations: [{line: 1, column: 6}]
+
+  - name: must define one or more fields
+    input: |
+      directive @D on INTERFACE
+
+      interface InvalidInterface1 {}
+
+      # TODO can't detect this pattern now...
+      interface InvalidInterface2 {}
+      extend interface InvalidInterface2 {
+        id: ID
+      }
+
+      interface ValidInterface {
+        id: ID
+      }
+      extend interface ValidInterface @D
+      extend interface ValidInterface {
+        b: Int
+      }
+    error:
+      message: 'INTERFACE must define one or more fields.'
+      locations: [{line: 3, column: 11}]
+
+inputs:
+  - name: must define one or more input fields
+    input: |
+      directive @D on INPUT_OBJECT
+
+      input InvalidInput1 {}
+
+      # TODO can't detect this pattern now...
+      input InvalidInput2 {}
+      extend input InvalidInput2 {
+        id: ID
+      }
+
+      input ValidInput {
+        id: ID
+      }
+      extend input ValidInput @D
+      extend input ValidInput {
+        b: Int
+      }
+    error:
+      message: 'INPUT_OBJECT must define one or more input fields.'
+      locations: [{line: 3, column: 7}]
+
+enums:
+  - name: must define one or more unique enum values
+    input: |
+      directive @D on ENUM
+
+      enum InvalidEmum1 {}
+
+      # TODO can't detect this pattern now...
+      enum InvalidEnum2 {}
+      extend enum InvalidEnum2 {
+        FOO
+      }
+
+      enum ValidEnum {
+        FOO
+      }
+      extend enum ValidEnum @D
+      extend enum ValidEnum {
+        BAR
+      }
+    error:
+      message: 'ENUM must define one or more unique enum values.'
+      locations: [{line: 3, column: 6}]
 
 type extensions:
   - name: cannot extend non existant types

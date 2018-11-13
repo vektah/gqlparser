@@ -184,6 +184,21 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		}
 	}
 
+	switch def.Kind {
+	case Object, Interface:
+		if len(def.Fields) == 0 {
+			return gqlerror.ErrorPosf(def.Position, "%s must define one or more fields.", def.Kind)
+		}
+	case Enum:
+		if len(def.EnumValues) == 0 {
+			return gqlerror.ErrorPosf(def.Position, "%s must define one or more unique enum values.", def.Kind)
+		}
+	case InputObject:
+		if len(def.Fields) == 0 {
+			return gqlerror.ErrorPosf(def.Position, "%s must define one or more input fields.", def.Kind)
+		}
+	}
+
 	return validateDirectives(schema, def.Directives, nil)
 }
 
