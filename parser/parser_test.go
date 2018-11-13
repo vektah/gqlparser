@@ -29,42 +29,120 @@ func TestParserUtils(t *testing.T) {
 		require.Nil(t, p.err)
 	})
 
-	t.Run("test many can read array", func(t *testing.T) {
-		p := newParser("[a b c d]")
+	t.Run("test many", func(t *testing.T) {
+		t.Run("can read array", func(t *testing.T) {
+			p := newParser("[a b c d]")
 
-		var arr []string
-		p.many(lexer.BracketL, lexer.BracketR, func() {
-			arr = append(arr, p.next().Value)
+			var arr []string
+			p.many(lexer.BracketL, lexer.BracketR, func() {
+				arr = append(arr, p.next().Value)
+			})
+			require.Nil(t, p.err)
+			require.Equal(t, []string{"a", "b", "c", "d"}, arr)
+
+			require.Equal(t, lexer.EOF, p.peek().Kind)
+			require.Nil(t, p.err)
 		})
-		require.Nil(t, p.err)
-		require.Equal(t, []string{"a", "b", "c", "d"}, arr)
 
-		require.Equal(t, lexer.EOF, p.peek().Kind)
-		require.Nil(t, p.err)
+		t.Run("return if open is not found", func(t *testing.T) {
+			p := newParser("turtles are happy")
+
+			p.many(lexer.BracketL, lexer.BracketR, func() {
+				t.Error("cb should not be called")
+			})
+			require.Nil(t, p.err)
+			require.Equal(t, "turtles", p.next().Value)
+		})
+
+		t.Run("will stop on error", func(t *testing.T) {
+			p := newParser("[a b c d]")
+
+			var arr []string
+			p.many(lexer.BracketL, lexer.BracketR, func() {
+				arr = append(arr, p.next().Value)
+				if len(arr) == 2 {
+					p.error(p.peek(), "boom")
+				}
+			})
+			require.EqualError(t, p.err, "input.graphql:1: boom")
+			require.Equal(t, []string{"a", "b"}, arr)
+		})
 	})
 
-	t.Run("test many return if open is not found", func(t *testing.T) {
-		p := newParser("turtles are happy")
+	t.Run("mark and reset", func(t *testing.T) {
+		t.Run("reset put back all state", func(t *testing.T) {
+			p := newParser("foo bar buzz")
 
-		p.many(lexer.BracketL, lexer.BracketR, func() {
-			t.Error("cb should not be called")
+			p.mark()
+
+			require.Equal(t, p.next().Value, "foo")
+			require.Equal(t, p.next().Value, "bar")
+			require.Equal(t, p.next().Value, "buzz")
+
+			p.reset()
+
+			require.Equal(t, p.next().Value, "foo")
+			require.Equal(t, p.next().Value, "bar")
+			require.Equal(t, p.next().Value, "buzz")
+
+			require.Nil(t, p.err)
+			require.Equal(t, lexer.EOF, p.peek().Kind)
+			require.Nil(t, p.err)
 		})
-		require.Nil(t, p.err)
-		require.Equal(t, "turtles", p.next().Value)
 	})
 
-	t.Run("test many will stop on error", func(t *testing.T) {
-		p := newParser("[a b c d]")
+	t.Run("test some", func(t *testing.T) {
+		t.Run("can read array", func(t *testing.T) {
+			p := newParser("[a b c d]")
 
-		var arr []string
-		p.many(lexer.BracketL, lexer.BracketR, func() {
-			arr = append(arr, p.next().Value)
-			if len(arr) == 2 {
-				p.error(p.peek(), "boom")
-			}
+			var arr []string
+			p.some(lexer.BracketL, lexer.BracketR, func() {
+				arr = append(arr, p.next().Value)
+			})
+			require.Nil(t, p.err)
+			require.Equal(t, []string{"a", "b", "c", "d"}, arr)
+
+			require.Equal(t, lexer.EOF, p.peek().Kind)
+			require.Nil(t, p.err)
 		})
-		require.EqualError(t, p.err, "input.graphql:1: boom")
-		require.Equal(t, []string{"a", "b"}, arr)
+
+		t.Run("can't read empty array", func(t *testing.T) {
+			p := newParser("[]")
+
+			var arr []string
+			p.some(lexer.BracketL, lexer.BracketR, func() {
+				arr = append(arr, p.next().Value)
+			})
+			require.Nil(t, p.err)
+			require.Equal(t, []string(nil), arr)
+
+			require.NotEqual(t, lexer.EOF, p.peek().Kind)
+			require.Nil(t, p.err)
+		})
+
+		t.Run("return if open is not found", func(t *testing.T) {
+			p := newParser("turtles are happy")
+
+			p.some(lexer.BracketL, lexer.BracketR, func() {
+				t.Error("cb should not be called")
+			})
+			require.Nil(t, p.err)
+			require.Equal(t, "turtles", p.next().Value)
+		})
+
+		t.Run("will stop on error", func(t *testing.T) {
+			p := newParser("[a b c d]")
+
+			var arr []string
+			p.some(lexer.BracketL, lexer.BracketR, func() {
+				arr = append(arr, p.next().Value)
+				if len(arr) == 2 {
+					p.error(p.peek(), "boom")
+				}
+			})
+			require.EqualError(t, p.err, "input.graphql:1: boom")
+			require.Equal(t, []string{"a", "b"}, arr)
+		})
 	})
 
 	t.Run("test errors", func(t *testing.T) {

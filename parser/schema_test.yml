@@ -136,6 +136,12 @@ object types:
                     Name: "argTwo"
                     Type: Int
                 Type: String
+  - name: must define one or more fields
+    input: |
+      type Hello {}
+    error:
+      message: "Unexpected {"
+      locations: [{ line: 1, column: 12 }]
 
 type extensions:
   - name: Object extension
@@ -378,6 +384,12 @@ enums:
                 Name: "WO"
             - <EnumValueDefinition>
                 Name: "RLD"
+  - name: must define one or more unique enum values
+    input: |
+      enum Hello {}
+    error:
+      message: "Unexpected {"
+      locations: [{ line: 1, column: 12 }]
 
 interface:
   - name: simple
@@ -395,6 +407,12 @@ interface:
             - <FieldDefinition>
                 Name: "world"
                 Type: String
+  - name: must define one or more fields
+    input: |
+      interface Hello {}
+    error:
+      message: "Unexpected {"
+      locations: [{ line: 1, column: 17 }]
 
 unions:
   - name: simple
@@ -485,6 +503,12 @@ input object:
     error:
       message: "Expected :, found ("
       locations: [{ line: 2, column: 8 }]
+  - name: must define one or more input fields
+    input: |
+      input Hello {}
+    error:
+      message: "Unexpected {"
+      locations: [{ line: 1, column: 13 }]
 
 directives:
   - name: simple

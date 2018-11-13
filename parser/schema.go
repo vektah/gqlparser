@@ -108,7 +108,7 @@ func (p *parser) parseSchemaDefinition(description string) *SchemaDefinition {
 	def.Description = description
 	def.Directives = p.parseDirectives(true)
 
-	p.many(lexer.BraceL, lexer.BraceR, func() {
+	p.some(lexer.BraceL, lexer.BraceR, func() {
 		def.OperationTypes = append(def.OperationTypes, p.parseOperationTypeDefinition())
 	})
 	return &def
@@ -166,7 +166,7 @@ func (p *parser) parseImplementsInterfaces() []string {
 
 func (p *parser) parseFieldsDefinition() FieldList {
 	var defs FieldList
-	p.many(lexer.BraceL, lexer.BraceR, func() {
+	p.some(lexer.BraceL, lexer.BraceR, func() {
 		defs = append(defs, p.parseFieldDefinition())
 	})
 	return defs
@@ -187,7 +187,7 @@ func (p *parser) parseFieldDefinition() *FieldDefinition {
 
 func (p *parser) parseArgumentDefs() ArgumentDefinitionList {
 	var args ArgumentDefinitionList
-	p.many(lexer.ParenL, lexer.ParenR, func() {
+	p.some(lexer.ParenL, lexer.ParenR, func() {
 		args = append(args, p.parseArgumentDef())
 	})
 	return args
@@ -276,7 +276,7 @@ func (p *parser) parseEnumTypeDefinition(description string) *Definition {
 
 func (p *parser) parseEnumValuesDefinition() EnumValueList {
 	var values EnumValueList
-	p.many(lexer.BraceL, lexer.BraceR, func() {
+	p.some(lexer.BraceL, lexer.BraceR, func() {
 		values = append(values, p.parseEnumValueDefinition())
 	})
 	return values
@@ -306,7 +306,7 @@ func (p *parser) parseInputObjectTypeDefinition(description string) *Definition 
 
 func (p *parser) parseInputFieldsDefinition() FieldList {
 	var values FieldList
-	p.many(lexer.BraceL, lexer.BraceR, func() {
+	p.some(lexer.BraceL, lexer.BraceR, func() {
 		values = append(values, p.parseInputValueDef())
 	})
 	return values
@@ -341,7 +341,7 @@ func (p *parser) parseSchemaExtension() *SchemaDefinition {
 	var def SchemaDefinition
 	def.Position = p.peekPos()
 	def.Directives = p.parseDirectives(true)
-	p.many(lexer.BraceL, lexer.BraceR, func() {
+	p.some(lexer.BraceL, lexer.BraceR, func() {
 		def.OperationTypes = append(def.OperationTypes, p.parseOperationTypeDefinition())
 	})
 	if len(def.Directives) == 0 && len(def.OperationTypes) == 0 {

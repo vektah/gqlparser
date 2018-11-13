@@ -11,18 +11,15 @@ types:
       message: "Cannot redeclare type A."
       locations: [{line: 4, column: 6}]
 
-objects:
+object types:
   - name: must define one or more fields
     input: |
       directive @D on OBJECT
 
-      type InvalidObject1 {}
+      # This pattern rejected by parser
+      # type InvalidObject1 {}
 
-      # TODO can't detect this pattern now...
-      type InvalidObject2 {}
-      extend type InvalidObject2 {
-        id: ID
-      }
+      type InvalidObject2 @D
 
       type ValidObject {
         id: ID
@@ -33,7 +30,7 @@ objects:
       }
     error:
       message: 'OBJECT must define one or more fields.'
-      locations: [{line: 3, column: 6}]
+      locations: [{line: 6, column: 6}]
 
 interfaces:
   - name: must exist
@@ -70,13 +67,10 @@ interfaces:
     input: |
       directive @D on INTERFACE
 
-      interface InvalidInterface1 {}
+      # This pattern rejected by parser
+      # interface InvalidInterface1 {}
 
-      # TODO can't detect this pattern now...
-      interface InvalidInterface2 {}
-      extend interface InvalidInterface2 {
-        id: ID
-      }
+      interface InvalidInterface2 @D
 
       interface ValidInterface {
         id: ID
@@ -87,20 +81,17 @@ interfaces:
       }
     error:
       message: 'INTERFACE must define one or more fields.'
-      locations: [{line: 3, column: 11}]
+      locations: [{line: 6, column: 11}]
 
 inputs:
   - name: must define one or more input fields
     input: |
       directive @D on INPUT_OBJECT
 
-      input InvalidInput1 {}
+      # This pattern rejected by parser
+      # input InvalidInput1 {}
 
-      # TODO can't detect this pattern now...
-      input InvalidInput2 {}
-      extend input InvalidInput2 {
-        id: ID
-      }
+      input InvalidInput2 @D
 
       input ValidInput {
         id: ID
@@ -111,20 +102,17 @@ inputs:
       }
     error:
       message: 'INPUT_OBJECT must define one or more input fields.'
-      locations: [{line: 3, column: 7}]
+      locations: [{line: 6, column: 7}]
 
 enums:
   - name: must define one or more unique enum values
     input: |
       directive @D on ENUM
 
-      enum InvalidEmum1 {}
+      # This pattern rejected by parser
+      # enum InvalidEmum1 {}
 
-      # TODO can't detect this pattern now...
-      enum InvalidEnum2 {}
-      extend enum InvalidEnum2 {
-        FOO
-      }
+      enum InvalidEnum2 @D
 
       enum ValidEnum {
         FOO
@@ -135,7 +123,7 @@ enums:
       }
     error:
       message: 'ENUM must define one or more unique enum values.'
-      locations: [{line: 3, column: 6}]
+      locations: [{line: 6, column: 6}]
 
 type extensions:
   - name: cannot extend non existant types

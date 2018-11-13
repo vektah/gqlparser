@@ -17,6 +17,8 @@ type parser struct {
 	peekError *gqlerror.Error
 
 	prev lexer.Token
+
+	saved *parser
 }
 
 func (p *parser) peekPos() *ast.Position {
@@ -59,6 +61,16 @@ func (p *parser) next() lexer.Token {
 		p.prev, p.err = p.lexer.ReadToken()
 	}
 	return p.prev
+}
+
+func (p *parser) mark() {
+	// all fields of parser are not pointers or can be shared value by multiple instances
+	p2 := *p
+	p.saved = &p2
+}
+
+func (p *parser) reset() {
+	*p = *p.saved
 }
 
 func (p *parser) expectKeyword(value string) lexer.Token {
@@ -108,5 +120,27 @@ func (p *parser) many(start lexer.Type, end lexer.Type, cb func()) {
 	for p.peek().Kind != end && p.err == nil {
 		cb()
 	}
+	p.next()
+}
+
+func (p *parser) some(start lexer.Type, end lexer.Type, cb func()) {
+	p.mark()
+
+	hasDef := p.skip(start)
+	if !hasDef {
+		return
+	}
+
+	called := false
+	for p.peek().Kind != end && p.err == nil {
+		called = true
+		cb()
+	}
+
+	if !called {
+		p.reset()
+		return
+	}
+
 	p.next()
 }
