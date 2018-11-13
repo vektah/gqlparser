@@ -140,8 +140,8 @@ object types:
     input: |
       type Hello {}
     error:
-      message: "Unexpected {"
-      locations: [{ line: 1, column: 12 }]
+      message: "expected at least one definition, found }"
+      locations: [{ line: 1, column: 13 }]
 
 type extensions:
   - name: Object extension
@@ -388,8 +388,8 @@ enums:
     input: |
       enum Hello {}
     error:
-      message: "Unexpected {"
-      locations: [{ line: 1, column: 12 }]
+      message: "expected at least one definition, found }"
+      locations: [{ line: 1, column: 13 }]
 
 interface:
   - name: simple
@@ -411,8 +411,8 @@ interface:
     input: |
       interface Hello {}
     error:
-      message: "Unexpected {"
-      locations: [{ line: 1, column: 17 }]
+      message: "expected at least one definition, found }"
+      locations: [{ line: 1, column: 18 }]
 
 unions:
   - name: simple
@@ -507,8 +507,8 @@ input object:
     input: |
       input Hello {}
     error:
-      message: "Unexpected {"
-      locations: [{ line: 1, column: 13 }]
+      message: "expected at least one definition, found }"
+      locations: [{ line: 1, column: 14 }]
 
 directives:
   - name: simple

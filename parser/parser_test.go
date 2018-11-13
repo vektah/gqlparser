@@ -69,28 +69,6 @@ func TestParserUtils(t *testing.T) {
 		})
 	})
 
-	t.Run("mark and reset", func(t *testing.T) {
-		t.Run("reset put back all state", func(t *testing.T) {
-			p := newParser("foo bar buzz")
-
-			p.mark()
-
-			require.Equal(t, p.next().Value, "foo")
-			require.Equal(t, p.next().Value, "bar")
-			require.Equal(t, p.next().Value, "buzz")
-
-			p.reset()
-
-			require.Equal(t, p.next().Value, "foo")
-			require.Equal(t, p.next().Value, "bar")
-			require.Equal(t, p.next().Value, "buzz")
-
-			require.Nil(t, p.err)
-			require.Equal(t, lexer.EOF, p.peek().Kind)
-			require.Nil(t, p.err)
-		})
-	})
-
 	t.Run("test some", func(t *testing.T) {
 		t.Run("can read array", func(t *testing.T) {
 			p := newParser("[a b c d]")
@@ -113,11 +91,9 @@ func TestParserUtils(t *testing.T) {
 			p.some(lexer.BracketL, lexer.BracketR, func() {
 				arr = append(arr, p.next().Value)
 			})
-			require.Nil(t, p.err)
+			require.EqualError(t, p.err, "input.graphql:1: expected at least one definition, found ]")
 			require.Equal(t, []string(nil), arr)
-
 			require.NotEqual(t, lexer.EOF, p.peek().Kind)
-			require.Nil(t, p.err)
 		})
 
 		t.Run("return if open is not found", func(t *testing.T) {
