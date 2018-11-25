@@ -10,6 +10,38 @@ types:
     error:
       message: "Cannot redeclare type A."
       locations: [{line: 4, column: 6}]
+  - name: cannot be duplicated field at same definition 1
+    input: |
+      type A {
+        name: String
+        name: String
+      }
+    error:
+      message: "Field A.name can only be defined once."
+      locations: [{line: 3, column: 3}]
+  - name: cannot be duplicated field at same definition 2
+    input: |
+      type A {
+        name: String
+      }
+      extend type A {
+        name: String
+      }
+    error:
+      message: "Field A.name can only be defined once."
+      locations: [{line: 5, column: 3}]
+  - name: cannot be duplicated field at same definition 3
+    input: |
+      type A {
+        name: String
+      }
+      extend type A {
+        age: Int
+        age: Int
+      }
+    error:
+      message: "Field A.age can only be defined once."
+      locations: [{line: 6, column: 3}]
 
 object types:
   - name: must define one or more fields

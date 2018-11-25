@@ -209,6 +209,14 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		}
 	}
 
+	for idx, field1 := range def.Fields {
+		for _, field2 := range def.Fields[idx+1:] {
+			if field1.Name == field2.Name {
+				return gqlerror.ErrorPosf(field2.Position, "Field %s.%s can only be defined once.", def.Name, field2.Name)
+			}
+		}
+	}
+
 	if !def.BuiltIn {
 		// GraphQL spec has reserved type names a lot!
 		err := validateName(def.Position, def.Name)
