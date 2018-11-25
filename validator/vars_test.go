@@ -163,6 +163,18 @@ func TestValidateVars(t *testing.T) {
 			})
 			require.EqualError(t, gerr, "input: variable.var[0].name must be defined")
 		})
+		t.Run("invalid variable paths", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var1: InputType!, $var2: InputType!) { a:structArg(i: $var1) b:structArg(i: $var2) }`)
+			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var1": map[string]interface{}{
+					"name": "foobar",
+				},
+				"var2": map[string]interface{}{
+					"nullName": "foobar",
+				},
+			})
+			require.EqualError(t, gerr, "input: variable.var2.name must be defined")
+		})
 	})
 
 	t.Run("Scalars", func(t *testing.T) {

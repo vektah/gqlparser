@@ -10,7 +10,19 @@ func ParseSchema(source *Source) (*SchemaDocument, *gqlerror.Error) {
 	p := parser{
 		lexer: lexer.New(source),
 	}
-	return p.parseSchemaDocument(), p.err
+	ast, err := p.parseSchemaDocument(), p.err
+	if err != nil {
+		return nil, err
+	}
+
+	for _, def := range ast.Definitions {
+		def.BuiltIn = source.BuiltIn
+	}
+	for _, def := range ast.Extensions {
+		def.BuiltIn = source.BuiltIn
+	}
+
+	return ast, nil
 }
 
 func ParseSchemas(inputs ...*Source) (*SchemaDocument, *gqlerror.Error) {
