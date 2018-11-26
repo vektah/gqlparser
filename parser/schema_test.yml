@@ -533,3 +533,8 @@ fuzzer:
     error:
       message: 'Expected Name, found <EOF>'
       locations: [{ line: 1, column: 13 }]
+  - name: 2
+    input: "\"\"\"\r"
+    error:
+      message: 'Unexpected <Invalid>'
+      locations: [{ line: 1, column: 5 }]
