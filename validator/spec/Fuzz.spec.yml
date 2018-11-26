@@ -1,0 +1,5 @@
+- name: 01
+  schema: 0
+  query: '{r{__typename(s:0)}}'
+  errors:
+    - message: Cannot query field "r" on type "QueryRoot".
