@@ -82,6 +82,10 @@ func (p *parser) expect(kind lexer.Type) lexer.Token {
 }
 
 func (p *parser) skip(kind lexer.Type) bool {
+	if p.err != nil {
+		return false
+	}
+
 	tok := p.peek()
 
 	if tok.Kind != kind {
