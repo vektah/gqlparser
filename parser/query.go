@@ -184,6 +184,10 @@ func (p *parser) parseFragment() Selection {
 	}
 
 	def.Directives = p.parseDirectives(false)
+	if p.peek().Kind != lexer.BraceL {
+		p.error(p.peek(), "Expected %s, found %s", lexer.BraceL, p.peek().Kind.String())
+		return nil
+	}
 	def.SelectionSet = p.parseSelectionSet()
 	return &def
 }
