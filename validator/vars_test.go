@@ -79,12 +79,12 @@ func TestValidateVars(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{
-					"name": "foobar",
-					"nullName":nil,
+					"name":     "foobar",
+					"nullName": nil,
 				},
 			})
 			require.Nil(t, gerr)
-			require.EqualValues(t, map[string]interface{}{"name": "foobar","nullName":nil}, vars["var"])
+			require.EqualValues(t, map[string]interface{}{"name": "foobar", "nullName": nil}, vars["var"])
 		})
 
 		t.Run("missing required values", func(t *testing.T) {
@@ -103,6 +103,17 @@ func TestValidateVars(t *testing.T) {
 				},
 			})
 			require.EqualError(t, gerr, "input: variable.var.name cannot be null")
+		})
+
+		t.Run("null embedded input object", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
+			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": map[string]interface{}{
+					"name":         "foo",
+					"nullEmbedded": nil,
+				},
+			})
+			require.Nil(t, gerr)
 		})
 
 		t.Run("unknown field", func(t *testing.T) {
