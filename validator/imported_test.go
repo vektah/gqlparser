@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -20,7 +21,7 @@ import (
 type Spec struct {
 	Name   string
 	Rule   string
-	Schema int
+	Schema string
 	Query  string
 	Errors gqlerror.List
 }
@@ -85,7 +86,18 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 					}
 				}
 
-				_, err := gqlparser.LoadQuery(schemas[spec.Schema], spec.Query)
+				// idx := spec.Schema
+				var schema *ast.Schema
+				if idx, err := strconv.Atoi(spec.Schema); err != nil {
+					var gqlErr *gqlerror.Error
+					schema, gqlErr = gqlparser.LoadSchema(&ast.Source{Input: spec.Schema, Name: spec.Name})
+					if gqlErr != nil {
+						t.Fatal(err)
+					}
+				} else {
+					schema = schemas[idx]
+				}
+				_, err := gqlparser.LoadQuery(schema, spec.Query)
 				var finalErrors gqlerror.List
 				for _, err := range err {
 					// ignore errors from other rules
