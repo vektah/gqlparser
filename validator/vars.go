@@ -159,7 +159,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 			v.path = append(v.path, name.String())
 
 			if fieldDef == nil {
-				return gqlerror.ErrorPathf(v.path, "unknown field")
+				return gqlerror.ErrorPathf(v.path, "unknown exitField")
 			}
 		}
 
@@ -179,7 +179,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 				if fieldDef.Type.NonNull && field.IsNil() {
 					return gqlerror.ErrorPathf(v.path, "cannot be null")
 				}
-				//allow null object field and skip it
+				//allow null object exitField and skip it
 				if !fieldDef.Type.NonNull && field.IsNil() {
 					continue
 				}

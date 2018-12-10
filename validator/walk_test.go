@@ -16,7 +16,7 @@ func TestWalker(t *testing.T) {
 
 	called := false
 	observers := &Events{}
-	observers.OnField(func(walker *Walker, field *ast.Field) {
+	observers.OnExitField(func(walker *Walker, field *ast.Field) {
 		called = true
 
 		require.Equal(t, "name", field.Name)
@@ -38,7 +38,7 @@ func TestWalkInlineFragment(t *testing.T) {
 
 	called := false
 	observers := &Events{}
-	observers.OnField(func(walker *Walker, field *ast.Field) {
+	observers.OnExitField(func(walker *Walker, field *ast.Field) {
 		called = true
 
 		require.Equal(t, "name", field.Name)

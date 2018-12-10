@@ -10,7 +10,7 @@ import (
 
 func init() {
 	AddRule("FieldsOnCorrectType", func(observers *Events, addError AddErrFunc) {
-		observers.OnField(func(walker *Walker, field *ast.Field) {
+		observers.OnExitField(func(walker *Walker, field *ast.Field) {
 			if field.ObjectDefinition == nil || field.Definition != nil {
 				return
 			}

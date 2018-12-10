@@ -44,7 +44,7 @@ func init() {
 			emitError()
 		}
 
-		observers.OnInlineFragment(func(walker *Walker, inlineFragment *ast.InlineFragment) {
+		observers.OnExitInlineFragment(func(walker *Walker, inlineFragment *ast.InlineFragment) {
 			validate(walker, inlineFragment.ObjectDefinition, inlineFragment.TypeCondition, func() {
 				addError(
 					Message(`Fragment cannot be spread here as objects of type "%s" can never be of type "%s".`, inlineFragment.ObjectDefinition.Name, inlineFragment.TypeCondition),

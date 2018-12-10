@@ -64,6 +64,15 @@ func TestValidation(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func findDeviation(deviations []*Deviation, ruleName string, spec Spec) *Deviation {
+	for _, deviation := range deviations {
+		if deviation.pattern.MatchString(ruleName + "/" + spec.Name) {
+			return deviation
+		}
+	}
+	return nil
+}
+
 func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filename string) {
 	ruleName := strings.TrimSuffix(filepath.Base(filename), ".spec.yml")
 
@@ -74,19 +83,18 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 			if len(spec.Errors) == 0 {
 				spec.Errors = nil
 			}
-			t.Run(spec.Name, func(t *testing.T) {
-				for _, deviation := range deviations {
-					if deviation.pattern.MatchString(ruleName + "/" + spec.Name) {
-						if deviation.Skip != "" {
-							t.Skip(deviation.Skip)
-						}
-						if deviation.Errors != nil {
-							spec.Errors = deviation.Errors
-						}
-					}
-				}
 
-				// idx := spec.Schema
+			if deviation := findDeviation(deviations, ruleName, spec); strings.HasPrefix(filename, "imported/") && deviation != nil {
+				if deviation.Skip != "" {
+					continue
+				}
+				if deviation.Errors != nil {
+					spec.Errors = deviation.Errors
+				}
+			}
+
+			t.Run(spec.Name, func(t *testing.T) {
+
 				var schema *ast.Schema
 				if idx, err := strconv.Atoi(spec.Schema); err != nil {
 					var gqlErr *gqlerror.Error
@@ -123,14 +131,15 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 				if len(finalErrors) != len(spec.Errors) {
 					t.Errorf("wrong number of errors returned\ngot:\n%s\nwant:\n%s", finalErrors.Error(), spec.Errors)
 				} else {
+					var errLocs []string
 					for i := range spec.Errors {
 						expected := spec.Errors[i]
 						actual := finalErrors[i]
 						if actual.Rule != spec.Rule {
 							continue
 						}
-						var errLocs []string
-						if expected.Message != actual.Message {
+
+						if strings.TrimSpace(expected.Message) != strings.TrimSpace(actual.Message) {
 							errLocs = append(errLocs, "message mismatch")
 						}
 						if len(expected.Locations) > 0 && len(actual.Locations) == 0 {
@@ -149,10 +158,9 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 								errLocs = append(errLocs, "line")
 							}
 						}
-
-						if len(errLocs) > 0 {
-							t.Errorf("%s\ngot:  %s\nwant: %s", strings.Join(errLocs, ", "), finalErrors[i].Error(), spec.Errors[i].Error())
-						}
+					}
+					if len(errLocs) > 0 {
+						t.Errorf("%s\ngot:\n%s\nwant:\n%s", strings.Join(errLocs, ", "), finalErrors.Error(), spec.Errors)
 					}
 				}
 

@@ -7,7 +7,7 @@ import (
 
 func init() {
 	AddRule("ScalarLeafs", func(observers *Events, addError AddErrFunc) {
-		observers.OnField(func(walker *Walker, field *ast.Field) {
+		observers.OnExitField(func(walker *Walker, field *ast.Field) {
 			if field.Definition == nil {
 				return
 			}

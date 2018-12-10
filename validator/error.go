@@ -15,17 +15,19 @@ func Message(msg string, args ...interface{}) ErrorOption {
 	}
 }
 
-func At(position *ast.Position) ErrorOption {
+func At(positions ...*ast.Position) ErrorOption {
 	return func(err *gqlerror.Error) {
-		if position == nil {
-			return
-		}
-		err.Locations = append(err.Locations, gqlerror.Location{
-			Line:   position.Line,
-			Column: position.Column,
-		})
-		if position.Src.Name != "" {
-			err.SetFile(position.Src.Name)
+		for _, position := range positions {
+			if position == nil {
+				return
+			}
+			err.Locations = append(err.Locations, gqlerror.Location{
+				Line:   position.Line,
+				Column: position.Column,
+			})
+			if position.Src.Name != "" {
+				err.SetFile(position.Src.Name)
+			}
 		}
 	}
 }

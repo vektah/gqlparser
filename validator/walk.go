@@ -8,27 +8,35 @@ import (
 )
 
 type Events struct {
-	operationVisitor []func(walker *Walker, operation *ast.OperationDefinition)
-	field            []func(walker *Walker, field *ast.Field)
-	fragment         []func(walker *Walker, fragment *ast.FragmentDefinition)
-	inlineFragment   []func(walker *Walker, inlineFragment *ast.InlineFragment)
-	fragmentSpread   []func(walker *Walker, fragmentSpread *ast.FragmentSpread)
-	directive        []func(walker *Walker, directive *ast.Directive)
-	directiveList    []func(walker *Walker, directives []*ast.Directive)
-	value            []func(walker *Walker, value *ast.Value)
+	operationVisitor    []func(walker *Walker, operation *ast.OperationDefinition)
+	enterField          []func(walker *Walker, field *ast.Field)
+	exitField           []func(walker *Walker, field *ast.Field)
+	fragment            []func(walker *Walker, fragment *ast.FragmentDefinition)
+	enterInlineFragmnet []func(walker *Walker, inlineFragment *ast.InlineFragment)
+	exitInlineFragmnet  []func(walker *Walker, inlineFragment *ast.InlineFragment)
+	fragmentSpread      []func(walker *Walker, fragmentSpread *ast.FragmentSpread)
+	directive           []func(walker *Walker, directive *ast.Directive)
+	directiveList       []func(walker *Walker, directives []*ast.Directive)
+	value               []func(walker *Walker, value *ast.Value)
 }
 
 func (o *Events) OnOperation(f func(walker *Walker, operation *ast.OperationDefinition)) {
 	o.operationVisitor = append(o.operationVisitor, f)
 }
-func (o *Events) OnField(f func(walker *Walker, field *ast.Field)) {
-	o.field = append(o.field, f)
+func (o *Events) OnEnterField(f func(walker *Walker, field *ast.Field)) {
+	o.enterField = append(o.enterField, f)
+}
+func (o *Events) OnExitField(f func(walker *Walker, field *ast.Field)) {
+	o.exitField = append(o.exitField, f)
 }
 func (o *Events) OnFragment(f func(walker *Walker, fragment *ast.FragmentDefinition)) {
 	o.fragment = append(o.fragment, f)
 }
-func (o *Events) OnInlineFragment(f func(walker *Walker, inlineFragment *ast.InlineFragment)) {
-	o.inlineFragment = append(o.inlineFragment, f)
+func (o *Events) OnEnterInlineFragment(f func(walker *Walker, inlineFragment *ast.InlineFragment)) {
+	o.enterInlineFragmnet = append(o.enterInlineFragmnet, f)
+}
+func (o *Events) OnExitInlineFragment(f func(walker *Walker, inlineFragment *ast.InlineFragment)) {
+	o.exitInlineFragmnet = append(o.exitInlineFragmnet, f)
 }
 func (o *Events) OnFragmentSpread(f func(walker *Walker, fragmentSpread *ast.FragmentSpread)) {
 	o.fragmentSpread = append(o.fragmentSpread, f)
@@ -222,6 +230,10 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		it.Definition = def
 		it.ObjectDefinition = parentDef
 
+		for _, v := range w.Observers.enterField {
+			v(w, it)
+		}
+
 		var nextParentDef *ast.Definition
 		if def != nil {
 			nextParentDef = w.Schema.Types[def.Type.Name()]
@@ -239,7 +251,7 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		w.walkDirectives(nextParentDef, it.Directives, ast.LocationField)
 		w.walkSelectionSet(nextParentDef, it.SelectionSet)
 
-		for _, v := range w.Observers.field {
+		for _, v := range w.Observers.exitField {
 			v(w, it)
 		}
 
@@ -251,10 +263,14 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 			nextParentDef = w.Schema.Types[it.TypeCondition]
 		}
 
+		for _, v := range w.Observers.enterInlineFragmnet {
+			v(w, it)
+		}
+
 		w.walkDirectives(nextParentDef, it.Directives, ast.LocationInlineFragment)
 		w.walkSelectionSet(nextParentDef, it.SelectionSet)
 
-		for _, v := range w.Observers.inlineFragment {
+		for _, v := range w.Observers.exitInlineFragmnet {
 			v(w, it)
 		}
 
@@ -271,9 +287,10 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		w.walkDirectives(nextParentDef, it.Directives, ast.LocationFragmentSpread)
 
 		if def != nil && !w.validatedFragmentSpreads[def.Name] {
-			// prevent inifinite recursion
+			// prevent infinite recursion
 			w.validatedFragmentSpreads[def.Name] = true
 			w.walkSelectionSet(nextParentDef, def.SelectionSet)
+			delete(w.validatedFragmentSpreads, def.Name)
 		}
 
 		for _, v := range w.Observers.fragmentSpread {

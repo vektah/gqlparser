@@ -170,7 +170,7 @@ func validateDirective(schema *Schema, def *DirectiveDefinition) *gqlerror.Error
 func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 	for _, field := range def.Fields {
 		if err := validateName(field.Position, field.Name); err != nil {
-			// now, GraphQL spec doesn't have reserved field name
+			// now, GraphQL spec doesn't have reserved exitField name
 			return err
 		}
 		if err := validateTypeRef(schema, field.Type); err != nil {

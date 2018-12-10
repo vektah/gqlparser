@@ -9,7 +9,7 @@ import (
 
 func init() {
 	AddRule("FragmentsOnCompositeTypes", func(observers *Events, addError AddErrFunc) {
-		observers.OnInlineFragment(func(walker *Walker, inlineFragment *ast.InlineFragment) {
+		observers.OnExitInlineFragment(func(walker *Walker, inlineFragment *ast.InlineFragment) {
 			fragmentType := walker.Schema.Types[inlineFragment.TypeCondition]
 			if fragmentType == nil || fragmentType.IsCompositeType() {
 				return
