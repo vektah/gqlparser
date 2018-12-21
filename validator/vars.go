@@ -80,15 +80,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 	defer resetPath()
 
 	if typ.Elem != nil {
-		if val.Kind() != reflect.Slice {
-			return gqlerror.ErrorPathf(v.path, "must be an array")
-		}
-
-		for i := 0; i < val.Len(); i++ {
-			resetPath()
-			v.path = append(v.path, i)
-			field := val.Index(i)
-
+		validateField := func(field reflect.Value) *gqlerror.Error {
 			if field.Kind() == reflect.Ptr || field.Kind() == reflect.Interface {
 				if typ.Elem.NonNull && field.IsNil() {
 					return gqlerror.ErrorPathf(v.path, "cannot be null")
@@ -96,7 +88,18 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 				field = field.Elem()
 			}
 
-			if err := v.validateVarType(typ.Elem, field); err != nil {
+			return v.validateVarType(typ.Elem, field)
+		}
+
+		if val.Kind() != reflect.Slice {
+			v.path = append(v.path, 0)
+			return validateField(val)
+		}
+
+		for i := 0; i < val.Len(); i++ {
+			resetPath()
+			v.path = append(v.path, i)
+			if err := validateField(val.Index(i)); err != nil {
 				return err
 			}
 		}

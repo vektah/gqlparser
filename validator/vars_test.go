@@ -129,34 +129,32 @@ func TestValidateVars(t *testing.T) {
 	})
 
 	t.Run("array", func(t *testing.T) {
-		t.Run("non array", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`)
-			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
-				"var": "hello",
-			})
-			require.EqualError(t, gerr, "input: variable.var must be an array")
-		})
-
 		t.Run("defaults", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!] = [{name: "foo"}]) { arrayArg(i: $var) }`)
+			q := gqlparser.MustLoadQuery(schema,
+				`query foo($var1: [InputType!] = [{name: "foo1"}], $var2: [InputType!] = {name: "foo2"}) { a: arrayArg(i: $var1), b: arrayArg(i: $var2) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.Nil(t, gerr)
-			require.EqualValues(t, []interface{}{map[string]interface{}{
-				"name": "foo",
-			}}, vars["var"])
+			require.EqualValues(t, map[string]interface{}{
+				"var1": []interface{}{map[string]interface{}{
+					"name": "foo1",
+				}},
+				"var2": map[string]interface{}{
+					"name": "foo2",
+				},
+			}, vars)
 		})
 
 		t.Run("valid value", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
-				"var": []interface{}{map[string]interface{}{
+				"var": map[string]interface{}{
 					"name": "foo",
-				}},
+				},
 			})
 			require.Nil(t, gerr)
-			require.EqualValues(t, []interface{}{map[string]interface{}{
+			require.EqualValues(t, map[string]interface{}{
 				"name": "foo",
-			}}, vars["var"])
+			}, vars["var"])
 		})
 
 		t.Run("null element value", func(t *testing.T) {
@@ -171,6 +169,10 @@ func TestValidateVars(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": []interface{}{map[string]interface{}{}},
+			})
+			require.EqualError(t, gerr, "input: variable.var[0].name must be defined")
+			_, gerr = validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": map[string]interface{}{},
 			})
 			require.EqualError(t, gerr, "input: variable.var[0].name must be defined")
 		})
