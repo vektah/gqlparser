@@ -145,16 +145,26 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("valid value", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`)
+			q := gqlparser.MustLoadQuery(schema,
+				`query foo($var1: [InputType!] = [{name: "foo1"}], $var2: [InputType!] = {name: "foo2"}) { a: arrayArg(i: $var1), b: arrayArg(i: $var2) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
-				"var": map[string]interface{}{
+				"var1": []interface{}{map[string]interface{}{
+					"name": "foo",
+				}},
+				"var2": map[string]interface{}{
 					"name": "foo",
 				},
 			})
 			require.Nil(t, gerr)
 			require.EqualValues(t, map[string]interface{}{
-				"name": "foo",
-			}, vars["var"])
+				"var1": []interface{}{map[string]interface{}{
+					"name": "foo",
+				},
+				},
+				"var2": map[string]interface{}{
+					"name": "foo",
+				},
+			}, vars)
 		})
 
 		t.Run("null element value", func(t *testing.T) {
