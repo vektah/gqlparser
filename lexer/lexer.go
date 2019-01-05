@@ -89,7 +89,6 @@ func (s *Lexer) ReadToken() (token Token, err *gqlerror.Error) {
 	switch r {
 	case '!':
 		return s.makeValueToken(Bang, "")
-
 	case '$':
 		return s.makeValueToken(Dollar, "")
 	case '&':
