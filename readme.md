@@ -14,4 +14,4 @@ Guiding principles:
  - server agnostic: It should be usable by any of the graphql server implementations, and any graphql client tooling.
  - idiomatic & stable api: It should follow go best practices, especially around forwards compatibility.
  - fast: Where it doesnt impact on the above it should be fast. Avoid unnecessary allocs in hot paths.
- - close to reference: Where it doesnt impact on the above, it should stay close to the [graphql/graphql-js](github.com/graphql/graphql-js) reference implementation.
+ - close to reference: Where it doesnt impact on the above, it should stay close to the [graphql/graphql-js](https://github.com/graphql/graphql-js) reference implementation.
