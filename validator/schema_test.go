@@ -10,6 +10,15 @@ import (
 )
 
 func TestLoadSchema(t *testing.T) {
+	t.Run("prelude", func(t *testing.T) {
+		s, err := LoadSchema(Prelude)
+		require.Nil(t, err)
+
+		boolDef := s.Types["Boolean"]
+		require.Equal(t, "Boolean", boolDef.Name)
+		require.Equal(t, ast.Scalar, boolDef.Kind)
+		require.Equal(t, "The `Boolean` scalar type represents `true` or `false`.", boolDef.Description)
+	})
 	t.Run("swapi", func(t *testing.T) {
 		file, err := ioutil.ReadFile("testdata/swapi.graphql")
 		require.Nil(t, err)
