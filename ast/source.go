@@ -9,8 +9,7 @@ type Source struct {
 	// BuiltIn indicate whether the source is a part of the specification
 	BuiltIn bool
 }
-
-// Position 
+ 
 type Position struct {
 	Start  int     // The starting position, in runes, of this token in the input.
 	End    int     // The end position, in runes, of this token in the input.
