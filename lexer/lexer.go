@@ -393,8 +393,8 @@ func (s *Lexer) readString() (Token, *gqlerror.Error) {
 				case 't':
 					buf.WriteByte('\t')
 				default:
-					s.end += 1
-					s.endRunes += 1
+					s.end++
+					s.endRunes++
 					return s.makeError("Invalid character escape sequence: \\%s.", string(escape))
 				}
 				s.end += 2
