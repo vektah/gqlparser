@@ -25,6 +25,7 @@ type Lexer struct {
 	lineStartRunes int
 }
 
+// New returns a new lexer
 func New(src *ast.Source) Lexer {
 	return Lexer{
 		Source: src,
