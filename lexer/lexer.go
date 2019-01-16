@@ -254,9 +254,8 @@ func (s *Lexer) readNumber() (Token, *gqlerror.Error) {
 
 	if float {
 		return s.makeToken(Float)
-	} else {
-		return s.makeToken(Int)
 	}
+	return s.makeToken(Int)
 }
 
 // acceptByte if it matches any of given bytes, returning true if it found anything
