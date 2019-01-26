@@ -2,16 +2,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: golang:1.10.2
-    working_directory: /go/src/github.com/vektah/gqlparser
+      - image: golang:1.11
+    working_directory: /gqlparser
     steps:
       - checkout
       - run: >
-          go get -u github.com/alecthomas/gometalinter github.com/andreyvit/diff github.com/stretchr/testify gopkg.in/yaml.v2 github.com/mattn/goveralls github.com/agnivade/levenshtein &&
-          gometalinter --install
-      - run: go vet -composites=false ./...
+          go get -u github.com/mattn/goveralls
       - run: go test -race ./...
-      - run: gometalinter --vendor ./...
       - run: go test -coverprofile=/tmp/coverage.out -coverpkg=./... ./...
       - run: goveralls -coverprofile=/tmp/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
       - run: go test -count 25 ./... # check for flakey test ordering
