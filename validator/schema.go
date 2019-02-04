@@ -199,9 +199,12 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		if len(def.Fields) == 0 {
 			return gqlerror.ErrorPosf(def.Position, "%s must define one or more fields.", def.Kind)
 		}
+		validKinds := []DefinitionKind{Scalar, Object, Interface, Union, Enum}
 		for _, field := range def.Fields {
-			if typ, ok := schema.Types[field.Type.Name()]; ok && typ.Kind == InputObject {
-				return gqlerror.ErrorPosf(field.Position, "%s field must not be an input object.", def.Kind)
+			if typ, ok := schema.Types[field.Type.Name()]; ok {
+				if !isValidKind(typ.Kind, validKinds) {
+					return gqlerror.ErrorPosf(field.Position, "%s field must be one of %s.", def.Kind, kindList(validKinds))
+				}
 			}
 		}
 	case Enum:
@@ -211,6 +214,14 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 	case InputObject:
 		if len(def.Fields) == 0 {
 			return gqlerror.ErrorPosf(def.Position, "%s must define one or more input fields.", def.Kind)
+		}
+		for _, field := range def.Fields {
+			validKinds := []DefinitionKind{Scalar, Enum, InputObject}
+			if typ, ok := schema.Types[field.Type.Name()]; ok {
+				if !isValidKind(typ.Kind, validKinds) {
+					return gqlerror.ErrorPosf(field.Position, "%s field must be one of %s.", def.Kind, kindList(validKinds))
+				}
+			}
 		}
 	}
 
@@ -278,4 +289,21 @@ func validateName(pos *Position, name string) *gqlerror.Error {
 		return gqlerror.ErrorPosf(pos, `Name "%s" must not begin with "__", which is reserved by GraphQL introspection.`, name)
 	}
 	return nil
+}
+
+func isValidKind(kind DefinitionKind, valid []DefinitionKind) bool {
+	for _, k := range valid {
+		if kind == k {
+			return true
+		}
+	}
+	return false
+}
+
+func kindList(kinds []DefinitionKind) string {
+	s := make([]string, len(kinds))
+	for i, k := range kinds {
+		s[i] = string(k)
+	}
+	return strings.Join(s, ", ")
 }

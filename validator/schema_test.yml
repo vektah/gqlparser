@@ -98,7 +98,7 @@ object types:
         input: Input!
       }
     error:
-      message: 'OBJECT field must not be an input object.'
+      message: 'OBJECT field must be one of SCALAR, OBJECT, INTERFACE, UNION, ENUM.'
       locations: [{line: 5, column: 3}]
 
 interfaces:
@@ -172,7 +172,7 @@ interfaces:
         input: Input!
       }
     error:
-      message: 'INTERFACE field must not be an input object.'
+      message: 'INTERFACE field must be one of SCALAR, OBJECT, INTERFACE, UNION, ENUM.'
       locations: [{line: 8, column: 3}]
 
 inputs:
@@ -203,6 +203,17 @@ inputs:
     error:
       message: 'Name "__FooBar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 1, column: 7}]
+  - name: fields must be scalar, enum, or input objects
+    input: | 
+      input Foo {
+        bar: Bar!
+      }
+      type Bar {
+        id: ID
+      }
+    error:
+      message: INPUT_OBJECT field must be one of SCALAR, ENUM, INPUT_OBJECT.
+      locations: [{line: 2, column: 3}]
 
 enums:
   - name: must define one or more unique enum values
