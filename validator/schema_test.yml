@@ -89,6 +89,18 @@ object types:
       message: 'Name "__bar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 2, column: 7}]
 
+  - name: must not allow input object as field type 
+    input: |
+      input Input {
+        id: ID
+      }
+      type Query {
+        input: Input!
+      }
+    error:
+      message: 'OBJECT field must not be an input object.'
+      locations: [{line: 5, column: 3}]
+
 interfaces:
   - name: must exist
     input: |
@@ -148,6 +160,21 @@ interfaces:
       message: 'Name "__FooBar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 1, column: 11}]
 
+  - name: must not allow input object as field type 
+    input: |
+      input Input {
+        id: ID
+      }
+      type Query {
+        foo: Foo!
+      }
+      interface Foo {
+        input: Input!
+      }
+    error:
+      message: 'INTERFACE field must not be an input object.'
+      locations: [{line: 8, column: 3}]
+
 inputs:
   - name: must define one or more input fields
     input: |
@@ -176,17 +203,6 @@ inputs:
     error:
       message: 'Name "__FooBar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 1, column: 7}]
-  - name: must not allow input in field
-    input: |
-      input Input {
-        id: ID
-      }
-      type Query {
-        input: Input!
-      }
-    error:
-      message: 'Input types cannot be used as fields'
-      locations: [{line: 5, column: 3}]
 
 enums:
   - name: must define one or more unique enum values
