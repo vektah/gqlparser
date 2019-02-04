@@ -176,6 +176,17 @@ inputs:
     error:
       message: 'Name "__FooBar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 1, column: 7}]
+  - name: must not allow input in field
+    input: |
+      input Input {
+        id: ID
+      }
+      type Query {
+        input: Input!
+      }
+    error:
+      message: 'Input types cannot be used as fields'
+      locations: [{line: 5, column: 3}]
 
 enums:
   - name: must define one or more unique enum values
