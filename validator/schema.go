@@ -184,6 +184,16 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		}
 	}
 
+	for _, typ := range def.Types {
+		typDef := schema.Types[typ]
+		if typDef == nil {
+			return gqlerror.ErrorPosf(def.Position, "Undefined type %s.", strconv.Quote(typ))
+		}
+		if !isValidKind(typDef.Kind, []DefinitionKind{Object}) {
+			return gqlerror.ErrorPosf(def.Position, "%s type %s must be %s.", def.Kind, strconv.Quote(typ), kindList([]DefinitionKind{Object}))
+		}
+	}
+
 	for _, intf := range def.Interfaces {
 		intDef := schema.Types[intf]
 		if intDef == nil {

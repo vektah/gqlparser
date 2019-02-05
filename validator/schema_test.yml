@@ -245,6 +245,26 @@ enums:
       message: 'Name "__FooBar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 1, column: 6}]
 
+unions:
+  - name: union types must be defined
+    input: |
+      union Foo = Bar | Baz
+      type Bar {
+        id: ID
+      }
+    error:
+      message: "Undefined type \"Baz\"."
+      locations: [{line: 1, column: 7}]
+  - name: union types must be objects
+    input: |
+      union Foo = Baz
+      interface Baz {
+        id: ID
+      }
+    error:
+      message: "UNION type \"Baz\" must be OBJECT."
+      locations: [{line: 1, column: 7}]
+
 type extensions:
   - name: cannot extend non existant types
     input: |
