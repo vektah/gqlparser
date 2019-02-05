@@ -189,8 +189,8 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		if typDef == nil {
 			return gqlerror.ErrorPosf(def.Position, "Undefined type %s.", strconv.Quote(typ))
 		}
-		if !isValidKind(typDef.Kind, []DefinitionKind{Object}) {
-			return gqlerror.ErrorPosf(def.Position, "%s type %s must be %s.", def.Kind, strconv.Quote(typ), kindList([]DefinitionKind{Object}))
+		if !isValidKind(typDef.Kind, Object) {
+			return gqlerror.ErrorPosf(def.Position, "%s type %s must be %s.", def.Kind, strconv.Quote(typ), kindList(Object))
 		}
 	}
 
@@ -209,11 +209,10 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		if len(def.Fields) == 0 {
 			return gqlerror.ErrorPosf(def.Position, "%s must define one or more fields.", def.Kind)
 		}
-		validKinds := []DefinitionKind{Scalar, Object, Interface, Union, Enum}
 		for _, field := range def.Fields {
 			if typ, ok := schema.Types[field.Type.Name()]; ok {
-				if !isValidKind(typ.Kind, validKinds) {
-					return gqlerror.ErrorPosf(field.Position, "%s field must be one of %s.", def.Kind, kindList(validKinds))
+				if !isValidKind(typ.Kind, Scalar, Object, Interface, Union, Enum) {
+					return gqlerror.ErrorPosf(field.Position, "%s field must be one of %s.", def.Kind, kindList(Scalar, Object, Interface, Union, Enum))
 				}
 			}
 		}
@@ -226,10 +225,9 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 			return gqlerror.ErrorPosf(def.Position, "%s must define one or more input fields.", def.Kind)
 		}
 		for _, field := range def.Fields {
-			validKinds := []DefinitionKind{Scalar, Enum, InputObject}
 			if typ, ok := schema.Types[field.Type.Name()]; ok {
-				if !isValidKind(typ.Kind, validKinds) {
-					return gqlerror.ErrorPosf(field.Position, "%s field must be one of %s.", def.Kind, kindList(validKinds))
+				if !isValidKind(typ.Kind, Scalar, Enum, InputObject) {
+					return gqlerror.ErrorPosf(field.Position, "%s field must be one of %s.", def.Kind, kindList(Scalar, Enum, InputObject))
 				}
 			}
 		}
@@ -301,7 +299,7 @@ func validateName(pos *Position, name string) *gqlerror.Error {
 	return nil
 }
 
-func isValidKind(kind DefinitionKind, valid []DefinitionKind) bool {
+func isValidKind(kind DefinitionKind, valid ...DefinitionKind) bool {
 	for _, k := range valid {
 		if kind == k {
 			return true
@@ -310,7 +308,7 @@ func isValidKind(kind DefinitionKind, valid []DefinitionKind) bool {
 	return false
 }
 
-func kindList(kinds []DefinitionKind) string {
+func kindList(kinds ...DefinitionKind) string {
 	s := make([]string, len(kinds))
 	for i, k := range kinds {
 		s[i] = string(k)
