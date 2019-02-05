@@ -89,6 +89,18 @@ object types:
       message: 'Name "__bar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 2, column: 7}]
 
+  - name: must not allow input object as field type 
+    input: |
+      input Input {
+        id: ID
+      }
+      type Query {
+        input: Input!
+      }
+    error:
+      message: 'OBJECT field must be one of SCALAR, OBJECT, INTERFACE, UNION, ENUM.'
+      locations: [{line: 5, column: 3}]
+
 interfaces:
   - name: must exist
     input: |
@@ -148,6 +160,21 @@ interfaces:
       message: 'Name "__FooBar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 1, column: 11}]
 
+  - name: must not allow input object as field type 
+    input: |
+      input Input {
+        id: ID
+      }
+      type Query {
+        foo: Foo!
+      }
+      interface Foo {
+        input: Input!
+      }
+    error:
+      message: 'INTERFACE field must be one of SCALAR, OBJECT, INTERFACE, UNION, ENUM.'
+      locations: [{line: 8, column: 3}]
+
 inputs:
   - name: must define one or more input fields
     input: |
@@ -176,6 +203,17 @@ inputs:
     error:
       message: 'Name "__FooBar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 1, column: 7}]
+  - name: fields must be scalar, enum, or input objects
+    input: | 
+      input Foo {
+        bar: Bar!
+      }
+      type Bar {
+        id: ID
+      }
+    error:
+      message: INPUT_OBJECT field must be one of SCALAR, ENUM, INPUT_OBJECT.
+      locations: [{line: 2, column: 3}]
 
 enums:
   - name: must define one or more unique enum values
@@ -206,6 +244,26 @@ enums:
     error:
       message: 'Name "__FooBar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 1, column: 6}]
+
+unions:
+  - name: union types must be defined
+    input: |
+      union Foo = Bar | Baz
+      type Bar {
+        id: ID
+      }
+    error:
+      message: "Undefined type \"Baz\"."
+      locations: [{line: 1, column: 7}]
+  - name: union types must be objects
+    input: |
+      union Foo = Baz
+      interface Baz {
+        id: ID
+      }
+    error:
+      message: "UNION type \"Baz\" must be OBJECT."
+      locations: [{line: 1, column: 7}]
 
 type extensions:
   - name: cannot extend non existant types

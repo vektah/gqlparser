@@ -184,6 +184,16 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		}
 	}
 
+	for _, typ := range def.Types {
+		typDef := schema.Types[typ]
+		if typDef == nil {
+			return gqlerror.ErrorPosf(def.Position, "Undefined type %s.", strconv.Quote(typ))
+		}
+		if !isValidKind(typDef.Kind, Object) {
+			return gqlerror.ErrorPosf(def.Position, "%s type %s must be %s.", def.Kind, strconv.Quote(typ), kindList(Object))
+		}
+	}
+
 	for _, intf := range def.Interfaces {
 		intDef := schema.Types[intf]
 		if intDef == nil {
@@ -199,6 +209,13 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		if len(def.Fields) == 0 {
 			return gqlerror.ErrorPosf(def.Position, "%s must define one or more fields.", def.Kind)
 		}
+		for _, field := range def.Fields {
+			if typ, ok := schema.Types[field.Type.Name()]; ok {
+				if !isValidKind(typ.Kind, Scalar, Object, Interface, Union, Enum) {
+					return gqlerror.ErrorPosf(field.Position, "%s field must be one of %s.", def.Kind, kindList(Scalar, Object, Interface, Union, Enum))
+				}
+			}
+		}
 	case Enum:
 		if len(def.EnumValues) == 0 {
 			return gqlerror.ErrorPosf(def.Position, "%s must define one or more unique enum values.", def.Kind)
@@ -206,6 +223,13 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 	case InputObject:
 		if len(def.Fields) == 0 {
 			return gqlerror.ErrorPosf(def.Position, "%s must define one or more input fields.", def.Kind)
+		}
+		for _, field := range def.Fields {
+			if typ, ok := schema.Types[field.Type.Name()]; ok {
+				if !isValidKind(typ.Kind, Scalar, Enum, InputObject) {
+					return gqlerror.ErrorPosf(field.Position, "%s field must be one of %s.", def.Kind, kindList(Scalar, Enum, InputObject))
+				}
+			}
 		}
 	}
 
@@ -273,4 +297,21 @@ func validateName(pos *Position, name string) *gqlerror.Error {
 		return gqlerror.ErrorPosf(pos, `Name "%s" must not begin with "__", which is reserved by GraphQL introspection.`, name)
 	}
 	return nil
+}
+
+func isValidKind(kind DefinitionKind, valid ...DefinitionKind) bool {
+	for _, k := range valid {
+		if kind == k {
+			return true
+		}
+	}
+	return false
+}
+
+func kindList(kinds ...DefinitionKind) string {
+	s := make([]string, len(kinds))
+	for i, k := range kinds {
+		s[i] = string(k)
+	}
+	return strings.Join(s, ", ")
 }
