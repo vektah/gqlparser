@@ -268,6 +268,16 @@ func validateArgs(schema *Schema, args ArgumentDefinitionList, currentDirective 
 		if err := validateTypeRef(schema, arg.Type); err != nil {
 			return err
 		}
+		def := schema.Types[arg.Type.Name()]
+		if !def.IsInputType() {
+			return gqlerror.ErrorPosf(
+				arg.Position,
+				"cannot use %s as argument %s because %s is not a valid input type",
+				arg.Type.String(),
+				arg.Name,
+				def.Kind,
+			)
+		}
 		if err := validateDirectives(schema, arg.Directives, currentDirective); err != nil {
 			return err
 		}

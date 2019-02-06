@@ -203,17 +203,70 @@ inputs:
     error:
       message: 'Name "__FooBar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 1, column: 7}]
-  - name: fields must be scalar, enum, or input objects
-    input: | 
-      input Foo {
-        bar: Bar!
-      }
-      type Bar {
-        id: ID
-      }
+
+  - name: fields cannot be Objects
+    input: |
+      type Object { id: ID }
+      input Foo { a: Object! }
     error:
       message: INPUT_OBJECT field must be one of SCALAR, ENUM, INPUT_OBJECT.
-      locations: [{line: 2, column: 3}]
+      locations: [{line: 2, column: 13}]
+
+  - name: fields cannot be Interfaces
+    input: |
+      interface Interface { id: ID! }
+      input Foo { a: Interface! }
+    error:
+      message: INPUT_OBJECT field must be one of SCALAR, ENUM, INPUT_OBJECT.
+      locations: [{line: 2, column: 13}]
+
+  - name: fields cannot be Unions
+    input: |
+      type Object { id: ID }
+      union Union = Object
+      input Foo { a: Union! }
+    error:
+      message: INPUT_OBJECT field must be one of SCALAR, ENUM, INPUT_OBJECT.
+      locations: [{line: 3, column: 13}]
+
+args:
+  - name: Valid arg types
+    input: |
+        input Input { id: ID }
+        enum Enum { A }
+        scalar Scalar
+
+        type Query {
+          f(a: Input, b: Scalar, c: Enum): Boolean!
+        }
+
+  - name: Objects not allowed
+    input: |
+      type Object { id: ID }
+      type Query { f(a: Object): Boolean! }
+
+    error:
+      message: 'cannot use Object as argument a because OBJECT is not a valid input type'
+      locations: [{line: 2, column: 16}]
+
+  - name: Union not allowed
+    input: |
+      type Object { id: ID }
+      union Union = Object
+      type Query { f(a: Union): Boolean! }
+
+    error:
+      message: 'cannot use Union as argument a because UNION is not a valid input type'
+      locations: [{line: 3, column: 16}]
+
+  - name: Interface not allowed
+    input: |
+      interface Interface { id: ID }
+      type Query { f(a: Interface): Boolean! }
+
+    error:
+      message: 'cannot use Interface as argument a because INTERFACE is not a valid input type'
+      locations: [{line: 2, column: 16}]
 
 enums:
   - name: must define one or more unique enum values
@@ -315,6 +368,42 @@ directives:
     error:
       message: 'Name "__A" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 1, column: 12}]
+
+  - name: Valid arg types
+    input: |
+      input Input { id: ID }
+      enum Enum { A }
+      scalar Scalar
+
+      directive @A(a: Input, b: Scalar, c: Enum) on FIELD_DEFINITION
+
+  - name: Objects not allowed
+    input: |
+      type Object { id: ID }
+      directive @A(a: Object) on FIELD_DEFINITION
+
+    error:
+      message: 'cannot use Object as argument a because OBJECT is not a valid input type'
+      locations: [{line: 2, column: 14}]
+
+  - name: Union not allowed
+    input: |
+      type Object { id: ID }
+      union Union = Object
+      directive @A(a: Union) on FIELD_DEFINITION
+
+    error:
+      message: 'cannot use Union as argument a because UNION is not a valid input type'
+      locations: [{line: 3, column: 14}]
+
+  - name: Interface not allowed
+    input: |
+      interface Interface { id: ID }
+      directive @A(a: Interface) on FIELD_DEFINITION
+
+    error:
+      message: 'cannot use Interface as argument a because INTERFACE is not a valid input type'
+      locations: [{line: 2, column: 14}]
 
 entry points:
   - name: multiple schema entry points
