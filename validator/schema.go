@@ -195,12 +195,8 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 	}
 
 	for _, intf := range def.Interfaces {
-		intDef := schema.Types[intf]
-		if intDef == nil {
-			return gqlerror.ErrorPosf(def.Position, "Undefined type %s.", strconv.Quote(intf))
-		}
-		if intDef.Kind != Interface {
-			return gqlerror.ErrorPosf(def.Position, "%s is a non interface type %s.", strconv.Quote(intf), intDef.Kind)
+		if err := validateImplements(schema, def, intf); err != nil {
+			return err
 		}
 	}
 
@@ -300,6 +296,84 @@ func validateDirectives(schema *Schema, dirs DirectiveList, currentDirective *Di
 		dir.Definition = schema.Directives[dir.Name]
 	}
 	return nil
+}
+
+func validateImplements(schema *Schema, def *Definition, intfName string) *gqlerror.Error {
+	// see validation rules at the bottom of
+	// https://facebook.github.io/graphql/June2018/#sec-Objects
+	intf := schema.Types[intfName]
+	if intf == nil {
+		return gqlerror.ErrorPosf(def.Position, "Undefined type %s.", strconv.Quote(intfName))
+	}
+	if intf.Kind != Interface {
+		return gqlerror.ErrorPosf(def.Position, "%s is a non interface type %s.", strconv.Quote(intfName), intf.Kind)
+	}
+	for _, requiredField := range intf.Fields {
+		foundField := def.Fields.ForName(requiredField.Name)
+		if foundField == nil {
+			return gqlerror.ErrorPosf(def.Position,
+				`For %s to implement %s it must have a field called %s.`,
+				def.Name, intf.Name, requiredField.Name,
+			)
+		}
+
+		if !isCovariant(schema, requiredField.Type, foundField.Type) {
+			return gqlerror.ErrorPosf(foundField.Position,
+				`For %s to implement %s the field %s must have type %s.`,
+				def.Name, intf.Name, requiredField.Name, requiredField.Type.String(),
+			)
+		}
+
+		for _, requiredArg := range requiredField.Arguments {
+			foundArg := foundField.Arguments.ForName(requiredArg.Name)
+			if foundArg == nil {
+				return gqlerror.ErrorPosf(foundField.Position,
+					`For %s to implement %s the field %s must have the same arguments but it is missing %s.`,
+					def.Name, intf.Name, requiredField.Name, requiredArg.Name,
+				)
+			}
+
+			if !requiredArg.Type.IsCompatible(foundArg.Type) {
+				return gqlerror.ErrorPosf(foundArg.Position,
+					`For %s to implement %s the field %s must have the same arguments but %s has the wrong type.`,
+					def.Name, intf.Name, requiredField.Name, requiredArg.Name,
+				)
+			}
+		}
+		for _, foundArgs := range foundField.Arguments {
+			if requiredField.Arguments.ForName(foundArgs.Name) == nil && foundArgs.Type.NonNull && foundArgs.DefaultValue == nil {
+				return gqlerror.ErrorPosf(foundArgs.Position,
+					`For %s to implement %s any additional arguments on %s must be optional or have a default value but %s is required.`,
+					def.Name, intf.Name, foundField.Name, foundArgs.Name,
+				)
+			}
+		}
+	}
+	return nil
+}
+
+func isCovariant(schema *Schema, required *Type, actual *Type) bool {
+	if required.NonNull && !actual.NonNull {
+		return false
+	}
+
+	if required.NamedType != "" {
+		if required.NamedType == actual.NamedType {
+			return true
+		}
+		for _, pt := range schema.PossibleTypes[required.NamedType] {
+			if pt.Name == actual.NamedType {
+				return true
+			}
+		}
+		return false
+	}
+
+	if required.Elem != nil && actual.Elem == nil {
+		return false
+	}
+
+	return isCovariant(schema, required.Elem, actual.Elem)
 }
 
 func validateName(pos *Position, name string) *gqlerror.Error {

@@ -175,6 +175,106 @@ interfaces:
       message: 'INTERFACE field must be one of SCALAR, OBJECT, INTERFACE, UNION, ENUM.'
       locations: [{line: 8, column: 3}]
 
+  - name: must have all fields from interface
+    input: |
+      type Bar implements BarInterface {
+          someField: Int!
+      }
+
+      interface BarInterface {
+          id: ID!
+      }
+    error:
+      message: 'For Bar to implement BarInterface it must have a field called id.'
+      locations: [{line: 1, column: 6}]
+
+  - name: must have same type of fields
+    input: |
+      type Bar implements BarInterface {
+          id: Int!
+      }
+
+      interface BarInterface {
+          id: ID!
+      }
+    error:
+      message: 'For Bar to implement BarInterface the field id must have type ID!.'
+      locations: [{line: 2, column: 5}]
+
+  - name: must have all required arguments
+    input: |
+      type Bar implements BarInterface {
+          id: ID!
+      }
+
+      interface BarInterface {
+          id(ff: Int!): ID!
+      }
+    error:
+      message: 'For Bar to implement BarInterface the field id must have the same arguments but it is missing ff.'
+      locations: [{line: 2, column: 5}]
+
+  - name: must have same argument types
+    input: |
+      type Bar implements BarInterface {
+          id(ff: ID!): ID!
+      }
+
+      interface BarInterface {
+          id(ff: Int!): ID!
+      }
+    error:
+      message: 'For Bar to implement BarInterface the field id must have the same arguments but ff has the wrong type.'
+      locations: [{line: 2, column: 8}]
+
+  - name: may defined additional nullable arguments
+    input: |
+      type Bar implements BarInterface {
+          id(opt: Int): ID!
+      }
+
+      interface BarInterface {
+          id: ID!
+      }
+
+  - name: may defined additional required arguments with defaults
+    input: |
+      type Bar implements BarInterface {
+          id(opt: Int! = 1): ID!
+      }
+
+      interface BarInterface {
+          id: ID!
+      }
+
+  - name: must not define additional required arguments without defaults
+    input: |
+      type Bar implements BarInterface {
+          id(opt: Int!): ID!
+      }
+
+      interface BarInterface {
+          id: ID!
+      }
+    error:
+      message: 'For Bar to implement BarInterface any additional arguments on id must be optional or have a default value but opt is required.'
+      locations: [{line: 2, column: 8}]
+
+  - name: can have covariant argument types
+    input: |
+      union U = A|B
+
+      type A { name: String }
+      type B { name: String }
+
+      type Bar implements BarInterface {
+          f: A!
+      }
+
+      interface BarInterface {
+          f: U!
+      }
+
 inputs:
   - name: must define one or more input fields
     input: |
