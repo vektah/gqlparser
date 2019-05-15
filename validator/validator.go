@@ -22,7 +22,7 @@ func AddRule(name string, f ruleFunc) {
 	rules = append(rules, rule{name: name, rule: f})
 }
 
-func Validate(schema *Schema, doc *QueryDocument) gqlerror.List {
+func Validate(schema *Schema, doc *QueryDocument) error {
 	var errs gqlerror.List
 
 	observers := &Events{}
@@ -40,5 +40,9 @@ func Validate(schema *Schema, doc *QueryDocument) gqlerror.List {
 	}
 
 	Walk(schema, doc, observers)
-	return errs
+
+	if errs != nil {
+		return errs
+	}
+	return nil
 }

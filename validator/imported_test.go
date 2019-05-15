@@ -89,7 +89,7 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 				// idx := spec.Schema
 				var schema *ast.Schema
 				if idx, err := strconv.Atoi(spec.Schema); err != nil {
-					var gqlErr *gqlerror.Error
+					var gqlErr error
 					schema, gqlErr = gqlparser.LoadSchema(&ast.Source{Input: spec.Schema, Name: spec.Name})
 					if gqlErr != nil {
 						t.Fatal(err)
@@ -98,8 +98,15 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 					schema = schemas[idx]
 				}
 				_, err := gqlparser.LoadQuery(schema, spec.Query)
+				var gqlErrors gqlerror.List
+				if err != nil {
+					gqlErrors = err.(gqlerror.List)
+				}
+
 				var finalErrors gqlerror.List
-				for _, err := range err {
+
+
+				for _, err := range gqlErrors {
 					// ignore errors from other rules
 					if spec.Rule != "" && err.Rule != spec.Rule {
 						continue

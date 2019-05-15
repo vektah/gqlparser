@@ -1,17 +1,22 @@
 package parser
 
 import (
-	"github.com/vektah/gqlparser/gqlerror"
-	"github.com/vektah/gqlparser/lexer"
-
 	. "github.com/vektah/gqlparser/ast"
+	"github.com/vektah/gqlparser/lexer"
 )
 
-func ParseQuery(source *Source) (*QueryDocument, *gqlerror.Error) {
+func ParseQuery(source *Source) (*QueryDocument, error) {
 	p := parser{
 		lexer: lexer.New(source),
 	}
-	return p.parseQueryDocument(), p.err
+
+	doc := p.parseQueryDocument()
+
+	if p.err != nil {
+		return nil, p.err
+	}
+
+	return doc, nil
 }
 
 func (p *parser) parseQueryDocument() *QueryDocument {

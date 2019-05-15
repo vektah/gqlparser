@@ -8,7 +8,7 @@ import (
 	_ "github.com/vektah/gqlparser/validator/rules"
 )
 
-func LoadSchema(str ...*ast.Source) (*ast.Schema, *gqlerror.Error) {
+func LoadSchema(str ...*ast.Source) (*ast.Schema, error) {
 	return validator.LoadSchema(append([]*ast.Source{validator.Prelude}, str...)...)
 }
 
@@ -20,10 +20,10 @@ func MustLoadSchema(str ...*ast.Source) *ast.Schema {
 	return s
 }
 
-func LoadQuery(schema *ast.Schema, str string) (*ast.QueryDocument, gqlerror.List) {
+func LoadQuery(schema *ast.Schema, str string) (*ast.QueryDocument, error) {
 	query, err := parser.ParseQuery(&ast.Source{Input: str})
 	if err != nil {
-		return nil, gqlerror.List{err}
+		return nil, gqlerror.List{err.(*gqlerror.Error)}
 	}
 	errs := validator.Validate(schema, query)
 	if errs != nil {
