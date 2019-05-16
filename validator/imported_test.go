@@ -98,10 +98,7 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 					schema = schemas[idx]
 				}
 				_, err := gqlparser.LoadQuery(schema, spec.Query)
-				var gqlErrors gqlerror.List
-				if err != nil {
-					gqlErrors = err.(gqlerror.List)
-				}
+				gqlErrors, _ := err.(gqlerror.List)
 
 				var finalErrors gqlerror.List
 
