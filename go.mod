@@ -3,6 +3,8 @@ module github.com/vektah/gqlparser
 require (
 	github.com/agnivade/levenshtein v1.0.1
 	github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883
+	github.com/kisielk/godepgraph v0.0.0-20181003180210-9a9a3d47fba3 // indirect
+	github.com/pmezard/go-difflib v1.0.0
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/tools v0.0.0-20190125232054-d66bd3c5d5a6

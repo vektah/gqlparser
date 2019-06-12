@@ -1,0 +1,29 @@
+schema {
+    query: Query
+}
+
+extend schema {
+    subscription: Subscription
+}
+
+type Query {
+    dogs: [Dog!]!
+}
+
+type Subscription {
+    dogEvents: [Dog!]!
+}
+
+type Dog {
+    name: String!
+}
+
+type Person {
+    name: String!
+}
+
+extend type Dog {
+    owner: Person! @permission(permission: "admin")
+}
+
+directive @permission(permission: String!) on FIELD
