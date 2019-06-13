@@ -2,10 +2,11 @@ package formatter
 
 import (
 	"fmt"
-	"github.com/vektah/gqlparser/ast"
 	"io"
 	"sort"
 	"strings"
+
+	"github.com/vektah/gqlparser/ast"
 )
 
 type Formatter interface {
@@ -15,14 +16,14 @@ type Formatter interface {
 }
 
 func NewFormatter(w io.Writer) Formatter {
-	return &formatter{writer: w, ignoreBuiltin: true}
+	return &formatter{writer: w}
 }
 
 type formatter struct {
 	writer io.Writer
 
-	ignoreBuiltin bool
-	indent        int
+	indent      int
+	emitBuiltin bool
 
 	padNext  bool
 	lineHead bool
@@ -123,29 +124,29 @@ func (f *formatter) FormatSchema(schema *ast.Schema) error {
 		if !inSchema {
 			inSchema = true
 
-			f.WriteString("schema {").WriteNewline()
+			f.WriteWord("schema").WriteString("{").WriteNewline()
 			f.IncrementIndent()
-		}
-	}
-	endSchema := func() {
-		if inSchema {
-			f.DecrementIndent()
-			f.WriteString("}").WriteNewline()
 		}
 	}
 	if schema.Query != nil && schema.Query.Name != "Query" {
 		startSchema()
-		f.WriteString("query:").WriteWord(schema.Query.Name).WriteNewline()
+		f.WriteWord("query").NoPadding().WriteString(":").NeedPadding()
+		f.WriteWord(schema.Query.Name).WriteNewline()
 	}
 	if schema.Mutation != nil && schema.Mutation.Name != "Mutation" {
 		startSchema()
-		f.WriteString("mutation:").WriteWord(schema.Mutation.Name).WriteNewline()
+		f.WriteWord("mutation").NoPadding().WriteString(":").NeedPadding()
+		f.WriteWord(schema.Mutation.Name).WriteNewline()
 	}
 	if schema.Subscription != nil && schema.Subscription.Name != "Subscription" {
 		startSchema()
-		f.WriteString("subscription:").WriteWord(schema.Subscription.Name).WriteNewline()
+		f.WriteWord("subscription").NoPadding().WriteString(":").NeedPadding()
+		f.WriteWord(schema.Subscription.Name).WriteNewline()
 	}
-	endSchema()
+	if inSchema {
+		f.DecrementIndent()
+		f.WriteString("}").WriteNewline()
+	}
 
 	directiveNames := make([]string, 0, len(schema.Directives))
 	for name := range schema.Directives {
@@ -174,8 +175,265 @@ func (f *formatter) FormatSchema(schema *ast.Schema) error {
 	return nil
 }
 
+func (f *formatter) FormatSchemaDocument(doc *ast.SchemaDocument) error {
+	// TODO emit by position based order
+
+	if err := f.FormatSchemaDefinitionList(doc.Schema, false); err != nil {
+		return err
+	}
+	if err := f.FormatSchemaDefinitionList(doc.SchemaExtension, true); err != nil {
+		return err
+	}
+
+	if err := f.FormatDirectiveDefinitionList(doc.Directives); err != nil {
+		return err
+	}
+
+	if err := f.FormatDefinitionList(doc.Definitions, false); err != nil {
+		return err
+	}
+	if err := f.FormatDefinitionList(doc.Extensions, true); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *formatter) FormatQueryDocument(doc *ast.QueryDocument) error {
+	// TODO emit by position based order
+
+	if err := f.FormatOperationList(doc.Operations); err != nil {
+		return err
+	}
+
+	if err := f.FormatFragmentDefinitionList(doc.Fragments); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, extention bool) error {
+
+	if len(lists) == 0 {
+		return nil
+	}
+
+	if extention {
+		f.WriteWord("extend")
+	}
+	f.WriteWord("schema").WriteString("{").WriteNewline()
+	f.IncrementIndent()
+
+	for _, def := range lists {
+		if err := f.FormatSchemaDefinition(def); err != nil {
+			return err
+		}
+	}
+
+	f.DecrementIndent()
+	f.WriteString("}").WriteNewline()
+
+	return nil
+}
+
+func (f *formatter) FormatSchemaDefinition(def *ast.SchemaDefinition) error {
+	f.WriteDescription(def.Description)
+
+	if err := f.FormatDirectiveList(def.Directives); err != nil {
+		return err
+	}
+
+	if err := f.FormatOperationTypeDefinitionList(def.OperationTypes); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *formatter) FormatOperationTypeDefinitionList(lists ast.OperationTypeDefinitionList) error {
+	for _, def := range lists {
+		if err := f.FormatOperationTypeDefinition(def); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (f *formatter) FormatOperationTypeDefinition(def *ast.OperationTypeDefinition) error {
+	f.WriteWord(string(def.Operation)).NoPadding().WriteString(":").NeedPadding()
+	f.WriteWord(def.Type)
+
+	f.WriteNewline()
+
+	return nil
+}
+
+func (f *formatter) FormatFieldList(fieldList ast.FieldList) error {
+	if len(fieldList) == 0 {
+		return nil
+	}
+
+	f.WriteString("{").WriteNewline()
+
+	f.IncrementIndent()
+
+	for _, field := range fieldList {
+		err := f.FormatFieldDefinition(field)
+		if err != nil {
+			return err
+		}
+	}
+
+	f.DecrementIndent()
+
+	f.WriteString("}")
+
+	return nil
+}
+
+func (f *formatter) FormatFieldDefinition(field *ast.FieldDefinition) error {
+	if !f.emitBuiltin && strings.HasPrefix(field.Name, "__") {
+		return nil
+	}
+
+	f.WriteDescription(field.Description)
+	f.WriteWord(field.Name).NoPadding()
+	if err := f.FormatArgumentDefinitionList(field.Arguments); err != nil {
+		return err
+	}
+	f.NoPadding().WriteString(":").NeedPadding()
+
+	if err := f.FormatType(field.Type); err != nil {
+		return err
+	}
+
+	if field.DefaultValue != nil {
+		f.WriteWord("=")
+		if err := f.FormatValue(field.DefaultValue); err != nil {
+			return err
+		}
+	}
+
+	if err := f.FormatDirectiveList(field.Directives); err != nil {
+		return err
+	}
+
+	f.WriteNewline()
+
+	return nil
+}
+
+func (f *formatter) FormatArgumentDefinitionList(lists ast.ArgumentDefinitionList) error {
+	if len(lists) == 0 {
+		return nil
+	}
+
+	f.WriteString("(")
+	for idx, arg := range lists {
+		if err := f.FormatArgumentDefinition(arg); err != nil {
+			return err
+		}
+
+		if idx != len(lists)-1 {
+			f.NoPadding().WriteWord(",")
+		}
+	}
+	f.NoPadding().WriteString(")").NeedPadding()
+
+	return nil
+}
+
+func (f *formatter) FormatArgumentDefinition(def *ast.ArgumentDefinition) error {
+	f.WriteDescription(def.Description)
+	f.WriteWord(def.Name).NoPadding().WriteString(":").NeedPadding()
+	if err := f.FormatType(def.Type); err != nil {
+		return err
+	}
+	if def.DefaultValue != nil {
+		f.WriteWord("=")
+		if err := f.FormatValue(def.DefaultValue); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (f *formatter) FormatDirectiveLocation(location ast.DirectiveLocation) error {
+	f.WriteWord(string(location))
+
+	return nil
+}
+
+func (f *formatter) FormatDirectiveDefinitionList(lists ast.DirectiveDefinitionList) error {
+	if len(lists) == 0 {
+		return nil
+	}
+
+	for _, dec := range lists {
+		if err := f.FormatDirectiveDefinition(dec); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (f *formatter) FormatDirectiveDefinition(def *ast.DirectiveDefinition) error {
+	if !f.emitBuiltin {
+		switch def.Name {
+		case "deprecated", "skip", "include":
+			return nil
+		}
+	}
+
+	f.WriteWord("directive").WriteString("@").WriteWord(def.Name)
+
+	if len(def.Arguments) != 0 {
+		f.NoPadding()
+
+		if err := f.FormatArgumentDefinitionList(def.Arguments); err != nil {
+			return err
+		}
+	}
+
+	if len(def.Locations) != 0 {
+		f.WriteWord("on")
+
+		for idx, dirLoc := range def.Locations {
+			if err := f.FormatDirectiveLocation(dirLoc); err != nil {
+				return err
+			}
+
+			if idx != len(def.Locations)-1 {
+				f.WriteWord("|")
+			}
+		}
+	}
+
+	f.WriteNewline()
+
+	return nil
+}
+
+func (f *formatter) FormatDefinitionList(lists ast.DefinitionList, extend bool) error {
+	if len(lists) == 0 {
+		return nil
+	}
+
+	for _, dec := range lists {
+		if err := f.FormatDefinition(dec, extend); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (f *formatter) FormatDefinition(def *ast.Definition, extend bool) error {
-	if f.ignoreBuiltin && def.BuiltIn {
+	if !f.emitBuiltin && def.BuiltIn {
 		return nil
 	}
 
@@ -230,226 +488,6 @@ func (f *formatter) FormatDefinition(def *ast.Definition, extend bool) error {
 	return nil
 }
 
-func (f *formatter) FormatSchemaDocument(doc *ast.SchemaDocument) error {
-	// TODO emit by position based order
-
-	if err := f.FormatSchemaDefinitionList(doc.Schema, false); err != nil {
-		return err
-	}
-	if err := f.FormatSchemaDefinitionList(doc.SchemaExtension, true); err != nil {
-		return err
-	}
-
-	if err := f.FormatDirectiveDefinitionList(doc.Directives); err != nil {
-		return err
-	}
-
-	if err := f.FormatDefinitionList(doc.Definitions, false); err != nil {
-		return err
-	}
-	if err := f.FormatDefinitionList(doc.Extensions, true); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (f *formatter) FormatQueryDocument(doc *ast.QueryDocument) error {
-	// TODO emit by position based order
-
-	if err := f.FormatOperationList(doc.Operations); err != nil {
-		return err
-	}
-
-	if err := f.FormatFragmentDefinitionList(doc.Fragments); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (f *formatter) FormatFieldList(fieldList ast.FieldList) error {
-	if len(fieldList) == 0 {
-		return nil
-	}
-
-	f.WriteString("{").WriteNewline()
-
-	f.IncrementIndent()
-
-	for _, field := range fieldList {
-		err := f.FormatFieldDefinition(field)
-		if err != nil {
-			return err
-		}
-	}
-
-	f.DecrementIndent()
-
-	f.WriteString("}")
-
-	return nil
-}
-
-func (f *formatter) FormatFieldDefinition(field *ast.FieldDefinition) error {
-	if f.ignoreBuiltin && strings.HasPrefix(field.Name, "__") {
-		return nil
-	}
-
-	f.WriteDescription(field.Description)
-	f.WriteWord(field.Name).NoPadding()
-	if err := f.FormatArgumentDefinitionList(field.Arguments); err != nil {
-		return err
-	}
-	f.NoPadding().WriteString(":").NeedPadding()
-
-	if err := f.FormatType(field.Type); err != nil {
-		return err
-	}
-
-	if field.DefaultValue != nil {
-		f.WriteWord("=")
-		if err := f.FormatValue(field.DefaultValue); err != nil {
-			return err
-		}
-	}
-
-	if err := f.FormatDirectiveList(field.Directives); err != nil {
-		return err
-	}
-
-	f.WriteNewline()
-
-	return nil
-}
-
-func (f *formatter) FormatArgumentDefinitionList(lists ast.ArgumentDefinitionList) error {
-	if len(lists) == 0 {
-		return nil
-	}
-
-	f.WriteString("(")
-	for idx, arg := range lists {
-		if err := f.FormatArgumentDefinition(arg); err != nil {
-			return err
-		}
-
-		if idx != len(lists)-1 {
-			f.NoPadding().WriteWord(",")
-		}
-	}
-	f.NoPadding().WriteString(")").NeedPadding()
-
-	return nil
-}
-
-func (f *formatter) FormatType(t *ast.Type) error {
-	f.WriteWord(t.String())
-	return nil
-}
-
-func (f *formatter) FormatDirectiveList(lists ast.DirectiveList) error {
-	if len(lists) == 0 {
-		return nil
-	}
-
-	for _, dir := range lists {
-		if err := f.FormatDirective(dir); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (f *formatter) FormatDirectiveDefinition(def *ast.DirectiveDefinition) error {
-	if f.ignoreBuiltin {
-		switch def.Name {
-		case "deprecated", "skip", "include":
-			return nil
-		}
-	}
-
-	f.WriteWord("directive").WriteString("@").WriteWord(def.Name).NoPadding()
-
-	if err := f.FormatArgumentDefinitionList(def.Arguments); err != nil {
-		return err
-	}
-
-	if len(def.Locations) != 0 {
-		f.WriteWord("on")
-
-		for idx, dirLoc := range def.Locations {
-			if err := f.FormatDirectiveLocation(dirLoc); err != nil {
-				return err
-			}
-
-			if idx != len(def.Locations)-1 {
-				f.WriteWord("|")
-			}
-		}
-	}
-
-	f.WriteNewline()
-
-	return nil
-}
-
-func (f *formatter) FormatDirectiveLocation(location ast.DirectiveLocation) error {
-	f.WriteWord(string(location))
-
-	return nil
-}
-
-func (f *formatter) FormatDirective(dir *ast.Directive) error {
-	f.WriteString("@").WriteWord(dir.Name).NoPadding()
-	if err := f.FormatArgumentList(dir.Arguments); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (f *formatter) FormatArgumentList(lists ast.ArgumentList) error {
-	f.WriteString("(")
-	for idx, arg := range lists {
-		if err := f.FormatArgument(arg); err != nil {
-			return err
-		}
-
-		if idx != len(lists)-1 {
-			f.NoPadding().WriteWord(",")
-		}
-	}
-	f.WriteString(")")
-
-	return nil
-}
-
-func (f *formatter) FormatArgument(arg *ast.Argument) error {
-
-	f.WriteWord(arg.Name).NoPadding().WriteString(":").NeedPadding()
-	f.WriteString(arg.Value.String())
-
-	return nil
-}
-
-func (f *formatter) FormatArgumentDefinition(def *ast.ArgumentDefinition) error {
-	f.WriteDescription(def.Description)
-	f.WriteWord(def.Name).NoPadding().WriteString(":").NeedPadding()
-	if err := f.FormatType(def.Type); err != nil {
-		return err
-	}
-	if def.DefaultValue != nil {
-		f.WriteWord("=")
-		if err := f.FormatValue(def.DefaultValue); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (f *formatter) FormatEnumValueList(lists ast.EnumValueList) error {
 	if len(lists) == 0 {
 		return nil
@@ -482,111 +520,9 @@ func (f *formatter) FormatEnumValueDefinition(def *ast.EnumValueDefinition) erro
 	return nil
 }
 
-func (f *formatter) FormatValue(value *ast.Value) error {
-	f.WriteString(value.String())
-
-	return nil
-}
-
-func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, extention bool) error {
-
-	if len(lists) == 0 {
-		return nil
-	}
-
-	if extention {
-		f.WriteWord("extend")
-	}
-	f.WriteWord("schema").WriteString("{").WriteNewline()
-	f.IncrementIndent()
-
-	for _, def := range lists {
-		if err := f.FormatSchemaDefinition(def); err != nil {
-			return err
-		}
-	}
-
-	f.DecrementIndent()
-	f.WriteString("}").WriteNewline()
-
-	return nil
-}
-
-func (f *formatter) FormatDirectiveDefinitionList(lists ast.DirectiveDefinitionList) error {
-	if len(lists) == 0 {
-		return nil
-	}
-
-	for _, dec := range lists {
-		if err := f.FormatDirectiveDefinition(dec); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (f *formatter) FormatDefinitionList(lists ast.DefinitionList, extend bool) error {
-	if len(lists) == 0 {
-		return nil
-	}
-
-	for _, dec := range lists {
-		if err := f.FormatDefinition(dec, extend); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (f *formatter) FormatSchemaDefinition(def *ast.SchemaDefinition) error {
-	f.WriteDescription(def.Description)
-
-	if err := f.FormatDirectiveList(def.Directives); err != nil {
-		return err
-	}
-
-	if err := f.FormatOperationTypeDefinitionList(def.OperationTypes); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (f *formatter) FormatOperationTypeDefinitionList(lists ast.OperationTypeDefinitionList) error {
-	for _, def := range lists {
-		if err := f.FormatOperationTypeDefinition(def); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (f *formatter) FormatOperationTypeDefinition(def *ast.OperationTypeDefinition) error {
-	f.WriteWord(string(def.Operation)).NoPadding().WriteString(":").NeedPadding()
-	f.WriteWord(def.Type)
-
-	f.WriteNewline()
-
-	return nil
-}
-
 func (f *formatter) FormatOperationList(lists ast.OperationList) error {
 	for _, def := range lists {
 		if err := f.FormatOperationDefinition(def); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (f *formatter) FormatFragmentDefinitionList(lists ast.FragmentDefinitionList) error {
-
-	for _, def := range lists {
-		if err := f.FormatFragmentDefinition(def); err != nil {
 			return err
 		}
 	}
@@ -603,6 +539,87 @@ func (f *formatter) FormatOperationDefinition(def *ast.OperationDefinition) erro
 	if err := f.FormatVariableDefinitionList(def.VariableDefinitions); err != nil {
 		return err
 	}
+
+	if err := f.FormatDirectiveList(def.Directives); err != nil {
+		return err
+	}
+
+	if len(def.SelectionSet) != 0 {
+		if err := f.FormatSelectionSet(def.SelectionSet); err != nil {
+			return err
+		}
+		f.WriteNewline()
+	}
+
+	return nil
+}
+
+func (f *formatter) FormatDirectiveList(lists ast.DirectiveList) error {
+	if len(lists) == 0 {
+		return nil
+	}
+
+	for _, dir := range lists {
+		if err := f.FormatDirective(dir); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (f *formatter) FormatDirective(dir *ast.Directive) error {
+	f.WriteString("@").WriteWord(dir.Name).NoPadding()
+	if err := f.FormatArgumentList(dir.Arguments); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *formatter) FormatArgumentList(lists ast.ArgumentList) error {
+	f.WriteString("(")
+	for idx, arg := range lists {
+		if err := f.FormatArgument(arg); err != nil {
+			return err
+		}
+
+		if idx != len(lists)-1 {
+			f.NoPadding().WriteWord(",")
+		}
+	}
+	f.WriteString(")")
+
+	return nil
+}
+
+func (f *formatter) FormatArgument(arg *ast.Argument) error {
+	f.WriteWord(arg.Name).NoPadding().WriteString(":").NeedPadding()
+	f.WriteString(arg.Value.String())
+
+	return nil
+}
+
+func (f *formatter) FormatFragmentDefinitionList(lists ast.FragmentDefinitionList) error {
+
+	for _, def := range lists {
+		if err := f.FormatFragmentDefinition(def); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (f *formatter) FormatFragmentDefinition(def *ast.FragmentDefinition) error {
+
+	f.WriteWord("fragment").WriteWord(def.Name)
+
+	if err := f.FormatVariableDefinitionList(def.VariableDefinition); err != nil {
+		return err
+	}
+
+	f.WriteWord("on").WriteWord(def.TypeCondition)
 
 	if err := f.FormatDirectiveList(def.Directives); err != nil {
 		return err
@@ -638,50 +655,6 @@ func (f *formatter) FormatVariableDefinitionList(lists ast.VariableDefinitionLis
 	return nil
 }
 
-func (f *formatter) FormatSelectionSet(sets ast.SelectionSet) error {
-	if len(sets) == 0 {
-		return nil
-	}
-
-	f.WriteString("{").WriteNewline()
-	f.IncrementIndent()
-
-	for _, sel := range sets {
-		if err := f.FormatSelection(sel); err != nil {
-			return err
-		}
-	}
-
-	f.DecrementIndent()
-	f.WriteString("}")
-
-	return nil
-}
-
-func (f *formatter) FormatFragmentDefinition(def *ast.FragmentDefinition) error {
-
-	f.WriteWord("fragment").WriteWord(def.Name)
-
-	if err := f.FormatVariableDefinitionList(def.VariableDefinition); err != nil {
-		return err
-	}
-
-	f.WriteWord("on").WriteWord(def.TypeCondition)
-
-	if err := f.FormatDirectiveList(def.Directives); err != nil {
-		return err
-	}
-
-	if len(def.SelectionSet) != 0 {
-		if err := f.FormatSelectionSet(def.SelectionSet); err != nil {
-			return err
-		}
-		f.WriteNewline()
-	}
-
-	return nil
-}
-
 func (f *formatter) FormatVariableDefinition(def *ast.VariableDefinition) error {
 
 	f.WriteString("$").WriteWord(def.Variable).NoPadding().WriteString(":").NeedPadding()
@@ -698,6 +671,26 @@ func (f *formatter) FormatVariableDefinition(def *ast.VariableDefinition) error 
 
 	// TODO VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 	//   Directives supported?
+
+	return nil
+}
+
+func (f *formatter) FormatSelectionSet(sets ast.SelectionSet) error {
+	if len(sets) == 0 {
+		return nil
+	}
+
+	f.WriteString("{").WriteNewline()
+	f.IncrementIndent()
+
+	for _, sel := range sets {
+		if err := f.FormatSelection(sel); err != nil {
+			return err
+		}
+	}
+
+	f.DecrementIndent()
+	f.WriteString("}")
 
 	return nil
 }
@@ -780,6 +773,17 @@ func (f *formatter) FormatInlineFragment(inline *ast.InlineFragment) error {
 	if err := f.FormatSelectionSet(inline.SelectionSet); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (f *formatter) FormatType(t *ast.Type) error {
+	f.WriteWord(t.String())
+	return nil
+}
+
+func (f *formatter) FormatValue(value *ast.Value) error {
+	f.WriteString(value.String())
 
 	return nil
 }
