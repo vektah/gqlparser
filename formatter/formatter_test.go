@@ -10,12 +10,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"strings"
 	"testing"
 )
 
 func TestFormatter_FormatSchema(t *testing.T) {
-	const testSourceDir = "./testdata/source"
+	const testSourceDir = "./testdata/source/schema"
 	const testBaselineDir = "./testdata/baseline/FormatSchema"
 
 	fs, err := ioutil.ReadDir(testSourceDir)
@@ -25,8 +24,6 @@ func TestFormatter_FormatSchema(t *testing.T) {
 
 	for _, f := range fs {
 		if f.IsDir() {
-			continue
-		} else if isQueryFile(f.Name()) {
 			continue
 		}
 		f := f
@@ -95,7 +92,7 @@ func TestFormatter_FormatSchema(t *testing.T) {
 }
 
 func TestFormatter_FormatSchemaDocument(t *testing.T) {
-	const testSourceDir = "./testdata/source"
+	const testSourceDir = "./testdata/source/schema"
 	const testBaselineDir = "./testdata/baseline/FormatSchemaDocument"
 
 	fs, err := ioutil.ReadDir(testSourceDir)
@@ -105,8 +102,6 @@ func TestFormatter_FormatSchemaDocument(t *testing.T) {
 
 	for _, f := range fs {
 		if f.IsDir() {
-			continue
-		} else if isQueryFile(f.Name()) {
 			continue
 		}
 		f := f
@@ -175,7 +170,7 @@ func TestFormatter_FormatSchemaDocument(t *testing.T) {
 }
 
 func TestFormatter_FormatQueryDocument(t *testing.T) {
-	const testSourceDir = "./testdata/source"
+	const testSourceDir = "./testdata/source/query"
 	const testBaselineDir = "./testdata/baseline/FormatQueryDocument"
 
 	fs, err := ioutil.ReadDir(testSourceDir)
@@ -185,8 +180,6 @@ func TestFormatter_FormatQueryDocument(t *testing.T) {
 
 	for _, f := range fs {
 		if f.IsDir() {
-			continue
-		} else if !isQueryFile(f.Name()) {
 			continue
 		}
 
@@ -253,10 +246,6 @@ func TestFormatter_FormatQueryDocument(t *testing.T) {
 			t.Error(d)
 		})
 	}
-}
-
-func isQueryFile(fileName string) bool {
-	return strings.HasSuffix(fileName, "_query.graphql")
 }
 
 func mustReadFile(name string) string {
