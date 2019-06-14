@@ -1,7 +1,0 @@
-{
-    fizzList(first: 100) {
-        nodes {
-            id
-        }
-    }
-}
