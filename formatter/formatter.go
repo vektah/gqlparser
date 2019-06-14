@@ -669,8 +669,8 @@ func (f *formatter) FormatVariableDefinition(def *ast.VariableDefinition) error 
 		}
 	}
 
-	// TODO VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
-	//   Directives supported?
+	// TODO https://github.com/vektah/gqlparser/issues/102
+	//   VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 
 	return nil
 }
