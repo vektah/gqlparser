@@ -2,6 +2,7 @@ package formatter_test
 
 import (
 	"bytes"
+	"flag"
 	"io/ioutil"
 	"os"
 	"path"
@@ -14,6 +15,8 @@ import (
 	"github.com/vektah/gqlparser/formatter"
 	"github.com/vektah/gqlparser/parser"
 )
+
+var update = flag.Bool("u", false, "update golden files")
 
 func TestFormatter_FormatSchema(t *testing.T) {
 	const testSourceDir = "./testdata/source/schema"
@@ -175,6 +178,14 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 			result := cfg.Run(t, cfg, f)
 
 			expectedFilePath := cfg.BaselineFileName(cfg, f)
+
+			if *update {
+				err := os.Remove(expectedFilePath)
+				if err != nil && !os.IsNotExist(err) {
+					t.Fatal(err)
+				}
+			}
+
 			expected, err := ioutil.ReadFile(expectedFilePath)
 			if os.IsNotExist(err) {
 				err = os.MkdirAll(path.Dir(expectedFilePath), 0755)
@@ -186,6 +197,7 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 					t.Fatal(err)
 				}
 				return
+
 			} else if err != nil {
 				t.Fatal(err)
 			}
@@ -194,7 +206,7 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 				return
 			}
 
-			t.Logf("if you want to accept new result. rm %s", expectedFilePath)
+			t.Logf("if you want to accept new result. use -u option")
 
 			if utf8.Valid(expected) {
 				diff := difflib.UnifiedDiff{
