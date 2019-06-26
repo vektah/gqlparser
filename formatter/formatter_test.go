@@ -39,10 +39,7 @@ func TestFormatter_FormatSchema(t *testing.T) {
 
 			// exec format
 			var buf bytes.Buffer
-			err := formatter.NewFormatter(&buf).FormatSchema(schema)
-			if err != nil {
-				t.Fatal(err)
-			}
+			formatter.NewFormatter(&buf).FormatSchema(schema)
 
 			// validity check
 			_, gqlErr = gqlparser.LoadSchema(&ast.Source{
@@ -80,10 +77,7 @@ func TestFormatter_FormatSchemaDocument(t *testing.T) {
 
 			// exec format
 			var buf bytes.Buffer
-			err := formatter.NewFormatter(&buf).FormatSchemaDocument(doc)
-			if err != nil {
-				t.Fatal(err)
-			}
+			formatter.NewFormatter(&buf).FormatSchemaDocument(doc)
 
 			// validity check
 			_, gqlErr = parser.ParseSchema(&ast.Source{
@@ -121,10 +115,7 @@ func TestFormatter_FormatQueryDocument(t *testing.T) {
 
 			// exec format
 			var buf bytes.Buffer
-			err := formatter.NewFormatter(&buf).FormatQueryDocument(doc)
-			if err != nil {
-				t.Fatal(err)
-			}
+			formatter.NewFormatter(&buf).FormatQueryDocument(doc)
 
 			// validity check
 			_, gqlErr = parser.ParseQuery(&ast.Source{
