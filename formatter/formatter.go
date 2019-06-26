@@ -170,6 +170,10 @@ func (f *formatter) FormatSchema(schema *ast.Schema) {
 func (f *formatter) FormatSchemaDocument(doc *ast.SchemaDocument) {
 	// TODO emit by position based order
 
+	if doc == nil {
+		return
+	}
+
 	f.FormatSchemaDefinitionList(doc.Schema, false)
 	f.FormatSchemaDefinitionList(doc.SchemaExtension, true)
 
@@ -181,6 +185,10 @@ func (f *formatter) FormatSchemaDocument(doc *ast.SchemaDocument) {
 
 func (f *formatter) FormatQueryDocument(doc *ast.QueryDocument) {
 	// TODO emit by position based order
+
+	if doc == nil {
+		return
+	}
 
 	f.FormatOperationList(doc.Operations)
 	f.FormatFragmentDefinitionList(doc.Fragments)
