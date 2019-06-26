@@ -9,7 +9,7 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"github.com/pmezard/go-difflib/difflib"
+	"github.com/stretchr/testify/assert"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/formatter"
@@ -197,19 +197,8 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 				return
 			}
 
-			t.Logf("if you want to accept new result. use -u option")
-
 			if utf8.Valid(expected) {
-				diff := difflib.UnifiedDiff{
-					A:       difflib.SplitLines(string(expected)),
-					B:       difflib.SplitLines(string(result)),
-					Context: 5,
-				}
-				d, err := difflib.GetUnifiedDiffString(diff)
-				if err != nil {
-					t.Fatal(err)
-				}
-				t.Error(d)
+				assert.Equalf(t, string(expected), string(result), "if you want to accept new result. use -u option")
 			}
 		})
 	}
