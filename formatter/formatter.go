@@ -165,8 +165,6 @@ func (f *formatter) FormatSchema(schema *ast.Schema) {
 	for _, name := range typeNames {
 		f.FormatDefinition(schema.Types[name], false)
 	}
-
-	return
 }
 
 func (f *formatter) FormatSchemaDocument(doc *ast.SchemaDocument) {
