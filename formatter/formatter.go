@@ -472,7 +472,7 @@ func (f *formatter) FormatArgumentList(lists ast.ArgumentList) {
 			f.NoPadding().WriteWord(",")
 		}
 	}
-	f.WriteString(")")
+	f.WriteString(")").NeedPadding()
 }
 
 func (f *formatter) FormatArgument(arg *ast.Argument) {
