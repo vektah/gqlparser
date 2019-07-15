@@ -18,7 +18,7 @@ type Dog {
     name: String!
 }
 
-type Person {
+type Person @extends {
     name: String!
 }
 
@@ -27,3 +27,4 @@ extend type Dog {
 }
 
 directive @permission(permission: String!) on FIELD
+directive @extends on OBJECT
