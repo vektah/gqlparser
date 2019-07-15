@@ -1,0 +1,10 @@
+"""
+Cat is best kawaii animal in the world.
+meow!
+"""
+type Cat {
+	"""
+	Shiny brillian name.
+	"""
+	name: String
+}

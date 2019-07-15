@@ -1,0 +1,17 @@
+schema {
+    query: TopQuery
+    mutation: TopMutation
+    subscription: TopSubscription
+}
+
+type TopQuery {
+    noop: Boolean
+}
+
+type TopMutation {
+    noop: Boolean
+}
+
+type TopSubscription {
+    noop: Boolean
+}

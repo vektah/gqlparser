@@ -1,0 +1,14 @@
+directive @permission(permission: String!) on FIELD
+type Dog {
+	name: String!
+	owner: Person! @permission(permission: "admin")
+}
+type Person {
+	name: String!
+}
+type Query {
+	dogs: [Dog!]!
+}
+type Subscription {
+	dogEvents: [Dog!]!
+}
