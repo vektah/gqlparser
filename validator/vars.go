@@ -109,6 +109,11 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 		panic(fmt.Errorf("missing def for %s", typ.NamedType))
 	}
 
+	if !typ.NonNull && !val.IsValid() {
+		// If the type is not null and we got a invalid value namely null/nil, then it's valid
+		return nil
+	}
+
 	switch def.Kind {
 	case ast.Enum:
 		kind := val.Type().Kind()

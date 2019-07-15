@@ -9,6 +9,9 @@ type Query {
     structArg(i: InputType!): Boolean!
     defaultStructArg(i: InputType! = {name: "foo"}): Boolean!
     arrayArg(i: [InputType!]): Boolean!
+    intArrayArg(i: [Int]): Boolean!
+    stringArrayArg(i: [String]): Boolean!
+    boolArrayArg(i: [Boolean]): Boolean!
 }
 
 input InputType {

@@ -252,6 +252,45 @@ func TestValidateVars(t *testing.T) {
 			require.EqualError(t, gerr, "input: variable.var cannot use bool as Int")
 		})
 	})
+
+	t.Run("Int Array", func(t *testing.T) {
+		t.Run("Array with null", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [Int]) { intArrayArg(i: $var) }`)
+			a := 1
+			b := 2
+
+			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": []*int{&a, &b, nil},
+			})
+			require.Nil(t, gerr)
+		})
+	})
+
+	t.Run("String Array", func(t *testing.T) {
+		t.Run("Array with null", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [String]) { stringArrayArg(i: $var) }`)
+			a := "1"
+			b := "2"
+
+			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": []*string{&a, &b, nil},
+			})
+			require.Nil(t, gerr)
+		})
+	})
+
+	t.Run("Boolean Array", func(t *testing.T) {
+		t.Run("Array with null", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [Boolean]) { boolArrayArg(i: $var) }`)
+			a := true
+			b := false
+
+			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": []*bool{&a, &b, nil},
+			})
+			require.Nil(t, gerr)
+		})
+	})
 }
 
 func mustReadFile(name string) string {
