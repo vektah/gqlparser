@@ -315,8 +315,7 @@ func (f *formatter) FormatDirectiveDefinitionList(lists ast.DirectiveDefinitionL
 
 func (f *formatter) FormatDirectiveDefinition(def *ast.DirectiveDefinition) {
 	if !f.emitBuiltin {
-		switch def.Name {
-		case "deprecated", "skip", "include":
+		if def.Position.Src.BuiltIn {
 			return
 		}
 	}
@@ -457,12 +456,15 @@ func (f *formatter) FormatDirectiveList(lists ast.DirectiveList) {
 }
 
 func (f *formatter) FormatDirective(dir *ast.Directive) {
-	f.WriteString("@").WriteWord(dir.Name).NoPadding()
+	f.WriteString("@").WriteWord(dir.Name)
 	f.FormatArgumentList(dir.Arguments)
 }
 
 func (f *formatter) FormatArgumentList(lists ast.ArgumentList) {
-	f.WriteString("(")
+	if len(lists) == 0 {
+		return
+	}
+	f.NoPadding().WriteString("(")
 	for idx, arg := range lists {
 		f.FormatArgument(arg)
 
@@ -470,7 +472,7 @@ func (f *formatter) FormatArgumentList(lists ast.ArgumentList) {
 			f.NoPadding().WriteWord(",")
 		}
 	}
-	f.WriteString(")")
+	f.WriteString(")").NeedPadding()
 }
 
 func (f *formatter) FormatArgument(arg *ast.Argument) {

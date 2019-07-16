@@ -5,7 +5,9 @@ extend schema {
 	subscription: Subscription
 }
 directive @permission(permission: String!) on FIELD
-type Query {
+directive @extends on OBJECT
+directive @key(fields: String!) on OBJECT | INTERFACE
+type Query @extends {
 	dogs: [Dog!]!
 }
 type Subscription {
@@ -14,7 +16,7 @@ type Subscription {
 type Dog {
 	name: String!
 }
-type Person {
+type Person @key(fields: "name") {
 	name: String!
 }
 extend type Dog {

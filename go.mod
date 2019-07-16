@@ -1,5 +1,7 @@
 module github.com/vektah/gqlparser
 
+go 1.12
+
 require (
 	github.com/agnivade/levenshtein v1.0.1
 	github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883
