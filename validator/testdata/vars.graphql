@@ -18,10 +18,15 @@ input InputType {
     name: String!
     nullName: String
     nullEmbedded: Embedded
+    enum: Enum
 }
 
 input Embedded {
     name: String!
+}
+
+enum Enum {
+    A
 }
 
 scalar Custom

@@ -2,6 +2,7 @@ package validator
 
 import (
 	"reflect"
+	"strings"
 
 	"fmt"
 
@@ -117,10 +118,19 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 	switch def.Kind {
 	case ast.Enum:
 		kind := val.Type().Kind()
-		if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 || kind == reflect.String {
-			return nil
+		if kind != reflect.Int && kind != reflect.Int32 && kind != reflect.Int64 && kind != reflect.String {
+			return gqlerror.ErrorPathf(v.path, "enums must be ints or strings")
 		}
-		return gqlerror.ErrorPathf(v.path, "enums must be ints or strings")
+		isValidEnum := false
+		for _, enumVal := range def.EnumValues {
+			if strings.EqualFold(val.String(), enumVal.Name) {
+				isValidEnum = true
+			}
+		}
+		if !isValidEnum {
+			return gqlerror.ErrorPathf(v.path, "%s is not a valid %s", val.String(), def.Name)
+		}
+		return nil
 	case ast.Scalar:
 		kind := val.Type().Kind()
 		switch typ.NamedType {

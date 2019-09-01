@@ -126,6 +126,28 @@ func TestValidateVars(t *testing.T) {
 			})
 			require.EqualError(t, gerr, "input: variable.var.foobard unknown field")
 		})
+
+		t.Run("enum input object", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
+			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": map[string]interface{}{
+					"name": "foobar",
+					"enum": "A",
+				},
+			})
+			require.Nil(t, gerr)
+		})
+
+		t.Run("unknown enum value input object", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
+			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": map[string]interface{}{
+					"name": "foobar",
+					"enum": "B",
+				},
+			})
+			require.EqualError(t, gerr, "input: variable.var.enum B is not a valid Enum")
+		})
 	})
 
 	t.Run("array", func(t *testing.T) {
