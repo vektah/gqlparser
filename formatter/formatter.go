@@ -383,14 +383,14 @@ func (f *formatter) FormatDefinition(def *ast.Definition, extend bool) {
 		f.WriteWord("input").WriteWord(def.Name)
 	}
 
+	if len(def.Interfaces) != 0 {
+		f.WriteWord("implements").WriteWord(strings.Join(def.Interfaces, ", "))
+	}
+
 	f.FormatDirectiveList(def.Directives)
 
 	if len(def.Types) != 0 {
 		f.WriteWord("=").WriteWord(strings.Join(def.Types, " | "))
-	}
-
-	if len(def.Interfaces) != 0 {
-		f.WriteWord("implements").WriteWord(strings.Join(def.Interfaces, ", "))
 	}
 
 	f.FormatFieldList(def.Fields)
