@@ -320,6 +320,7 @@ func (f *formatter) FormatDirectiveDefinition(def *ast.DirectiveDefinition) {
 		}
 	}
 
+	f.WriteDescription(def.Description)
 	f.WriteWord("directive").WriteString("@").WriteWord(def.Name)
 
 	if len(def.Arguments) != 0 {
