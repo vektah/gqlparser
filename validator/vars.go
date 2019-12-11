@@ -211,12 +211,12 @@ func (v *varValidator) getVars(typ *ast.Type, val reflect.Value) (*ast.Value, *g
 		kind := val.Type().Kind()
 		switch typ.NamedType {
 		case "Int":
-			if kind == reflect.String || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
+			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
 				value.Kind = ast.IntValue
 				return value, nil
 			}
 		case "Float":
-			if kind == reflect.String || kind == reflect.Float32 || kind == reflect.Float64 || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
+			if kind == reflect.Float32 || kind == reflect.Float64 || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
 				value.Kind = ast.FloatValue
 				return value, nil
 			}
@@ -233,7 +233,7 @@ func (v *varValidator) getVars(typ *ast.Type, val reflect.Value) (*ast.Value, *g
 			}
 
 		case "ID":
-			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 || kind == reflect.String {
+			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
 				value.Kind = ast.IntValue
 			}
 		default:
