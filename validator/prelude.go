@@ -1,6 +1,6 @@
 package validator
 
-import "github.com/vektah/gqlparser/v2/ast"
+import "github.com/dgraph-io/gqlparser/ast"
 
 var Prelude = &ast.Source{
 	Name:    "prelude.graphql",

@@ -3,8 +3,8 @@ package validator
 import (
 	"strconv"
 
-	"github.com/vektah/gqlparser/v2/ast"
-	. "github.com/vektah/gqlparser/v2/validator"
+	"github.com/dgraph-io/gqlparser/ast"
+	. "github.com/dgraph-io/gqlparser/validator"
 )
 
 func init() {

@@ -1,8 +1,8 @@
 package validator
 
 import (
-	. "github.com/vektah/gqlparser/v2/ast"
-	"github.com/vektah/gqlparser/v2/gqlerror"
+	. "github.com/dgraph-io/gqlparser/ast"
+	"github.com/dgraph-io/gqlparser/gqlerror"
 )
 
 type AddErrFunc func(options ...ErrorOption)

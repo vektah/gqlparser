@@ -1,4 +1,4 @@
-module github.com/vektah/gqlparser/v2
+module github.com/dgraph-io/gqlparser
 
 go 1.12
 

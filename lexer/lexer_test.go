@@ -3,8 +3,8 @@ package lexer
 import (
 	"testing"
 
-	"github.com/vektah/gqlparser/v2/ast"
-	"github.com/vektah/gqlparser/v2/parser/testrunner"
+	"github.com/dgraph-io/gqlparser/ast"
+	"github.com/dgraph-io/gqlparser/parser/testrunner"
 )
 
 func TestLexer(t *testing.T) {

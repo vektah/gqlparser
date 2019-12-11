@@ -3,9 +3,9 @@ package parser
 import (
 	"strconv"
 
-	"github.com/vektah/gqlparser/v2/ast"
-	"github.com/vektah/gqlparser/v2/gqlerror"
-	"github.com/vektah/gqlparser/v2/lexer"
+	"github.com/dgraph-io/gqlparser/ast"
+	"github.com/dgraph-io/gqlparser/gqlerror"
+	"github.com/dgraph-io/gqlparser/lexer"
 )
 
 type parser struct {
