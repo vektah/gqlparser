@@ -10,10 +10,10 @@ import (
 	"unicode/utf8"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/vektah/gqlparser"
-	"github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/formatter"
-	"github.com/vektah/gqlparser/parser"
+	"github.com/dgraph-io/gqlparser"
+	"github.com/dgraph-io/gqlparser/ast"
+	"github.com/dgraph-io/gqlparser/formatter"
+	"github.com/dgraph-io/gqlparser/parser"
 )
 
 var update = flag.Bool("u", false, "update golden files")
