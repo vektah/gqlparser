@@ -40,3 +40,7 @@ func MustLoadQuery(schema *ast.Schema, str string) *ast.QueryDocument {
 	}
 	return q
 }
+
+func LoadVariables(schema *ast.Schema, op *ast.OperationDefinition, vars map[string]interface{}) (map[string]*ast.Value, *gqlerror.Error) {
+	return validator.Variables(schema, op, vars)
+}
