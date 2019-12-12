@@ -6,11 +6,50 @@ import (
 
 	"encoding/json"
 
-	"github.com/stretchr/testify/require"
 	"github.com/dgraph-io/gqlparser"
 	"github.com/dgraph-io/gqlparser/ast"
 	"github.com/dgraph-io/gqlparser/validator"
+	"github.com/stretchr/testify/require"
 )
+
+func TestGetVar(t *testing.T) {
+	schema := gqlparser.MustLoadSchema(&ast.Source{
+		Name:  "vars.graphql",
+		Input: mustReadFile("./testdata/post.graphql"),
+	})
+
+	t.Run("validation", func(t *testing.T) {
+		t.Run("int", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `mutation ($data: PostInput!) {
+    setPost(data: $data)
+}`)
+			vars := map[string]interface{}{
+				"data": map[string]interface{}{
+					"id": 1,
+				},
+			}
+			result, gerr := validator.Variables(schema, q.Operations.ForName(""), vars)
+			require.Nil(t, gerr)
+
+			require.Equal(t, result["data"].Children[0].Value.Kind, ast.IntValue)
+			require.Equal(t, result["data"].Children[0].Value.Raw, "1")
+		})
+
+		t.Run("invalid int", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `mutation ($data: PostInput!) {
+    setPost(data: $data)
+}`)
+			vars := map[string]interface{}{
+				"data": map[string]interface{}{
+					"id": "hi",
+				},
+			}
+			_, gerr := validator.Variables(schema, q.Operations.ForName(""), vars)
+			require.NotNil(t, gerr)
+		})
+
+	})
+}
 
 func TestValidateVars(t *testing.T) {
 	schema := gqlparser.MustLoadSchema(&ast.Source{

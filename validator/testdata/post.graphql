@@ -1,0 +1,39 @@
+directive @fetch(fid: String!) on OBJECT
+
+type Author @fetch(fid: "dummy") {
+  id: Int
+  firstName: String
+  lastName: String
+  posts: [Post]
+}
+
+type Post @fetch(fid: "dummy") {
+  id: Int!
+  title: String
+  text: String
+  views: Int
+}
+
+type Query {
+        getPost(id: Int!): Post
+        getAuthor(id: Int!): Author
+}
+
+input AuthorInput {
+        id: Int
+        firstName: String
+        lastName: String
+        posts: [PostInput]
+}
+
+input PostInput {
+        id: Int!
+        title: String
+        text: String
+        views: Int
+}
+
+type Mutation {
+        setAuthor(data: AuthorInput!): String
+        setPost(data: PostInput!): String
+}

@@ -211,12 +211,34 @@ func (v *varValidator) getVars(typ *ast.Type, val reflect.Value) (*ast.Value, *g
 		kind := val.Type().Kind()
 		switch typ.NamedType {
 		case "Int":
+			if kind == reflect.String {
+				_, err := strconv.ParseInt(val.String(), 10, 64)
+				if err != nil {
+					return nil, gqlerror.ErrorPathf(v.path, "Invalid %s provided : %s", kind.String(), val.String())
+				} else {
+					value.Raw = strconv.FormatInt(val.Int(), 10)
+					value.Kind = ast.IntValue
+					return value, nil
+				}
+			}
 			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
+				value.Raw = strconv.FormatInt(val.Int(), 10)
 				value.Kind = ast.IntValue
 				return value, nil
 			}
 		case "Float":
+			if kind == reflect.String {
+				_, err := strconv.ParseFloat(val.String(), 10)
+				if err != nil {
+					return nil, gqlerror.ErrorPathf(v.path, "Invalid %s provided : %s", kind.String(), val.String())
+				} else {
+					value.Raw = strconv.FormatFloat(val.Float(), 'E', -1, 64)
+					value.Kind = ast.FloatValue
+					return value, nil
+				}
+			}
 			if kind == reflect.Float32 || kind == reflect.Float64 || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
+				value.Raw = strconv.FormatFloat(val.Float(), 'E', -1, 64)
 				value.Kind = ast.FloatValue
 				return value, nil
 			}
@@ -229,12 +251,25 @@ func (v *varValidator) getVars(typ *ast.Type, val reflect.Value) (*ast.Value, *g
 		case "Boolean":
 			if kind == reflect.Bool {
 				value.Kind = ast.BooleanValue
+				value.Raw = strconv.FormatBool(val.Bool())
 				return value, nil
 			}
 
 		case "ID":
+			if kind == reflect.String {
+				_, err := strconv.ParseInt(val.String(), 10, 64)
+				if err != nil {
+					return nil, gqlerror.ErrorPathf(v.path, "Invalid %s provided : %s", kind.String(), val.String())
+				} else {
+					value.Raw = strconv.FormatInt(val.Int(), 10)
+					value.Kind = ast.IntValue
+					return value, nil
+				}
+			}
 			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
 				value.Kind = ast.IntValue
+				value.Raw = strconv.FormatInt(val.Int(), 10)
+				return value, nil
 			}
 		default:
 			// assume custom scalars are ok
