@@ -212,11 +212,11 @@ func (v *varValidator) getVars(typ *ast.Type, val reflect.Value) (*ast.Value, *g
 		switch typ.NamedType {
 		case "Int":
 			if kind == reflect.String {
-				_, err := strconv.ParseInt(val.String(), 10, 64)
+				res, err := strconv.ParseInt(val.String(), 10, 64)
 				if err != nil {
 					return nil, gqlerror.ErrorPathf(v.path, "Invalid %s provided : %s", kind.String(), val.String())
 				} else {
-					value.Raw = strconv.FormatInt(val.Int(), 10)
+					value.Raw = strconv.FormatInt(res, 10)
 					value.Kind = ast.IntValue
 					return value, nil
 				}
@@ -228,11 +228,11 @@ func (v *varValidator) getVars(typ *ast.Type, val reflect.Value) (*ast.Value, *g
 			}
 		case "Float":
 			if kind == reflect.String {
-				_, err := strconv.ParseFloat(val.String(), 10)
+				res, err := strconv.ParseFloat(val.String(), 10)
 				if err != nil {
 					return nil, gqlerror.ErrorPathf(v.path, "Invalid %s provided : %s", kind.String(), val.String())
 				} else {
-					value.Raw = strconv.FormatFloat(val.Float(), 'E', -1, 64)
+					value.Raw = strconv.FormatFloat(res, 'E', -1, 64)
 					value.Kind = ast.FloatValue
 					return value, nil
 				}
