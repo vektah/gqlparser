@@ -385,7 +385,7 @@ func (f *formatter) FormatDefinition(def *ast.Definition, extend bool) {
 	}
 
 	if len(def.Interfaces) != 0 {
-		f.WriteWord("implements").WriteWord(strings.Join(def.Interfaces, ", "))
+		f.WriteWord("implements").WriteWord(strings.Join(def.Interfaces, " & "))
 	}
 
 	f.FormatDirectiveList(def.Directives)
