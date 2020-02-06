@@ -419,14 +419,12 @@ unions:
       locations: [{line: 1, column: 7}]
 
 type extensions:
-  - name: cannot extend non existant types
+  - name: can extend non existant types
     input: |
       extend type A {
         name: String
       }
-    error:
-      message: "Cannot extend type A because it does not exist."
-      locations: [{line: 1, column: 13}]
+
 
   - name: cannot extend incorret type existant types
     input: |
