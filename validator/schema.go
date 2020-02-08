@@ -34,6 +34,8 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 		schema.Types[def.Name] = ast.Definitions[i]
 	}
 
+	defs := append(DefinitionList{}, ast.Definitions...)
+
 	for _, ext := range ast.Extensions {
 		def := schema.Types[ext.Name]
 		if def == nil {
@@ -43,6 +45,7 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 				Position: ext.Position,
 			}
 			def = schema.Types[ext.Name]
+			defs = append(defs, def)
 		}
 
 		if def.Kind != ext.Kind {
@@ -56,7 +59,7 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 		def.EnumValues = append(def.EnumValues, ext.EnumValues...)
 	}
 
-	for _, def := range ast.Definitions {
+	for _, def := range defs {
 		switch def.Kind {
 		case Union:
 			for _, t := range def.Types {
