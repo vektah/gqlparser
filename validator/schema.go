@@ -37,7 +37,12 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 	for _, ext := range ast.Extensions {
 		def := schema.Types[ext.Name]
 		if def == nil {
-			return nil, gqlerror.ErrorPosf(ext.Position, "Cannot extend type %s because it does not exist.", ext.Name)
+			schema.Types[ext.Name] = &Definition{
+				Kind:        ext.Kind,
+				Name:        ext.Name,
+				Position: ext.Position,
+			}
+			def = schema.Types[ext.Name]
 		}
 
 		if def.Kind != ext.Kind {
