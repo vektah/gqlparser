@@ -418,6 +418,36 @@ unions:
       message: "UNION type \"Baz\" must be OBJECT."
       locations: [{line: 1, column: 7}]
 
+  - name: unions of pure type extensions are valid
+    input: |
+
+      type Review {
+          body: String!
+          author: User! @provides(fields: "username")
+          product: Product!
+      }
+
+      extend type User @key(fields: "id") {
+        id: ID! @external
+        reviews: [Review]
+      }
+
+      extend type Product @key(fields: "upc") {
+        upc: String! @external
+        reviews: [Review]
+      }
+
+      union Foo = User | Product
+      scalar _Any
+      scalar _FieldSet
+      directive @external on FIELD_DEFINITION
+      directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+      directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+      directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
+      directive @extends on OBJECT
+
+
+
 type extensions:
   - name: can extend non existant types
     input: |
