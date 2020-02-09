@@ -17,14 +17,13 @@ var _ PathElement = PathName("")
 func (path Path) String() string {
 	var str bytes.Buffer
 	for i, v := range path {
-
+		if i != 0 {
+			str.WriteByte('.')
+		}
 		switch v := v.(type) {
 		case PathIndex:
 			str.WriteString(fmt.Sprintf("[%d]", v))
 		case PathName:
-			if i != 0 {
-				str.WriteByte('.')
-			}
 			str.WriteString(string(v))
 		default:
 			panic(fmt.Sprintf("unknown type: %T", v))
