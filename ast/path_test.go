@@ -7,6 +7,33 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestPath_String(t *testing.T) {
+	type Spec struct {
+		Value    Path
+		Expected string
+	}
+	specs := []*Spec{
+		{
+			Value:    Path{PathName("a"), PathIndex(2), PathName("c")},
+			Expected: "a[2].c",
+		},
+		{
+			Value:    Path{},
+			Expected: ``,
+		},
+		{
+			Value:    Path{PathIndex(1), PathName("b")},
+			Expected: `[1].b`,
+		},
+	}
+
+	for _, spec := range specs {
+		t.Run(spec.Value.String(), func(t *testing.T) {
+			require.Equal(t, spec.Expected, spec.Value.String())
+		})
+	}
+}
+
 func TestPath_MarshalJSON(t *testing.T) {
 	type Spec struct {
 		Value    Path

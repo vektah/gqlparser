@@ -10,6 +10,31 @@ var _ json.Unmarshaler = (*Path)(nil)
 
 type Path []PathElement
 
+type PathElement interface {
+	isPathElement()
+}
+
+var _ PathElement = PathIndex(0)
+var _ PathElement = PathName("")
+
+func (path Path) String() string {
+	var str bytes.Buffer
+	for i, v := range path {
+		switch v := v.(type) {
+		case PathIndex:
+			str.WriteString(fmt.Sprintf("[%d]", v))
+		case PathName:
+			if i != 0 {
+				str.WriteByte('.')
+			}
+			str.WriteString(string(v))
+		default:
+			panic(fmt.Sprintf("unknown type: %T", v))
+		}
+	}
+	return str.String()
+}
+
 func (path *Path) UnmarshalJSON(b []byte) error {
 	var vs []interface{}
 	err := json.Unmarshal(b, &vs)
@@ -31,31 +56,6 @@ func (path *Path) UnmarshalJSON(b []byte) error {
 		}
 	}
 	return nil
-}
-
-type PathElement interface {
-	isPathElement()
-}
-
-var _ PathElement = PathIndex(0)
-var _ PathElement = PathName("")
-
-func (path Path) String() string {
-	var str bytes.Buffer
-	for i, v := range path {
-		if i != 0 {
-			str.WriteByte('.')
-		}
-		switch v := v.(type) {
-		case PathIndex:
-			str.WriteString(fmt.Sprintf("[%d]", v))
-		case PathName:
-			str.WriteString(string(v))
-		default:
-			panic(fmt.Sprintf("unknown type: %T", v))
-		}
-	}
-	return str.String()
 }
 
 type PathIndex int
