@@ -155,9 +155,9 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 			},
 			&FieldDefinition{
 				Name: "__type",
-				Type: NonNullNamedType("__Type", nil),
+				Type: NamedType("__Type", nil),
 				Arguments: ArgumentDefinitionList{
-					{Name: "name", Type: NamedType("String", nil)},
+					{Name: "name", Type: NonNullNamedType("String", nil)},
 				},
 			},
 		)
