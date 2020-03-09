@@ -185,6 +185,13 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 			field := val.MapIndex(reflect.ValueOf(fieldDef.Name))
 			if !field.IsValid() {
 				if fieldDef.Type.NonNull {
+					if fieldDef.DefaultValue != nil {
+						var err error
+						_, err = fieldDef.DefaultValue.Value(nil)
+						if err == nil {
+							continue
+						}
+					}
 					return gqlerror.ErrorPathf(v.path, "must be defined")
 				}
 				continue

@@ -19,6 +19,7 @@ input InputType {
     nullName: String
     nullEmbedded: Embedded
     enum: Enum
+    defaultName: String! = "defaultFoo"
 }
 
 input Embedded {
