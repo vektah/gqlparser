@@ -505,6 +505,23 @@ directives:
       message: 'cannot use Interface as argument a because INTERFACE is not a valid input type'
       locations: [{line: 2, column: 14}]
 
+  - name: Invalid location usage not allowed
+    input: |
+      directive @test on FIELD_DEFINITION
+      input I1 @test { f: String }
+
+    error:
+      message: 'Directive test is not applicable on INPUT_OBJECT.'
+      locations: [{line: 2, column: 11}]
+
+  - name: Valid location usage
+    input: |
+      directive @test on FIELD_DEFINITION
+      directive @inp on INPUT_OBJECT
+      input I1 @inp { f: String }
+      type P { name: String @test }
+
+
 entry points:
   - name: multiple schema entry points
     input: |
