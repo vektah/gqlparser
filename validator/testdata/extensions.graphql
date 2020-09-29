@@ -26,4 +26,4 @@ extend type Dog {
     owner: Person! @permission(permission: "admin")
 }
 
-directive @permission(permission: String!) on FIELD
+directive @permission(permission: String!) on FIELD_DEFINITION
