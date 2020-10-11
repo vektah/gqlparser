@@ -520,7 +520,30 @@ directives:
       directive @inp on INPUT_OBJECT
       input I1 @inp { f: String }
       type P { name: String @test }
-
+  
+  - name: Valid directive arg inside type defn
+    input: |
+      enum DgraphIndex {
+        int
+        int64
+        float
+        bool
+        hash
+        exact
+        term
+        fulltext
+        trigram
+        regexp
+        year
+        month
+        day
+        hour
+      }
+      directive @search(by: [DgraphIndex!]) on FIELD_DEFINITION
+      type S { name: String! @search(bi: [hash]) }
+    error: 
+      message: "Invalid argument bi with Directive search"
+      locations: [{line: 18, column: 32}]
 
 entry points:
   - name: multiple schema entry points
