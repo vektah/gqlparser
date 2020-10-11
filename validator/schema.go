@@ -281,6 +281,17 @@ func validateArgs(schema *Schema, args ArgumentDefinitionList, currentDirective 
 	return nil
 }
 
+func validateDirectivesArgs(schema *Schema, dir *Directive) *gqlerror.Error {
+	dirDefinition := schema.Directives[dir.Name]
+	possibleArgsList := dirDefinition.Arguments
+	for _, arg := range dir.Arguments {
+		if possibleArgsList.ForName(arg.Name) == nil {
+			return gqlerror.ErrorPosf(arg.Position, "Invalid argument %s with Directive %s", arg.Name, dir.Name)
+		}
+	}
+	return nil
+}
+
 func validateDirectives(schema *Schema, dirs DirectiveList, location DirectiveLocation, currentDirective *DirectiveDefinition) *gqlerror.Error {
 	for _, dir := range dirs {
 		if err := validateName(dir.Position, dir.Name); err != nil {
@@ -301,6 +312,9 @@ func validateDirectives(schema *Schema, dirs DirectiveList, location DirectiveLo
 		}
 		if !validKind {
 			return gqlerror.ErrorPosf(dir.Position, "Directive %s is not applicable on %s.", dir.Name, location)
+		}
+		if err := validateDirectivesArgs(schema, dir); err != nil {
+			return err
 		}
 		dir.Definition = schema.Directives[dir.Name]
 	}
