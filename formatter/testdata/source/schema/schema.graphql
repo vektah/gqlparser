@@ -1,17 +1,48 @@
 schema {
-    query: TopQuery
-    mutation: TopMutation
-    subscription: TopSubscription
-}
-
-type TopQuery {
-    noop: Boolean
+	query: TopQuery
+	mutation: TopMutation
+	subscription: TopSubscription
 }
 
 type TopMutation {
     noop: Boolean
+    noop2("""
+      noop2 foo bar
+      """
+      arg: String
+    ): Boolean
+    noop3("noop3 foo bar"
+      arg: String
+    ): Boolean
+}
+
+type TopQuery {
+      noop: Boolean
+
+      noop2("""
+        noop2 foo bar
+        """
+        arg: String
+      ): Boolean
+
+      noop3(
+        "noop3 foo bar"
+        arg: String
+      ): Boolean
 }
 
 type TopSubscription {
-    noop: Boolean
+      noop: Boolean
+
+      noop2(
+        """
+        noop2 foo bar
+        """
+        arg: String
+      ): Boolean
+
+      noop3(
+        "noop3 foo bar"
+        arg: String
+      ): Boolean
 }
