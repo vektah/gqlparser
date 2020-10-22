@@ -187,7 +187,7 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		if err := validateArgs(schema, field.Arguments, nil); err != nil {
 			return err
 		}
-		if err := validateDirectives(schema, field.Directives, nil); err != nil {
+		if err := validateDirectives(schema, field.Directives, LocationFieldDefinition, nil); err != nil {
 			return err
 		}
 	}
@@ -253,7 +253,7 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		}
 	}
 
-	return validateDirectives(schema, def.Directives, nil)
+	return validateDirectives(schema, def.Directives, DirectiveLocation(def.Kind), nil)
 }
 
 func validateTypeRef(schema *Schema, typ *Type) *gqlerror.Error {
@@ -282,14 +282,14 @@ func validateArgs(schema *Schema, args ArgumentDefinitionList, currentDirective 
 				def.Kind,
 			)
 		}
-		if err := validateDirectives(schema, arg.Directives, currentDirective); err != nil {
+		if err := validateDirectives(schema, arg.Directives, LocationArgumentDefinition, currentDirective); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func validateDirectives(schema *Schema, dirs DirectiveList, currentDirective *DirectiveDefinition) *gqlerror.Error {
+func validateDirectives(schema *Schema, dirs DirectiveList, location DirectiveLocation, currentDirective *DirectiveDefinition) *gqlerror.Error {
 	for _, dir := range dirs {
 		if err := validateName(dir.Position, dir.Name); err != nil {
 			// now, GraphQL spec doesn't have reserved directive name
@@ -300,6 +300,15 @@ func validateDirectives(schema *Schema, dirs DirectiveList, currentDirective *Di
 		}
 		if schema.Directives[dir.Name] == nil {
 			return gqlerror.ErrorPosf(dir.Position, "Undefined directive %s.", dir.Name)
+		}
+		validKind := false
+		for _, dirLocation := range schema.Directives[dir.Name].Locations {
+			if dirLocation == location {
+				validKind = true
+			}
+		}
+		if !validKind {
+			return gqlerror.ErrorPosf(dir.Position, "Directive %s is not applicable on %s.", dir.Name, location)
 		}
 		dir.Definition = schema.Directives[dir.Name]
 	}
