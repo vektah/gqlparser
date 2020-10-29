@@ -157,7 +157,7 @@ func TestValidateVars(t *testing.T) {
 				"var": "hello",
 			})
 			require.Nil(t, gerr)
-			require.EqualValues(t, []interface {}([]interface {}{map[string]interface {}{"var":"hello"}}), vars)
+			require.EqualValues(t, map[string]interface {}(map[string]interface {}{"var":"hello"}), vars)
 		})
 
 		t.Run("defaults", func(t *testing.T) {
