@@ -153,10 +153,14 @@ func TestValidateVars(t *testing.T) {
 	t.Run("array", func(t *testing.T) {
 		t.Run("non array", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`)
-			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": "hello",
 			})
-			require.EqualError(t, gerr, "input: variable.var must be an array")
+			require.Nil(t, gerr)
+			require.EqualValues(t, []interface{}{map[string]interface{}{
+				"var": "hello",
+			}}, vars)
+
 		})
 
 		t.Run("defaults", func(t *testing.T) {

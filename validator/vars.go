@@ -82,7 +82,13 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 
 	if typ.Elem != nil {
 		if val.Kind() != reflect.Slice {
-			return gqlerror.ErrorPathf(v.path, "must be an array")
+			if val.Kind() != reflect.Slice {
+				// GraphQL spec says that non-null values should be coerced to an array when possible.
+				// Hence if the value is not a slice, we create a slice and add val to it.
+				slc := reflect.MakeSlice(reflect.SliceOf(val.Type()), 0, 1)
+				reflect.Append(slc, val)
+				val = slc
+			}
 		}
 
 		for i := 0; i < val.Len(); i++ {
