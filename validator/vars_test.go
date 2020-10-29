@@ -151,16 +151,13 @@ func TestValidateVars(t *testing.T) {
 	})
 
 	t.Run("array", func(t *testing.T) {
-		t.Run("non array", func(t *testing.T) {
+		t.Run("coerce to array", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": "hello",
 			})
 			require.Nil(t, gerr)
-			require.EqualValues(t, []interface{}{map[string]interface{}{
-				"var": "hello",
-			}}, vars)
-
+			require.EqualValues(t, []interface {}([]interface {}{map[string]interface {}{"var":"hello"}}), vars)
 		})
 
 		t.Run("defaults", func(t *testing.T) {
