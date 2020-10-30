@@ -54,61 +54,54 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 					rv = rv.Elem()
 				}
 
-				if err := validator.validateVarType(v.Type, rv); err != nil {
+				_,err := validator.validateVarType(v.Type, rv)
+				if  err != nil {
 					return nil, err
 				}
-
-				coercedVars[v.Variable] = val
+				coercedVars[v.Variable]=val
 			}
 		}
 
 		validator.path = validator.path[0 : len(validator.path)-1]
 	}
-
 	return coercedVars, nil
 }
-
 type varValidator struct {
 	path   ast.Path
 	schema *ast.Schema
 }
 
-func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerror.Error {
+func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflect.Value,*gqlerror.Error) {
 	currentPath := v.path
 	resetPath := func() {
 		v.path = currentPath
 	}
 	defer resetPath()
-
 	if typ.Elem != nil {
 		if val.Kind() != reflect.Slice {
 			// GraphQL spec says that non-null values should be coerced to an array when possible.
 			// Hence if the value is not a slice, we create a slice and add val to it.
-			slc := reflect.MakeSlice(reflect.SliceOf(val.Type()), 0, 1)
-			reflect.Append(slc, val)
+			slc := reflect.MakeSlice(reflect.SliceOf(val.Type()), 0, 0)
+			slc = reflect.Append(slc,val)
 			val = slc
 		}
-
 		for i := 0; i < val.Len(); i++ {
 			resetPath()
 			v.path = append(v.path, ast.PathIndex(i))
 			field := val.Index(i)
-
 			if field.Kind() == reflect.Ptr || field.Kind() == reflect.Interface {
 				if typ.Elem.NonNull && field.IsNil() {
-					return gqlerror.ErrorPathf(v.path, "cannot be null")
+					return val,gqlerror.ErrorPathf(v.path, "cannot be null")
 				}
 				field = field.Elem()
 			}
-
-			if err := v.validateVarType(typ.Elem, field); err != nil {
-				return err
+			_,err := v.validateVarType(typ.Elem, field)
+			if  err != nil {
+				return val, err
 			}
 		}
-
-		return nil
+		return val,nil
 	}
-
 	def := v.schema.Types[typ.NamedType]
 	if def == nil {
 		panic(fmt.Errorf("missing def for %s", typ.NamedType))
@@ -116,14 +109,14 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 
 	if !typ.NonNull && !val.IsValid() {
 		// If the type is not null and we got a invalid value namely null/nil, then it's valid
-		return nil
+		return val,nil
 	}
 
 	switch def.Kind {
 	case ast.Enum:
 		kind := val.Type().Kind()
 		if kind != reflect.Int && kind != reflect.Int32 && kind != reflect.Int64 && kind != reflect.String {
-			return gqlerror.ErrorPathf(v.path, "enums must be ints or strings")
+			return val,gqlerror.ErrorPathf(v.path, "enums must be ints or strings")
 		}
 		isValidEnum := false
 		for _, enumVal := range def.EnumValues {
@@ -132,42 +125,42 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 			}
 		}
 		if !isValidEnum {
-			return gqlerror.ErrorPathf(v.path, "%s is not a valid %s", val.String(), def.Name)
+			return val,gqlerror.ErrorPathf(v.path, "%s is not a valid %s", val.String(), def.Name)
 		}
-		return nil
+		return val,nil
 	case ast.Scalar:
 		kind := val.Type().Kind()
 		switch typ.NamedType {
 		case "Int":
 			if kind == reflect.String || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
-				return nil
+				return val,nil
 			}
 		case "Float":
 			if kind == reflect.String || kind == reflect.Float32 || kind == reflect.Float64 || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
-				return nil
+				return val,nil
 			}
 		case "String":
 			if kind == reflect.String {
-				return nil
+				return val,nil
 			}
 
 		case "Boolean":
 			if kind == reflect.Bool {
-				return nil
+				return val,nil
 			}
 
 		case "ID":
 			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 || kind == reflect.String {
-				return nil
+				return val,nil
 			}
 		default:
 			// assume custom scalars are ok
-			return nil
+			return val,nil
 		}
-		return gqlerror.ErrorPathf(v.path, "cannot use %s as %s", kind.String(), typ.NamedType)
+		return val,gqlerror.ErrorPathf(v.path, "cannot use %s as %s", kind.String(), typ.NamedType)
 	case ast.InputObject:
 		if val.Kind() != reflect.Map {
-			return gqlerror.ErrorPathf(v.path, "must be a %s", def.Name)
+			return val,gqlerror.ErrorPathf(v.path, "must be a %s", def.Name)
 		}
 
 		// check for unknown fields
@@ -178,7 +171,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 			v.path = append(v.path, ast.PathName(name.String()))
 
 			if fieldDef == nil {
-				return gqlerror.ErrorPathf(v.path, "unknown field")
+				return val,gqlerror.ErrorPathf(v.path, "unknown field")
 			}
 		}
 
@@ -189,21 +182,14 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 			field := val.MapIndex(reflect.ValueOf(fieldDef.Name))
 			if !field.IsValid() {
 				if fieldDef.Type.NonNull {
-					if fieldDef.DefaultValue != nil {
-						var err error
-						_, err = fieldDef.DefaultValue.Value(nil)
-						if err == nil {
-							continue
-						}
-					}
-					return gqlerror.ErrorPathf(v.path, "must be defined")
+					return val,gqlerror.ErrorPathf(v.path, "must be defined")
 				}
 				continue
 			}
 
 			if field.Kind() == reflect.Ptr || field.Kind() == reflect.Interface {
 				if fieldDef.Type.NonNull && field.IsNil() {
-					return gqlerror.ErrorPathf(v.path, "cannot be null")
+					return val,gqlerror.ErrorPathf(v.path, "cannot be null")
 				}
 				//allow null object field and skip it
 				if !fieldDef.Type.NonNull && field.IsNil() {
@@ -211,15 +197,14 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 				}
 				field = field.Elem()
 			}
-
-			err := v.validateVarType(fieldDef.Type, field)
+			cVal,err := v.validateVarType(fieldDef.Type, field)
 			if err != nil {
-				return err
+				return val,err
 			}
+			val.SetMapIndex(reflect.ValueOf(fieldDef.Name),cVal)
 		}
 	default:
 		panic(fmt.Errorf("unsupported type %s", def.Kind))
 	}
-
-	return nil
+	return val,nil
 }
