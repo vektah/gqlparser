@@ -54,11 +54,11 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 					rv = rv.Elem()
 				}
 
-				_, err := validator.validateVarType(v.Type, rv)
+				rval, err := validator.validateVarType(v.Type, rv)
 				if err != nil {
 					return nil, err
 				}
-				coercedVars[v.Variable] = val
+				coercedVars[v.Variable] = rval.Interface()
 			}
 		}
 
@@ -205,11 +205,11 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 				}
 				field = field.Elem()
 			}
-			cVal, err := v.validateVarType(fieldDef.Type, field)
+			cval, err := v.validateVarType(fieldDef.Type, field)
 			if err != nil {
 				return val, err
 			}
-			val.SetMapIndex(reflect.ValueOf(fieldDef.Name), cVal)
+			val.SetMapIndex(reflect.ValueOf(fieldDef.Name), cval)
 		}
 	default:
 		panic(fmt.Errorf("unsupported type %s", def.Kind))

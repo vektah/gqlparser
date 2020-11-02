@@ -151,13 +151,33 @@ func TestValidateVars(t *testing.T) {
 	})
 
 	t.Run("array", func(t *testing.T) {
-		t.Run("Accept non-array", func(t *testing.T) {
+		t.Run("non-null object value should be coerced to an array", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
-				"var": map[string]interface{}{"name": "gqlparser"},
+				"var": map[string]interface{}{"name": "hello"},
 			})
 			require.Nil(t, gerr)
-			require.EqualValues(t, map[string]interface{}{"name": "gqlparser"}, vars["var"])
+			require.EqualValues(t, []map[string]interface{}{{"name": "hello"}}, vars["var"])
+		})
+
+		t.Run("non-null int value should be coerced to an array", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [Int!]) { intArrayArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": 5,
+			})
+			require.Nil(t, gerr)
+			expected := []int{5}
+			require.EqualValues(t, expected, vars["var"])
+		})
+
+		t.Run("non-null int deep value should be coerced to an array", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [CustomType]) { typeArrayArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": []map[string]interface{}{{"and": 5}},
+			})
+			require.Nil(t, gerr)
+			expected := []map[string]interface{}{{"and": []int{5}}}
+			require.EqualValues(t, expected, vars["var"])
 		})
 
 		t.Run("defaults", func(t *testing.T) {
