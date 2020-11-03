@@ -9,11 +9,11 @@ import (
 	"testing"
 	"unicode/utf8"
 
+	"github.com/dgraph-io/gqlparser/v2"
+	"github.com/dgraph-io/gqlparser/v2/ast"
+	"github.com/dgraph-io/gqlparser/v2/formatter"
+	"github.com/dgraph-io/gqlparser/v2/parser"
 	"github.com/stretchr/testify/assert"
-	"github.com/dgraph-io/gqlparser"
-	"github.com/dgraph-io/gqlparser/ast"
-	"github.com/dgraph-io/gqlparser/formatter"
-	"github.com/dgraph-io/gqlparser/parser"
 )
 
 var update = flag.Bool("u", false, "update golden files")

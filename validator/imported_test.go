@@ -11,10 +11,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/dgraph-io/gqlparser/v2"
+	"github.com/dgraph-io/gqlparser/v2/ast"
+	"github.com/dgraph-io/gqlparser/v2/gqlerror"
 	"github.com/stretchr/testify/require"
-	"github.com/dgraph-io/gqlparser"
-	"github.com/dgraph-io/gqlparser/ast"
-	"github.com/dgraph-io/gqlparser/gqlerror"
 	"gopkg.in/yaml.v2"
 )
 

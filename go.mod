@@ -1,4 +1,4 @@
-module github.com/dgraph-io/gqlparser
+module github.com/dgraph-io/gqlparser/v2
 
 go 1.12
 

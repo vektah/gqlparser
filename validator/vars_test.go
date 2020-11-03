@@ -6,10 +6,10 @@ import (
 
 	"encoding/json"
 
+	"github.com/dgraph-io/gqlparser/v2"
+	"github.com/dgraph-io/gqlparser/v2/ast"
+	"github.com/dgraph-io/gqlparser/v2/validator"
 	"github.com/stretchr/testify/require"
-	"github.com/dgraph-io/gqlparser"
-	"github.com/dgraph-io/gqlparser/ast"
-	"github.com/dgraph-io/gqlparser/validator"
 )
 
 func TestValidateVars(t *testing.T) {

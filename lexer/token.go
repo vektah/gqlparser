@@ -3,7 +3,7 @@ package lexer
 import (
 	"strconv"
 
-	"github.com/dgraph-io/gqlparser/ast"
+	"github.com/dgraph-io/gqlparser/v2/ast"
 )
 
 const (

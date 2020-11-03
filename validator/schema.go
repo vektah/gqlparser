@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	. "github.com/dgraph-io/gqlparser/ast"
-	"github.com/dgraph-io/gqlparser/gqlerror"
-	"github.com/dgraph-io/gqlparser/parser"
+	. "github.com/dgraph-io/gqlparser/v2/ast"
+	"github.com/dgraph-io/gqlparser/v2/gqlerror"
+	"github.com/dgraph-io/gqlparser/v2/parser"
 )
 
 func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {
@@ -40,8 +40,8 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 		def := schema.Types[ext.Name]
 		if def == nil {
 			schema.Types[ext.Name] = &Definition{
-				Kind:        ext.Kind,
-				Name:        ext.Name,
+				Kind:     ext.Kind,
+				Name:     ext.Name,
 				Position: ext.Position,
 			}
 			def = schema.Types[ext.Name]

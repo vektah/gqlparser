@@ -3,9 +3,9 @@ package parser
 import (
 	"testing"
 
+	"github.com/dgraph-io/gqlparser/v2/ast"
+	"github.com/dgraph-io/gqlparser/v2/lexer"
 	"github.com/stretchr/testify/require"
-	"github.com/dgraph-io/gqlparser/ast"
-	"github.com/dgraph-io/gqlparser/lexer"
 )
 
 func TestParserUtils(t *testing.T) {

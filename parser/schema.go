@@ -1,9 +1,9 @@
 package parser
 
 import (
-	. "github.com/dgraph-io/gqlparser/ast"
-	"github.com/dgraph-io/gqlparser/gqlerror"
-	"github.com/dgraph-io/gqlparser/lexer"
+	. "github.com/dgraph-io/gqlparser/v2/ast"
+	"github.com/dgraph-io/gqlparser/v2/gqlerror"
+	"github.com/dgraph-io/gqlparser/v2/lexer"
 )
 
 func ParseSchema(source *Source) (*SchemaDocument, *gqlerror.Error) {

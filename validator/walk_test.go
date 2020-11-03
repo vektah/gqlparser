@@ -3,9 +3,9 @@ package validator
 import (
 	"testing"
 
+	"github.com/dgraph-io/gqlparser/v2/ast"
+	"github.com/dgraph-io/gqlparser/v2/parser"
 	"github.com/stretchr/testify/require"
-	"github.com/dgraph-io/gqlparser/ast"
-	"github.com/dgraph-io/gqlparser/parser"
 )
 
 func TestWalker(t *testing.T) {

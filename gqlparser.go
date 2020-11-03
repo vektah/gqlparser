@@ -1,11 +1,11 @@
 package gqlparser
 
 import (
-	"github.com/dgraph-io/gqlparser/ast"
-	"github.com/dgraph-io/gqlparser/gqlerror"
-	"github.com/dgraph-io/gqlparser/parser"
-	"github.com/dgraph-io/gqlparser/validator"
-	_ "github.com/dgraph-io/gqlparser/validator/rules"
+	"github.com/dgraph-io/gqlparser/v2/ast"
+	"github.com/dgraph-io/gqlparser/v2/gqlerror"
+	"github.com/dgraph-io/gqlparser/v2/parser"
+	"github.com/dgraph-io/gqlparser/v2/validator"
+	_ "github.com/dgraph-io/gqlparser/v2/validator/rules"
 )
 
 func LoadSchema(str ...*ast.Source) (*ast.Schema, *gqlerror.Error) {
