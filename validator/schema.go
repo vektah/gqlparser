@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	. "github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/gqlerror"
-	"github.com/vektah/gqlparser/parser"
+	. "github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/gqlerror"
+	"github.com/vektah/gqlparser/v2/parser"
 )
 
 func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {
@@ -34,10 +34,18 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 		schema.Types[def.Name] = ast.Definitions[i]
 	}
 
+	defs := append(DefinitionList{}, ast.Definitions...)
+
 	for _, ext := range ast.Extensions {
 		def := schema.Types[ext.Name]
 		if def == nil {
-			return nil, gqlerror.ErrorPosf(ext.Position, "Cannot extend type %s because it does not exist.", ext.Name)
+			schema.Types[ext.Name] = &Definition{
+				Kind:        ext.Kind,
+				Name:        ext.Name,
+				Position: ext.Position,
+			}
+			def = schema.Types[ext.Name]
+			defs = append(defs, def)
 		}
 
 		if def.Kind != ext.Kind {
@@ -51,7 +59,7 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 		def.EnumValues = append(def.EnumValues, ext.EnumValues...)
 	}
 
-	for _, def := range ast.Definitions {
+	for _, def := range defs {
 		switch def.Kind {
 		case Union:
 			for _, t := range def.Types {
@@ -147,9 +155,9 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 			},
 			&FieldDefinition{
 				Name: "__type",
-				Type: NonNullNamedType("__Type", nil),
+				Type: NamedType("__Type", nil),
 				Arguments: ArgumentDefinitionList{
-					{Name: "name", Type: NamedType("String", nil)},
+					{Name: "name", Type: NonNullNamedType("String", nil)},
 				},
 			},
 		)
@@ -179,7 +187,7 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		if err := validateArgs(schema, field.Arguments, nil); err != nil {
 			return err
 		}
-		if err := validateDirectives(schema, field.Directives, nil); err != nil {
+		if err := validateDirectives(schema, field.Directives, LocationFieldDefinition, nil); err != nil {
 			return err
 		}
 	}
@@ -245,7 +253,7 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		}
 	}
 
-	return validateDirectives(schema, def.Directives, nil)
+	return validateDirectives(schema, def.Directives, DirectiveLocation(def.Kind), nil)
 }
 
 func validateTypeRef(schema *Schema, typ *Type) *gqlerror.Error {
@@ -274,14 +282,14 @@ func validateArgs(schema *Schema, args ArgumentDefinitionList, currentDirective 
 				def.Kind,
 			)
 		}
-		if err := validateDirectives(schema, arg.Directives, currentDirective); err != nil {
+		if err := validateDirectives(schema, arg.Directives, LocationArgumentDefinition, currentDirective); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func validateDirectives(schema *Schema, dirs DirectiveList, currentDirective *DirectiveDefinition) *gqlerror.Error {
+func validateDirectives(schema *Schema, dirs DirectiveList, location DirectiveLocation, currentDirective *DirectiveDefinition) *gqlerror.Error {
 	for _, dir := range dirs {
 		if err := validateName(dir.Position, dir.Name); err != nil {
 			// now, GraphQL spec doesn't have reserved directive name
@@ -292,6 +300,15 @@ func validateDirectives(schema *Schema, dirs DirectiveList, currentDirective *Di
 		}
 		if schema.Directives[dir.Name] == nil {
 			return gqlerror.ErrorPosf(dir.Position, "Undefined directive %s.", dir.Name)
+		}
+		validKind := false
+		for _, dirLocation := range schema.Directives[dir.Name].Locations {
+			if dirLocation == location {
+				validKind = true
+			}
+		}
+		if !validKind {
+			return gqlerror.ErrorPosf(dir.Position, "Directive %s is not applicable on %s.", dir.Name, location)
 		}
 		dir.Definition = schema.Directives[dir.Name]
 	}

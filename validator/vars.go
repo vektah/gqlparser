@@ -6,8 +6,8 @@ import (
 
 	"fmt"
 
-	"github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/gqlerror"
+	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 var UnexpectedType = fmt.Errorf("Unexpected Type")
@@ -17,12 +17,12 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 	coercedVars := map[string]interface{}{}
 
 	validator := varValidator{
-		path:   []interface{}{"variable"},
+		path:   ast.Path{ast.PathName("variable")},
 		schema: schema,
 	}
 
 	for _, v := range op.VariableDefinitions {
-		validator.path = append(validator.path, v.Variable)
+		validator.path = append(validator.path, ast.PathName(v.Variable))
 
 		if !v.Definition.IsInputType() {
 			return nil, gqlerror.ErrorPathf(validator.path, "must an input type")
@@ -69,7 +69,7 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 }
 
 type varValidator struct {
-	path   []interface{}
+	path   ast.Path
 	schema *ast.Schema
 }
 
@@ -87,7 +87,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 
 		for i := 0; i < val.Len(); i++ {
 			resetPath()
-			v.path = append(v.path, i)
+			v.path = append(v.path, ast.PathIndex(i))
 			field := val.Index(i)
 
 			if field.Kind() == reflect.Ptr || field.Kind() == reflect.Interface {
@@ -171,7 +171,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 			val.MapIndex(name)
 			fieldDef := def.Fields.ForName(name.String())
 			resetPath()
-			v.path = append(v.path, name.String())
+			v.path = append(v.path, ast.PathName(name.String()))
 
 			if fieldDef == nil {
 				return gqlerror.ErrorPathf(v.path, "unknown field")
@@ -180,11 +180,18 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) *gqlerr
 
 		for _, fieldDef := range def.Fields {
 			resetPath()
-			v.path = append(v.path, fieldDef.Name)
+			v.path = append(v.path, ast.PathName(fieldDef.Name))
 
 			field := val.MapIndex(reflect.ValueOf(fieldDef.Name))
 			if !field.IsValid() {
 				if fieldDef.Type.NonNull {
+					if fieldDef.DefaultValue != nil {
+						var err error
+						_, err = fieldDef.DefaultValue.Value(nil)
+						if err == nil {
+							continue
+						}
+					}
 					return gqlerror.ErrorPathf(v.path, "must be defined")
 				}
 				continue

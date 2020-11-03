@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/vektah/gqlparser/ast"
+	"github.com/vektah/gqlparser/v2/ast"
 )
 
 // Error is the standard graphql error type described in https://facebook.github.io/graphql/draft/#sec-Errors
 type Error struct {
+	err        error                  `json:"-"`
 	Message    string                 `json:"message"`
-	Path       []interface{}          `json:"path,omitempty"`
+	Path       ast.Path               `json:"path,omitempty"`
 	Locations  []Location             `json:"locations,omitempty"`
 	Extensions map[string]interface{} `json:"extensions,omitempty"`
 	Rule       string                 `json:"-"`
@@ -63,20 +64,11 @@ func (err *Error) Error() string {
 }
 
 func (err Error) pathString() string {
-	var str bytes.Buffer
-	for i, v := range err.Path {
+	return err.Path.String()
+}
 
-		switch v := v.(type) {
-		case int, int64:
-			str.WriteString(fmt.Sprintf("[%d]", v))
-		default:
-			if i != 0 {
-				str.WriteByte('.')
-			}
-			str.WriteString(fmt.Sprint(v))
-		}
-	}
-	return str.String()
+func (err Error) Unwrap() error {
+	return err.err
 }
 
 func (errs List) Error() string {
@@ -88,8 +80,9 @@ func (errs List) Error() string {
 	return buf.String()
 }
 
-func WrapPath(path []interface{}, err error) *Error {
+func WrapPath(path ast.Path, err error) *Error {
 	return &Error{
+		err:     err,
 		Message: err.Error(),
 		Path:    path,
 	}
@@ -101,7 +94,7 @@ func Errorf(message string, args ...interface{}) *Error {
 	}
 }
 
-func ErrorPathf(path []interface{}, message string, args ...interface{}) *Error {
+func ErrorPathf(path ast.Path, message string, args ...interface{}) *Error {
 	return &Error{
 		Message: fmt.Sprintf(message, args...),
 		Path:    path,

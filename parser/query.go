@@ -1,10 +1,10 @@
 package parser
 
 import (
-	"github.com/vektah/gqlparser/gqlerror"
-	"github.com/vektah/gqlparser/lexer"
+	"github.com/vektah/gqlparser/v2/gqlerror"
+	"github.com/vektah/gqlparser/v2/lexer"
 
-	. "github.com/vektah/gqlparser/ast"
+	. "github.com/vektah/gqlparser/v2/ast"
 )
 
 func ParseQuery(source *Source) (*QueryDocument, *gqlerror.Error) {
@@ -100,6 +100,8 @@ func (p *parser) parseVariableDefinition() *VariableDefinition {
 	if p.skip(lexer.Equals) {
 		def.DefaultValue = p.parseValueLiteral(true)
 	}
+
+	def.Directives = p.parseDirectives(false)
 
 	return &def
 }
