@@ -12,6 +12,7 @@ type Query {
     intArrayArg(i: [Int]): Boolean!
     stringArrayArg(i: [String]): Boolean!
     boolArrayArg(i: [Boolean]): Boolean!
+    typeArrayArg(i: [CustomType]): Boolean!
 }
 
 input InputType {
@@ -24,6 +25,10 @@ input InputType {
 
 input Embedded {
     name: String!
+}
+
+input CustomType {
+    and: [Int!]
 }
 
 enum Enum {
