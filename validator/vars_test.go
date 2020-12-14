@@ -157,7 +157,7 @@ func TestValidateVars(t *testing.T) {
 				"var": map[string]interface{}{"name": "hello"},
 			})
 			require.Nil(t, gerr)
-			require.EqualValues(t, []map[string]interface{}{{"name": "hello"}}, vars["var"])
+			require.EqualValues(t, []interface{}{map[string]interface{}{"name": "hello"}}, vars["var"])
 		})
 
 		t.Run("non-null int value should be coerced to an array", func(t *testing.T) {
@@ -166,7 +166,7 @@ func TestValidateVars(t *testing.T) {
 				"var": 5,
 			})
 			require.Nil(t, gerr)
-			expected := []int{5}
+			expected := []interface{}{5}
 			require.EqualValues(t, expected, vars["var"])
 		})
 
@@ -176,7 +176,7 @@ func TestValidateVars(t *testing.T) {
 				"var": []map[string]interface{}{{"and": 5}},
 			})
 			require.Nil(t, gerr)
-			expected := []map[string]interface{}{{"and": []int{5}}}
+			expected := []map[string]interface{}{{"and": []interface{}{5}}}
 			require.EqualValues(t, expected, vars["var"])
 		})
 
