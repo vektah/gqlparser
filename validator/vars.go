@@ -10,8 +10,6 @@ import (
 	"github.com/dgraph-io/gqlparser/v2/gqlerror"
 )
 
-var UnexpectedType = fmt.Errorf("Unexpected Type")
-
 // VariableValues coerces and validates variable values
 func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables map[string]interface{}) (map[string]interface{}, *gqlerror.Error) {
 	coercedVars := map[string]interface{}{}
@@ -82,9 +80,10 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 		if val.Kind() != reflect.Slice {
 			// GraphQL spec says that non-null values should be coerced to an array when possible.
 			// Hence if the value is not a slice, we create a slice and add val to it.
-			slc := reflect.MakeSlice(reflect.SliceOf(val.Type()), 0, 0)
-			slc = reflect.Append(slc, val)
-			val = slc
+			slc := make([]interface{}, 0)
+			slc = append(slc, val.Interface())
+			val = reflect.ValueOf(slc)
+			val.Convert(val.Type())
 		}
 		for i := 0; i < val.Len(); i++ {
 			resetPath()
