@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"bytes"
+	"strconv"
 	"unicode/utf8"
 
 	"github.com/vektah/gqlparser/v2/ast"
@@ -392,6 +393,20 @@ func (s *Lexer) readString() (Token, *gqlerror.Error) {
 					buf.WriteByte('\r')
 				case 't':
 					buf.WriteByte('\t')
+				case 'x':
+					// look two ahead
+					r, ok := unhex2(s.Input[s.end+2 : s.end+4])
+					if !ok {
+						// if it's not a correct rune, then we treat it as a literal and move o
+						buf.WriteString(s.Input[s.end : s.end+2])
+						s.end += 2
+						s.endRunes += 2
+						continue
+					}
+					buf.WriteRune(r)
+					s.end += 2
+					s.endRunes += 2
+
 				default:
 					s.end += 1
 					s.endRunes += 1
@@ -489,6 +504,14 @@ func unhex(b string) (v rune, ok bool) {
 	}
 
 	return v, true
+}
+
+func unhex2(b string) (v rune, ok bool) {
+	r, err := strconv.ParseUint(b, 16, 32)
+	if err != nil {
+		return 0, false
+	}
+	return rune(r), true
 }
 
 // readName from the input

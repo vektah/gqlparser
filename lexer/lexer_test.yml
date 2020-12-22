@@ -124,6 +124,15 @@ lexes strings:
         end: 15
         value: 'slashes \ /'
 
+  - name: correct hex literals
+    input: '"\xaa \xab \xac ."'
+    tokens:
+      -
+        kind: STRING
+        start: 0
+        end: 18
+        value: 'ª « ¬ .'
+
   - name: unicode
     input: '"unicode \u1234\u5678\u90AB\uCDEF"'
     tokens:
@@ -184,9 +193,12 @@ lex reports useful string errors:
 
   - name: hex escape sequence
     input: '"bad \x esc"'
-    error:
-      message: 'Invalid character escape sequence: \x.'
-      locations: [{ line: 1, column: 7 }]
+    tokens:
+      -
+        kind: STRING
+        start: 0
+        end: 12
+        value: 'bad \x esc'
 
   - name: short escape sequence
     input: '"bad \u1 esc"'
@@ -669,4 +681,3 @@ lex reports useful unknown character error:
     error:
       message: 'Cannot parse the unexpected character "â".'
       locations: [{ line: 1, column: 1 }]
-
