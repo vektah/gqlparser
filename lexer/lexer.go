@@ -394,6 +394,11 @@ func (s *Lexer) readString() (Token, *gqlerror.Error) {
 				case 't':
 					buf.WriteByte('\t')
 				case 'x':
+					if s.end+4 >= inputLen {
+						s.end++
+						s.endRunes++
+						break
+					}
 					// look two ahead
 					r, ok := unhex2(s.Input[s.end+2 : s.end+4])
 					if !ok {
