@@ -170,6 +170,26 @@ func TestValidateVars(t *testing.T) {
 			require.EqualValues(t, expected, vars["var"])
 		})
 
+		t.Run("int value should be coerced to string array when required type is [ID]", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [ID]) { idArrayArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": 5,
+			})
+			require.Nil(t, gerr)
+			expected := []interface{}{"\x05"}
+			require.EqualValues(t, expected, vars["var"])
+		})
+
+		t.Run("int array should be coerced to string array when required type is [ID]", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [ID]) { idArrayArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": []interface{}{5, 6},
+			})
+			require.Nil(t, gerr)
+			expected := []interface{}{"\x05", "\x06"}
+			require.EqualValues(t, expected, vars["var"])
+		})
+
 		t.Run("non-null int deep value should be coerced to an array", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: [CustomType]) { typeArrayArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
