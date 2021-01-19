@@ -200,6 +200,16 @@ func TestValidateVars(t *testing.T) {
 			require.EqualValues(t, expected, vars["var"])
 		})
 
+		t.Run("int value will be converted to string when required type is ID", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: ID!) { idArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": 5,
+			})
+			require.Nil(t, gerr)
+			expected := "\x05"
+			require.EqualValues(t, expected, vars["var"])
+		})
+
 		t.Run("defaults", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!] = [{name: "foo"}]) { arrayArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)

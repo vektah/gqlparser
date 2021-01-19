@@ -81,10 +81,10 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 		if val.Kind() != reflect.Slice {
 			// GraphQL spec says that non-null values should be coerced to an array when possible.
 			// Hence if the value is not a slice, we create a slice and add val to it.
-			if typ.Name() == "ID" {
+			if typ.Name() == "ID" && val.Type().Name() != "string" {
 				val = val.Convert((reflect.ValueOf("string")).Type())
 				slc = append(slc, val.String())
-			} else {
+			} else if typ.Name() != "ID" {
 				slc = append(slc, val.Interface())
 			}
 			val = reflect.ValueOf(slc)
@@ -100,10 +100,12 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 				}
 				field = field.Elem()
 			}
-			cVal, err := v.validateVarType(typ.Elem, field)
-			if typ.Name() == "ID" {
-				cVal = cVal.Convert((reflect.ValueOf("string")).Type())
-				slc = append(slc, cVal.String())
+			cval, err := v.validateVarType(typ.Elem, field)
+			if typ.Name() == "ID" && val.Type().Name() != "string" {
+				cval = cval.Convert((reflect.ValueOf("string")).Type())
+				slc = append(slc, cval.String())
+			} else if typ.Name() == "ID" {
+				slc = append(slc, cval.String())
 			}
 			if err != nil {
 				return val, err
@@ -163,7 +165,9 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 
 		case "ID":
 			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 || kind == reflect.String {
-				val = val.Convert((reflect.ValueOf("string")).Type())
+				if val.Type().Name() != "string" {
+					val = val.Convert((reflect.ValueOf("string")).Type())
+				}
 				return val, nil
 			}
 		default:
@@ -217,11 +221,11 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 				}
 				field = field.Elem()
 			}
-			cVal, err := v.validateVarType(fieldDef.Type, field)
+			cval, err := v.validateVarType(fieldDef.Type, field)
 			if err != nil {
 				return val, err
 			}
-			val.SetMapIndex(reflect.ValueOf(fieldDef.Name), cVal)
+			val.SetMapIndex(reflect.ValueOf(fieldDef.Name), cval)
 		}
 	default:
 		panic(fmt.Errorf("unsupported type %s", def.Kind))
