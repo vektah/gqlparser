@@ -10,6 +10,7 @@ type Query {
     defaultStructArg(i: InputType! = {name: "foo"}): Boolean!
     arrayArg(i: [InputType!]): Boolean!
     intArrayArg(i: [Int]): Boolean!
+    idArrayArg(i: [ID]): Boolean!
     stringArrayArg(i: [String]): Boolean!
     boolArrayArg(i: [Boolean]): Boolean!
     typeArrayArg(i: [CustomType]): Boolean!

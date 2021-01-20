@@ -76,15 +76,20 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 		v.path = currentPath
 	}
 	defer resetPath()
+	slc := make([]interface{}, 0)
 	if typ.Elem != nil {
 		if val.Kind() != reflect.Slice {
 			// GraphQL spec says that non-null values should be coerced to an array when possible.
 			// Hence if the value is not a slice, we create a slice and add val to it.
-			slc := make([]interface{}, 0)
-			slc = append(slc, val.Interface())
+			if typ.Name() == "ID" && val.Type().Name() != "string" {
+				val = val.Convert((reflect.ValueOf("string")).Type())
+				slc = append(slc, val.String())
+			} else if typ.Name() != "ID" {
+				slc = append(slc, val.Interface())
+			}
 			val = reflect.ValueOf(slc)
-			val.Convert(val.Type())
 		}
+		slc = []interface{}{}
 		for i := 0; i < val.Len(); i++ {
 			resetPath()
 			v.path = append(v.path, ast.PathIndex(i))
@@ -95,10 +100,19 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 				}
 				field = field.Elem()
 			}
-			_, err := v.validateVarType(typ.Elem, field)
+			cval, err := v.validateVarType(typ.Elem, field)
+			if typ.Name() == "ID" && val.Type().Name() != "string" {
+				cval = cval.Convert((reflect.ValueOf("string")).Type())
+				slc = append(slc, cval.String())
+			} else if typ.Name() == "ID" {
+				slc = append(slc, cval.String())
+			}
 			if err != nil {
 				return val, err
 			}
+		}
+		if typ.Name() == "ID" {
+			val = reflect.ValueOf(slc)
 		}
 		return val, nil
 	}
@@ -151,6 +165,9 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 
 		case "ID":
 			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 || kind == reflect.String {
+				if val.Type().Name() != "string" {
+					val = val.Convert((reflect.ValueOf("string")).Type())
+				}
 				return val, nil
 			}
 		default:
