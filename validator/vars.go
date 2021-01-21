@@ -84,7 +84,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 			if typ.Name() == "ID" && val.Type().Name() != "string" {
 				val = val.Convert((reflect.ValueOf("string")).Type())
 				slc = append(slc, val.String())
-			} else if typ.Name() != "ID" {
+			} else {
 				slc = append(slc, val.Interface())
 			}
 			val = reflect.ValueOf(slc)
@@ -101,10 +101,10 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 				field = field.Elem()
 			}
 			cval, err := v.validateVarType(typ.Elem, field)
-			if typ.Name() == "ID" && val.Type().Name() != "string" {
-				cval = cval.Convert((reflect.ValueOf("string")).Type())
-				slc = append(slc, cval.String())
-			} else if typ.Name() == "ID" {
+			if typ.Name() == "ID" {
+				if val.Type().Name() != "string" {
+					cval = cval.Convert((reflect.ValueOf("string")).Type())
+				}
 				slc = append(slc, cval.String())
 			}
 			if err != nil {

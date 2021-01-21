@@ -180,6 +180,16 @@ func TestValidateVars(t *testing.T) {
 			require.EqualValues(t, expected, vars["var"])
 		})
 
+		t.Run("single string value should be coerced to string array when required type is [ID]", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [ID]) { idArrayArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": "5",
+			})
+			require.Nil(t, gerr)
+			expected := []interface{}{"5"}
+			require.EqualValues(t, expected, vars["var"])
+		})
+
 		t.Run("int array should be coerced to string array when required type is [ID]", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: [ID]) { idArrayArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
