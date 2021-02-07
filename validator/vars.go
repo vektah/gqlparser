@@ -1,7 +1,9 @@
 package validator
 
 import (
+	"errors"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"fmt"
@@ -145,10 +147,31 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 	case ast.Scalar:
 		kind := val.Type().Kind()
 		switch typ.NamedType {
-		case "Int":
+		case "Int", "Int64":
 			if kind == reflect.String || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
+				var errIntCoerce error
+				var valString string
+				if kind == reflect.String {
+					valString = val.String()
+				} else {
+					valString = strconv.FormatInt(val.Int(), 10)
+				}
+				if typ.NamedType == "Int" {
+					_, errIntCoerce = strconv.ParseInt(valString, 10, 32)
+				} else {
+					_, errIntCoerce = strconv.ParseInt(valString, 10, 64)
+				}
+				if errIntCoerce != nil {
+					if errors.Is(errIntCoerce, strconv.ErrRange) {
+						return val, gqlerror.ErrorPathf(v.path, "Out of range value '%s', for type `%s`", valString, typ.NamedType)
+
+					} else {
+						return val, gqlerror.ErrorPathf(v.path, "Type mismatched for Value `%s`, expected:`%s`", valString, typ.NamedType)
+					}
+				}
 				return val, nil
 			}
+
 		case "Float":
 			if kind == reflect.String || kind == reflect.Float32 || kind == reflect.Float64 || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
 				return val, nil
