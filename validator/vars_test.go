@@ -350,8 +350,15 @@ func TestValidateVars(t *testing.T) {
 			})
 			require.EqualError(t, gerr, "input: variable.var Out of range value '2147483648', for type `Int`")
 		})
-	})
 
+		t.Run("out of range error for Int64", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int64!) { int64Arg(i: $var) }`)
+			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": "9223372036854775808",
+			})
+			require.EqualError(t, gerr, "input: variable.var Out of range value '9223372036854775808', for type `Int64`")
+		})
+	})
 	t.Run("Int Array", func(t *testing.T) {
 		t.Run("Array with null", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: [Int]) { intArrayArg(i: $var) }`)

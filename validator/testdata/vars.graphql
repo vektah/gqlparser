@@ -1,6 +1,7 @@
 type Query {
     optionalIntArg(i: Int): Boolean!
     intArg(i: Int!): Boolean!
+    int64Arg(i: Int64!): Boolean!
     stringArg(i: String): Boolean!
     boolArg(i: Boolean!): Boolean!
     floatArg(i: Float!): Boolean!
@@ -15,6 +16,8 @@ type Query {
     boolArrayArg(i: [Boolean]): Boolean!
     typeArrayArg(i: [CustomType]): Boolean!
 }
+
+scalar Int64
 
 input InputType {
     name: String!
