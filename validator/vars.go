@@ -2,14 +2,12 @@ package validator
 
 import (
 	"errors"
+	"fmt"
+	"github.com/dgraph-io/gqlparser/v2/ast"
+	"github.com/dgraph-io/gqlparser/v2/gqlerror"
 	"reflect"
 	"strconv"
 	"strings"
-
-	"fmt"
-
-	"github.com/dgraph-io/gqlparser/v2/ast"
-	"github.com/dgraph-io/gqlparser/v2/gqlerror"
 )
 
 // VariableValues coerces and validates variable values
@@ -59,12 +57,68 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 					return nil, err
 				}
 				coercedVars[v.Variable] = rval.Interface()
+
 			}
 		}
 
 		validator.path = validator.path[0 : len(validator.path)-1]
 	}
+	// cascade directive arguments validation
+	if op.VariableDefinitions != nil {
+		err := validator.cascadeDirectiveValidation(op, op.SelectionSet, variables)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return coercedVars, nil
+}
+
+func (v *varValidator) cascadeDirectiveValidation(op *ast.OperationDefinition, sel ast.SelectionSet, variables map[string]interface{}) *gqlerror.Error {
+
+	for _, s := range sel {
+		if f, ok := s.(*ast.Field); ok {
+			cascadedir := f.Directives.ForName("cascade")
+			if cascadedir == nil {
+				continue
+			}
+			if len(cascadedir.Arguments) == 1 {
+				if cascadedir.ParentDefinition == nil {
+					return gqlerror.Errorf("Schema is not set yet. Please try after sometime.")
+				}
+			}
+			if cascadedir.Arguments.ForName("fields") == nil {
+				continue
+			}
+			fieldArg := cascadedir.Arguments.ForName("fields")
+			isVariable := strings.HasPrefix(fieldArg.Value.String(), "$")
+			if !isVariable {
+				continue
+			}
+
+			varName := op.VariableDefinitions.ForName(cascadedir.Arguments.ForName("fields").Value.Raw)
+			v.path = append(v.path, ast.PathName(varName.Variable))
+			if cascadedir.ArgumentMap(variables)["fields"] == nil {
+				return gqlerror.ErrorPathf(v.path, "variable %s not defined", varName.Variable)
+			}
+
+			variableVal := cascadedir.ArgumentMap(variables)["fields"].([]interface{})
+			typFields := cascadedir.ParentDefinition.Fields
+			typName := cascadedir.ParentDefinition.Name
+			for _, val := range variableVal {
+				if typFields.ForName(val.(string)) == nil {
+					v.path = append(v.path, ast.PathName(val.(string)))
+					return gqlerror.ErrorPathf(v.path, "Field `%s` is not present in type `%s`."+
+						" You can only use fields which are in type `%s`", val, typName, typName)
+				}
+			}
+			v.path = v.path[0 : len(v.path)-1]
+			err := v.cascadeDirectiveValidation(op, f.SelectionSet, variables)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 type varValidator struct {
