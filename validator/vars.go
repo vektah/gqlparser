@@ -58,7 +58,6 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 					return nil, err
 				}
 				coercedVars[v.Variable] = rval.Interface()
-
 			}
 		}
 
