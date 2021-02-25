@@ -25,7 +25,7 @@ func TestWalker(t *testing.T) {
 		require.Equal(t, "Query", field.ObjectDefinition.Name)
 	})
 
-	Walk(schema, query, observers)
+	Walk(schema, query, observers, nil)
 
 	require.True(t, called)
 }
@@ -46,7 +46,7 @@ func TestWalkInlineFragment(t *testing.T) {
 		require.Equal(t, "Query", field.ObjectDefinition.Name)
 	})
 
-	Walk(schema, query, observers)
+	Walk(schema, query, observers, nil)
 
 	require.True(t, called)
 }

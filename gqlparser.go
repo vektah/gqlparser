@@ -25,7 +25,7 @@ func LoadQuery(schema *ast.Schema, str string) (*ast.QueryDocument, gqlerror.Lis
 	if err != nil {
 		return nil, gqlerror.List{err}
 	}
-	errs := validator.Validate(schema, query)
+	errs := validator.Validate(schema, query, nil)
 	if errs != nil {
 		return nil, errs
 	}

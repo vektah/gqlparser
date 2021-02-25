@@ -43,22 +43,23 @@ func (o *Events) OnValue(f func(walker *Walker, value *ast.Value)) {
 	o.value = append(o.value, f)
 }
 
-func Walk(schema *ast.Schema, document *ast.QueryDocument, observers *Events) {
+func Walk(schema *ast.Schema, document *ast.QueryDocument, observers *Events, variables map[string]interface{}) {
 	w := Walker{
 		Observers: observers,
 		Schema:    schema,
 		Document:  document,
+		Variables: variables,
 	}
 
 	w.walk()
 }
 
 type Walker struct {
-	Context   context.Context
-	Observers *Events
-	Schema    *ast.Schema
-	Document  *ast.QueryDocument
-
+	Context                  context.Context
+	Observers                *Events
+	Schema                   *ast.Schema
+	Document                 *ast.QueryDocument
+	Variables                map[string]interface{}
 	validatedFragmentSpreads map[string]bool
 	CurrentOperation         *ast.OperationDefinition
 }
