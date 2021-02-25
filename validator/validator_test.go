@@ -37,5 +37,5 @@ extend type Query {
 		}
 	}`})
 	require.Nil(t, err)
-	require.Nil(t, validator.Validate(s, q))
+	require.Nil(t, validator.Validate(s, q, nil))
 }
