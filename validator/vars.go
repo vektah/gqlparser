@@ -145,6 +145,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 		return val, nil
 	case ast.Scalar:
 		kind := val.Type().Kind()
+		namedType := val.Type().Name()
 		switch typ.NamedType {
 		case "Int", "Int64":
 			if kind == reflect.String || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
@@ -176,7 +177,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 				return val, nil
 			}
 		case "String":
-			if kind == reflect.String {
+			if namedType == "string" {
 				return val, nil
 			}
 

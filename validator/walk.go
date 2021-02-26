@@ -59,7 +59,7 @@ type Walker struct {
 	Observers                *Events
 	Schema                   *ast.Schema
 	Document                 *ast.QueryDocument
-	Variables                map[string]interface{}
+	Variables                map[string]interface{} // These variables are not coerced
 	validatedFragmentSpreads map[string]bool
 	CurrentOperation         *ast.OperationDefinition
 }
