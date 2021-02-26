@@ -197,7 +197,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 			// assume custom scalars are ok
 			return val, nil
 		}
-		return val, gqlerror.ErrorPathf(v.path, "cannot use %s as %s", kind.String(), typ.NamedType)
+		return val, gqlerror.ErrorPathf(v.path, "cannot use %s as %s", namedType, typ.NamedType)
 	case ast.InputObject:
 		if val.Kind() != reflect.Map {
 			return val, gqlerror.ErrorPathf(v.path, "must be a %s", def.Name)
