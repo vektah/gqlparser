@@ -148,7 +148,7 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 		namedType := val.Type().Name()
 		switch typ.NamedType {
 		case "Int", "Int64":
-			if kind == reflect.String || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
+			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 || (namedType == "string" && typ.NamedType == "Int64") || namedType == "Number" {
 				var errIntCoerce error
 				var valString string
 				if kind == reflect.String {

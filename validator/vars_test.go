@@ -343,6 +343,14 @@ func TestValidateVars(t *testing.T) {
 			require.EqualError(t, gerr, "input: variable.var cannot use float64 as Int")
 		})
 
+		t.Run("error for invalid coercing, String -> Int ", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int!) { intArg(i: $var) }`)
+			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": "18",
+			})
+			require.EqualError(t, gerr, "input: variable.var cannot use string as Int")
+		})
+
 		t.Run("out of range error for Int", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int!) { intArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
