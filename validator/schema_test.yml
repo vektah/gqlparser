@@ -505,6 +505,16 @@ directives:
 
       directive @A(a: Input, b: Scalar, c: Enum) on FIELD_DEFINITION
 
+  - name: Valid arg for directive
+    input: |
+      type User @include(aggregate: false) {
+        name: String
+      }
+
+    error:
+      message: 'aggregate is not supported as an argument for include directive.'
+      locations: [{line: 1, column: 12}]
+
   - name: Objects not allowed
     input: |
       type Object { id: ID }
