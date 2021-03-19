@@ -289,10 +289,28 @@ func validateArgs(schema *Schema, args ArgumentDefinitionList, currentDirective 
 	return nil
 }
 
+func validateDirectiveArgs(dir *Directive, schema *Schema) *gqlerror.Error {
+	allowedArgs := make(map[string]struct{}, len(schema.Directives[dir.Name].Arguments))
+	for _, arg := range schema.Directives[dir.Name].Arguments {
+		allowedArgs[arg.Name] = struct{}{}
+	}
+
+	for _, arg := range dir.Arguments {
+		if _, ok := allowedArgs[arg.Name]; !ok {
+			return gqlerror.Errorf("%s is not supported as an argument for %s directive.", arg.Name, dir.Name)
+		}
+	}
+	return nil
+
+}
+
 func validateDirectives(schema *Schema, dirs DirectiveList, location DirectiveLocation, currentDirective *DirectiveDefinition) *gqlerror.Error {
 	for _, dir := range dirs {
 		if err := validateName(dir.Position, dir.Name); err != nil {
 			// now, GraphQL spec doesn't have reserved directive name
+			return err
+		}
+		if err := validateDirectiveArgs(dir, schema); err != nil {
 			return err
 		}
 		if currentDirective != nil && dir.Name == currentDirective.Name {
