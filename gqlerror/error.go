@@ -2,6 +2,7 @@ package gqlerror
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -78,6 +79,24 @@ func (errs List) Error() string {
 		buf.WriteByte('\n')
 	}
 	return buf.String()
+}
+
+func (errs List) Is(target error) bool {
+	for _, err := range errs {
+		if errors.Is(err, target) {
+			return true
+		}
+	}
+	return false
+}
+
+func (errs List) As(target interface{}) bool {
+	for _, err := range errs {
+		if errors.As(err, target) {
+			return true
+		}
+	}
+	return false
 }
 
 func WrapPath(path ast.Path, err error) *Error {
