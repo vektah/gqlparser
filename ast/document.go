@@ -24,6 +24,7 @@ func (d *SchemaDocument) Merge(other *SchemaDocument) {
 }
 
 type Schema struct {
+	Description  string
 	Query        *Definition
 	Mutation     *Definition
 	Subscription *Definition

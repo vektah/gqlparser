@@ -87,6 +87,7 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 	}
 
 	if len(ast.Schema) == 1 {
+		schema.Description = ast.Schema[0].Description
 		for _, entrypoint := range ast.Schema[0].OperationTypes {
 			def := schema.Types[entrypoint.Type]
 			if def == nil {
