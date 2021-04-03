@@ -18,9 +18,11 @@ type Dog {
     name: String!
 }
 
-type Person {
+type Person @favorite(name: "sushi") @favorite(name: "tempura") {
     name: String!
 }
+
+directive @favorite(name: String!) repeatable on OBJECT
 
 extend type Dog {
     owner: Person! @permission(permission: "admin")
