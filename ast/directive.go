@@ -11,6 +11,7 @@ const (
 	LocationFragmentDefinition DirectiveLocation = `FRAGMENT_DEFINITION`
 	LocationFragmentSpread     DirectiveLocation = `FRAGMENT_SPREAD`
 	LocationInlineFragment     DirectiveLocation = `INLINE_FRAGMENT`
+	LocationVariableDefinition DirectiveLocation = `VARIABLE_DEFINITION`
 
 	// Type System
 	LocationSchema               DirectiveLocation = `SCHEMA`
