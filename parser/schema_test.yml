@@ -265,6 +265,7 @@ type extensions:
 schema definition:
   - name: simple
     input: |
+      "Description"
       schema {
         query: Query
       }
@@ -272,6 +273,7 @@ schema definition:
       <SchemaDocument>
         Schema: [SchemaDefinition]
         - <SchemaDefinition>
+            Description: "Description"
             OperationTypes: [OperationTypeDefinition]
             - <OperationTypeDefinition>
                 Operation: Operation("query")
@@ -280,9 +282,9 @@ schema definition:
 schema extensions:
   - name: simple
     input: |
-       extend schema {
-         mutation: Mutation
-       }
+      extend schema {
+        mutation: Mutation
+      }
     ast: |
       <SchemaDocument>
         SchemaExtension: [SchemaDefinition]
