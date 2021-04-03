@@ -42,7 +42,7 @@ variables:
       locations: [{ line: 1, column: 37 }]
 
   - name: can have directives
-    input: 'query ($withDirective: String @first @second, $withoutDirective: String) { f }'
+    input: 'query ($withDirective: String @first @second @third(if: true), $withoutDirective: String) { f }'
     ast: |
       <QueryDocument>
         Operations: [OperationDefinition]
@@ -57,6 +57,12 @@ variables:
                     Name: "first"
                 - <Directive>
                     Name: "second"
+                - <Directive>
+                    Name: "third"
+                    Arguments: [Argument]
+                    - <Argument>
+                        Name: "if"
+                        Value: true
             - <VariableDefinition>
                 Variable: "withoutDirective"
                 Type: String

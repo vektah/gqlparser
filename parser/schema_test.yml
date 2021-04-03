@@ -522,6 +522,60 @@ directives:
             - DirectiveLocation("FIELD")
             IsRepeatable: false
 
+  - name: executable
+    input: |
+      directive @onQuery on QUERY
+      directive @onMutation on MUTATION
+      directive @onSubscription on SUBSCRIPTION
+      directive @onField on FIELD
+      directive @onFragmentDefinition on FRAGMENT_DEFINITION
+      directive @onFragmentSpread on FRAGMENT_SPREAD
+      directive @onInlineFragment on INLINE_FRAGMENT
+      directive @onVariableDefinition on VARIABLE_DEFINITION
+    ast: |
+      <SchemaDocument>
+        Directives: [DirectiveDefinition]
+        - <DirectiveDefinition>
+            Name: "onQuery"
+            Locations: [DirectiveLocation]
+            - DirectiveLocation("QUERY")
+            IsRepeatable: false
+        - <DirectiveDefinition>
+            Name: "onMutation"
+            Locations: [DirectiveLocation]
+            - DirectiveLocation("MUTATION")
+            IsRepeatable: false
+        - <DirectiveDefinition>
+            Name: "onSubscription"
+            Locations: [DirectiveLocation]
+            - DirectiveLocation("SUBSCRIPTION")
+            IsRepeatable: false
+        - <DirectiveDefinition>
+            Name: "onField"
+            Locations: [DirectiveLocation]
+            - DirectiveLocation("FIELD")
+            IsRepeatable: false
+        - <DirectiveDefinition>
+            Name: "onFragmentDefinition"
+            Locations: [DirectiveLocation]
+            - DirectiveLocation("FRAGMENT_DEFINITION")
+            IsRepeatable: false
+        - <DirectiveDefinition>
+            Name: "onFragmentSpread"
+            Locations: [DirectiveLocation]
+            - DirectiveLocation("FRAGMENT_SPREAD")
+            IsRepeatable: false
+        - <DirectiveDefinition>
+            Name: "onInlineFragment"
+            Locations: [DirectiveLocation]
+            - DirectiveLocation("INLINE_FRAGMENT")
+            IsRepeatable: false
+        - <DirectiveDefinition>
+            Name: "onVariableDefinition"
+            Locations: [DirectiveLocation]
+            - DirectiveLocation("VARIABLE_DEFINITION")
+            IsRepeatable: false
+
   - name: repeatable
     input: directive @foo repeatable on FIELD
     ast: |
