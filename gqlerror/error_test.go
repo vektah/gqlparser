@@ -3,8 +3,8 @@ package gqlerror
 import (
 	"testing"
 
+	"github.com/Code-Hex/gqlparser/v2/ast"
 	"github.com/stretchr/testify/require"
-	"github.com/vektah/gqlparser/v2/ast"
 )
 
 func TestErrorFormatting(t *testing.T) {

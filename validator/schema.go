@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	. "github.com/vektah/gqlparser/v2/ast"
-	"github.com/vektah/gqlparser/v2/gqlerror"
-	"github.com/vektah/gqlparser/v2/parser"
+	. "github.com/Code-Hex/gqlparser/v2/ast"
+	"github.com/Code-Hex/gqlparser/v2/gqlerror"
+	"github.com/Code-Hex/gqlparser/v2/parser"
 )
 
 func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {
@@ -40,8 +40,8 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 		def := schema.Types[ext.Name]
 		if def == nil {
 			schema.Types[ext.Name] = &Definition{
-				Kind:        ext.Kind,
-				Name:        ext.Name,
+				Kind:     ext.Kind,
+				Name:     ext.Name,
 				Position: ext.Position,
 			}
 			def = schema.Types[ext.Name]

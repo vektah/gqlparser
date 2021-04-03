@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/vektah/gqlparser/v2/ast"
-	. "github.com/vektah/gqlparser/v2/validator"
+	"github.com/Code-Hex/gqlparser/v2/ast"
+	. "github.com/Code-Hex/gqlparser/v2/validator"
 )
 
 func init() {
