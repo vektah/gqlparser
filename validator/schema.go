@@ -40,8 +40,8 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 		def := schema.Types[ext.Name]
 		if def == nil {
 			schema.Types[ext.Name] = &Definition{
-				Kind:        ext.Kind,
-				Name:        ext.Name,
+				Kind:     ext.Kind,
+				Name:     ext.Name,
 				Position: ext.Position,
 			}
 			def = schema.Types[ext.Name]
@@ -187,7 +187,11 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		if err := validateArgs(schema, field.Arguments, nil); err != nil {
 			return err
 		}
-		if err := validateDirectives(schema, field.Directives, LocationFieldDefinition, nil); err != nil {
+		wantDirLocation := LocationFieldDefinition
+		if def.Kind == InputObject {
+			wantDirLocation = LocationInputFieldDefinition
+		}
+		if err := validateDirectives(schema, field.Directives, wantDirLocation, nil); err != nil {
 			return err
 		}
 	}
@@ -305,6 +309,7 @@ func validateDirectives(schema *Schema, dirs DirectiveList, location DirectiveLo
 		for _, dirLocation := range schema.Directives[dir.Name].Locations {
 			if dirLocation == location {
 				validKind = true
+				break
 			}
 		}
 		if !validKind {
