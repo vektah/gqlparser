@@ -188,7 +188,11 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		if err := validateArgs(schema, field.Arguments, nil); err != nil {
 			return err
 		}
-		if err := validateDirectives(schema, field.Directives, LocationFieldDefinition, nil); err != nil {
+		wantDirLocation := LocationFieldDefinition
+		if def.Kind == InputObject {
+			wantDirLocation = LocationInputFieldDefinition
+		}
+		if err := validateDirectives(schema, field.Directives, wantDirLocation, nil); err != nil {
 			return err
 		}
 	}
@@ -306,6 +310,7 @@ func validateDirectives(schema *Schema, dirs DirectiveList, location DirectiveLo
 		for _, dirLocation := range schema.Directives[dir.Name].Locations {
 			if dirLocation == location {
 				validKind = true
+				break
 			}
 		}
 		if !validKind {
