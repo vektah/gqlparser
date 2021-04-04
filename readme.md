@@ -3,6 +3,8 @@ Forked gqlparser written by Code-Hex [![test](https://github.com/Code-Hex/gqlpar
 
 gqlparser is a graphql parser package for Go. original: [vektah/gqlparser](https://github.com/vektah/gqlparser)
 
+You can see [compare](https://github.com/vektah/gqlparser/compare/master...Code-Hex:master) with the original.
+
 ## About gqlparser
 
 This is a parser for graphql, written to mirror the graphql-js reference implementation as closely while remaining idiomatic and easy to use.
