@@ -1,11 +1,11 @@
 package gqlparser
 
 import (
-	"github.com/Code-Hex/gqlparser/v2/ast"
-	"github.com/Code-Hex/gqlparser/v2/gqlerror"
-	"github.com/Code-Hex/gqlparser/v2/parser"
-	"github.com/Code-Hex/gqlparser/v2/validator"
-	_ "github.com/Code-Hex/gqlparser/v2/validator/rules"
+	"github.com/gqlgo/gqlparser/v2/ast"
+	"github.com/gqlgo/gqlparser/v2/gqlerror"
+	"github.com/gqlgo/gqlparser/v2/parser"
+	"github.com/gqlgo/gqlparser/v2/validator"
+	_ "github.com/gqlgo/gqlparser/v2/validator/rules"
 )
 
 func LoadSchema(str ...*ast.Source) (*ast.Schema, *gqlerror.Error) {

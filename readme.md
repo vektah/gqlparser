@@ -1,9 +1,9 @@
-Forked gqlparser written by Code-Hex [![test](https://github.com/Code-Hex/gqlparser/actions/workflows/test.yml/badge.svg)](https://github.com/Code-Hex/gqlparser/actions/workflows/test.yml)
+Forked gqlparser written by gqlgo [![test](https://github.com/gqlgo/gqlparser/actions/workflows/test.yml/badge.svg)](https://github.com/gqlgo/gqlparser/actions/workflows/test.yml)
 ===
 
 gqlparser is a graphql parser package for Go. original: [vektah/gqlparser](https://github.com/vektah/gqlparser)
 
-You can see [compare](https://github.com/vektah/gqlparser/compare/master...Code-Hex:master) with the original.
+You can see [compare](https://github.com/vektah/gqlparser/compare/master...gqlgo:master) with the original.
 
 ## About gqlparser
 

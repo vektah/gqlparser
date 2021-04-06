@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"unicode/utf8"
 
-	"github.com/Code-Hex/gqlparser/v2/ast"
-	"github.com/Code-Hex/gqlparser/v2/gqlerror"
+	"github.com/gqlgo/gqlparser/v2/ast"
+	"github.com/gqlgo/gqlparser/v2/gqlerror"
 )
 
 // Lexer turns graphql request and schema strings into tokens

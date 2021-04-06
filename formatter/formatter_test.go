@@ -9,10 +9,10 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"github.com/Code-Hex/gqlparser/v2"
-	"github.com/Code-Hex/gqlparser/v2/ast"
-	"github.com/Code-Hex/gqlparser/v2/formatter"
-	"github.com/Code-Hex/gqlparser/v2/parser"
+	"github.com/gqlgo/gqlparser/v2"
+	"github.com/gqlgo/gqlparser/v2/ast"
+	"github.com/gqlgo/gqlparser/v2/formatter"
+	"github.com/gqlgo/gqlparser/v2/parser"
 	"github.com/stretchr/testify/assert"
 )
 

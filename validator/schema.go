@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	. "github.com/Code-Hex/gqlparser/v2/ast"
-	"github.com/Code-Hex/gqlparser/v2/gqlerror"
-	"github.com/Code-Hex/gqlparser/v2/parser"
+	. "github.com/gqlgo/gqlparser/v2/ast"
+	"github.com/gqlgo/gqlparser/v2/gqlerror"
+	"github.com/gqlgo/gqlparser/v2/parser"
 )
 
 func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {

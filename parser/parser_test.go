@@ -3,8 +3,8 @@ package parser
 import (
 	"testing"
 
-	"github.com/Code-Hex/gqlparser/v2/ast"
-	"github.com/Code-Hex/gqlparser/v2/lexer"
+	"github.com/gqlgo/gqlparser/v2/ast"
+	"github.com/gqlgo/gqlparser/v2/lexer"
 	"github.com/stretchr/testify/require"
 )
 

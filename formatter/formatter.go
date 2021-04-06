@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Code-Hex/gqlparser/v2/ast"
+	"github.com/gqlgo/gqlparser/v2/ast"
 )
 
 type Formatter interface {

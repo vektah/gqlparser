@@ -1,8 +1,8 @@
 package validator
 
 import (
-	"github.com/Code-Hex/gqlparser/v2/ast"
-	. "github.com/Code-Hex/gqlparser/v2/validator"
+	"github.com/gqlgo/gqlparser/v2/ast"
+	. "github.com/gqlgo/gqlparser/v2/validator"
 )
 
 func init() {

@@ -3,7 +3,7 @@ package gqlerror
 import (
 	"testing"
 
-	"github.com/Code-Hex/gqlparser/v2/ast"
+	"github.com/gqlgo/gqlparser/v2/ast"
 	"github.com/stretchr/testify/require"
 )
 

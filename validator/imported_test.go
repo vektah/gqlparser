@@ -11,9 +11,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Code-Hex/gqlparser/v2"
-	"github.com/Code-Hex/gqlparser/v2/ast"
-	"github.com/Code-Hex/gqlparser/v2/gqlerror"
+	"github.com/gqlgo/gqlparser/v2"
+	"github.com/gqlgo/gqlparser/v2/ast"
+	"github.com/gqlgo/gqlparser/v2/gqlerror"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 )

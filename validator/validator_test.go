@@ -3,10 +3,10 @@ package validator_test
 import (
 	"testing"
 
-	"github.com/Code-Hex/gqlparser/v2"
-	"github.com/Code-Hex/gqlparser/v2/ast"
-	"github.com/Code-Hex/gqlparser/v2/parser"
-	"github.com/Code-Hex/gqlparser/v2/validator"
+	"github.com/gqlgo/gqlparser/v2"
+	"github.com/gqlgo/gqlparser/v2/ast"
+	"github.com/gqlgo/gqlparser/v2/parser"
+	"github.com/gqlgo/gqlparser/v2/validator"
 	"github.com/stretchr/testify/require"
 )
 
