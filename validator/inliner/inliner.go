@@ -2,8 +2,8 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
-	"strconv"
 
 	"golang.org/x/tools/imports"
 )
@@ -11,15 +11,17 @@ import (
 func main() {
 	out := bytes.Buffer{}
 	out.WriteString("package validator\n\n")
-	out.WriteString(`var Prelude = &ast.Source{Name: "prelude.graphql", Input: `)
 
 	file, err := ioutil.ReadFile("prelude.graphql")
 	if err != nil {
 		panic(err)
 	}
 
-	out.WriteString(strconv.Quote(string(file)))
-	out.WriteString("}\n")
+	fmt.Fprintf(&out, `var Prelude = &ast.Source{
+		Name: "prelude.graphql",
+		Input: %q,
+		BuiltIn: true,
+	}`, string(file))
 
 	formatted, err2 := imports.Process("prelude.go", out.Bytes(), nil)
 	if err2 != nil {
