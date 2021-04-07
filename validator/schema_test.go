@@ -54,6 +54,17 @@ func TestLoadSchema(t *testing.T) {
 		require.Equal(t, "dogEvents", s.Subscription.Fields[0].Name)
 
 		require.Equal(t, "owner", s.Types["Dog"].Fields[1].Name)
+
+		directives := s.Types["Person"].Directives
+		require.Len(t, directives, 2)
+		wantArgs := []string{"sushi", "tempura"}
+		for i, directive := range directives {
+			require.Equal(t, "favorite", directive.Name)
+			require.True(t, directive.Definition.IsRepeatable)
+			for _, arg := range directive.Arguments {
+				require.Equal(t, wantArgs[i], arg.Value.Raw)
+			}
+		}
 	})
 
 	testrunner.Test(t, "./schema_test.yml", func(t *testing.T, input string) testrunner.Spec {

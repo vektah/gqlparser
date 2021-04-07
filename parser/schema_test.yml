@@ -518,6 +518,18 @@ directives:
             Name: "foo"
             Locations: [DirectiveLocation]
             - DirectiveLocation("FIELD")
+            IsRepeatable: false
+  
+  - name: repeatable
+    input: directive @foo repeatable on FIELD
+    ast: |
+      <SchemaDocument>
+        Directives: [DirectiveDefinition]
+        - <DirectiveDefinition>
+            Name: "foo"
+            Locations: [DirectiveLocation]
+            - DirectiveLocation("FIELD")
+            IsRepeatable: true
 
   - name: invalid location
     input: "directive @foo on FIELD | INCORRECT_LOCATION"
