@@ -134,16 +134,21 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 		}
 	}
 
-	if schema.Query == nil && schema.Types["Query"] != nil {
-		schema.Query = schema.Types["Query"]
-	}
+	// Inferred root operation type names should be performed only when a `schema` directive is
+	// **not** provided, when it is, `Mutation` and `Subscription` becomes valid types and are not
+	// assigned as a root operation on the schema.
+	if len(ast.Schema) == 0 {
+		if schema.Query == nil && schema.Types["Query"] != nil {
+			schema.Query = schema.Types["Query"]
+		}
 
-	if schema.Mutation == nil && schema.Types["Mutation"] != nil {
-		schema.Mutation = schema.Types["Mutation"]
-	}
+		if schema.Mutation == nil && schema.Types["Mutation"] != nil {
+			schema.Mutation = schema.Types["Mutation"]
+		}
 
-	if schema.Subscription == nil && schema.Types["Subscription"] != nil {
-		schema.Subscription = schema.Types["Subscription"]
+		if schema.Subscription == nil && schema.Types["Subscription"] != nil {
+			schema.Subscription = schema.Types["Subscription"]
+		}
 	}
 
 	if schema.Query != nil {

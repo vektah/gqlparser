@@ -44,6 +44,19 @@ func TestLoadSchema(t *testing.T) {
 		require.Equal(t, "SearchResult", implements[1].Name) // union
 	})
 
+	t.Run("default root operation type names", func(t *testing.T) {
+		file, err := ioutil.ReadFile("testdata/default_root_operation_type_names.graphql")
+		require.Nil(t, err)
+		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
+		require.Nil(t, err)
+
+		require.Nil(t, s.Mutation)
+		require.Nil(t, s.Subscription)
+
+		require.Equal(t, "Mutation", s.Types["Mutation"].Name)
+		require.Equal(t, "Subscription", s.Types["Subscription"].Name)
+	})
+
 	t.Run("type extensions", func(t *testing.T) {
 		file, err := ioutil.ReadFile("testdata/extensions.graphql")
 		require.Nil(t, err)
