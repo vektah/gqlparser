@@ -503,6 +503,8 @@ func (p *parser) parseDirectiveLocation() DirectiveLocation {
 		return LocationFragmentSpread
 	case `INLINE_FRAGMENT`:
 		return LocationInlineFragment
+	case `VARIABLE_DEFINITION`:
+		return LocationVariableDefinition
 	case `SCHEMA`:
 		return LocationSchema
 	case `SCALAR`:
