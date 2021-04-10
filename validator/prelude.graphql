@@ -33,6 +33,12 @@ directive @deprecated(
   reason: String = "No longer supported"
 ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
 
+"Exposes a URL that specifies the behaviour of this scalar."
+directive @specifiedBy(
+  "The URL that specifies the behaviour of this scalar."
+  url: String!
+) on SCALAR
+
 "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations."
 type __Schema {
   description: String
@@ -71,6 +77,9 @@ type __Type {
 
   # should be non-null for NON_NULL and LIST only, must be null for the others
   ofType: __Type
+
+  # should be non-null for custom SCALAR only, must be null for the others
+  specifiedBy: String
 }
 
 "Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type."
