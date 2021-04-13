@@ -2,7 +2,7 @@ import fs from 'fs';
 import Module from 'module';
 import { testSchema } from './graphql-js/src/validation/__tests__/harness';
 import { printSchema } from './graphql-js/src/utilities';
-import { safeDump } from 'js-yaml';
+import yaml from 'js-yaml';
 
 let schemas = [];
 function registerSchema(schema) {
@@ -132,7 +132,7 @@ fs.readdirSync("./graphql-js/src/validation/__tests__").forEach(file => {
 
     require('./graphql-js/src/validation/__tests__/' + file);
 
-    let dump = safeDump(tests, {
+    let dump = yaml.dump(tests, {
         skipInvalid: true,
         flowLevel: 5,
         noRefs: true,
@@ -170,7 +170,7 @@ type T {
     deeperField: T
 }`;
 
-let dump = safeDump(schemaList, {
+let dump = yaml.dump(schemaList, {
     skipInvalid: true,
     flowLevel: 5,
     noRefs: true,

@@ -23,7 +23,7 @@
       message: Variable "$a" cannot be non-input type "Dog".
     - locations:
         - {line: 2, column: 30}
-      message: 'Variable "$b" cannot be non-input type "[[CatOrDog!]]!".'
+      message: Variable "$b" cannot be non-input type "[[CatOrDog!]]!".
     - locations:
         - {line: 2, column: 50}
       message: Variable "$c" cannot be non-input type "Pet".

@@ -18,7 +18,7 @@
           }
           
   errors:
-    - message: 'Field "human" of type "Human" must have a selection of subfields. Did you mean "human { ... }"?'
+    - message: Field "human" of type "Human" must have a selection of subfields. Did you mean "human { ... }"?
       locations:
         - {line: 3, column: 9}
 - name: interface type missing selection
@@ -31,7 +31,7 @@
           }
           
   errors:
-    - message: 'Field "pets" of type "[Pet]" must have a selection of subfields. Did you mean "pets { ... }"?'
+    - message: Field "pets" of type "[Pet]" must have a selection of subfields. Did you mean "pets { ... }"?
       locations:
         - {line: 3, column: 17}
 - name: valid scalar selection with args

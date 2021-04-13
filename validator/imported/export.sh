@@ -1,7 +1,6 @@
 #!/bin/bash
 
 REPO_DIR=./graphql-js
-PATH=./node_modules/.bin:$PATH
 EXPORTER_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$EXPORTER_ROOT" || exit
@@ -33,4 +32,4 @@ echo "installing js dependencies"
 npm ci
 
 echo "exporting tests"
-babel-node ./export.js
+npx babel-node ./export.js
