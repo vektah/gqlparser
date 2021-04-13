@@ -1,9 +1,9 @@
 package parser
 
 import (
-	. "github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/gqlerror"
-	"github.com/vektah/gqlparser/lexer"
+	. "github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/gqlerror"
+	"github.com/vektah/gqlparser/v2/lexer"
 )
 
 func ParseSchema(source *Source) (*SchemaDocument, *gqlerror.Error) {
@@ -463,6 +463,11 @@ func (p *parser) parseDirectiveDefinition(description string) *DirectiveDefiniti
 	def.Name = p.parseName()
 	def.Arguments = p.parseArgumentDefs()
 
+	if peek := p.peek(); peek.Kind == lexer.Name && peek.Value == "repeatable" {
+		def.IsRepeatable = true
+		p.skip(lexer.Name)
+	}
+
 	p.expectKeyword("on")
 	def.Locations = p.parseDirectiveLocations()
 	return &def
@@ -498,6 +503,8 @@ func (p *parser) parseDirectiveLocation() DirectiveLocation {
 		return LocationFragmentSpread
 	case `INLINE_FRAGMENT`:
 		return LocationInlineFragment
+	case `VARIABLE_DEFINITION`:
+		return LocationVariableDefinition
 	case `SCHEMA`:
 		return LocationSchema
 	case `SCALAR`:

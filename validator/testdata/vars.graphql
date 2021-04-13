@@ -12,16 +12,27 @@ type Query {
     intArrayArg(i: [Int]): Boolean!
     stringArrayArg(i: [String]): Boolean!
     boolArrayArg(i: [Boolean]): Boolean!
+    typeArrayArg(i: [CustomType]): Boolean!
 }
 
 input InputType {
     name: String!
     nullName: String
     nullEmbedded: Embedded
+    enum: Enum
+    defaultName: String! = "defaultFoo"
 }
 
 input Embedded {
     name: String!
+}
+
+input CustomType {
+    and: [Int!]
+}
+
+enum Enum {
+    A
 }
 
 scalar Custom

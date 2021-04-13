@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/parser/testrunner"
+	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/parser/testrunner"
 )
 
 func TestLoadSchema(t *testing.T) {
@@ -44,6 +44,19 @@ func TestLoadSchema(t *testing.T) {
 		require.Equal(t, "SearchResult", implements[1].Name) // union
 	})
 
+	t.Run("default root operation type names", func(t *testing.T) {
+		file, err := ioutil.ReadFile("testdata/default_root_operation_type_names.graphql")
+		require.Nil(t, err)
+		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
+		require.Nil(t, err)
+
+		require.Nil(t, s.Mutation)
+		require.Nil(t, s.Subscription)
+
+		require.Equal(t, "Mutation", s.Types["Mutation"].Name)
+		require.Equal(t, "Subscription", s.Types["Subscription"].Name)
+	})
+
 	t.Run("type extensions", func(t *testing.T) {
 		file, err := ioutil.ReadFile("testdata/extensions.graphql")
 		require.Nil(t, err)
@@ -54,6 +67,17 @@ func TestLoadSchema(t *testing.T) {
 		require.Equal(t, "dogEvents", s.Subscription.Fields[0].Name)
 
 		require.Equal(t, "owner", s.Types["Dog"].Fields[1].Name)
+
+		directives := s.Types["Person"].Directives
+		require.Len(t, directives, 2)
+		wantArgs := []string{"sushi", "tempura"}
+		for i, directive := range directives {
+			require.Equal(t, "favorite", directive.Name)
+			require.True(t, directive.Definition.IsRepeatable)
+			for _, arg := range directive.Arguments {
+				require.Equal(t, wantArgs[i], arg.Value.Raw)
+			}
+		}
 	})
 
 	testrunner.Test(t, "./schema_test.yml", func(t *testing.T, input string) testrunner.Spec {

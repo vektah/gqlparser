@@ -7,9 +7,9 @@ import (
 	"encoding/json"
 
 	"github.com/stretchr/testify/require"
-	"github.com/vektah/gqlparser"
-	"github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/validator"
+	"github.com/vektah/gqlparser/v2"
+	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/validator"
 )
 
 func TestValidateVars(t *testing.T) {
@@ -126,15 +126,58 @@ func TestValidateVars(t *testing.T) {
 			})
 			require.EqualError(t, gerr, "input: variable.var.foobard unknown field")
 		})
+
+		t.Run("enum input object", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
+			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": map[string]interface{}{
+					"name": "foobar",
+					"enum": "A",
+				},
+			})
+			require.Nil(t, gerr)
+		})
+
+		t.Run("unknown enum value input object", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
+			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": map[string]interface{}{
+					"name": "foobar",
+					"enum": "B",
+				},
+			})
+			require.EqualError(t, gerr, "input: variable.var.enum B is not a valid Enum")
+		})
 	})
 
 	t.Run("array", func(t *testing.T) {
-		t.Run("non array", func(t *testing.T) {
+		t.Run("non-null object value should be coerced to an array", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`)
-			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
-				"var": "hello",
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": map[string]interface{}{"name": "hello"},
 			})
-			require.EqualError(t, gerr, "input: variable.var must be an array")
+			require.Nil(t, gerr)
+			require.EqualValues(t, []map[string]interface{}{{"name": "hello"}}, vars["var"])
+		})
+
+		t.Run("non-null int value should be coerced to an array", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [Int!]) { intArrayArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": 5,
+			})
+			require.Nil(t, gerr)
+			expected := []int{5}
+			require.EqualValues(t, expected, vars["var"])
+		})
+
+		t.Run("non-null int deep value should be coerced to an array", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [CustomType]) { typeArrayArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": []map[string]interface{}{{"and": 5}},
+			})
+			require.Nil(t, gerr)
+			expected := []map[string]interface{}{{"and": []int{5}}}
+			require.EqualValues(t, expected, vars["var"])
 		})
 
 		t.Run("defaults", func(t *testing.T) {

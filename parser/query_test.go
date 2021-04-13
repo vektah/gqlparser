@@ -3,8 +3,8 @@ package parser
 import (
 	"testing"
 
-	"github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/parser/testrunner"
+	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/parser/testrunner"
 )
 
 func TestQueryDocument(t *testing.T) {

@@ -4,7 +4,7 @@ schema {
 extend schema {
 	subscription: Subscription
 }
-directive @permission(permission: String!) on FIELD
+directive @permission(permission: String!) on FIELD_DEFINITION
 directive @extends on OBJECT
 directive @key(fields: String!) on OBJECT | INTERFACE
 type Query @extends {

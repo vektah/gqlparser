@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/vektah/gqlparser/ast"
+	"github.com/vektah/gqlparser/v2/ast"
 )
 
 type Formatter interface {
@@ -288,7 +288,10 @@ func (f *formatter) FormatArgumentDefinitionList(lists ast.ArgumentDefinitionLis
 }
 
 func (f *formatter) FormatArgumentDefinition(def *ast.ArgumentDefinition) {
-	f.WriteDescription(def.Description)
+	if def.Description != "" {
+		f.WriteNewline().IncrementIndent()
+		f.WriteDescription(def.Description)
+	}
 
 	f.WriteWord(def.Name).NoPadding().WriteString(":").NeedPadding()
 	f.FormatType(def.Type)
@@ -296,6 +299,11 @@ func (f *formatter) FormatArgumentDefinition(def *ast.ArgumentDefinition) {
 	if def.DefaultValue != nil {
 		f.WriteWord("=")
 		f.FormatValue(def.DefaultValue)
+	}
+
+	if def.Description != "" {
+		f.DecrementIndent()
+		f.WriteNewline()
 	}
 }
 
@@ -320,6 +328,7 @@ func (f *formatter) FormatDirectiveDefinition(def *ast.DirectiveDefinition) {
 		}
 	}
 
+	f.WriteDescription(def.Description)
 	f.WriteWord("directive").WriteString("@").WriteWord(def.Name)
 
 	if len(def.Arguments) != 0 {
@@ -383,14 +392,14 @@ func (f *formatter) FormatDefinition(def *ast.Definition, extend bool) {
 		f.WriteWord("input").WriteWord(def.Name)
 	}
 
+	if len(def.Interfaces) != 0 {
+		f.WriteWord("implements").WriteWord(strings.Join(def.Interfaces, " & "))
+	}
+
 	f.FormatDirectiveList(def.Directives)
 
 	if len(def.Types) != 0 {
 		f.WriteWord("=").WriteWord(strings.Join(def.Types, " | "))
-	}
-
-	if len(def.Interfaces) != 0 {
-		f.WriteWord("implements").WriteWord(strings.Join(def.Interfaces, ", "))
 	}
 
 	f.FormatFieldList(def.Fields)
@@ -523,7 +532,7 @@ func (f *formatter) FormatVariableDefinition(def *ast.VariableDefinition) {
 		f.FormatValue(def.DefaultValue)
 	}
 
-	// TODO https://github.com/vektah/gqlparser/issues/102
+	// TODO https://github.com/vektah/gqlparser/v2/issues/102
 	//   VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 }
 

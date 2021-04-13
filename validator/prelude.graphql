@@ -95,6 +95,7 @@ type __Directive {
     description: String
     locations: [__DirectiveLocation!]!
     args: [__InputValue!]!
+    isRepeatable: Boolean!
 }
 
 enum __DirectiveLocation {
@@ -105,6 +106,7 @@ enum __DirectiveLocation {
     FRAGMENT_DEFINITION
     FRAGMENT_SPREAD
     INLINE_FRAGMENT
+    VARIABLE_DEFINITION
     SCHEMA
     SCALAR
     OBJECT
