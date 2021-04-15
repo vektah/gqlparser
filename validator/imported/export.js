@@ -54,6 +54,18 @@ function normalizeWs(rawString) {
 }
 
 const harness = {
+    // TODO
+    expectValidationErrorsWithSchema(schema, rule, queryStr) {
+        return resultProxy("a")
+    },
+    expectValidationErrors(rule, queryStr) {
+        return harness.expectValidationErrorsWithSchema(testSchema, rule, queryStr)
+    },
+    expectSDLValidationErrors(schema, rule, sdlStr) {
+        return resultProxy("b")
+    },
+
+    // TODO old implementations
     expectPassesRule(rule, queryString) {
         harness.expectPassesRuleWithSchema(testSchema, rule, queryString);
     },
