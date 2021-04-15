@@ -212,7 +212,7 @@
             name
           }
   errors:
-    - message: 'Cannot query field "name" on type "CatOrDog". Did you mean to use an inline fragment on "Being", "Pet", "Canine", "Dog", or "Cat"?'
+    - message: Cannot query field "name" on type "CatOrDog". Did you mean to use an inline fragment on "Being", "Pet", "Canine", "Dog", or "Cat"?
       locations:
         - {line: 3, column: 9}
 - name: valid field in inline fragment

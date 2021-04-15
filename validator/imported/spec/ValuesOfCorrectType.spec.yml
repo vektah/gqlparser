@@ -178,7 +178,7 @@
             }
             
   errors:
-    - message: 'Expected type String, found 1.'
+    - message: Expected type String, found 1.
       locations:
         - {line: 4, column: 39}
 - name: Invalid String values/Float into String
@@ -193,7 +193,7 @@
             }
             
   errors:
-    - message: 'Expected type String, found 1.0.'
+    - message: Expected type String, found 1.0.
       locations:
         - {line: 4, column: 39}
 - name: Invalid String values/Boolean into String
@@ -208,7 +208,7 @@
             }
             
   errors:
-    - message: 'Expected type String, found true.'
+    - message: Expected type String, found true.
       locations:
         - {line: 4, column: 39}
 - name: Invalid String values/Unquoted String into String
@@ -223,7 +223,7 @@
             }
             
   errors:
-    - message: 'Expected type String, found BAR.'
+    - message: Expected type String, found BAR.
       locations:
         - {line: 4, column: 39}
 - name: Invalid Int values/String into Int
@@ -238,7 +238,7 @@
             }
             
   errors:
-    - message: 'Expected type Int, found "3".'
+    - message: Expected type Int, found "3".
       locations:
         - {line: 4, column: 33}
 - name: Invalid Int values/Big Int into Int
@@ -253,7 +253,7 @@
             }
             
   errors:
-    - message: 'Expected type Int, found 829384293849283498239482938.'
+    - message: Expected type Int, found 829384293849283498239482938.
       locations:
         - {line: 4, column: 33}
 - name: Invalid Int values/Unquoted String into Int
@@ -268,7 +268,7 @@
             }
             
   errors:
-    - message: 'Expected type Int, found FOO.'
+    - message: Expected type Int, found FOO.
       locations:
         - {line: 4, column: 33}
 - name: Invalid Int values/Simple Float into Int
@@ -283,7 +283,7 @@
             }
             
   errors:
-    - message: 'Expected type Int, found 3.0.'
+    - message: Expected type Int, found 3.0.
       locations:
         - {line: 4, column: 33}
 - name: Invalid Int values/Float into Int
@@ -298,7 +298,7 @@
             }
             
   errors:
-    - message: 'Expected type Int, found 3.333.'
+    - message: Expected type Int, found 3.333.
       locations:
         - {line: 4, column: 33}
 - name: Invalid Float values/String into Float
@@ -313,7 +313,7 @@
             }
             
   errors:
-    - message: 'Expected type Float, found "3.333".'
+    - message: Expected type Float, found "3.333".
       locations:
         - {line: 4, column: 37}
 - name: Invalid Float values/Boolean into Float
@@ -328,7 +328,7 @@
             }
             
   errors:
-    - message: 'Expected type Float, found true.'
+    - message: Expected type Float, found true.
       locations:
         - {line: 4, column: 37}
 - name: Invalid Float values/Unquoted into Float
@@ -343,7 +343,7 @@
             }
             
   errors:
-    - message: 'Expected type Float, found FOO.'
+    - message: Expected type Float, found FOO.
       locations:
         - {line: 4, column: 37}
 - name: Invalid Boolean value/Int into Boolean
@@ -358,7 +358,7 @@
             }
             
   errors:
-    - message: 'Expected type Boolean, found 2.'
+    - message: Expected type Boolean, found 2.
       locations:
         - {line: 4, column: 41}
 - name: Invalid Boolean value/Float into Boolean
@@ -373,7 +373,7 @@
             }
             
   errors:
-    - message: 'Expected type Boolean, found 1.0.'
+    - message: Expected type Boolean, found 1.0.
       locations:
         - {line: 4, column: 41}
 - name: Invalid Boolean value/String into Boolean
@@ -388,7 +388,7 @@
             }
             
   errors:
-    - message: 'Expected type Boolean, found "true".'
+    - message: Expected type Boolean, found "true".
       locations:
         - {line: 4, column: 41}
 - name: Invalid Boolean value/Unquoted into Boolean
@@ -403,7 +403,7 @@
             }
             
   errors:
-    - message: 'Expected type Boolean, found TRUE.'
+    - message: Expected type Boolean, found TRUE.
       locations:
         - {line: 4, column: 41}
 - name: Invalid ID value/Float into ID
@@ -418,7 +418,7 @@
             }
             
   errors:
-    - message: 'Expected type ID, found 1.0.'
+    - message: Expected type ID, found 1.0.
       locations:
         - {line: 4, column: 31}
 - name: Invalid ID value/Boolean into ID
@@ -433,7 +433,7 @@
             }
             
   errors:
-    - message: 'Expected type ID, found true.'
+    - message: Expected type ID, found true.
       locations:
         - {line: 4, column: 31}
 - name: Invalid ID value/Unquoted into ID
@@ -448,7 +448,7 @@
             }
             
   errors:
-    - message: 'Expected type ID, found SOMETHING.'
+    - message: Expected type ID, found SOMETHING.
       locations:
         - {line: 4, column: 31}
 - name: Invalid Enum value/Int into Enum
@@ -463,7 +463,7 @@
             }
             
   errors:
-    - message: 'Expected type DogCommand, found 2.'
+    - message: Expected type DogCommand, found 2.
       locations:
         - {line: 4, column: 41}
 - name: Invalid Enum value/Float into Enum
@@ -478,7 +478,7 @@
             }
             
   errors:
-    - message: 'Expected type DogCommand, found 1.0.'
+    - message: Expected type DogCommand, found 1.0.
       locations:
         - {line: 4, column: 41}
 - name: Invalid Enum value/String into Enum
@@ -493,7 +493,7 @@
             }
             
   errors:
-    - message: 'Expected type DogCommand, found "SIT"; Did you mean the enum value SIT?'
+    - message: Expected type DogCommand, found "SIT"; Did you mean the enum value SIT?
       locations:
         - {line: 4, column: 41}
 - name: Invalid Enum value/Boolean into Enum
@@ -508,7 +508,7 @@
             }
             
   errors:
-    - message: 'Expected type DogCommand, found true.'
+    - message: Expected type DogCommand, found true.
       locations:
         - {line: 4, column: 41}
 - name: Invalid Enum value/Unknown Enum Value into Enum
@@ -523,7 +523,7 @@
             }
             
   errors:
-    - message: 'Expected type DogCommand, found JUGGLE.'
+    - message: Expected type DogCommand, found JUGGLE.
       locations:
         - {line: 4, column: 41}
 - name: Invalid Enum value/Different case Enum Value into Enum
@@ -538,7 +538,7 @@
             }
             
   errors:
-    - message: 'Expected type DogCommand, found sit; Did you mean the enum value SIT?'
+    - message: Expected type DogCommand, found sit; Did you mean the enum value SIT?
       locations:
         - {line: 4, column: 41}
 - name: Valid List value/Good list value
@@ -601,7 +601,7 @@
             }
             
   errors:
-    - message: 'Expected type String, found 2.'
+    - message: Expected type String, found 2.
       locations:
         - {line: 4, column: 55}
 - name: Invalid List value/Single value of incorrect type
@@ -616,7 +616,7 @@
             }
             
   errors:
-    - message: 'Expected type [String], found 1.'
+    - message: Expected type [String], found 1.
       locations:
         - {line: 4, column: 47}
 - name: Valid non-nullable value/Arg on optional arg
@@ -751,10 +751,10 @@
             }
             
   errors:
-    - message: 'Expected type Int!, found "two".'
+    - message: Expected type Int!, found "two".
       locations:
         - {line: 4, column: 32}
-    - message: 'Expected type Int!, found "one".'
+    - message: Expected type Int!, found "one".
       locations:
         - {line: 4, column: 45}
 - name: Invalid non-nullable value/Incorrect value and missing argument (ProvidedRequiredArguments)
@@ -769,7 +769,7 @@
             }
             
   errors:
-    - message: 'Expected type Int!, found "one".'
+    - message: Expected type Int!, found "one".
       locations:
         - {line: 4, column: 32}
 - name: Invalid non-nullable value/Null value
@@ -784,10 +784,10 @@
             }
             
   errors:
-    - message: 'Expected type Int!, found null.'
+    - message: Expected type Int!, found null.
       locations:
         - {line: 4, column: 32}
-- name: 'Valid input object value/Optional arg, despite required field in type'
+- name: Valid input object value/Optional arg, despite required field in type
   rule: ValuesOfCorrectType
   schema: 0
   query: |2-
@@ -799,7 +799,7 @@
             }
             
   errors: []
-- name: 'Valid input object value/Partial object, only required'
+- name: Valid input object value/Partial object, only required
   rule: ValuesOfCorrectType
   schema: 0
   query: |2-
@@ -811,7 +811,7 @@
             }
             
   errors: []
-- name: 'Valid input object value/Partial object, required field can be falsey'
+- name: Valid input object value/Partial object, required field can be falsey
   rule: ValuesOfCorrectType
   schema: 0
   query: |2-
@@ -823,7 +823,7 @@
             }
             
   errors: []
-- name: 'Valid input object value/Partial object, including required'
+- name: Valid input object value/Partial object, including required
   rule: ValuesOfCorrectType
   schema: 0
   query: |2-
@@ -871,7 +871,7 @@
             }
             
   errors: []
-- name: 'Invalid input object value/Partial object, missing required'
+- name: Invalid input object value/Partial object, missing required
   rule: ValuesOfCorrectType
   schema: 0
   query: |2-
@@ -886,7 +886,7 @@
     - message: Field ComplexInput.requiredField of required type Boolean! was not provided.
       locations:
         - {line: 4, column: 41}
-- name: 'Invalid input object value/Partial object, invalid field type'
+- name: Invalid input object value/Partial object, invalid field type
   rule: ValuesOfCorrectType
   schema: 0
   query: |2-
@@ -901,10 +901,10 @@
             }
             
   errors:
-    - message: 'Expected type String, found 2.'
+    - message: Expected type String, found 2.
       locations:
         - {line: 5, column: 40}
-- name: 'Invalid input object value/Partial object, null to non-null field'
+- name: Invalid input object value/Partial object, null to non-null field
   rule: ValuesOfCorrectType
   schema: 0
   query: |2-
@@ -919,10 +919,10 @@
             }
             
   errors:
-    - message: 'Expected type Boolean!, found null.'
+    - message: Expected type Boolean!, found null.
       locations:
         - {line: 6, column: 29}
-- name: 'Invalid input object value/Partial object, unknown field arg'
+- name: Invalid input object value/Partial object, unknown field arg
   rule: ValuesOfCorrectType
   schema: 0
   query: |2-
@@ -937,7 +937,7 @@
             }
             
   errors:
-    - message: 'Field "unknownField" is not defined by type ComplexInput; Did you mean nonNullField, intField, or booleanField?'
+    - message: Field "unknownField" is not defined by type ComplexInput; Did you mean nonNullField, intField, or booleanField?
       locations:
         - {line: 6, column: 15}
 - name: Invalid input object value/reports original error for custom scalar which throws
@@ -993,10 +993,10 @@
             }
             
   errors:
-    - message: 'Expected type Boolean!, found "yes".'
+    - message: Expected type Boolean!, found "yes".
       locations:
         - {line: 3, column: 28}
-    - message: 'Expected type Boolean!, found ENUM.'
+    - message: Expected type Boolean!, found ENUM.
       locations:
         - {line: 4, column: 28}
 - name: Variable default values/variables with valid default values
@@ -1042,13 +1042,13 @@
             }
             
   errors:
-    - message: 'Expected type Int!, found null.'
+    - message: Expected type Int!, found null.
       locations:
         - {line: 3, column: 22}
-    - message: 'Expected type String!, found null.'
+    - message: Expected type String!, found null.
       locations:
         - {line: 4, column: 25}
-    - message: 'Expected type Boolean!, found null.'
+    - message: Expected type Boolean!, found null.
       locations:
         - {line: 5, column: 47}
 - name: Variable default values/variables with invalid default values
@@ -1065,13 +1065,13 @@
             }
             
   errors:
-    - message: 'Expected type Int, found "one".'
+    - message: Expected type Int, found "one".
       locations:
         - {line: 3, column: 21}
-    - message: 'Expected type String, found 4.'
+    - message: Expected type String, found 4.
       locations:
         - {line: 4, column: 24}
-    - message: 'Expected type ComplexInput, found "notverycomplex".'
+    - message: Expected type ComplexInput, found "notverycomplex".
       locations:
         - {line: 5, column: 30}
 - name: Variable default values/variables with complex invalid default values
@@ -1086,10 +1086,10 @@
             }
             
   errors:
-    - message: 'Expected type Boolean!, found 123.'
+    - message: Expected type Boolean!, found 123.
       locations:
         - {line: 3, column: 47}
-    - message: 'Expected type Int, found "abc".'
+    - message: Expected type Int, found "abc".
       locations:
         - {line: 3, column: 62}
 - name: Variable default values/complex variables missing required field
@@ -1115,6 +1115,6 @@
             }
             
   errors:
-    - message: 'Expected type String, found 2.'
+    - message: Expected type String, found 2.
       locations:
         - {line: 2, column: 50}

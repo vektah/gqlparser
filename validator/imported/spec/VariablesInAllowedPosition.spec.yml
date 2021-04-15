@@ -99,7 +99,7 @@
           }
           
   errors: []
-- name: 'String => [String] in item position'
+- name: String => [String] in item position
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -112,7 +112,7 @@
           }
           
   errors: []
-- name: 'String! => [String] in item position'
+- name: String! => [String] in item position
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -238,7 +238,7 @@
       locations:
         - {line: 2, column: 19}
         - {line: 4, column: 39}
-- name: 'String => [String]'
+- name: String => [String]
   rule: VariablesInAllowedPosition
   schema: 0
   query: |2-
@@ -250,7 +250,7 @@
           }
           
   errors:
-    - message: 'Variable "$stringVar" of type "String" used in position expecting type "[String]".'
+    - message: Variable "$stringVar" of type "String" used in position expecting type "[String]".
       locations:
         - {line: 2, column: 19}
         - {line: 4, column: 45}
@@ -295,7 +295,7 @@
           }
           
   errors:
-    - message: 'Variable "$stringListVar" of type "[String]" used in position expecting type "[String!]".'
+    - message: Variable "$stringListVar" of type "[String]" used in position expecting type "[String!]".
       locations:
         - {line: 2, column: 19}
         - {line: 5, column: 59}

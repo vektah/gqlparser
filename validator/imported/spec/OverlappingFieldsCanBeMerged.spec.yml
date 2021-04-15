@@ -120,7 +120,7 @@
       locations:
         - {line: 3, column: 9}
         - {line: 4, column: 9}
-- name: 'different args, second adds an argument'
+- name: different args, second adds an argument
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -135,7 +135,7 @@
       locations:
         - {line: 3, column: 9}
         - {line: 4, column: 9}
-- name: 'different args, second missing an argument'
+- name: different args, second missing an argument
   rule: OverlappingFieldsCanBeMerged
   schema: 0
   query: |2-
@@ -592,7 +592,7 @@
             }
             
   errors:
-    - message: 'Fields "box" conflict because they return conflicting types [StringBox] and StringBox. Use different aliases on the fields to fetch both if this was intentional.'
+    - message: Fields "box" conflict because they return conflicting types [StringBox] and StringBox. Use different aliases on the fields to fetch both if this was intentional.
       locations:
         - {line: 5, column: 15}
         - {line: 10, column: 15}
@@ -617,7 +617,7 @@
             }
             
   errors:
-    - message: 'Fields "box" conflict because they return conflicting types StringBox and [StringBox]. Use different aliases on the fields to fetch both if this was intentional.'
+    - message: Fields "box" conflict because they return conflicting types StringBox and [StringBox]. Use different aliases on the fields to fetch both if this was intentional.
       locations:
         - {line: 5, column: 15}
         - {line: 10, column: 15}
