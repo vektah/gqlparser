@@ -22,7 +22,7 @@ directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 "The @deprecated directive is used within the type system definition language to indicate deprecated portions of a GraphQL service’s schema, such as deprecated fields on a type or deprecated enum values."
-directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE
+directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
 type __Schema {
     types: [__Type!]!
@@ -50,7 +50,7 @@ type __Type {
     enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
 
     # INPUT_OBJECT only
-    inputFields: [__InputValue!]
+    inputFields(includeDeprecated: Boolean = false): [__InputValue!]
 
     # NON_NULL and LIST only
     ofType: __Type
@@ -59,7 +59,7 @@ type __Type {
 type __Field {
     name: String!
     description: String
-    args: [__InputValue!]!
+    args(includeDeprecated: Boolean = false): [__InputValue!]!
     type: __Type!
     isDeprecated: Boolean!
     deprecationReason: String

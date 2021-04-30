@@ -39,3 +39,27 @@ extend type Query {
 	require.Nil(t, err)
 	require.Nil(t, validator.Validate(s, q))
 }
+
+func TestDeprecatingTypes(t *testing.T) {
+	schema := &ast.Source{
+		Name: "graph/schema.graphqls",
+		Input: `
+			type DeprecatedType {
+				deprecatedField: String @deprecated
+				newField(deprecatedArg: Int @deprecated): Boolean
+			}
+
+			enum DeprecatedEnum {
+				ALPHA @deprecated
+			}
+
+			input DeprecatedInput {
+				old: String @deprecated
+			}
+		`,
+		BuiltIn: false,
+	}
+
+	_, err := validator.LoadSchema(append([]*ast.Source{validator.Prelude}, schema)...)
+	require.Nil(t, err)
+}
