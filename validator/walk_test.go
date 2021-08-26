@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -49,4 +50,25 @@ func TestWalkInlineFragment(t *testing.T) {
 	Walk(schema, query, observers)
 
 	require.True(t, called)
+}
+
+func TestShallowCopy(t *testing.T) {
+	input := &ast.Type{
+		NamedType: "Some",
+		Elem:      nil,
+		NonNull:   false,
+		Position: &ast.Position{
+			Start:  10,
+			End:    20,
+			Line:   3,
+			Column: 4,
+			Src:    nil,
+		},
+	}
+	copied := shallowCopy(input)
+	require.Equal(t, input, copied, "have same values")
+	require.NotEqual(t, fmt.Sprintf("%p", input), fmt.Sprintf("%p", copied), "different pointers")
+	copied.NonNull = true
+	require.Equal(t, false, input.NonNull, "not change by reference")
+	require.Equal(t, true, copied.NonNull, "but changed on a copy")
 }

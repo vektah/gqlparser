@@ -72,7 +72,8 @@ query SomeOperation {
 	require.Nil(t, err)
 	r1 := validator.Validate(s, q1)
 	require.Len(t, r1, 1)
-	require.EqualError(t, r1[0], `SomeOperation:4: Field "myAction" argument "myEnum" of type "Locale!" is required but not provided.`)
+	const errorString = `SomeOperation:4: Field "myAction" argument "myEnum" of type "Locale!" is required but not provided.`
+	require.EqualError(t, r1[0], errorString)
 
 	// Some other call that should not affect validator behavior
 	q2, err := parser.ParseQuery(&ast.Source{
@@ -88,5 +89,6 @@ query SomeOperation ($locale: Locale! = DE) {
 	require.Nil(t, validator.Validate(s, q2))
 
 	// Repeating same query and expecting to still return same validation error
-	require.Nil(t, validator.Validate(s, q1)) // <-- This line is not expected
+	require.Len(t, r1, 1)
+	require.EqualError(t, r1[0], errorString)
 }
