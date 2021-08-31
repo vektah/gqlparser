@@ -1,9 +1,10 @@
 package validator
 
 import (
+	"sort"
+
 	. "github.com/dgraph-io/gqlparser/v2/ast"
 	"github.com/dgraph-io/gqlparser/v2/gqlerror"
-	"sort"
 )
 
 type AddErrFunc func(options ...ErrorOption)
