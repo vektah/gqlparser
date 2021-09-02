@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -29,6 +30,7 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 		}
 
 		val, hasValue := variables[v.Variable]
+
 		if !hasValue {
 			if v.DefaultValue != nil {
 				var err error
@@ -50,6 +52,24 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 				coercedVars[v.Variable] = nil
 			} else {
 				rv := reflect.ValueOf(val)
+
+				jsonNumber, isJsonNumber := val.(json.Number)
+				if isJsonNumber {
+					if v.Type.NamedType == "Int" {
+						n, err := jsonNumber.Int64()
+						if err != nil {
+							return nil, gqlerror.ErrorPathf(validator.path, "cannot use value %s as %s", n, v.Type.NamedType)
+						}
+						rv = reflect.ValueOf(n)
+					} else if v.Type.NamedType == "Float" {
+						f, err := jsonNumber.Float64()
+						if err != nil {
+							return nil, gqlerror.ErrorPathf(validator.path, "cannot use value %f as %s", f, v.Type.NamedType)
+						}
+						rv = reflect.ValueOf(f)
+
+					}
+				}
 				if rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
 					rv = rv.Elem()
 				}
