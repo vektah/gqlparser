@@ -92,3 +92,27 @@ query SomeOperation ($locale: Locale! = DE) {
 	require.Len(t, r1, 1)
 	require.EqualError(t, r1[0], errorString)
 }
+
+func TestDeprecatingTypes(t *testing.T) {
+	schema := &ast.Source{
+		Name: "graph/schema.graphqls",
+		Input: `
+			type DeprecatedType {
+				deprecatedField: String @deprecated
+				newField(deprecatedArg: Int @deprecated): Boolean
+			}
+
+			enum DeprecatedEnum {
+				ALPHA @deprecated
+			}
+
+			input DeprecatedInput {
+				old: String @deprecated
+			}
+		`,
+		BuiltIn: false,
+	}
+
+	_, err := validator.LoadSchema(append([]*ast.Source{validator.Prelude}, schema)...)
+	require.Nil(t, err)
+}
