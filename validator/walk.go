@@ -193,17 +193,11 @@ func (w *Walker) walkValue(value *ast.Value) {
 
 func (w *Walker) walkArgument(argDef *ast.ArgumentDefinition, arg *ast.Argument) {
 	if argDef != nil {
-		arg.Value.ExpectedType = shallowCopy(argDef.Type)
+		arg.Value.ExpectedType = argDef.Type
 		arg.Value.Definition = w.Schema.Types[argDef.Type.Name()]
 	}
 
 	w.walkValue(arg.Value)
-}
-
-func shallowCopy(i *ast.Type) *ast.Type {
-	r := ast.Type{}
-	r = *i
-	return &r
 }
 
 func (w *Walker) walkSelectionSet(parentDef *ast.Definition, it ast.SelectionSet) {
