@@ -425,6 +425,34 @@ interface:
       type A implements IIA {
           id: ID!
       }
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <Definition>
+            Kind: DefinitionKind("INTERFACE")
+            Name: "IA"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "id"
+                Type: ID!
+        - <Definition>
+            Kind: DefinitionKind("INTERFACE")
+            Name: "IIA"
+            Interfaces: [string]
+            - "IA"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "id"
+                Type: ID!
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
+            Name: "A"
+            Interfaces: [string]
+            - "IIA"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "id"
+                Type: ID!
 
 unions:
   - name: simple
