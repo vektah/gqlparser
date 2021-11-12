@@ -89,7 +89,7 @@ object types:
       message: 'Name "__bar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 2, column: 7}]
 
-  - name: must not allow input object as field type 
+  - name: must not allow input object as field type
     input: |
       input Input {
         id: ID
@@ -151,6 +151,7 @@ interfaces:
     error:
       message: 'INTERFACE must define one or more fields.'
       locations: [{line: 6, column: 11}]
+
   - name: check reserved names on type name
     input: |
       interface __FooBar {
@@ -160,7 +161,7 @@ interfaces:
       message: 'Name "__FooBar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 1, column: 11}]
 
-  - name: must not allow input object as field type 
+  - name: must not allow input object as field type
     input: |
       input Input {
         id: ID
@@ -273,6 +274,20 @@ interfaces:
 
       interface BarInterface {
           f: U!
+      }
+
+  - name: may declare intermediate interfaces
+    input: |
+      interface IA {
+          id: ID!
+      }
+
+      interface IIA implements IA {
+          id: ID!
+      }
+
+      type A implements IIA {
+          id: ID!
       }
 
 inputs:
