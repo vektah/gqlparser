@@ -412,6 +412,20 @@ interface:
       message: "expected at least one definition, found }"
       locations: [{ line: 1, column: 18 }]
 
+  - name: may support intermediate interfaces
+    input: |
+      interface IA {
+          id: ID!
+      }
+
+      interface IIA implements IA {
+          id: ID!
+      }
+
+      type A implements IIA {
+          id: ID!
+      }
+
 unions:
   - name: simple
     input: "union Hello = World"
