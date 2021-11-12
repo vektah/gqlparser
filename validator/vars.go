@@ -1,10 +1,9 @@
 package validator
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
-
-	"fmt"
 
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -171,7 +170,10 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 			resetPath()
 			v.path = append(v.path, ast.PathName(name.String()))
 
-			if fieldDef == nil {
+			switch {
+			case name.String() == "__typename":
+				continue
+			case fieldDef == nil:
 				return val, gqlerror.ErrorPathf(v.path, "unknown field")
 			}
 		}

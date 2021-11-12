@@ -1,12 +1,12 @@
 package validator_test
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"testing"
 
-	"encoding/json"
-
 	"github.com/stretchr/testify/require"
+
 	"github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/validator"
@@ -125,6 +125,19 @@ func TestValidateVars(t *testing.T) {
 				},
 			})
 			require.EqualError(t, gerr, "input: variable.var.foobard unknown field")
+		})
+
+		t.Run("unknown __typefield", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": map[string]interface{}{
+					"name":       "foobar",
+					"__typename": "InputType",
+				},
+			})
+			require.Nil(t, gerr)
+			require.EqualValues(t, map[string]interface{}{"__typename": "InputType", "name": "foobar"}, vars["var"])
+
 		})
 
 		t.Run("enum input object", func(t *testing.T) {
