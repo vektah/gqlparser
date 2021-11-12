@@ -276,7 +276,7 @@ interfaces:
           f: U!
       }
 
-  - name: may declare intermediate interfaces
+  - name: may define intermediate interfaces
     input: |
       interface IA {
           id: ID!

@@ -412,7 +412,7 @@ interface:
       message: "expected at least one definition, found }"
       locations: [{ line: 1, column: 18 }]
 
-  - name: may support intermediate interfaces
+  - name: may define intermediate interfaces
     input: |
       interface IA {
           id: ID!
