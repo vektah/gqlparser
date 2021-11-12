@@ -98,6 +98,35 @@ func Test_sameArguments(t *testing.T) {
 			},
 			result: true,
 		},
+		"args 1 matches args 2 names and values where multiple exist in various orders": {
+			args: func() (args1 []*ast.Argument, args2 []*ast.Argument) {
+				return []*ast.Argument{
+						{
+							Name:     "thing1",
+							Value:    &ast.Value{Raw: "1 thing"},
+							Position: &ast.Position{},
+						},
+						{
+							Name:     "thing2",
+							Value:    &ast.Value{Raw: "2 thing"},
+							Position: &ast.Position{},
+						},
+					},
+					[]*ast.Argument{
+						{
+							Name:     "thing1",
+							Value:    &ast.Value{Raw: "1 thing"},
+							Position: &ast.Position{},
+						},
+						{
+							Name:     "thing2",
+							Value:    &ast.Value{Raw: "2 thing"},
+							Position: &ast.Position{},
+						},
+					}
+			},
+			result: true,
+		},
 	}
 
 	for name, tc := range tests {
