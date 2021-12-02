@@ -30,15 +30,15 @@ func AddRule(name string, f ruleFunc) {
 // f is called once each time `Validate` is executed.
 func AddRuleWithOrder(name string, order int, f ruleFunc) {
 	rules = append(rules, rule{name: name, order: order, rule: f})
+	sort.Slice(rules, func(i, j int) bool {
+		return rules[i].order < rules[j].order
+	})
 }
 
 func Validate(schema *Schema, doc *QueryDocument, variables map[string]interface{}) gqlerror.List {
 	var errs gqlerror.List
 
 	observers := &Events{}
-	sort.Slice(rules, func(i, j int) bool {
-		return rules[i].order < rules[j].order
-	})
 	for i := range rules {
 		rule := rules[i]
 		rule.rule(observers, func(options ...ErrorOption) {
