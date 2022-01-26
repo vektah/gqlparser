@@ -478,13 +478,15 @@ func sameArguments(args1 []*ast.Argument, args2 []*ast.Argument) bool {
 		return false
 	}
 	for _, arg1 := range args1 {
+		var matched bool
 		for _, arg2 := range args2 {
-			if arg1.Name != arg2.Name {
-				return false
+			if arg1.Name == arg2.Name && sameValue(arg1.Value, arg2.Value) {
+				matched = true
+				break
 			}
-			if !sameValue(arg1.Value, arg2.Value) {
-				return false
-			}
+		}
+		if !matched {
+			return false
 		}
 	}
 	return true
