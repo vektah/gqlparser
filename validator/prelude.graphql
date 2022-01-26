@@ -24,13 +24,6 @@ directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 "The @deprecated directive is used within the type system definition language to indicate deprecated portions of a GraphQL service’s schema, such as deprecated fields on a type or deprecated enum values."
 directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
-"Exposes a URL that specifies the behaviour of this scalar."
-directive @specifiedBy(
-  "The URL that specifies the behaviour of this scalar."
-  url: String!
-) on SCALAR
-
-
 type __Schema {
     types: [__Type!]!
     queryType: __Type!
@@ -61,9 +54,6 @@ type __Type {
 
     # NON_NULL and LIST only
     ofType: __Type
-
-    # SCALAR only
-    specifiedByUrl: String
 }
 
 type __Field {
