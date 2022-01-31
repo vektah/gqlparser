@@ -1,4 +1,4 @@
-gqlparser [![CircleCI](https://badgen.net/circleci/github/dgraph-io/gqlparser/v2/master)](https://circleci.com/gh/dgraph-io/gqlparser) [![Go Report Card](https://goreportcard.com/badge/github.com/dgraph-io/gqlparser)](https://goreportcard.com/report/github.com/dgraph-io/gqlparser) [![Coverage Status](https://badgen.net/coveralls/c/github/dgraph-io/gqlparser)](https://coveralls.io/github/dgraph-io/gqlparser?branch=master)
+gqlparser [![CircleCI](https://badgen.net/circleci/github/vektah/gqlparser/v2/master)](https://circleci.com/gh/vektah/gqlparser) [![Go Report Card](https://goreportcard.com/badge/github.com/vektah/gqlparser)](https://goreportcard.com/report/github.com/vektah/gqlparser) [![Coverage Status](https://badgen.net/coveralls/c/github/vektah/gqlparser)](https://coveralls.io/github/vektah/gqlparser?branch=master)
 ===
 
 This is a parser for graphql, written to mirror the graphql-js reference implementation as closely while remaining idiomatic and easy to use.

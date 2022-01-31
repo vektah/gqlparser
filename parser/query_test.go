@@ -3,8 +3,8 @@ package parser
 import (
 	"testing"
 
-	"github.com/dgraph-io/gqlparser/v2/ast"
-	"github.com/dgraph-io/gqlparser/v2/parser/testrunner"
+	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/parser/testrunner"
 )
 
 func TestQueryDocument(t *testing.T) {

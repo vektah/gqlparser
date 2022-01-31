@@ -14,7 +14,7 @@ const (
 // ObjectDefinition is the core type definition object, it includes all of the definable types
 // but does *not* cover schema or directives.
 //
-// @dgraph-io: Javascript implementation has different types for all of these, but they are
+// @vektah: Javascript implementation has different types for all of these, but they are
 // more similar than different and don't define any behaviour. I think this style of
 // "some hot" struct works better, at least for go.
 //

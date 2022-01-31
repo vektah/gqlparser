@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dgraph-io/gqlparser/v2/ast"
-	"github.com/dgraph-io/gqlparser/v2/gqlerror"
+	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // VariableValues coerces and validates variable values
