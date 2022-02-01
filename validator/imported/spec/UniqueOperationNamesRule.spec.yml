@@ -1,5 +1,5 @@
 - name: no operations
-  rule: UniqueOperationNames
+  rule: UniqueOperationNamesRule
   schema: 0
   query: |2-
           
@@ -9,7 +9,7 @@
           
   errors: []
 - name: one anon operation
-  rule: UniqueOperationNames
+  rule: UniqueOperationNamesRule
   schema: 0
   query: |2-
           
@@ -19,7 +19,7 @@
           
   errors: []
 - name: one named operation
-  rule: UniqueOperationNames
+  rule: UniqueOperationNamesRule
   schema: 0
   query: |2-
           
@@ -29,7 +29,7 @@
           
   errors: []
 - name: multiple operations
-  rule: UniqueOperationNames
+  rule: UniqueOperationNamesRule
   schema: 0
   query: |2-
           
@@ -43,7 +43,7 @@
           
   errors: []
 - name: multiple operations of different types
-  rule: UniqueOperationNames
+  rule: UniqueOperationNamesRule
   schema: 0
   query: |2-
           
@@ -61,7 +61,7 @@
           
   errors: []
 - name: fragment and operation named the same
-  rule: UniqueOperationNames
+  rule: UniqueOperationNamesRule
   schema: 0
   query: |2-
           
@@ -74,7 +74,7 @@
           
   errors: []
 - name: multiple operations of same name
-  rule: UniqueOperationNames
+  rule: UniqueOperationNamesRule
   schema: 0
   query: |2-
           
@@ -91,7 +91,7 @@
         - {line: 2, column: 13}
         - {line: 5, column: 13}
 - name: multiple ops of same name of different types (mutation)
-  rule: UniqueOperationNames
+  rule: UniqueOperationNamesRule
   schema: 0
   query: |2-
           
@@ -108,7 +108,7 @@
         - {line: 2, column: 13}
         - {line: 5, column: 16}
 - name: multiple ops of same name of different types (subscription)
-  rule: UniqueOperationNames
+  rule: UniqueOperationNamesRule
   schema: 0
   query: |2-
           

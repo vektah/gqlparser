@@ -1,5 +1,15 @@
+- name: unknown types are ignored
+  rule: VariablesAreInputTypesRule
+  schema: 0
+  query: |2-
+          
+          query Foo($a: Unknown, $b: [[Unknown!]]!) {
+            field(a: $a, b: $b)
+          }
+          
+  errors: []
 - name: input types are valid
-  rule: VariablesAreInputTypes
+  rule: VariablesAreInputTypesRule
   schema: 0
   query: |2-
           
@@ -9,7 +19,7 @@
           
   errors: []
 - name: output types are invalid
-  rule: VariablesAreInputTypes
+  rule: VariablesAreInputTypesRule
   schema: 0
   query: |2-
           

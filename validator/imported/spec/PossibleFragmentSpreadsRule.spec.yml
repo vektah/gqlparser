@@ -1,6 +1,6 @@
 - name: of the same object
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment objectWithinObject on Dog { ...dogFragment }
@@ -8,16 +8,16 @@
           
   errors: []
 - name: of the same object with inline fragment
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment objectWithinObjectAnon on Dog { ... on Dog { barkVolume } }
           
   errors: []
 - name: object into an implemented interface
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment objectWithinInterface on Pet { ...dogFragment }
@@ -25,8 +25,8 @@
           
   errors: []
 - name: object into containing union
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment objectWithinUnion on CatOrDog { ...dogFragment }
@@ -34,8 +34,8 @@
           
   errors: []
 - name: union into contained object
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment unionWithinObject on Dog { ...catOrDogFragment }
@@ -43,8 +43,8 @@
           
   errors: []
 - name: union into overlapping interface
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment unionWithinInterface on Pet { ...catOrDogFragment }
@@ -52,8 +52,8 @@
           
   errors: []
 - name: union into overlapping union
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment unionWithinUnion on DogOrHuman { ...catOrDogFragment }
@@ -61,8 +61,8 @@
           
   errors: []
 - name: interface into implemented object
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment interfaceWithinObject on Dog { ...petFragment }
@@ -70,8 +70,8 @@
           
   errors: []
 - name: interface into overlapping interface
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment interfaceWithinInterface on Pet { ...beingFragment }
@@ -79,34 +79,42 @@
           
   errors: []
 - name: interface into overlapping interface in inline fragment
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment interfaceWithinInterface on Pet { ... on Being { name } }
           
   errors: []
 - name: interface into overlapping union
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment interfaceWithinUnion on CatOrDog { ...petFragment }
           fragment petFragment on Pet { name }
           
   errors: []
-- name: ignores incorrect type (caught by FragmentsOnCompositeTypes)
-  rule: PossibleFragmentSpreads
-  schema: 0
+- name: ignores incorrect type (caught by FragmentsOnCompositeTypesRule)
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment petFragment on Pet { ...badInADifferentWay }
           fragment badInADifferentWay on String { name }
           
   errors: []
+- name: ignores unknown fragments (caught by KnownFragmentNamesRule)
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
+  query: |2-
+          
+          fragment petFragment on Pet { ...UnknownFragment }
+          
+  errors: []
 - name: different object into object
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment invalidObjectWithinObject on Cat { ...dogFragment }
@@ -117,8 +125,8 @@
       locations:
         - {line: 2, column: 51}
 - name: different object into object in inline fragment
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment invalidObjectWithinObjectAnon on Cat {
@@ -130,8 +138,8 @@
       locations:
         - {line: 3, column: 9}
 - name: object into not implementing interface
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment invalidObjectWithinInterface on Pet { ...humanFragment }
@@ -142,8 +150,8 @@
       locations:
         - {line: 2, column: 54}
 - name: object into not containing union
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment invalidObjectWithinUnion on CatOrDog { ...humanFragment }
@@ -154,8 +162,8 @@
       locations:
         - {line: 2, column: 55}
 - name: union into not contained object
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment invalidUnionWithinObject on Human { ...catOrDogFragment }
@@ -166,8 +174,8 @@
       locations:
         - {line: 2, column: 52}
 - name: union into non overlapping interface
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment invalidUnionWithinInterface on Pet { ...humanOrAlienFragment }
@@ -178,8 +186,8 @@
       locations:
         - {line: 2, column: 53}
 - name: union into non overlapping union
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment invalidUnionWithinUnion on CatOrDog { ...humanOrAlienFragment }
@@ -190,8 +198,8 @@
       locations:
         - {line: 2, column: 54}
 - name: interface into non implementing object
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment invalidInterfaceWithinObject on Cat { ...intelligentFragment }
@@ -202,8 +210,8 @@
       locations:
         - {line: 2, column: 54}
 - name: interface into non overlapping interface
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment invalidInterfaceWithinInterface on Pet {
@@ -216,8 +224,8 @@
       locations:
         - {line: 3, column: 9}
 - name: interface into non overlapping interface in inline fragment
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment invalidInterfaceWithinInterfaceAnon on Pet {
@@ -229,8 +237,8 @@
       locations:
         - {line: 3, column: 9}
 - name: interface into non overlapping union
-  rule: PossibleFragmentSpreads
-  schema: 0
+  rule: PossibleFragmentSpreadsRule
+  schema: 14
   query: |2-
           
           fragment invalidInterfaceWithinUnion on HumanOrAlien { ...petFragment }

@@ -1,41 +1,41 @@
 - name: ignores unknown arguments
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
           
           {
             dog {
-              isHousetrained(unknownArgument: true)
+              isHouseTrained(unknownArgument: true)
             }
           }
           
   errors: []
 - name: Valid non-nullable value/Arg on optional arg
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
             {
               dog {
-                isHousetrained(atOtherHomes: true)
+                isHouseTrained(atOtherHomes: true)
               }
             }
             
   errors: []
 - name: Valid non-nullable value/No Arg on optional arg
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
             {
               dog {
-                isHousetrained
+                isHouseTrained
               }
             }
             
   errors: []
 - name: Valid non-nullable value/No arg on non-null field with default
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -47,7 +47,7 @@
             
   errors: []
 - name: Valid non-nullable value/Multiple args
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -59,7 +59,7 @@
             
   errors: []
 - name: Valid non-nullable value/Multiple args reverse order
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -71,7 +71,7 @@
             
   errors: []
 - name: Valid non-nullable value/No args on multiple optional
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -83,7 +83,7 @@
             
   errors: []
 - name: Valid non-nullable value/One arg on multiple optional
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -95,7 +95,7 @@
             
   errors: []
 - name: Valid non-nullable value/Second arg on multiple optional
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -106,8 +106,8 @@
             }
             
   errors: []
-- name: Valid non-nullable value/Multiple reqs on mixedList
-  rule: ProvidedRequiredArguments
+- name: Valid non-nullable value/Multiple required args on mixedList
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -118,8 +118,8 @@
             }
             
   errors: []
-- name: Valid non-nullable value/Multiple reqs and one opt on mixedList
-  rule: ProvidedRequiredArguments
+- name: Valid non-nullable value/Multiple required and one optional arg on mixedList
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -130,8 +130,8 @@
             }
             
   errors: []
-- name: Valid non-nullable value/All reqs and opts on mixedList
-  rule: ProvidedRequiredArguments
+- name: Valid non-nullable value/All required and optional args on mixedList
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -143,7 +143,7 @@
             
   errors: []
 - name: Invalid non-nullable value/Missing one non-nullable argument
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -154,11 +154,11 @@
             }
             
   errors:
-    - message: Field "multipleReqs" argument "req1" of type "Int!" is required but not provided.
+    - message: Field "multipleReqs" argument "req1" of type "Int!" is required, but it was not provided.
       locations:
         - {line: 4, column: 13}
 - name: Invalid non-nullable value/Missing multiple non-nullable arguments
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -169,14 +169,14 @@
             }
             
   errors:
-    - message: Field "multipleReqs" argument "req1" of type "Int!" is required but not provided.
+    - message: Field "multipleReqs" argument "req1" of type "Int!" is required, but it was not provided.
       locations:
         - {line: 4, column: 13}
-    - message: Field "multipleReqs" argument "req2" of type "Int!" is required but not provided.
+    - message: Field "multipleReqs" argument "req2" of type "Int!" is required, but it was not provided.
       locations:
         - {line: 4, column: 13}
 - name: Invalid non-nullable value/Incorrect value and missing argument
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -187,11 +187,11 @@
             }
             
   errors:
-    - message: Field "multipleReqs" argument "req2" of type "Int!" is required but not provided.
+    - message: Field "multipleReqs" argument "req2" of type "Int!" is required, but it was not provided.
       locations:
         - {line: 4, column: 13}
 - name: Directive arguments/ignores unknown directives
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -201,7 +201,7 @@
             
   errors: []
 - name: Directive arguments/with directives of valid types
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -216,7 +216,7 @@
             
   errors: []
 - name: Directive arguments/with directive with missing types
-  rule: ProvidedRequiredArguments
+  rule: ProvidedRequiredArgumentsRule
   schema: 0
   query: |2-
             
@@ -227,9 +227,9 @@
             }
             
   errors:
-    - message: Directive "@include" argument "if" of type "Boolean!" is required but not provided.
+    - message: Directive "@include" argument "if" of type "Boolean!" is required, but it was not provided.
       locations:
         - {line: 3, column: 15}
-    - message: Directive "@skip" argument "if" of type "Boolean!" is required but not provided.
+    - message: Directive "@skip" argument "if" of type "Boolean!" is required, but it was not provided.
       locations:
         - {line: 4, column: 18}

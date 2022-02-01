@@ -1,5 +1,5 @@
 - name: single arg is known
-  rule: KnownArgumentNames
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -9,7 +9,7 @@
           
   errors: []
 - name: multiple args are known
-  rule: KnownArgumentNames
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -19,7 +19,7 @@
           
   errors: []
 - name: ignores args of unknown fields
-  rule: KnownArgumentNames
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -29,7 +29,7 @@
           
   errors: []
 - name: multiple args in reverse order are known
-  rule: KnownArgumentNames
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -39,17 +39,17 @@
           
   errors: []
 - name: no args on optional arg
-  rule: KnownArgumentNames
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
           fragment noArgOnOptionalArg on Dog {
-            isHousetrained
+            isHouseTrained
           }
           
   errors: []
 - name: args are known deeply
-  rule: KnownArgumentNames
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -68,7 +68,7 @@
           
   errors: []
 - name: directive args are known
-  rule: KnownArgumentNames
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -77,8 +77,8 @@
           }
           
   errors: []
-- name: undirective args are invalid
-  rule: KnownArgumentNames
+- name: field args are invalid
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -90,8 +90,31 @@
     - message: Unknown argument "unless" on directive "@skip".
       locations:
         - {line: 3, column: 19}
+- name: directive without args is valid
+  rule: KnownArgumentNamesRule
+  schema: 0
+  query: |2-
+          
+          {
+            dog @onField
+          }
+          
+  errors: []
+- name: arg passed to directive without arg is reported
+  rule: KnownArgumentNamesRule
+  schema: 0
+  query: |2-
+          
+          {
+            dog @onField(if: true)
+          }
+          
+  errors:
+    - message: Unknown argument "if" on directive "@onField".
+      locations:
+        - {line: 3, column: 22}
 - name: misspelled directive args are reported
-  rule: KnownArgumentNames
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -104,7 +127,7 @@
       locations:
         - {line: 3, column: 19}
 - name: invalid arg name
-  rule: KnownArgumentNames
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -113,40 +136,40 @@
           }
           
   errors:
-    - message: Unknown argument "unknown" on field "doesKnowCommand" of type "Dog".
+    - message: Unknown argument "unknown" on field "Dog.doesKnowCommand".
       locations:
         - {line: 3, column: 25}
 - name: misspelled arg name is reported
-  rule: KnownArgumentNames
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
           fragment invalidArgName on Dog {
-            doesKnowCommand(dogcommand: true)
+            doesKnowCommand(DogCommand: true)
           }
           
   errors:
-    - message: Unknown argument "dogcommand" on field "doesKnowCommand" of type "Dog". Did you mean "dogCommand"?
+    - message: Unknown argument "DogCommand" on field "Dog.doesKnowCommand". Did you mean "dogCommand"?
       locations:
         - {line: 3, column: 25}
 - name: unknown args amongst known args
-  rule: KnownArgumentNames
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
           fragment oneGoodArgOneInvalidArg on Dog {
-            doesKnowCommand(whoknows: 1, dogCommand: SIT, unknown: true)
+            doesKnowCommand(whoKnows: 1, dogCommand: SIT, unknown: true)
           }
           
   errors:
-    - message: Unknown argument "whoknows" on field "doesKnowCommand" of type "Dog".
+    - message: Unknown argument "whoKnows" on field "Dog.doesKnowCommand".
       locations:
         - {line: 3, column: 25}
-    - message: Unknown argument "unknown" on field "doesKnowCommand" of type "Dog".
+    - message: Unknown argument "unknown" on field "Dog.doesKnowCommand".
       locations:
         - {line: 3, column: 55}
 - name: unknown args deeply
-  rule: KnownArgumentNames
+  rule: KnownArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -164,9 +187,9 @@
           }
           
   errors:
-    - message: Unknown argument "unknown" on field "doesKnowCommand" of type "Dog".
+    - message: Unknown argument "unknown" on field "Dog.doesKnowCommand".
       locations:
         - {line: 4, column: 27}
-    - message: Unknown argument "unknown" on field "doesKnowCommand" of type "Dog".
+    - message: Unknown argument "unknown" on field "Dog.doesKnowCommand".
       locations:
         - {line: 9, column: 31}

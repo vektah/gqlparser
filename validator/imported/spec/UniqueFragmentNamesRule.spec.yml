@@ -1,5 +1,5 @@
 - name: no fragments
-  rule: UniqueFragmentNames
+  rule: UniqueFragmentNamesRule
   schema: 0
   query: |2-
           
@@ -9,7 +9,7 @@
           
   errors: []
 - name: one fragment
-  rule: UniqueFragmentNames
+  rule: UniqueFragmentNamesRule
   schema: 0
   query: |2-
           
@@ -23,7 +23,7 @@
           
   errors: []
 - name: many fragments
-  rule: UniqueFragmentNames
+  rule: UniqueFragmentNamesRule
   schema: 0
   query: |2-
           
@@ -44,7 +44,7 @@
           
   errors: []
 - name: inline fragments are always unique
-  rule: UniqueFragmentNames
+  rule: UniqueFragmentNamesRule
   schema: 0
   query: |2-
           
@@ -59,7 +59,7 @@
           
   errors: []
 - name: fragment and operation named the same
-  rule: UniqueFragmentNames
+  rule: UniqueFragmentNamesRule
   schema: 0
   query: |2-
           
@@ -72,7 +72,7 @@
           
   errors: []
 - name: fragments named the same
-  rule: UniqueFragmentNames
+  rule: UniqueFragmentNamesRule
   schema: 0
   query: |2-
           
@@ -92,7 +92,7 @@
         - {line: 5, column: 16}
         - {line: 8, column: 16}
 - name: fragments named the same without being referenced
-  rule: UniqueFragmentNames
+  rule: UniqueFragmentNamesRule
   schema: 0
   query: |2-
           

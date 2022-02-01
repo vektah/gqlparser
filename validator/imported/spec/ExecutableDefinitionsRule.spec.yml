@@ -1,5 +1,5 @@
 - name: with only operation
-  rule: ExecutableDefinitions
+  rule: ExecutableDefinitionsRule
   schema: 0
   query: |2-
           
@@ -11,7 +11,7 @@
           
   errors: []
 - name: with operation and fragment
-  rule: ExecutableDefinitions
+  rule: ExecutableDefinitionsRule
   schema: 0
   query: |2-
           
@@ -28,7 +28,7 @@
           
   errors: []
 - name: with type definition
-  rule: ExecutableDefinitions
+  rule: ExecutableDefinitionsRule
   schema: 0
   query: |2-
           
@@ -47,14 +47,14 @@
           }
           
   errors:
-    - message: The Cow definition is not executable.
+    - message: The "Cow" definition is not executable.
       locations:
         - {line: 8, column: 7}
-    - message: The Dog definition is not executable.
+    - message: The "Dog" definition is not executable.
       locations:
         - {line: 12, column: 7}
 - name: with schema definition
-  rule: ExecutableDefinitions
+  rule: ExecutableDefinitionsRule
   schema: 0
   query: |2-
           
@@ -72,7 +72,7 @@
     - message: The schema definition is not executable.
       locations:
         - {line: 2, column: 7}
-    - message: The Query definition is not executable.
+    - message: The "Query" definition is not executable.
       locations:
         - {line: 6, column: 7}
     - message: The schema definition is not executable.
