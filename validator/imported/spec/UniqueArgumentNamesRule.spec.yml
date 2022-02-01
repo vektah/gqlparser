@@ -1,5 +1,5 @@
 - name: no arguments on field
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -9,7 +9,7 @@
           
   errors: []
 - name: no arguments on directive
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -19,7 +19,7 @@
           
   errors: []
 - name: argument on field
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -29,7 +29,7 @@
           
   errors: []
 - name: argument on directive
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -39,7 +39,7 @@
           
   errors: []
 - name: same argument on two fields
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -50,7 +50,7 @@
           
   errors: []
 - name: same argument on field and directive
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -60,7 +60,7 @@
           
   errors: []
 - name: same argument on two directives
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -70,7 +70,7 @@
           
   errors: []
 - name: multiple field arguments
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -80,7 +80,7 @@
           
   errors: []
 - name: multiple directive arguments
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -90,7 +90,7 @@
           
   errors: []
 - name: duplicate field arguments
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -104,7 +104,7 @@
         - {line: 3, column: 15}
         - {line: 3, column: 30}
 - name: many duplicate field arguments
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -117,12 +117,9 @@
       locations:
         - {line: 3, column: 15}
         - {line: 3, column: 30}
-    - message: There can be only one argument named "arg1".
-      locations:
-        - {line: 3, column: 15}
         - {line: 3, column: 45}
 - name: duplicate directive arguments
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -136,7 +133,7 @@
         - {line: 3, column: 26}
         - {line: 3, column: 41}
 - name: many duplicate directive arguments
-  rule: UniqueArgumentNames
+  rule: UniqueArgumentNamesRule
   schema: 0
   query: |2-
           
@@ -149,7 +146,4 @@
       locations:
         - {line: 3, column: 26}
         - {line: 3, column: 41}
-    - message: There can be only one argument named "arg1".
-      locations:
-        - {line: 3, column: 26}
         - {line: 3, column: 56}

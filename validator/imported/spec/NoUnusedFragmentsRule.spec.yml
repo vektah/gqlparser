@@ -1,5 +1,5 @@
 - name: all fragment names are used
-  rule: NoUnusedFragments
+  rule: NoUnusedFragmentsRule
   schema: 0
   query: |2-
           
@@ -24,7 +24,7 @@
           
   errors: []
 - name: all fragment names are used by multiple operations
-  rule: NoUnusedFragments
+  rule: NoUnusedFragmentsRule
   schema: 0
   query: |2-
           
@@ -51,7 +51,7 @@
           
   errors: []
 - name: contains unknown fragments
-  rule: NoUnusedFragments
+  rule: NoUnusedFragmentsRule
   schema: 0
   query: |2-
           
@@ -90,7 +90,7 @@
       locations:
         - {line: 25, column: 7}
 - name: contains unknown fragments with ref cycle
-  rule: NoUnusedFragments
+  rule: NoUnusedFragmentsRule
   schema: 0
   query: |2-
           
@@ -131,7 +131,7 @@
       locations:
         - {line: 26, column: 7}
 - name: contains unknown and undef fragments
-  rule: NoUnusedFragments
+  rule: NoUnusedFragmentsRule
   schema: 0
   query: |2-
           

@@ -1,5 +1,5 @@
 - name: known fragment names are valid
-  rule: KnownFragmentNames
+  rule: KnownFragmentNamesRule
   schema: 0
   query: |2-
           
@@ -27,7 +27,7 @@
           
   errors: []
 - name: unknown fragment names are invalid
-  rule: KnownFragmentNames
+  rule: KnownFragmentNamesRule
   schema: 0
   query: |2-
           

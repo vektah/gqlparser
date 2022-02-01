@@ -1,5 +1,5 @@
 - name: no operations
-  rule: LoneAnonymousOperation
+  rule: LoneAnonymousOperationRule
   schema: 0
   query: |2-
           
@@ -9,7 +9,7 @@
           
   errors: []
 - name: one anon operation
-  rule: LoneAnonymousOperation
+  rule: LoneAnonymousOperationRule
   schema: 0
   query: |2-
           
@@ -19,7 +19,7 @@
           
   errors: []
 - name: multiple named operations
-  rule: LoneAnonymousOperation
+  rule: LoneAnonymousOperationRule
   schema: 0
   query: |2-
           
@@ -33,7 +33,7 @@
           
   errors: []
 - name: anon operation with fragment
-  rule: LoneAnonymousOperation
+  rule: LoneAnonymousOperationRule
   schema: 0
   query: |2-
           
@@ -46,7 +46,7 @@
           
   errors: []
 - name: multiple anon operations
-  rule: LoneAnonymousOperation
+  rule: LoneAnonymousOperationRule
   schema: 0
   query: |2-
           
@@ -65,7 +65,7 @@
       locations:
         - {line: 5, column: 7}
 - name: anon operation with a mutation
-  rule: LoneAnonymousOperation
+  rule: LoneAnonymousOperationRule
   schema: 0
   query: |2-
           
@@ -81,7 +81,7 @@
       locations:
         - {line: 2, column: 7}
 - name: anon operation with a subscription
-  rule: LoneAnonymousOperation
+  rule: LoneAnonymousOperationRule
   schema: 0
   query: |2-
           

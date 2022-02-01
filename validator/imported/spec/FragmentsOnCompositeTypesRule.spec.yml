@@ -1,5 +1,5 @@
 - name: object is valid fragment type
-  rule: FragmentsOnCompositeTypes
+  rule: FragmentsOnCompositeTypesRule
   schema: 0
   query: |2-
           
@@ -9,7 +9,7 @@
           
   errors: []
 - name: interface is valid fragment type
-  rule: FragmentsOnCompositeTypes
+  rule: FragmentsOnCompositeTypesRule
   schema: 0
   query: |2-
           
@@ -19,7 +19,7 @@
           
   errors: []
 - name: object is valid inline fragment type
-  rule: FragmentsOnCompositeTypes
+  rule: FragmentsOnCompositeTypesRule
   schema: 0
   query: |2-
           
@@ -30,8 +30,20 @@
           }
           
   errors: []
+- name: interface is valid inline fragment type
+  rule: FragmentsOnCompositeTypesRule
+  schema: 0
+  query: |2-
+          
+          fragment validFragment on Mammal {
+            ... on Canine {
+              name
+            }
+          }
+          
+  errors: []
 - name: inline fragment without type is valid
-  rule: FragmentsOnCompositeTypes
+  rule: FragmentsOnCompositeTypesRule
   schema: 0
   query: |2-
           
@@ -43,7 +55,7 @@
           
   errors: []
 - name: union is valid fragment type
-  rule: FragmentsOnCompositeTypes
+  rule: FragmentsOnCompositeTypesRule
   schema: 0
   query: |2-
           
@@ -53,7 +65,7 @@
           
   errors: []
 - name: scalar is invalid fragment type
-  rule: FragmentsOnCompositeTypes
+  rule: FragmentsOnCompositeTypesRule
   schema: 0
   query: |2-
           
@@ -66,7 +78,7 @@
       locations:
         - {line: 2, column: 34}
 - name: enum is invalid fragment type
-  rule: FragmentsOnCompositeTypes
+  rule: FragmentsOnCompositeTypesRule
   schema: 0
   query: |2-
           
@@ -79,7 +91,7 @@
       locations:
         - {line: 2, column: 34}
 - name: input object is invalid fragment type
-  rule: FragmentsOnCompositeTypes
+  rule: FragmentsOnCompositeTypesRule
   schema: 0
   query: |2-
           
@@ -92,7 +104,7 @@
       locations:
         - {line: 2, column: 33}
 - name: scalar is invalid inline fragment type
-  rule: FragmentsOnCompositeTypes
+  rule: FragmentsOnCompositeTypesRule
   schema: 0
   query: |2-
           

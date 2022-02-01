@@ -1,5 +1,5 @@
 - name: uses all variables
-  rule: NoUnusedVariables
+  rule: NoUnusedVariablesRule
   schema: 0
   query: |2-
           
@@ -9,7 +9,7 @@
           
   errors: []
 - name: uses all variables deeply
-  rule: NoUnusedVariables
+  rule: NoUnusedVariablesRule
   schema: 0
   query: |2-
           
@@ -23,7 +23,7 @@
           
   errors: []
 - name: uses all variables deeply in inline fragments
-  rule: NoUnusedVariables
+  rule: NoUnusedVariablesRule
   schema: 0
   query: |2-
           
@@ -41,7 +41,7 @@
           
   errors: []
 - name: uses all variables in fragments
-  rule: NoUnusedVariables
+  rule: NoUnusedVariablesRule
   schema: 0
   query: |2-
           
@@ -64,7 +64,7 @@
           
   errors: []
 - name: variable used by fragment in multiple operations
-  rule: NoUnusedVariables
+  rule: NoUnusedVariablesRule
   schema: 0
   query: |2-
           
@@ -83,7 +83,7 @@
           
   errors: []
 - name: variable used by recursive fragment
-  rule: NoUnusedVariables
+  rule: NoUnusedVariablesRule
   schema: 0
   query: |2-
           
@@ -98,7 +98,7 @@
           
   errors: []
 - name: variable not used
-  rule: NoUnusedVariables
+  rule: NoUnusedVariablesRule
   schema: 0
   query: |2-
           
@@ -111,7 +111,7 @@
       locations:
         - {line: 2, column: 38}
 - name: multiple variables not used
-  rule: NoUnusedVariables
+  rule: NoUnusedVariablesRule
   schema: 0
   query: |2-
           
@@ -127,7 +127,7 @@
       locations:
         - {line: 2, column: 41}
 - name: variable not used in fragments
-  rule: NoUnusedVariables
+  rule: NoUnusedVariablesRule
   schema: 0
   query: |2-
           
@@ -153,7 +153,7 @@
       locations:
         - {line: 2, column: 41}
 - name: multiple variables not used in fragments
-  rule: NoUnusedVariables
+  rule: NoUnusedVariablesRule
   schema: 0
   query: |2-
           
@@ -182,7 +182,7 @@
       locations:
         - {line: 2, column: 41}
 - name: variable not used by unreferenced fragment
-  rule: NoUnusedVariables
+  rule: NoUnusedVariablesRule
   schema: 0
   query: |2-
           
@@ -201,7 +201,7 @@
       locations:
         - {line: 2, column: 17}
 - name: variable not used by fragment used by other operation
-  rule: NoUnusedVariables
+  rule: NoUnusedVariablesRule
   schema: 0
   query: |2-
           

@@ -1,5 +1,5 @@
 - name: all variables defined
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -9,7 +9,7 @@
           
   errors: []
 - name: all variables deeply defined
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -23,7 +23,7 @@
           
   errors: []
 - name: all variables deeply in inline fragments defined
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -41,7 +41,7 @@
           
   errors: []
 - name: all variables in fragments deeply defined
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -64,7 +64,7 @@
           
   errors: []
 - name: variable within single fragment defined in multiple operations
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -80,7 +80,7 @@
           
   errors: []
 - name: variable within fragments defined in operations
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -99,7 +99,7 @@
           
   errors: []
 - name: variable within recursive fragment defined
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -114,7 +114,7 @@
           
   errors: []
 - name: variable not defined
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -128,7 +128,7 @@
         - {line: 3, column: 39}
         - {line: 2, column: 7}
 - name: variable not defined by un-named query
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -142,7 +142,7 @@
         - {line: 3, column: 18}
         - {line: 2, column: 7}
 - name: multiple variables not defined
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -160,7 +160,7 @@
         - {line: 3, column: 32}
         - {line: 2, column: 7}
 - name: variable in fragment not defined by un-named query
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -177,7 +177,7 @@
         - {line: 6, column: 18}
         - {line: 2, column: 7}
 - name: variable in fragment not defined by operation
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -204,7 +204,7 @@
         - {line: 16, column: 18}
         - {line: 2, column: 7}
 - name: multiple variables in fragments not defined
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -235,7 +235,7 @@
         - {line: 16, column: 18}
         - {line: 2, column: 7}
 - name: single variable in fragment not defined by multiple operations
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -259,7 +259,7 @@
         - {line: 9, column: 25}
         - {line: 5, column: 7}
 - name: variables in fragment not defined by multiple operations
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -283,7 +283,7 @@
         - {line: 9, column: 25}
         - {line: 5, column: 7}
 - name: variable in fragment used by other operation
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           
@@ -310,7 +310,7 @@
         - {line: 12, column: 18}
         - {line: 5, column: 7}
 - name: multiple undefined variables produce multiple errors
-  rule: NoUndefinedVariables
+  rule: NoUndefinedVariablesRule
   schema: 0
   query: |2-
           

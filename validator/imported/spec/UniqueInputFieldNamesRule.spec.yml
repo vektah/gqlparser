@@ -1,5 +1,5 @@
 - name: input object with fields
-  rule: UniqueInputFieldNames
+  rule: UniqueInputFieldNamesRule
   schema: 0
   query: |2-
           
@@ -9,7 +9,7 @@
           
   errors: []
 - name: same input object within two args
-  rule: UniqueInputFieldNames
+  rule: UniqueInputFieldNamesRule
   schema: 0
   query: |2-
           
@@ -19,7 +19,7 @@
           
   errors: []
 - name: multiple input object fields
-  rule: UniqueInputFieldNames
+  rule: UniqueInputFieldNamesRule
   schema: 0
   query: |2-
           
@@ -29,7 +29,7 @@
           
   errors: []
 - name: allows for nested input objects with similar fields
-  rule: UniqueInputFieldNames
+  rule: UniqueInputFieldNamesRule
   schema: 0
   query: |2-
           
@@ -47,7 +47,7 @@
           
   errors: []
 - name: duplicate input object fields
-  rule: UniqueInputFieldNames
+  rule: UniqueInputFieldNamesRule
   schema: 0
   query: |2-
           
@@ -61,7 +61,7 @@
         - {line: 3, column: 22}
         - {line: 3, column: 35}
 - name: many duplicate input object fields
-  rule: UniqueInputFieldNames
+  rule: UniqueInputFieldNamesRule
   schema: 0
   query: |2-
           
@@ -78,3 +78,17 @@
       locations:
         - {line: 3, column: 22}
         - {line: 3, column: 48}
+- name: nested duplicate input object fields
+  rule: UniqueInputFieldNamesRule
+  schema: 0
+  query: |2-
+          
+          {
+            field(arg: { f1: {f2: "value", f2: "value" }})
+          }
+          
+  errors:
+    - message: There can be only one input field named "f2".
+      locations:
+        - {line: 3, column: 27}
+        - {line: 3, column: 40}
