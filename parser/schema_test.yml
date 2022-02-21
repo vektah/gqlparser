@@ -411,6 +411,33 @@ interface:
     error:
       message: "expected at least one definition, found }"
       locations: [{ line: 1, column: 18 }]
+  - name: implements other interface
+    input: |
+      interface Hello {
+        world: String
+      }
+      interface Greeter implements Hello {
+        name: String!
+      }
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <Definition>
+            Kind: DefinitionKind("INTERFACE")
+            Name: "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "world"
+                Type: String
+        - <Definition>
+            Kind: DefinitionKind("INTERFACE")
+            Name: "Greeter"
+            Interfaces: [string]
+            - "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "name"
+                Type: String!
 
 unions:
   - name: simple

@@ -274,6 +274,17 @@ interfaces:
       interface BarInterface {
           f: U!
       }
+  - name: may defined intermediate interfaces
+    input: |
+      interface IA {
+          id: ID!
+      }
+      interface IIA implements IA {
+          id: ID!
+      }
+      type A implements IIA {
+          id: ID!
+      }
 
 inputs:
   - name: must define one or more input fields
