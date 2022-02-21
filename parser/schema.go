@@ -241,6 +241,7 @@ func (p *parser) parseInterfaceTypeDefinition(description string) *Definition {
 	def.Kind = Interface
 	def.Description = description
 	def.Name = p.parseName()
+	def.Interfaces = p.parseImplementsInterfaces()
 	def.Directives = p.parseDirectives(true)
 	def.Fields = p.parseFieldsDefinition()
 	return &def
