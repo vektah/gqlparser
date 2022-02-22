@@ -80,6 +80,21 @@ func TestLoadSchema(t *testing.T) {
 		}
 	})
 
+	t.Run("interfaces", func(t *testing.T) {
+		file, err := ioutil.ReadFile("testdata/interfaces.graphql")
+		require.Nil(t, err)
+		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "interfaces"})
+		require.Nil(t, err)
+
+		implements := s.GetImplements(s.Types["Canine"])
+		require.Len(t, implements, 1)
+		require.Equal(t, "Mammal", implements[0].Name)
+
+		possibleTypes := s.GetPossibleTypes(s.Types["Mammal"])
+		require.Len(t, possibleTypes, 1)
+		require.Equal(t, "Canine", possibleTypes[0].Name)
+	})
+
 	testrunner.Test(t, "./schema_test.yml", func(t *testing.T, input string) testrunner.Spec {
 		_, err := LoadSchema(Prelude, &ast.Source{Input: input})
 		return testrunner.Spec{
