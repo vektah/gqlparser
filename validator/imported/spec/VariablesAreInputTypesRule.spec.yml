@@ -1,32 +1,32 @@
 - name: unknown types are ignored
-  rule: VariablesAreInputTypesRule
+  rule: VariablesAreInputTypes
   schema: 0
   query: |2-
-          
+
           query Foo($a: Unknown, $b: [[Unknown!]]!) {
             field(a: $a, b: $b)
           }
-          
+
   errors: []
 - name: input types are valid
-  rule: VariablesAreInputTypesRule
+  rule: VariablesAreInputTypes
   schema: 0
   query: |2-
-          
+
           query Foo($a: String, $b: [Boolean!]!, $c: ComplexInput) {
             field(a: $a, b: $b, c: $c)
           }
-          
+
   errors: []
 - name: output types are invalid
-  rule: VariablesAreInputTypesRule
+  rule: VariablesAreInputTypes
   schema: 0
   query: |2-
-          
+
           query Foo($a: Dog, $b: [[CatOrDog!]]!, $c: Pet) {
             field(a: $a, b: $b, c: $c)
           }
-          
+
   errors:
     - locations:
         - {line: 2, column: 21}

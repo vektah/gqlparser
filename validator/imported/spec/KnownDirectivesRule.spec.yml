@@ -1,23 +1,23 @@
 - name: with no directives
-  rule: KnownDirectivesRule
+  rule: KnownDirectives
   schema: 2
   query: |2-
-          
+
           query Foo {
             name
             ...Frag
           }
-          
+
           fragment Frag on Dog {
             name
           }
-          
+
   errors: []
 - name: with standard directives
-  rule: KnownDirectivesRule
+  rule: KnownDirectives
   schema: 2
   query: |2-
-          
+
           {
             human @skip(if: false) {
               name
@@ -28,28 +28,28 @@
               }
             }
           }
-          
+
   errors: []
 - name: with unknown directive
-  rule: KnownDirectivesRule
+  rule: KnownDirectives
   schema: 2
   query: |2-
-          
+
           {
             human @unknown(directive: "value") {
               name
             }
           }
-          
+
   errors:
     - message: Unknown directive "@unknown".
       locations:
         - {line: 3, column: 15}
 - name: with many unknown directives
-  rule: KnownDirectivesRule
+  rule: KnownDirectives
   schema: 2
   query: |2-
-          
+
           {
             __typename @unknown
             human @unknown {
@@ -59,7 +59,7 @@
               }
             }
           }
-          
+
   errors:
     - message: Unknown directive "@unknown".
       locations:
@@ -71,10 +71,10 @@
       locations:
         - {line: 6, column: 16}
 - name: with well placed directives
-  rule: KnownDirectivesRule
+  rule: KnownDirectives
   schema: 2
   query: |2-
-          
+
           query ($var: Boolean @onVariableDefinition) @onQuery {
             human @onField {
               ...Frag @onFragmentSpread
@@ -83,25 +83,25 @@
               }
             }
           }
-          
+
           mutation @onMutation {
             someField @onField
           }
-          
+
           subscription @onSubscription {
             someField @onField
           }
-          
+
           fragment Frag on Human @onFragmentDefinition {
             name @onField
           }
-          
+
   errors: []
 - name: with misplaced directives
-  rule: KnownDirectivesRule
+  rule: KnownDirectives
   schema: 2
   query: |2-
-          
+
           query ($var: Boolean @onQuery) @onMutation {
             human @onQuery {
               ...Frag @onQuery
@@ -110,19 +110,19 @@
               }
             }
           }
-          
+
           mutation @onQuery {
             someField @onQuery
           }
-          
+
           subscription @onQuery {
             someField @onQuery
           }
-          
+
           fragment Frag on Human @onQuery {
             name @onQuery
           }
-          
+
   errors:
     - message: Directive "@onQuery" may not be used on VARIABLE_DEFINITION.
       locations:

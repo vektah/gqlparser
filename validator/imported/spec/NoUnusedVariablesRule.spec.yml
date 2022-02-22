@@ -1,18 +1,18 @@
 - name: uses all variables
-  rule: NoUnusedVariablesRule
+  rule: NoUnusedVariables
   schema: 0
   query: |2-
-          
+
           query ($a: String, $b: String, $c: String) {
             field(a: $a, b: $b, c: $c)
           }
-          
+
   errors: []
 - name: uses all variables deeply
-  rule: NoUnusedVariablesRule
+  rule: NoUnusedVariables
   schema: 0
   query: |2-
-          
+
           query Foo($a: String, $b: String, $c: String) {
             field(a: $a) {
               field(b: $b) {
@@ -20,13 +20,13 @@
               }
             }
           }
-          
+
   errors: []
 - name: uses all variables deeply in inline fragments
-  rule: NoUnusedVariablesRule
+  rule: NoUnusedVariables
   schema: 0
   query: |2-
-          
+
           query Foo($a: String, $b: String, $c: String) {
             ... on Type {
               field(a: $a) {
@@ -38,13 +38,13 @@
               }
             }
           }
-          
+
   errors: []
 - name: uses all variables in fragments
-  rule: NoUnusedVariablesRule
+  rule: NoUnusedVariables
   schema: 0
   query: |2-
-          
+
           query Foo($a: String, $b: String, $c: String) {
             ...FragA
           }
@@ -61,13 +61,13 @@
           fragment FragC on Type {
             field(c: $c)
           }
-          
+
   errors: []
 - name: variable used by fragment in multiple operations
-  rule: NoUnusedVariablesRule
+  rule: NoUnusedVariables
   schema: 0
   query: |2-
-          
+
           query Foo($a: String) {
             ...FragA
           }
@@ -80,13 +80,13 @@
           fragment FragB on Type {
             field(b: $b)
           }
-          
+
   errors: []
 - name: variable used by recursive fragment
-  rule: NoUnusedVariablesRule
+  rule: NoUnusedVariables
   schema: 0
   query: |2-
-          
+
           query Foo($a: String) {
             ...FragA
           }
@@ -95,30 +95,30 @@
               ...FragA
             }
           }
-          
+
   errors: []
 - name: variable not used
-  rule: NoUnusedVariablesRule
+  rule: NoUnusedVariables
   schema: 0
   query: |2-
-          
+
           query ($a: String, $b: String, $c: String) {
             field(a: $a, b: $b)
           }
-          
+
   errors:
     - message: Variable "$c" is never used.
       locations:
         - {line: 2, column: 38}
 - name: multiple variables not used
-  rule: NoUnusedVariablesRule
+  rule: NoUnusedVariables
   schema: 0
   query: |2-
-          
+
           query Foo($a: String, $b: String, $c: String) {
             field(b: $b)
           }
-          
+
   errors:
     - message: Variable "$a" is never used in operation "Foo".
       locations:
@@ -127,10 +127,10 @@
       locations:
         - {line: 2, column: 41}
 - name: variable not used in fragments
-  rule: NoUnusedVariablesRule
+  rule: NoUnusedVariables
   schema: 0
   query: |2-
-          
+
           query Foo($a: String, $b: String, $c: String) {
             ...FragA
           }
@@ -147,16 +147,16 @@
           fragment FragC on Type {
             field
           }
-          
+
   errors:
     - message: Variable "$c" is never used in operation "Foo".
       locations:
         - {line: 2, column: 41}
 - name: multiple variables not used in fragments
-  rule: NoUnusedVariablesRule
+  rule: NoUnusedVariables
   schema: 0
   query: |2-
-          
+
           query Foo($a: String, $b: String, $c: String) {
             ...FragA
           }
@@ -173,7 +173,7 @@
           fragment FragC on Type {
             field
           }
-          
+
   errors:
     - message: Variable "$a" is never used in operation "Foo".
       locations:
@@ -182,10 +182,10 @@
       locations:
         - {line: 2, column: 41}
 - name: variable not used by unreferenced fragment
-  rule: NoUnusedVariablesRule
+  rule: NoUnusedVariables
   schema: 0
   query: |2-
-          
+
           query Foo($b: String) {
             ...FragA
           }
@@ -195,16 +195,16 @@
           fragment FragB on Type {
             field(b: $b)
           }
-          
+
   errors:
     - message: Variable "$b" is never used in operation "Foo".
       locations:
         - {line: 2, column: 17}
 - name: variable not used by fragment used by other operation
-  rule: NoUnusedVariablesRule
+  rule: NoUnusedVariables
   schema: 0
   query: |2-
-          
+
           query Foo($b: String) {
             ...FragA
           }
@@ -217,7 +217,7 @@
           fragment FragB on Type {
             field(b: $b)
           }
-          
+
   errors:
     - message: Variable "$b" is never used in operation "Foo".
       locations:

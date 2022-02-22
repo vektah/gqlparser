@@ -1,8 +1,8 @@
 - name: known type names are valid
-  rule: KnownTypeNamesRule
+  rule: KnownTypeNames
   schema: 0
   query: |2-
-          
+
           query Foo(
             $var: String
             $required: [Int!]!
@@ -12,17 +12,17 @@
               pets { ... on Pet { name }, ...PetFields, ... { name } }
             }
           }
-          
+
           fragment PetFields on Pet {
             name
           }
-          
+
   errors: []
 - name: unknown type names are invalid
-  rule: KnownTypeNamesRule
+  rule: KnownTypeNames
   schema: 0
   query: |2-
-          
+
           query Foo($var: [JumbledUpLetters!]!) {
             user(id: 4) {
               name
@@ -32,7 +32,7 @@
           fragment PetFields on Peat {
             name
           }
-          
+
   errors:
     - message: Unknown type "JumbledUpLetters".
       locations:
@@ -44,14 +44,14 @@
       locations:
         - {line: 8, column: 29}
 - name: references to standard scalars that are missing in schema
-  rule: KnownTypeNamesRule
+  rule: KnownTypeNames
   schema: 3
   query: |2-
-          
+
           query ($id: ID, $float: Float, $int: Int) {
             __typename
           }
-          
+
   errors:
     - message: Unknown type "ID".
       locations:

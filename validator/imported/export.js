@@ -67,7 +67,7 @@ const harness = {
       toDeepEqual(expected) {
         tests.push({
           name: names.slice(1).join("/"),
-          rule: rule.name,
+          rule: rule.name.replace(/Rule$/, ""),
           schema: registerSchema(schema),
           query: normalizeWs(queryStr),
           errors: expected,
@@ -159,7 +159,7 @@ fs.readdirSync("./graphql-js/src/validation/__tests__").forEach((file) => {
 let schemaList = schemas.map((s) => printSchema(s));
 
 schemaList[0] += `
-# injected becuase upstream spec is missing some types  
+# injected becuase upstream spec is missing some types
 extend type QueryRoot {
     field: T
     f1: Type

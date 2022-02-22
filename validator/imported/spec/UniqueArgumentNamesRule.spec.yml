@@ -1,117 +1,117 @@
 - name: no arguments on field
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             field
           }
-          
+
   errors: []
 - name: no arguments on directive
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             field @directive
           }
-          
+
   errors: []
 - name: argument on field
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             field(arg: "value")
           }
-          
+
   errors: []
 - name: argument on directive
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             field @directive(arg: "value")
           }
-          
+
   errors: []
 - name: same argument on two fields
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             one: field(arg: "value")
             two: field(arg: "value")
           }
-          
+
   errors: []
 - name: same argument on field and directive
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             field(arg: "value") @directive(arg: "value")
           }
-          
+
   errors: []
 - name: same argument on two directives
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             field @directive1(arg: "value") @directive2(arg: "value")
           }
-          
+
   errors: []
 - name: multiple field arguments
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             field(arg1: "value", arg2: "value", arg3: "value")
           }
-          
+
   errors: []
 - name: multiple directive arguments
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             field @directive(arg1: "value", arg2: "value", arg3: "value")
           }
-          
+
   errors: []
 - name: duplicate field arguments
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             field(arg1: "value", arg1: "value")
           }
-          
+
   errors:
     - message: There can be only one argument named "arg1".
       locations:
         - {line: 3, column: 15}
         - {line: 3, column: 30}
 - name: many duplicate field arguments
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             field(arg1: "value", arg1: "value", arg1: "value")
           }
-          
+
   errors:
     - message: There can be only one argument named "arg1".
       locations:
@@ -119,28 +119,28 @@
         - {line: 3, column: 30}
         - {line: 3, column: 45}
 - name: duplicate directive arguments
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             field @directive(arg1: "value", arg1: "value")
           }
-          
+
   errors:
     - message: There can be only one argument named "arg1".
       locations:
         - {line: 3, column: 26}
         - {line: 3, column: 41}
 - name: many duplicate directive arguments
-  rule: UniqueArgumentNamesRule
+  rule: UniqueArgumentNames
   schema: 0
   query: |2-
-          
+
           {
             field @directive(arg1: "value", arg1: "value", arg1: "value")
           }
-          
+
   errors:
     - message: There can be only one argument named "arg1".
       locations:

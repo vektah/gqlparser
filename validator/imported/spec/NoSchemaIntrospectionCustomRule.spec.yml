@@ -1,31 +1,31 @@
 - name: ignores valid fields including __typename
-  rule: NoSchemaIntrospectionCustomRule
+  rule: NoSchemaIntrospectionCustom
   schema: 9
   query: |2-
-          
+
           {
             someQuery {
               __typename
               someField
             }
           }
-          
+
   errors: []
 - name: ignores fields not in the schema
-  rule: NoSchemaIntrospectionCustomRule
+  rule: NoSchemaIntrospectionCustom
   schema: 9
   query: |2-
-          
+
           {
             __introspect
           }
-          
+
   errors: []
 - name: reports error when a field with an introspection type is requested
-  rule: NoSchemaIntrospectionCustomRule
+  rule: NoSchemaIntrospectionCustom
   schema: 9
   query: |2-
-          
+
           {
             __schema {
               queryType {
@@ -33,7 +33,7 @@
               }
             }
           }
-          
+
   errors:
     - message: GraphQL introspection has been disabled, but the requested query contained the field "__schema".
       locations:
@@ -42,10 +42,10 @@
       locations:
         - {line: 4, column: 11}
 - name: reports error when a field with an introspection type is requested and aliased
-  rule: NoSchemaIntrospectionCustomRule
+  rule: NoSchemaIntrospectionCustom
   schema: 9
   query: |2-
-          
+
           {
             s: __schema {
               queryType {
@@ -53,7 +53,7 @@
               }
             }
           }
-          
+
   errors:
     - message: GraphQL introspection has been disabled, but the requested query contained the field "__schema".
       locations:
@@ -62,14 +62,14 @@
       locations:
         - {line: 4, column: 11}
 - name: reports error when using a fragment with a field with an introspection type
-  rule: NoSchemaIntrospectionCustomRule
+  rule: NoSchemaIntrospectionCustom
   schema: 9
   query: |2-
-          
+
           {
             ...QueryFragment
           }
-          
+
           fragment QueryFragment on Query {
             __schema {
               queryType {
@@ -77,7 +77,7 @@
               }
             }
           }
-          
+
   errors:
     - message: GraphQL introspection has been disabled, but the requested query contained the field "__schema".
       locations:
@@ -86,16 +86,16 @@
       locations:
         - {line: 8, column: 11}
 - name: reports error for non-standard introspection fields
-  rule: NoSchemaIntrospectionCustomRule
+  rule: NoSchemaIntrospectionCustom
   schema: 9
   query: |2-
-          
+
           {
             someQuery {
               introspectionField
             }
           }
-          
+
   errors:
     - message: GraphQL introspection has been disabled, but the requested query contained the field "introspectionField".
       locations:

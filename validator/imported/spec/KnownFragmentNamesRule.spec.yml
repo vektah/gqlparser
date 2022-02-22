@@ -1,8 +1,8 @@
 - name: known fragment names are valid
-  rule: KnownFragmentNamesRule
+  rule: KnownFragmentNames
   schema: 0
   query: |2-
-          
+
           {
             human(id: 4) {
               ...HumanFields1
@@ -24,13 +24,13 @@
           fragment HumanFields3 on Human {
             name
           }
-          
+
   errors: []
 - name: unknown fragment names are invalid
-  rule: KnownFragmentNamesRule
+  rule: KnownFragmentNames
   schema: 0
   query: |2-
-          
+
           {
             human(id: 4) {
               ...UnknownFragment1
@@ -43,7 +43,7 @@
             name
             ...UnknownFragment3
           }
-          
+
   errors:
     - message: Unknown fragment "UnknownFragment1".
       locations:
