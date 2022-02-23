@@ -87,3 +87,21 @@ func TestLoadSchema(t *testing.T) {
 		}
 	})
 }
+
+func TestSchemaDescription(t *testing.T) {
+	s, err := LoadSchema(Prelude, &ast.Source{Name: "graph/schema.graphqls", Input: `
+	"""
+	A simple GraphQL schema which is well described.
+	"""
+	schema {
+		query: Query
+	}
+
+	type Query {
+		entity: String
+	}
+	`, BuiltIn: false})
+	require.Nil(t, err)
+	want := "A simple GraphQL schema which is well described."
+	require.Equal(t, want, s.Description)
+}
