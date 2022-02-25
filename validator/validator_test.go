@@ -99,15 +99,11 @@ func TestDeprecatingTypes(t *testing.T) {
 		Input: `
 			type DeprecatedType {
 				deprecatedField: String @deprecated
-				newField(deprecatedArg: Int @deprecated): Boolean
+				newField(deprecatedArg: Int): Boolean
 			}
 
 			enum DeprecatedEnum {
 				ALPHA @deprecated
-			}
-
-			input DeprecatedInput {
-				old: String @deprecated
 			}
 		`,
 		BuiltIn: false,
