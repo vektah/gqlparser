@@ -18,3 +18,6 @@
 
 - rule: 'ValuesOfCorrectType/.*custom scalar.*'
   skip: "Custom scalars are a runtime feature, maybe they dont belong in here?"
+
+- rule: 'ValuesOfCorrectTypeRule/Invalid input object value/reports error for custom scalar that returns undefined'
+  skip: "gqlparser treats custom scalars as any type"

@@ -1,7 +1,9 @@
 package validator
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/vektah/gqlparser/v2/ast"
 	. "github.com/vektah/gqlparser/v2/validator"
@@ -140,9 +142,11 @@ func unexpectedTypeMessage(addError AddErrFunc, v *ast.Value) {
 }
 
 func unexpectedTypeMessageOnly(v *ast.Value) ErrorOption {
-
 	switch v.ExpectedType.String() {
 	case "Int", "Int!":
+		if _, err := strconv.ParseInt(v.Raw, 10, 32); err != nil && errors.Is(err, strconv.ErrRange) {
+			return Message(`Int cannot represent non 32-bit signed integer value: %s`, v.String())
+		}
 		return Message(`Int cannot represent non-integer value: %s`, v.String())
 	case "String", "String!", "[String]":
 		return Message(`String cannot represent a non string value: %s`, v.String())
