@@ -12,7 +12,7 @@ func init() {
 			for _, def := range operation.VariableDefinitions {
 				if seen[def.Variable] {
 					addError(
-						Message(`There can be only one variable named "%s".`, def.Variable),
+						Message(`There can be only one variable named "$%s".`, def.Variable),
 						At(def.Position),
 					)
 				}

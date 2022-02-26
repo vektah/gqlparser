@@ -436,7 +436,7 @@ func (m *overlappingFieldsCanBeMergedManager) findConflict(parentFieldsAreMutual
 		if fieldA.Name != fieldB.Name {
 			return &ConflictMessage{
 				ResponseName: fieldNameA,
-				Message:      fmt.Sprintf(`%s and %s are different fields`, fieldA.Name, fieldB.Name),
+				Message:      fmt.Sprintf(`"%s" and "%s" are different fields`, fieldA.Name, fieldB.Name),
 				Position:     fieldB.Position,
 			}
 		}
@@ -454,7 +454,7 @@ func (m *overlappingFieldsCanBeMergedManager) findConflict(parentFieldsAreMutual
 	if doTypesConflict(m.walker, fieldA.Definition.Type, fieldB.Definition.Type) {
 		return &ConflictMessage{
 			ResponseName: fieldNameA,
-			Message:      fmt.Sprintf(`they return conflicting types %s and %s`, fieldA.Definition.Type.String(), fieldB.Definition.Type.String()),
+			Message:      fmt.Sprintf(`they return conflicting types "%s" and "%s"`, fieldA.Definition.Type.String(), fieldB.Definition.Type.String()),
 			Position:     fieldB.Position,
 		}
 	}

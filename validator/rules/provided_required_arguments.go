@@ -7,7 +7,6 @@ import (
 
 func init() {
 	AddRule("ProvidedRequiredArguments", func(observers *Events, addError AddErrFunc) {
-
 		observers.OnField(func(walker *Walker, field *ast.Field) {
 			if field.Definition == nil {
 				return
@@ -54,7 +53,7 @@ func init() {
 				}
 
 				addError(
-					Message(`Directive "@%s" argument "%s" of type "%s" is required but not provided.`, directive.Definition.Name, argDef.Name, argDef.Type.String()),
+					Message(`Directive "@%s" argument "%s" of type "%s" is required, but it was not provided.`, directive.Definition.Name, argDef.Name, argDef.Type.String()),
 					At(directive.Position),
 				)
 			}

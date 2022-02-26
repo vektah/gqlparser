@@ -10,7 +10,7 @@ func init() {
 		observers.OnDirective(func(walker *Walker, directive *ast.Directive) {
 			if directive.Definition == nil {
 				addError(
-					Message(`Unknown directive "%s".`, directive.Name),
+					Message(`Unknown directive "@%s".`, directive.Name),
 					At(directive.Position),
 				)
 				return
@@ -23,7 +23,7 @@ func init() {
 			}
 
 			addError(
-				Message(`Directive "%s" may not be used on %s.`, directive.Name, directive.Location),
+				Message(`Directive "@%s" may not be used on %s.`, directive.Name, directive.Location),
 				At(directive.Position),
 			)
 		})
