@@ -51,7 +51,7 @@ function normalizeWs(rawString) {
     }
   }
 
-  for (let i = 0; i < lines.length; i++) {
+  for (let i = 1; i < lines.length; i++) {
     if (lines[i].length < commonIndent) {
       lines[i] = " ".repeat(commonIndent);
     }
