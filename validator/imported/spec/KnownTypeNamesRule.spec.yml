@@ -12,7 +12,7 @@
               pets { ... on Pet { name }, ...PetFields, ... { name } }
             }
           }
-
+          
           fragment PetFields on Pet {
             name
           }

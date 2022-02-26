@@ -35,7 +35,7 @@
             ... on Dog { name }
             ... on Cat { name }
           }
-
+          
           fragment spreadsInAnon on Pet {
             ... on Dog { ...nameFragment }
             ... on Cat { ...nameFragment }

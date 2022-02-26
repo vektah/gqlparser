@@ -69,7 +69,7 @@
           {
             ...QueryFragment
           }
-
+          
           fragment QueryFragment on Query {
             __schema {
               queryType {

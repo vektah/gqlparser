@@ -64,7 +64,7 @@
           fragment booleanArgFrag on ComplicatedArgs {
             booleanArgField(booleanArg: $nonNullBooleanArg)
           }
-
+          
           query Query($nonNullBooleanArg: Boolean!)
           {
             complicatedArgs {
@@ -186,7 +186,7 @@
           fragment nonNullIntArgFieldFrag on ComplicatedArgs {
             nonNullIntArgField(nonNullIntArg: $intArg)
           }
-
+          
           query Query($intArg: Int) {
             complicatedArgs {
               ...nonNullIntArgFieldFrag
@@ -206,11 +206,11 @@
           fragment outerFrag on ComplicatedArgs {
             ...nonNullIntArgFieldFrag
           }
-
+          
           fragment nonNullIntArgFieldFrag on ComplicatedArgs {
             nonNullIntArgField(nonNullIntArg: $intArg)
           }
-
+          
           query Query($intArg: Int) {
             complicatedArgs {
               ...outerFrag

@@ -67,7 +67,7 @@
           type Test @unknown @unknown {
             field: String! @unknown @unknown
           }
-
+          
           extend type Test @unknown {
             anotherField: String!
           }

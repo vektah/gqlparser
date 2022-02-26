@@ -7,7 +7,7 @@
             name
             ...Frag
           }
-
+          
           fragment Frag on Dog {
             name
           }
@@ -83,15 +83,15 @@
               }
             }
           }
-
+          
           mutation @onMutation {
             someField @onField
           }
-
+          
           subscription @onSubscription {
             someField @onField
           }
-
+          
           fragment Frag on Human @onFragmentDefinition {
             name @onField
           }
@@ -110,15 +110,15 @@
               }
             }
           }
-
+          
           mutation @onQuery {
             someField @onQuery
           }
-
+          
           subscription @onQuery {
             someField @onQuery
           }
-
+          
           fragment Frag on Human @onQuery {
             name @onQuery
           }

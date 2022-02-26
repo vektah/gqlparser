@@ -16,7 +16,7 @@
             {
               unknownField
             }
-
+            
             fragment UnknownFragment on UnknownType {
               deprecatedField
             }
@@ -30,7 +30,7 @@
             {
               deprecatedField
             }
-
+            
             fragment QueryFragment on Query {
               deprecatedField
             }
@@ -131,11 +131,11 @@
               someField(
                 someArg: { unknownField: "" }
               )
-
+            
               someField(
                 unknownArg: { unknownField: "" }
               )
-
+            
               unknownField(
                 unknownArg: { unknownField: "" }
               )
@@ -183,7 +183,7 @@
               someField(unknownArg: UNKNOWN_VALUE)
               unknownField(unknownArg: UNKNOWN_VALUE)
             }
-
+            
             fragment SomeFragment on Query {
               someField(enumArg: UNKNOWN_VALUE)
             }

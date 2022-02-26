@@ -16,7 +16,7 @@
           {
             ...fragA
           }
-
+          
           fragment fragA on Type {
             field
           }

@@ -462,7 +462,7 @@
             ...Unknown
             ...Known
           }
-
+          
           fragment Known on T {
             field
             ...OtherUnknown
@@ -773,7 +773,7 @@
                   }
                 }
               }
-
+              
               fragment edgeID on Connection {
                 edges {
                   node {
@@ -828,7 +828,7 @@
           {
             ...fragA
           }
-
+          
           fragment fragA on Human { name, relatives { name, ...fragA } }
 
   errors: []
@@ -840,7 +840,7 @@
           {
             ...fragA
           }
-
+          
           fragment fragA on Human { name, ...fragA }
 
   errors: []
@@ -853,7 +853,7 @@
             ...fragA
             fragA
           }
-
+          
           fragment fragA on Query { ...fragA }
 
   errors: []
@@ -866,7 +866,7 @@
             fragA
             ...fragA
           }
-
+          
           fragment fragA on Type {
             fragA: b
           }
@@ -885,7 +885,7 @@
             ...fragA
             fragB
           }
-
+          
           fragment fragA on Human { name, ...fragB }
           fragment fragB on Human { name, ...fragC }
           fragment fragC on Human { name, ...fragA }

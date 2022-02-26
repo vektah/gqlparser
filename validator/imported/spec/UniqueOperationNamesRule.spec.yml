@@ -36,7 +36,7 @@
           query Foo {
             field
           }
-
+          
           query Bar {
             field
           }
@@ -50,11 +50,11 @@
           query Foo {
             field
           }
-
+          
           mutation Bar {
             field
           }
-
+          
           subscription Baz {
             field
           }

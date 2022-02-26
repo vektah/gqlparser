@@ -21,7 +21,7 @@
               ...Frag
             }
           }
-
+          
           fragment Frag on Dog {
             name
           }
@@ -37,11 +37,11 @@
               name
             }
           }
-
+          
           type Cow {
             name: String
           }
-
+          
           extend type Dog {
             color: String
           }
@@ -61,11 +61,11 @@
           schema {
             query: Query
           }
-
+          
           type Query {
             test: String
           }
-
+          
           extend schema @directive
 
   errors:
