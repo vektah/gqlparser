@@ -59,17 +59,14 @@ type Walker struct {
 	Schema    *ast.Schema
 	Document  *ast.QueryDocument
 
-	validatedFragmentSpreads map[string]bool
-	CurrentOperation         *ast.OperationDefinition
+	CurrentOperation *ast.OperationDefinition
 }
 
 func (w *Walker) walk() {
 	for _, child := range w.Document.Operations {
-		w.validatedFragmentSpreads = make(map[string]bool)
 		w.walkOperation(child)
 	}
 	for _, child := range w.Document.Fragments {
-		w.validatedFragmentSpreads = make(map[string]bool)
 		w.walkFragment(child)
 	}
 }
@@ -99,14 +96,14 @@ func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
 		loc = ast.LocationSubscription
 	}
 
-	w.walkDirectives(def, operation.Directives, loc)
-
 	for _, varDef := range operation.VariableDefinitions {
 		if varDef.DefaultValue != nil {
 			w.walkValue(varDef.DefaultValue)
 		}
+		w.walkDirectives(varDef.Definition, varDef.Directives, ast.LocationVariableDefinition)
 	}
 
+	w.walkDirectives(def, operation.Directives, loc)
 	w.walkSelectionSet(def, operation.SelectionSet)
 
 	for _, v := range w.Observers.operationVisitor {
@@ -269,12 +266,6 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		}
 
 		w.walkDirectives(nextParentDef, it.Directives, ast.LocationFragmentSpread)
-
-		if def != nil && !w.validatedFragmentSpreads[def.Name] {
-			// prevent inifinite recursion
-			w.validatedFragmentSpreads[def.Name] = true
-			w.walkSelectionSet(nextParentDef, def.SelectionSet)
-		}
 
 		for _, v := range w.Observers.fragmentSpread {
 			v(w, it)
