@@ -21,3 +21,6 @@
 
 - rule: 'ValuesOfCorrectTypeRule/Invalid input object value/reports error for custom scalar that returns undefined'
   skip: "gqlparser treats custom scalars as any type"
+
+- rule: 'NoDeprecatedCustomRule/.*'
+  skip: "This rule is optional and is not part of the Validation section of the GraphQL Specification"
