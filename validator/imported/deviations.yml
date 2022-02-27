@@ -24,3 +24,6 @@
 
 - rule: 'NoDeprecatedCustomRule/.*'
   skip: "This rule is optional and is not part of the Validation section of the GraphQL Specification"
+
+- rule: 'NoSchemaIntrospectionCustomRule/.*'
+  skip: "This rule is optional and is not part of the Validation section of the GraphQL Specification"
