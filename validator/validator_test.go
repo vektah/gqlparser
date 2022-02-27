@@ -72,7 +72,7 @@ query SomeOperation {
 	require.Nil(t, err)
 	r1 := validator.Validate(s, q1)
 	require.Len(t, r1, 1)
-	const errorString = `SomeOperation:4: Field "myAction" argument "myEnum" of type "Locale!" is required but not provided.`
+	const errorString = `SomeOperation:4: Field "myAction" argument "myEnum" of type "Locale!" is required, but it was not provided.`
 	require.EqualError(t, r1[0], errorString)
 
 	// Some other call that should not affect validator behavior
