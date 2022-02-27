@@ -1,4 +1,4 @@
-- rule: 'ExecutableDefinitions/.*'
+- rule: 'ExecutableDefinitionsRule/.*'
   skip: "These are impossible to generate because the parser is split between Query and Schema"
 
 - rule: 'FieldsOnCorrectType/Defined on implementors but not on interface'
@@ -7,20 +7,17 @@
       locations:
         - {line: 3, column: 9}
 
-- rule: 'KnownDirectives/within schema language/with misplaced directives'
+- rule: 'KnownDirectivesRule/within schema language/with misplaced directives'
   skip: "When the syntax of schema is mixed in query, parser can't consume schema syntax and ignore it"
 
-- rule: 'KnownTypeNames/ignores type definitions'
+- rule: 'KnownTypeNamesRule/ignores type definitions'
   skip: "When the syntax of schema is mixed in query, parser can't consume schema syntax and ignore it"
 
-- rule: 'OverlappingFieldsCanBeMerged/return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive'
+- rule: 'OverlappingFieldsCanBeMergedRule/return types must be unambiguous/reports correctly when a non-exclusive follows an exclusive'
   skip: "Spec issue? scalar is not exists on SomeBox"
 
-- rule: 'ValuesOfCorrectType/.*custom scalar.*'
+- rule: 'ValuesOfCorrectTypeRule/.*custom scalar.*'
   skip: "Custom scalars are a runtime feature, maybe they dont belong in here?"
-
-- rule: 'ValuesOfCorrectTypeRule/Invalid input object value/reports error for custom scalar that returns undefined'
-  skip: "gqlparser treats custom scalars as any type"
 
 - rule: 'NoDeprecatedCustomRule/.*'
   skip: "This rule is optional and is not part of the Validation section of the GraphQL Specification"
