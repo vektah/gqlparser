@@ -16,6 +16,7 @@ type Events struct {
 	directive        []func(walker *Walker, directive *ast.Directive)
 	directiveList    []func(walker *Walker, directives []*ast.Directive)
 	value            []func(walker *Walker, value *ast.Value)
+	variable         []func(walker *Walker, variable *ast.VariableDefinition)
 }
 
 func (o *Events) OnOperation(f func(walker *Walker, operation *ast.OperationDefinition)) {
@@ -42,6 +43,9 @@ func (o *Events) OnDirectiveList(f func(walker *Walker, directives []*ast.Direct
 func (o *Events) OnValue(f func(walker *Walker, value *ast.Value)) {
 	o.value = append(o.value, f)
 }
+func (o *Events) OnVariable(f func(walker *Walker, variable *ast.VariableDefinition)) {
+	o.variable = append(o.variable, f)
+}
 
 func Walk(schema *ast.Schema, document *ast.QueryDocument, observers *Events) {
 	w := Walker{
@@ -59,14 +63,17 @@ type Walker struct {
 	Schema    *ast.Schema
 	Document  *ast.QueryDocument
 
-	CurrentOperation *ast.OperationDefinition
+	validatedFragmentSpreads map[string]bool
+	CurrentOperation         *ast.OperationDefinition
 }
 
 func (w *Walker) walk() {
 	for _, child := range w.Document.Operations {
+		w.validatedFragmentSpreads = make(map[string]bool)
 		w.walkOperation(child)
 	}
 	for _, child := range w.Document.Fragments {
+		w.validatedFragmentSpreads = make(map[string]bool)
 		w.walkFragment(child)
 	}
 }
@@ -75,7 +82,9 @@ func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
 	w.CurrentOperation = operation
 	for _, varDef := range operation.VariableDefinitions {
 		varDef.Definition = w.Schema.Types[varDef.Type.Name()]
-
+		for _, v := range w.Observers.variable {
+			v(w, varDef)
+		}
 		if varDef.DefaultValue != nil {
 			varDef.DefaultValue.ExpectedType = varDef.Type
 			varDef.DefaultValue.Definition = w.Schema.Types[varDef.Type.Name()]
@@ -104,7 +113,7 @@ func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
 	}
 
 	w.walkDirectives(def, operation.Directives, loc)
-	w.walkSelectionSet(def, operation.SelectionSet)
+	w.walkSelectionSet(def, nil, operation.SelectionSet)
 
 	for _, v := range w.Observers.operationVisitor {
 		v(w, operation)
@@ -118,7 +127,7 @@ func (w *Walker) walkFragment(it *ast.FragmentDefinition) {
 	it.Definition = def
 
 	w.walkDirectives(def, it.Directives, ast.LocationFragmentDefinition)
-	w.walkSelectionSet(def, it.SelectionSet)
+	w.walkSelectionSet(def, nil, it.SelectionSet)
 
 	for _, v := range w.Observers.fragment {
 		v(w, it)
@@ -197,13 +206,13 @@ func (w *Walker) walkArgument(argDef *ast.ArgumentDefinition, arg *ast.Argument)
 	w.walkValue(arg.Value)
 }
 
-func (w *Walker) walkSelectionSet(parentDef *ast.Definition, it ast.SelectionSet) {
+func (w *Walker) walkSelectionSet(parentDef *ast.Definition, parent ast.Selection, it ast.SelectionSet) {
 	for _, child := range it {
-		w.walkSelection(parentDef, child)
+		w.walkSelection(parentDef, parent, child)
 	}
 }
 
-func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
+func (w *Walker) walkSelection(parentDef *ast.Definition, parent, it ast.Selection) {
 	switch it := it.(type) {
 	case *ast.Field:
 		var def *ast.FieldDefinition
@@ -233,8 +242,10 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 			w.walkArgument(argDef, arg)
 		}
 
-		w.walkDirectives(nextParentDef, it.Directives, ast.LocationField)
-		w.walkSelectionSet(nextParentDef, it.SelectionSet)
+		if _, ok := parent.(*ast.FragmentSpread); !ok {
+			w.walkDirectives(nextParentDef, it.Directives, ast.LocationField)
+		}
+		w.walkSelectionSet(nextParentDef, it, it.SelectionSet)
 
 		for _, v := range w.Observers.field {
 			v(w, it)
@@ -249,7 +260,7 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		}
 
 		w.walkDirectives(nextParentDef, it.Directives, ast.LocationInlineFragment)
-		w.walkSelectionSet(nextParentDef, it.SelectionSet)
+		w.walkSelectionSet(nextParentDef, it, it.SelectionSet)
 
 		for _, v := range w.Observers.inlineFragment {
 			v(w, it)
@@ -266,6 +277,12 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		}
 
 		w.walkDirectives(nextParentDef, it.Directives, ast.LocationFragmentSpread)
+
+		if def != nil && !w.validatedFragmentSpreads[def.Name] {
+			// prevent inifinite recursion
+			w.validatedFragmentSpreads[def.Name] = true
+			w.walkSelectionSet(nextParentDef, it, def.SelectionSet)
+		}
 
 		for _, v := range w.Observers.fragmentSpread {
 			v(w, it)
