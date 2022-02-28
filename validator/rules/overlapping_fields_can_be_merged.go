@@ -414,7 +414,7 @@ func (m *overlappingFieldsCanBeMergedManager) collectConflictsBetween(conflicts 
 }
 
 func (m *overlappingFieldsCanBeMergedManager) findConflict(parentFieldsAreMutuallyExclusive bool, fieldA *ast.Field, fieldB *ast.Field) *ConflictMessage {
-	if fieldA.Definition == nil || fieldA.ObjectDefinition == nil || fieldB.Definition == nil || fieldB.ObjectDefinition == nil {
+	if fieldA.ObjectDefinition == nil || fieldB.ObjectDefinition == nil {
 		return nil
 	}
 
@@ -423,6 +423,7 @@ func (m *overlappingFieldsCanBeMergedManager) findConflict(parentFieldsAreMutual
 		tmp := fieldA.ObjectDefinition.Name != fieldB.ObjectDefinition.Name
 		tmp = tmp && fieldA.ObjectDefinition.Kind == ast.Object
 		tmp = tmp && fieldB.ObjectDefinition.Kind == ast.Object
+		tmp = tmp && fieldA.Definition != nil && fieldB.Definition != nil
 		areMutuallyExclusive = tmp
 	}
 
@@ -436,7 +437,7 @@ func (m *overlappingFieldsCanBeMergedManager) findConflict(parentFieldsAreMutual
 		if fieldA.Name != fieldB.Name {
 			return &ConflictMessage{
 				ResponseName: fieldNameA,
-				Message:      fmt.Sprintf(`%s and %s are different fields`, fieldA.Name, fieldB.Name),
+				Message:      fmt.Sprintf(`"%s" and "%s" are different fields`, fieldA.Name, fieldB.Name),
 				Position:     fieldB.Position,
 			}
 		}
@@ -451,10 +452,10 @@ func (m *overlappingFieldsCanBeMergedManager) findConflict(parentFieldsAreMutual
 		}
 	}
 
-	if doTypesConflict(m.walker, fieldA.Definition.Type, fieldB.Definition.Type) {
+	if fieldA.Definition != nil && fieldB.Definition != nil && doTypesConflict(m.walker, fieldA.Definition.Type, fieldB.Definition.Type) {
 		return &ConflictMessage{
 			ResponseName: fieldNameA,
-			Message:      fmt.Sprintf(`they return conflicting types %s and %s`, fieldA.Definition.Type.String(), fieldB.Definition.Type.String()),
+			Message:      fmt.Sprintf(`they return conflicting types "%s" and "%s"`, fieldA.Definition.Type.String(), fieldB.Definition.Type.String()),
 			Position:     fieldB.Position,
 		}
 	}

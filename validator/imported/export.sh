@@ -5,7 +5,7 @@ EXPORTER_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$EXPORTER_ROOT" || exit
 
-GIT_REF=origin/master
+GIT_REF=origin/main
 
 if [[ -f "$EXPORTER_ROOT/graphql-js-commit.log" ]] ; then
   GIT_REF=$(cat "$EXPORTER_ROOT/graphql-js-commit.log")
@@ -32,4 +32,4 @@ echo "installing js dependencies"
 npm ci
 
 echo "exporting tests"
-npx babel-node ./export.js
+npx babel-node -x ".ts,.js" ./export.js

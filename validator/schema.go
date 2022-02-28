@@ -72,6 +72,11 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 				schema.AddImplements(def.Name, schema.Types[intf])
 			}
 			schema.AddPossibleType(def.Name, def)
+		case Interface:
+			for _, intf := range def.Interfaces {
+				schema.AddPossibleType(intf, def)
+				schema.AddImplements(def.Name, schema.Types[intf])
+			}
 		}
 	}
 
