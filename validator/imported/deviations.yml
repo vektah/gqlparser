@@ -24,3 +24,6 @@
 
 - rule: 'NoSchemaIntrospectionCustomRule/.*'
   skip: "This rule is optional and is not part of the Validation section of the GraphQL Specification"
+
+- rule: 'KnownTypeNamesRule/references to standard scalars that are missing in schema'
+  skip: "standard scalars must be exists in schema"
