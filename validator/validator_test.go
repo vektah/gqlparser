@@ -112,3 +112,27 @@ func TestDeprecatingTypes(t *testing.T) {
 	_, err := validator.LoadSchema(append([]*ast.Source{validator.Prelude}, schema)...)
 	require.Nil(t, err)
 }
+
+func TestNoUnusedVariables(t *testing.T) {
+	// https://github.com/99designs/gqlgen/issues/2028
+	t.Run("gqlgen issues #2028", func(t *testing.T) {
+		s := gqlparser.MustLoadSchema(
+			&ast.Source{Name: "graph/schema.graphqls", Input: `
+	type Query {
+		bar: String!
+	}
+	`, BuiltIn: false},
+		)
+
+		q, err := parser.ParseQuery(&ast.Source{Name: "2028", Input: `
+			query Foo($flag: Boolean!) {
+				...Bar
+			}
+			fragment Bar on Query {
+				bar @include(if: $flag)
+			}
+		`})
+		require.Nil(t, err)
+		require.Nil(t, validator.Validate(s, q))
+	})
+}
