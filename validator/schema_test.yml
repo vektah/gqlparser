@@ -286,9 +286,42 @@ interfaces:
           id: ID!
       }
 
-      type A implements IIA {
+      type A implements IIA & IA {
           id: ID!
       }
+
+  - name: Type Foo must implement Baz because it is implemented by Bar
+    input: |
+      interface Baz {
+          baz: String
+      }
+
+      interface Bar implements Baz {
+          bar: String
+          baz: String
+      }
+
+      type Foo implements Bar {
+          foo: String
+          bar: String
+          baz: String
+      }
+    error:
+      message: 'Type Foo must implement Baz because it is implemented by Bar'
+      locations: [{line: 10, column: 6}]
+
+  - name: circular reference error
+    input: |
+      interface Circular1 implements Circular2 {
+        id: ID!
+      }
+
+      interface Circular2 implements Circular1 {
+        id: ID!
+      }
+    error:
+      message: 'Type Circular1 cannot implement Circular2 because it would create a circular reference.'
+      locations: [{line: 1, column: 11}]
 
 inputs:
   - name: must define one or more input fields
