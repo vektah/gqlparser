@@ -174,8 +174,8 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 
 func validateTypeDefinitions(schema *Schema) *gqlerror.Error {
 	types := make([]string, 0, len(schema.Types))
-	for _, typ := range schema.Types {
-		types = append(types, typ.Name)
+	for typ := range schema.Types {
+		types = append(types, typ)
 	}
 	sort.Strings(types)
 	for _, typ := range types {
@@ -189,8 +189,8 @@ func validateTypeDefinitions(schema *Schema) *gqlerror.Error {
 
 func validateDirectiveDefinitions(schema *Schema) *gqlerror.Error {
 	directives := make([]string, 0, len(schema.Directives))
-	for _, directive := range schema.Directives {
-		directives = append(directives, directive.Name)
+	for directive := range schema.Directives {
+		directives = append(directives, directive)
 	}
 	sort.Strings(directives)
 	for _, directive := range directives {
