@@ -113,12 +113,8 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 					// remove inconsistent use of ;
 					spec.Errors[i].Message = strings.Replace(spec.Errors[i].Message, "; Did you mean", ". Did you mean", -1)
 				}
-				sort.Slice(spec.Errors, func(i, j int) bool {
-					return strings.Compare(spec.Errors[i].Message, spec.Errors[j].Message) > 0
-				})
-				sort.Slice(finalErrors, func(i, j int) bool {
-					return strings.Compare(finalErrors[i].Message, finalErrors[j].Message) > 0
-				})
+				sort.Slice(spec.Errors, compareErrors(spec.Errors))
+				sort.Slice(finalErrors, compareErrors(finalErrors))
 
 				if len(finalErrors) != len(spec.Errors) {
 					t.Errorf("wrong number of errors returned\ngot:\n%s\nwant:\n%s", finalErrors.Error(), spec.Errors)
@@ -163,6 +159,16 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 			})
 		}
 	})
+}
+
+func compareErrors(errors gqlerror.List) func(i, j int) bool {
+	return func(i, j int) bool {
+		cmp := strings.Compare(errors[i].Message, errors[j].Message)
+		if cmp == 0 && len(errors[i].Locations) > 0 && len(errors[j].Locations) > 0 {
+			return errors[i].Locations[0].Line > errors[j].Locations[0].Line
+		}
+		return cmp < 0
+	}
 }
 
 func readYaml(filename string, result interface{}) {
