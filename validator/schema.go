@@ -426,7 +426,7 @@ func validateTypeImplementsAncestors(schema *Schema, def *Definition, intfName s
 				)
 			}
 			return gqlerror.ErrorPosf(def.Position,
-				`Type %s must implement %s because it is implemented by %s`,
+				`Type %s must implement %s because it is implemented by %s.`,
 				def.Name, transitive, intfName,
 			)
 		}

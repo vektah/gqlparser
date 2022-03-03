@@ -307,7 +307,7 @@ interfaces:
           baz: String
       }
     error:
-      message: 'Type Foo must implement Baz because it is implemented by Bar'
+      message: 'Type Foo must implement Baz because it is implemented by Bar.'
       locations: [{line: 10, column: 6}]
 
   - name: circular reference error
