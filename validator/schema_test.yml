@@ -357,7 +357,7 @@ inputs:
       type Object { id: ID }
       input Foo { a: Object! }
     error:
-      message: 'INPUT_OBJECT a: field must be one of SCALAR, ENUM, INPUT_OBJECT.'
+      message: 'OBJECT a: field must be one of SCALAR, ENUM, INPUT_OBJECT.'
       locations: [{line: 2, column: 13}]
 
   - name: fields cannot be Interfaces
@@ -365,7 +365,7 @@ inputs:
       interface Interface { id: ID! }
       input Foo { a: Interface! }
     error:
-      message: 'INPUT_OBJECT a: field must be one of SCALAR, ENUM, INPUT_OBJECT.'
+      message: 'INTERFACE a: field must be one of SCALAR, ENUM, INPUT_OBJECT.'
       locations: [{line: 2, column: 13}]
 
   - name: fields cannot be Unions
@@ -374,7 +374,7 @@ inputs:
       union Union = Object
       input Foo { a: Union! }
     error:
-      message: 'INPUT_OBJECT a: field must be one of SCALAR, ENUM, INPUT_OBJECT.'
+      message: 'UNION a: field must be one of SCALAR, ENUM, INPUT_OBJECT.'
       locations: [{line: 3, column: 13}]
 
 args:

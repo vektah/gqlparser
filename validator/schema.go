@@ -271,7 +271,7 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		for _, field := range def.Fields {
 			if typ, ok := schema.Types[field.Type.Name()]; ok {
 				if !isValidKind(typ.Kind, Scalar, Enum, InputObject) {
-					return gqlerror.ErrorPosf(field.Position, "%s %s: field must be one of %s.", def.Kind, field.Name, kindList(Scalar, Enum, InputObject))
+					return gqlerror.ErrorPosf(field.Position, "%s %s: field must be one of %s.", typ.Kind, field.Name, kindList(Scalar, Enum, InputObject))
 				}
 			}
 		}
