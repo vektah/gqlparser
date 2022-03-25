@@ -35,9 +35,7 @@ type TopSubscription {
       noop: Boolean
 
       noop2(
-        """
-        noop2 foo bar
-        """
+        """noop2 foo bar"""
         arg: String
       ): Boolean
 
