@@ -17,9 +17,9 @@ type Formatter interface {
 
 type FormatterOption func(*formatter)
 
-func WithSpaceIndent(tabSize int) FormatterOption {
+func WithIndent(indent string) FormatterOption {
 	return func(f *formatter) {
-		f.indent = strings.Repeat(" ", tabSize)
+		f.indent = indent
 	}
 }
 
