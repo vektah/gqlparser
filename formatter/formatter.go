@@ -15,14 +15,30 @@ type Formatter interface {
 	FormatQueryDocument(doc *ast.QueryDocument)
 }
 
-func NewFormatter(w io.Writer) Formatter {
-	return &formatter{writer: w}
+type FormatterOption func(*formatter)
+
+func WithIndent(indent string) FormatterOption {
+	return func(f *formatter) {
+		f.indent = indent
+	}
+}
+
+func NewFormatter(w io.Writer, options ...FormatterOption) Formatter {
+	f := &formatter{
+		indent: "\t",
+		writer: w,
+	}
+	for _, opt := range options {
+		opt(f)
+	}
+	return f
 }
 
 type formatter struct {
 	writer io.Writer
 
-	indent      int
+	indent      string
+	indentSize  int
 	emitBuiltin bool
 
 	padNext  bool
@@ -35,7 +51,7 @@ func (f *formatter) writeString(s string) {
 
 func (f *formatter) writeIndent() *formatter {
 	if f.lineHead {
-		f.writeString(strings.Repeat("\t", f.indent))
+		f.writeString(strings.Repeat(f.indent, f.indentSize))
 	}
 	f.lineHead = false
 	f.padNext = false
@@ -95,11 +111,11 @@ func (f *formatter) WriteDescription(s string) *formatter {
 }
 
 func (f *formatter) IncrementIndent() {
-	f.indent++
+	f.indentSize++
 }
 
 func (f *formatter) DecrementIndent() {
-	f.indent--
+	f.indentSize--
 }
 
 func (f *formatter) NoPadding() *formatter {
