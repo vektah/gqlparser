@@ -134,11 +134,11 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 		switch typ.NamedType {
 		case "Int":
 			_,e := strconv.ParseInt(fmt.Sprintf("%v", val.Interface()), 10, 64);
-			if e == nil && (kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 || kind == reflect.Float32 || kind == reflect.Float64){
+			if e == nil && (kind == reflect.String  || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 || kind == reflect.Float32 || kind == reflect.Float64){
 				return val, nil
 			}
 		case "Float":
-			if kind == reflect.Float32 || kind == reflect.Float64 || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
+			if kind == reflect.String  || kind == reflect.Float32 || kind == reflect.Float64 || kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 {
 				return val, nil
 			}
 		case "String":
