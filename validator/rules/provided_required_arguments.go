@@ -1,8 +1,8 @@
 package validator
 
 import (
-	"github.com/vektah/gqlparser/v2/ast"
-	. "github.com/vektah/gqlparser/v2/validator"
+	"github.com/pjmd89/gqlparser/v2/ast"
+	. "github.com/pjmd89/gqlparser/v2/validator"
 )
 
 func init() {
