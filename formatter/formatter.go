@@ -320,6 +320,8 @@ func (f *formatter) FormatArgumentDefinition(def *ast.ArgumentDefinition) {
 		f.FormatValue(def.DefaultValue)
 	}
 
+	f.NeedPadding().FormatDirectiveList(def.Directives)
+
 	if def.Description != "" {
 		f.DecrementIndent()
 		f.WriteNewline()
