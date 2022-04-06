@@ -1,5 +1,3 @@
-//go:generate go run ./inliner/inliner.go
-
 package validator
 
 import (
