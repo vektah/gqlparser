@@ -9,11 +9,11 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"github.com/pjmd89/gqlparser/v2"
-	"github.com/pjmd89/gqlparser/v2/ast"
-	"github.com/pjmd89/gqlparser/v2/formatter"
-	"github.com/pjmd89/gqlparser/v2/parser"
 	"github.com/stretchr/testify/assert"
+	"github.com/vektah/gqlparser/v2"
+	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/formatter"
+	"github.com/vektah/gqlparser/v2/parser"
 )
 
 var update = flag.Bool("u", false, "update golden files")
