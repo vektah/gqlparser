@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pjmd89/gqlparser/v2/ast"
-	"github.com/pjmd89/gqlparser/v2/gqlerror"
+	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 var UnexpectedType = fmt.Errorf("Unexpected Type")

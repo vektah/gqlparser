@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	. "github.com/pjmd89/gqlparser/v2/ast"
-	"github.com/pjmd89/gqlparser/v2/gqlerror"
-	"github.com/pjmd89/gqlparser/v2/parser"
+	. "github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/gqlerror"
+	"github.com/vektah/gqlparser/v2/parser"
 )
 
 func LoadSchema(inputs ...*Source) (*Schema, *gqlerror.Error) {
