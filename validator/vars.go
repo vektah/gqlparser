@@ -58,7 +58,7 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 					if v.Type.NamedType == "Int" {
 						n, err := jsonNumber.Int64()
 						if err != nil {
-							return nil, gqlerror.ErrorPathf(validator.path, "cannot use value %s as %s", n, v.Type.NamedType)
+							return nil, gqlerror.ErrorPathf(validator.path, "cannot use value %d as %s", n, v.Type.NamedType)
 						}
 						rv = reflect.ValueOf(n)
 					} else if v.Type.NamedType == "Float" {
