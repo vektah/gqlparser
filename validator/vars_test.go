@@ -1,7 +1,6 @@
 package validator_test
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"testing"
 
@@ -285,10 +284,19 @@ func TestValidateVars(t *testing.T) {
 		t.Run("Json Number -> Int", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int) { optionalIntArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
-				"var": json.Number("10"),
+				"var": 10,
 			})
 			require.Nil(t, gerr)
-			require.Equal(t, json.Number("10"), vars["var"])
+			require.Equal(t, 10, vars["var"])
+		})
+
+		t.Run("Json Number -> Float", func(t *testing.T) {
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: Float!) { floatArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
+				"var": 10.2,
+			})
+			require.Nil(t, gerr)
+			require.Equal(t, 10.2, vars["var"])
 		})
 
 		t.Run("Nil -> Int", func(t *testing.T) {
