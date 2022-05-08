@@ -41,6 +41,9 @@ type TopSubscription {
 
       noop3(
         "noop3 foo bar"
-        arg: String
+        arg1: String
+
+        "noop3 foo bar"
+        arg2: String
       ): Boolean
 }
