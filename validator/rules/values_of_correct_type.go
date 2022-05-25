@@ -43,6 +43,8 @@ func init() {
 			}
 
 			switch value.Kind {
+			case ast.NullValue:
+				return
 			case ast.ListValue:
 				if value.ExpectedType.Elem == nil {
 					unexpectedTypeMessage(addError, value)
