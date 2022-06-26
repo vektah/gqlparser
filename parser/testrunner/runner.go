@@ -1,7 +1,7 @@
 package testrunner
 
 import (
-	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -36,7 +36,7 @@ func (t Token) String() string {
 }
 
 func Test(t *testing.T, filename string, f func(t *testing.T, input string) Spec) {
-	b, err := ioutil.ReadFile(filename)
+	b, err := os.ReadFile(filename)
 	if err != nil {
 		panic(err)
 	}

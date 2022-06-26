@@ -2,7 +2,6 @@ package validator_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -172,7 +171,7 @@ func compareErrors(errors gqlerror.List) func(i, j int) bool {
 }
 
 func readYaml(filename string, result interface{}) {
-	b, err := ioutil.ReadFile(filename)
+	b, err := os.ReadFile(filename)
 	if err != nil {
 		panic(err)
 	}

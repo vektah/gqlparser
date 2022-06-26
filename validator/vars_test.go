@@ -1,7 +1,7 @@
 package validator_test
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -358,7 +358,7 @@ func TestValidateVars(t *testing.T) {
 }
 
 func mustReadFile(name string) string {
-	src, err := ioutil.ReadFile(name)
+	src, err := os.ReadFile(name)
 	if err != nil {
 		panic(err)
 	}

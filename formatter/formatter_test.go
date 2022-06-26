@@ -3,7 +3,6 @@ package formatter_test
 import (
 	"bytes"
 	"flag"
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
@@ -24,10 +23,10 @@ func TestFormatter_FormatSchema(t *testing.T) {
 
 	executeGoldenTesting(t, &goldenConfig{
 		SourceDir: testSourceDir,
-		BaselineFileName: func(cfg *goldenConfig, f os.FileInfo) string {
+		BaselineFileName: func(cfg *goldenConfig, f os.DirEntry) string {
 			return path.Join(testBaselineDir, f.Name())
 		},
-		Run: func(t *testing.T, cfg *goldenConfig, f os.FileInfo) []byte {
+		Run: func(t *testing.T, cfg *goldenConfig, f os.DirEntry) []byte {
 			// load stuff
 			schema, gqlErr := gqlparser.LoadSchema(&ast.Source{
 				Name:  f.Name(),
@@ -62,10 +61,10 @@ func TestFormatter_FormatSchemaDocument(t *testing.T) {
 
 	executeGoldenTesting(t, &goldenConfig{
 		SourceDir: testSourceDir,
-		BaselineFileName: func(cfg *goldenConfig, f os.FileInfo) string {
+		BaselineFileName: func(cfg *goldenConfig, f os.DirEntry) string {
 			return path.Join(testBaselineDir, f.Name())
 		},
-		Run: func(t *testing.T, cfg *goldenConfig, f os.FileInfo) []byte {
+		Run: func(t *testing.T, cfg *goldenConfig, f os.DirEntry) []byte {
 			// load stuff
 			doc, gqlErr := parser.ParseSchema(&ast.Source{
 				Name:  f.Name(),
@@ -100,10 +99,10 @@ func TestFormatter_FormatQueryDocument(t *testing.T) {
 
 	executeGoldenTesting(t, &goldenConfig{
 		SourceDir: testSourceDir,
-		BaselineFileName: func(cfg *goldenConfig, f os.FileInfo) string {
+		BaselineFileName: func(cfg *goldenConfig, f os.DirEntry) string {
 			return path.Join(testBaselineDir, f.Name())
 		},
-		Run: func(t *testing.T, cfg *goldenConfig, f os.FileInfo) []byte {
+		Run: func(t *testing.T, cfg *goldenConfig, f os.DirEntry) []byte {
 			// load stuff
 			doc, gqlErr := parser.ParseQuery(&ast.Source{
 				Name:  f.Name(),
@@ -135,8 +134,8 @@ func TestFormatter_FormatQueryDocument(t *testing.T) {
 type goldenConfig struct {
 	SourceDir        string
 	IsTarget         func(f os.FileInfo) bool
-	BaselineFileName func(cfg *goldenConfig, f os.FileInfo) string
-	Run              func(t *testing.T, cfg *goldenConfig, f os.FileInfo) []byte
+	BaselineFileName func(cfg *goldenConfig, f os.DirEntry) string
+	Run              func(t *testing.T, cfg *goldenConfig, f os.DirEntry) []byte
 }
 
 func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
@@ -154,7 +153,7 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 		t.Fatal("Run function is required")
 	}
 
-	fs, err := ioutil.ReadDir(cfg.SourceDir)
+	fs, err := os.ReadDir(cfg.SourceDir)
 	if err != nil {
 		t.Fatal(fs)
 	}
@@ -177,13 +176,13 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 				}
 			}
 
-			expected, err := ioutil.ReadFile(expectedFilePath)
+			expected, err := os.ReadFile(expectedFilePath)
 			if os.IsNotExist(err) {
 				err = os.MkdirAll(path.Dir(expectedFilePath), 0755)
 				if err != nil {
 					t.Fatal(err)
 				}
-				err = ioutil.WriteFile(expectedFilePath, result, 0444)
+				err = os.WriteFile(expectedFilePath, result, 0444)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -205,7 +204,7 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 }
 
 func mustReadFile(name string) string {
-	src, err := ioutil.ReadFile(name)
+	src, err := os.ReadFile(name)
 	if err != nil {
 		panic(err)
 	}
