@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -20,7 +20,7 @@ func TestLoadSchema(t *testing.T) {
 		require.Equal(t, "The `Boolean` scalar type represents `true` or `false`.", boolDef.Description)
 	})
 	t.Run("swapi", func(t *testing.T) {
-		file, err := ioutil.ReadFile("testdata/swapi.graphql")
+		file, err := os.ReadFile("testdata/swapi.graphql")
 		require.Nil(t, err)
 		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
 		require.Nil(t, err)
@@ -45,7 +45,7 @@ func TestLoadSchema(t *testing.T) {
 	})
 
 	t.Run("default root operation type names", func(t *testing.T) {
-		file, err := ioutil.ReadFile("testdata/default_root_operation_type_names.graphql")
+		file, err := os.ReadFile("testdata/default_root_operation_type_names.graphql")
 		require.Nil(t, err)
 		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
 		require.Nil(t, err)
@@ -58,7 +58,7 @@ func TestLoadSchema(t *testing.T) {
 	})
 
 	t.Run("type extensions", func(t *testing.T) {
-		file, err := ioutil.ReadFile("testdata/extensions.graphql")
+		file, err := os.ReadFile("testdata/extensions.graphql")
 		require.Nil(t, err)
 		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
 		require.Nil(t, err)
@@ -81,7 +81,7 @@ func TestLoadSchema(t *testing.T) {
 	})
 
 	t.Run("interfaces", func(t *testing.T) {
-		file, err := ioutil.ReadFile("testdata/interfaces.graphql")
+		file, err := os.ReadFile("testdata/interfaces.graphql")
 		require.Nil(t, err)
 		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "interfaces"})
 		require.Nil(t, err)
