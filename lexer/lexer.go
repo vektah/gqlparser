@@ -419,6 +419,8 @@ func (s *Lexer) readBlockString() (Token, *gqlerror.Error) {
 	s.startRunes += 3
 	s.end += 2
 	s.endRunes += 2
+	blockLines := 0
+	blocklineStartRunes := s.lineStartRunes
 
 	for s.end < inputLen {
 		r := s.Input[s.end]
@@ -434,7 +436,8 @@ func (s *Lexer) readBlockString() (Token, *gqlerror.Error) {
 			// skip the close quote
 			s.end += 3
 			s.endRunes += 3
-
+			s.line += blockLines
+			s.lineStartRunes = blocklineStartRunes
 			return t, err
 		}
 
@@ -456,6 +459,8 @@ func (s *Lexer) readBlockString() (Token, *gqlerror.Error) {
 			buf.WriteByte('\n')
 			s.end++
 			s.endRunes++
+			blockLines++
+			blocklineStartRunes = s.endRunes
 		} else {
 			var char = rune(r)
 			var w = 1
@@ -467,6 +472,10 @@ func (s *Lexer) readBlockString() (Token, *gqlerror.Error) {
 			s.end += w
 			s.endRunes++
 			buf.WriteRune(char)
+			if r == '\n' {
+				blockLines++
+				blocklineStartRunes = s.endRunes
+			}
 		}
 	}
 
