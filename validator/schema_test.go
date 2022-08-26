@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"os"
 	"testing"
 
@@ -97,9 +98,12 @@ func TestLoadSchema(t *testing.T) {
 
 	testrunner.Test(t, "./schema_test.yml", func(t *testing.T, input string) testrunner.Spec {
 		_, err := LoadSchema(Prelude, &ast.Source{Input: input})
-		return testrunner.Spec{
-			Error: err,
+		if err != nil {
+			return testrunner.Spec{
+				Error: err.(*gqlerror.Error),
+			}
 		}
+		return testrunner.Spec{}
 	})
 }
 
