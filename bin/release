@@ -27,4 +27,4 @@ git push origin $VERSION
 git push origin HEAD:master
 
 
-echo "Now go write some release notes! https://github.com/vektah/gqlparser"
+echo "Now go write some release notes! https://github.com/vektah/gqlparser/releases"
