@@ -336,7 +336,6 @@ func (p *parser) parseTypeReference() *Type {
 	}
 
 	if p.skip(lexer.Bang) {
-		typ.Position = p.peekPos()
 		typ.NonNull = true
 	}
 	return &typ
