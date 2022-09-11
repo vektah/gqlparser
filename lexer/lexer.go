@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"bytes"
+	"strconv"
 	"unicode/utf8"
 
 	"github.com/vektah/gqlparser/v2/ast"
@@ -362,7 +363,8 @@ func (s *Lexer) readString() (Token, error) {
 
 			escape := s.Input[s.end+1]
 
-			if escape == 'u' {
+			switch escape {
+			case 'u':
 				if s.end+6 >= inputLen {
 					s.end++
 					s.endRunes++
@@ -376,30 +378,46 @@ func (s *Lexer) readString() (Token, error) {
 					return s.makeError("Invalid character escape sequence: \\%s.", s.Input[s.end:s.end+5])
 				}
 				buf.WriteRune(r)
-				s.end += 6
-				s.endRunes += 6
-			} else {
-				switch escape {
-				case '"', '/', '\\':
-					buf.WriteByte(escape)
-				case 'b':
-					buf.WriteByte('\b')
-				case 'f':
-					buf.WriteByte('\f')
-				case 'n':
-					buf.WriteByte('\n')
-				case 'r':
-					buf.WriteByte('\r')
-				case 't':
-					buf.WriteByte('\t')
-				default:
-					s.end += 1
-					s.endRunes += 1
-					return s.makeError("Invalid character escape sequence: \\%s.", string(escape))
+				s.end += 4 // because at the end of this we're going to += 2
+				s.endRunes += 4
+			case '"', '/', '\\':
+				buf.WriteByte(escape)
+			case 'b':
+				buf.WriteByte('\b')
+			case 'f':
+				buf.WriteByte('\f')
+			case 'n':
+				buf.WriteByte('\n')
+			case 'r':
+				buf.WriteByte('\r')
+			case 't':
+				buf.WriteByte('\t')
+			case 'x':
+				if s.end+4 >= inputLen {
+					s.end++
+					s.endRunes++
+					break
 				}
+				// look two ahead
+				r, ok := unhex2(s.Input[s.end+2 : s.end+4])
+				if !ok {
+					// if it's not a correct rune, then we treat it as a literal and move o
+					buf.WriteString(s.Input[s.end : s.end+2])
+					s.end += 2
+					s.endRunes += 2
+					continue
+				}
+				buf.WriteRune(r)
 				s.end += 2
 				s.endRunes += 2
+
+			default:
+				s.end += 1
+				s.endRunes += 1
+				return s.makeError("Invalid character escape sequence: \\%s.", string(escape))
 			}
+			s.end += 2
+			s.endRunes += 2
 		}
 	}
 
@@ -494,6 +512,14 @@ func unhex(b string) (v rune, ok bool) {
 	}
 
 	return v, true
+}
+
+func unhex2(b string) (v rune, ok bool) {
+	r, err := strconv.ParseUint(b, 16, 32)
+	if err != nil {
+		return 0, false
+	}
+	return rune(r), true
 }
 
 // readName from the input
