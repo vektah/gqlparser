@@ -1,0 +1,22 @@
+name: Manual Linter Run
+
+on:
+  workflow_dispatch:
+
+# When a new revision is pushed to a PR, cancel all in-progress CI runs for that
+# PR. See https://docs.github.com/en/actions/using-jobs/using-concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  go-lint:
+    name: Go Lint
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Golang Style and Lint Check
+        run: docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v1.46.2 golangci-lint run -v
+        timeout-minutes: 30
