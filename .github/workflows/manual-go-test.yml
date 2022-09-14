@@ -19,8 +19,9 @@ jobs:
         include:
           - os: linux
             run: ubuntu-latest
-          - os: darwin
-            run: macos-latest
+          # MacOS is disabled due to the high cost multiplier on GH Actions.
+          #- os: darwin
+          #  run: macos-latest
           # Windows not allowed currently because of line-ending conversion issues.
           #- os: windows
           #  run: windows-latest
