@@ -3,6 +3,7 @@ package parser
 import (
 	"github.com/vektah/gqlparser/v2/lexer"
 
+	//nolint:revive
 	. "github.com/vektah/gqlparser/v2/ast"
 )
 

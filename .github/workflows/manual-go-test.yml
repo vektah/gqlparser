@@ -1,0 +1,43 @@
+name: Manual Go Test Run
+
+on:
+  workflow_dispatch:
+
+# When a new revision is pushed to a PR, cancel all in-progress CI runs for that
+# PR. See https://docs.github.com/en/actions/using-jobs/using-concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  go-test:
+    name: Go Test (${{ matrix.os }})
+    runs-on: ${{ matrix.run }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: linux
+            run: ubuntu-latest
+          # MacOS is disabled due to the high cost multiplier on GH Actions.
+          #- os: darwin
+          #  run: macos-latest
+          # Windows not allowed currently because of line-ending conversion issues.
+          #- os: windows
+          #  run: windows-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - id: go_version
+        name: Read go version
+        run: echo "::set-output name=go_version::$(cat .go-version)"
+
+      - name: Install Go (${{ steps.go_version.outputs.go_version }})
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ steps.go_version.outputs.go_version }}
+
+      - name: Unit Test Golang
+        run: go test ./...
+        timeout-minutes: 30

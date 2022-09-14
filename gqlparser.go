@@ -5,6 +5,8 @@ import (
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"github.com/vektah/gqlparser/v2/parser"
 	"github.com/vektah/gqlparser/v2/validator"
+
+	// Blank import is used to load up the validator rules.
 	_ "github.com/vektah/gqlparser/v2/validator/rules"
 )
 

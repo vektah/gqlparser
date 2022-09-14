@@ -15,6 +15,7 @@ type Formatter interface {
 	FormatQueryDocument(doc *ast.QueryDocument)
 }
 
+//nolint:revive // Ignore "stuttering" name format.FormatterOption
 type FormatterOption func(*formatter)
 
 func WithIndent(indent string) FormatterOption {

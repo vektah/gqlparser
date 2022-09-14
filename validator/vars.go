@@ -11,7 +11,7 @@ import (
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
-var UnexpectedType = fmt.Errorf("Unexpected Type")
+var ErrUnexpectedType = fmt.Errorf("Unexpected Type")
 
 // VariableValues coerces and validates variable values
 func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables map[string]interface{}) (map[string]interface{}, error) {
@@ -53,8 +53,8 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 			} else {
 				rv := reflect.ValueOf(val)
 
-				jsonNumber, isJsonNumber := val.(json.Number)
-				if isJsonNumber {
+				jsonNumber, isJSONNumber := val.(json.Number)
+				if isJSONNumber {
 					if v.Type.NamedType == "Int" {
 						n, err := jsonNumber.Int64()
 						if err != nil {
