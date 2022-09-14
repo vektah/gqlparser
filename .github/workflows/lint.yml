@@ -1,0 +1,46 @@
+name: golangci-lint
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+env:
+  GOFLAGS: "-trimpath"
+  GO_VERSION: 1.19
+jobs:
+  resolve-modules:
+    name: Resolve Modules
+    #    runs-on: [self-hosted, linux, x64]
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v2
+      - id: set-matrix
+        run: ./tools/resolve-modules.sh
+  golangci:
+    name: Linter
+    needs: resolve-modules
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.resolve-modules.outputs.matrix) }}
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          # stable: 'false' # Keep this line to be able to use rc and beta version of Go (ex: 1.18.0-rc1).
+          go-version: ${{ env.GO_VERSION }}
+      - uses: actions/checkout@v2
+      - name: lint
+        uses: golangci/golangci-lint-action@v3.2.0
+        with:
+          version: latest
+          # skip cache because of flaky behaviors
+          skip-build-cache: true
+          skip-pkg-cache: true
+          working-directory: ${{ matrix.workdir }}
+          args: --timeout 5m --issues-exit-code=0
+          # only-new-issues: true #show only new issues if it's a pull request. options working-directory and only-new-issues are incompatible
