@@ -1,8 +1,9 @@
 package parser
 
 import (
-	"github.com/vektah/gqlparser/v2/gqlerror"
 	"testing"
+
+	"github.com/vektah/gqlparser/v2/gqlerror"
 
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/parser/testrunner"
@@ -19,7 +20,7 @@ func TestQueryDocument(t *testing.T) {
 			}
 		}
 		return testrunner.Spec{
-			AST:   ast.Dump(doc),
+			AST: ast.Dump(doc),
 		}
 	})
 }

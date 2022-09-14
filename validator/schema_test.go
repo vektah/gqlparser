@@ -1,9 +1,10 @@
 package validator
 
 import (
-	"github.com/vektah/gqlparser/v2/gqlerror"
 	"os"
 	"testing"
+
+	"github.com/vektah/gqlparser/v2/gqlerror"
 
 	"github.com/stretchr/testify/require"
 	"github.com/vektah/gqlparser/v2/ast"
