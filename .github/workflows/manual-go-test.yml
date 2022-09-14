@@ -18,7 +18,7 @@ jobs:
       matrix:
         include:
           - os: linux
-            run: ubuntu-22.04
+            run: ubuntu-latest
           - os: darwin
             run: macos-latest
           # Windows not allowed currently because of line-ending conversion issues.

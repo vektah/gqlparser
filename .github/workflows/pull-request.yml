@@ -11,14 +11,17 @@ concurrency:
 jobs:
   go-lint:
     name: Go Lint
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v3
 
       - name: Golang Style and Lint Check
-        run: docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v1.46.2 golangci-lint run -v
+        uses: golangci/golangci-lint-action@v3
         timeout-minutes: 30
+        with:
+          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+          version: latest
 
   go-test:
     name: Go Test (${{ matrix.os }})
@@ -28,7 +31,7 @@ jobs:
       matrix:
         include:
           - os: linux
-            run: ubuntu-22.04
+            run: ubuntu-latest
           - os: darwin
             run: macos-latest
           # Windows not allowed currently because of line-ending conversion issues.
