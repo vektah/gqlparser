@@ -107,6 +107,13 @@ func WrapPath(path ast.Path, err error) *Error {
 	}
 }
 
+func Wrap(err error) *Error {
+	return &Error{
+		err:     err,
+		Message: err.Error(),
+	}
+}
+
 func Errorf(message string, args ...interface{}) *Error {
 	return &Error{
 		Message: fmt.Sprintf(message, args...),
