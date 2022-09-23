@@ -25,7 +25,15 @@ func AddRule(name string, f ruleFunc) {
 
 func Validate(schema *Schema, doc *QueryDocument) gqlerror.List {
 	var errs gqlerror.List
-
+	if schema == nil {
+		errs = append(errs, gqlerror.Errorf("cannot validate as Schema is nil"))
+	}
+	if doc == nil {
+		errs = append(errs, gqlerror.Errorf("cannot validate as QueryDocument is nil"))
+	}
+	if len(errs) > 0 {
+		return errs
+	}
 	observers := &Events{}
 	for i := range rules {
 		rule := rules[i]
