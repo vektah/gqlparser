@@ -675,7 +675,6 @@ lex reports useful unknown character error:
     input: "?"
     error:
       message: 'Cannot parse the unexpected character "?".'
-      message: 'Cannot parse the unexpected character "?".'
       locations: [{ line: 1, column: 1 }]
 
   - name: unicode 203
