@@ -54,3 +54,63 @@ jobs:
       - name: Unit Test Golang
         run: go test ./...
         timeout-minutes: 30
+
+  benchstat:
+    name: Report benchmark stat
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.16.x
+
+      - name: Setup Golang caches
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+            ~/go/bin
+          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-
+
+      - name: Install benchstat
+        run: go install golang.org/x/perf/cmd/benchstat@latest
+
+      - name: Checkout (master branch)
+        uses: actions/checkout@v3
+        with:
+          ref: master
+      - name: Run benchmark (master branch)
+        run: go test -bench . | tee /tmp/old.txt
+
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run benchmark
+        run: go test -bench . | tee /tmp/new.txt
+
+      - id: benchstat
+        name: Run benchstat
+        run: |
+          benchstat /tmp/old.txt /tmp/new.txt | tee bench_result.txt
+          body="$(cat bench_result.txt)"
+          body="${body//'%'/'%25'}"
+          body="${body//$'\n'/'%0A'}"
+          body="${body//$'\r'/'%0D'}"
+          echo "::set-output name=body::$body"
+
+      - name: Add comment
+        # From the official documentation.
+        # https://docs.github.com/en/actions/managing-issues-and-pull-requests/commenting-on-an-issue-when-a-label-is-added#creating-the-workflow
+        uses: peter-evans/create-or-update-comment@a35cf36e5301d70b76f316e867e7788a55a31dae
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          token: ${{ secrets.PAT }}
+          body: |
+            Benchmark results:
+            ```
+            ${{ steps.benchstat.outputs.body }}
+            ```
