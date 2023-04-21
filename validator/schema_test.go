@@ -20,6 +20,11 @@ func TestLoadSchema(t *testing.T) {
 		require.Equal(t, "Boolean", boolDef.Name)
 		require.Equal(t, ast.Scalar, boolDef.Kind)
 		require.Equal(t, "The `Boolean` scalar type represents `true` or `false`.", boolDef.Description)
+
+		deferDef := s.Directives["defer"]
+		require.Equal(t, "defer", deferDef.Name, "@defer exists.")
+		require.Equal(t, "if", deferDef.Arguments[0].Name, "@defer has \"if\" argument.")
+		require.Equal(t, "label", deferDef.Arguments[1].Name, "@defer has \"label\" argument.")
 	})
 	t.Run("swapi", func(t *testing.T) {
 		file, err := os.ReadFile("testdata/swapi.graphql")
