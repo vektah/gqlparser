@@ -360,6 +360,10 @@ func (f *formatter) FormatDirectiveDefinition(def *ast.DirectiveDefinition) {
 		f.FormatArgumentDefinitionList(def.Arguments)
 	}
 
+	if def.IsRepeatable {
+		f.WriteWord("repeatable")
+	}
+
 	if len(def.Locations) != 0 {
 		f.WriteWord("on")
 
