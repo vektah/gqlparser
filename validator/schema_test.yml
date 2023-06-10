@@ -604,6 +604,32 @@ directives:
       type P { name: String @testField }
       interface I { id: ID @testField }
 
+  - name: Invalid directive argument not allowed
+    input: |
+      directive @foo(bla: Int!) on FIELD_DEFINITION
+      type P {f: Int @foo(foobla: 11)}
+    
+    error:
+      message: 'Undefined argument foobla for directive foo.'
+      locations: [{line: 2, column: 21}]
+
+  - name: non-null argument must be provided
+    input: |
+      directive @foo(bla: Int!) on FIELD_DEFINITION
+      type P {f: Int @foo }
+    
+    error:
+      message: 'Argument bla for directive foo cannot be null.'
+      locations: [{line: 2, column: 17}]
+
+  - name: non-null argument must not be null
+    input: |
+      directive @foo(bla: Int!) on FIELD_DEFINITION
+      type P {f: Int @foo(bla: null) }
+    
+    error:
+      message: 'Argument bla for directive foo cannot be null.'
+      locations: [{line: 2, column: 17}]
 
 entry points:
   - name: multiple schema entry points

@@ -359,11 +359,12 @@ func validateDirectives(schema *Schema, dirs DirectiveList, location DirectiveLo
 		if currentDirective != nil && dir.Name == currentDirective.Name {
 			return gqlerror.ErrorPosf(dir.Position, "Directive %s cannot refer to itself.", currentDirective.Name)
 		}
-		if schema.Directives[dir.Name] == nil {
+		dirDefinition := schema.Directives[dir.Name]
+		if dirDefinition == nil {
 			return gqlerror.ErrorPosf(dir.Position, "Undefined directive %s.", dir.Name)
 		}
 		validKind := false
-		for _, dirLocation := range schema.Directives[dir.Name].Locations {
+		for _, dirLocation := range dirDefinition.Locations {
 			if dirLocation == location {
 				validKind = true
 				break
@@ -371,6 +372,18 @@ func validateDirectives(schema *Schema, dirs DirectiveList, location DirectiveLo
 		}
 		if !validKind {
 			return gqlerror.ErrorPosf(dir.Position, "Directive %s is not applicable on %s.", dir.Name, location)
+		}
+		for _, arg := range dir.Arguments {
+			if dirDefinition.Arguments.ForName(arg.Name) == nil {
+				return gqlerror.ErrorPosf(arg.Position, "Undefined argument %s for directive %s.", arg.Name, dir.Name)
+			}
+		}
+		for _, schemaArg := range dirDefinition.Arguments {
+			if schemaArg.Type.NonNull {
+				if arg := dir.Arguments.ForName(schemaArg.Name); arg == nil || arg.Value.Kind == NullValue {
+					return gqlerror.ErrorPosf(dir.Position, "Argument %s for directive %s cannot be null.", schemaArg.Name, dir.Name)
+				}
+			}
 		}
 		dir.Definition = schema.Directives[dir.Name]
 	}
