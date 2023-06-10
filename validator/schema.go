@@ -284,6 +284,9 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 					return gqlerror.ErrorPosf(def.Position, "%s %s: non-enum value %s.", def.Kind, def.Name, value.Name)
 				}
 			}
+			if err := validateDirectives(schema, value.Directives, LocationEnumValue, nil); err != nil {
+				return err
+			}
 		}
 	case InputObject:
 		if len(def.Fields) == 0 {
