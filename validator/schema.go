@@ -379,8 +379,10 @@ func validateDirectives(schema *Schema, dirs DirectiveList, location DirectiveLo
 			}
 		}
 		for _, schemaArg := range dirDefinition.Arguments {
-			if schemaArg.Type.NonNull && dir.Arguments.ForName(schemaArg.Name) == nil {
-				return gqlerror.ErrorPosf(dir.Position, "Argument %s for directive %s cannot be null.", schemaArg.Name, dir.Name)
+			if schemaArg.Type.NonNull {
+				if arg := dir.Arguments.ForName(schemaArg.Name); arg == nil || arg.Value.Kind == NullValue {
+					return gqlerror.ErrorPosf(dir.Position, "Argument %s for directive %s cannot be null.", schemaArg.Name, dir.Name)
+				}
 			}
 		}
 		dir.Definition = schema.Directives[dir.Name]
