@@ -528,7 +528,16 @@ directives:
       directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
       directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-  - name: must be declared
+  - name: must be declared (type)
+    input: |
+      type User @foo {
+        name: String
+      }
+    error:
+      message: "Undefined directive foo."
+      locations: [{line: 1, column: 12}]
+
+  - name: must be declared (field)
     input: |
       type User {
         name: String @foo
@@ -536,6 +545,15 @@ directives:
     error:
       message: "Undefined directive foo."
       locations: [{line: 2, column: 17}]
+
+  - name: must be declared (enum)
+    input: |
+      enum Unit {
+        METER @foo
+      }
+    error:
+      message: "Undefined directive foo."
+      locations: [{line: 2, column: 10}]
 
   - name: cannot be self-referential
     input: |
