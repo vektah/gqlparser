@@ -46,4 +46,15 @@ func TestTypePosition(t *testing.T) {
 		assert.Nil(t, parseErr)
 		assert.Equal(t, 2, schema.Definitions.ForName("query").Fields.ForName("me").Type.Position.Line)
 	})
+	t.Run("type line number with comments", func(t *testing.T) {
+		schema, parseErr := ParseSchema(&ast.Source{
+			Input: `type query {
+            # comment
+						me: User
+					}
+			`,
+		})
+		assert.Nil(t, parseErr)
+		assert.Equal(t, 3, schema.Definitions.ForName("query").Fields.ForName("me").Type.Position.Line)
+	})
 }
