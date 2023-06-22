@@ -121,10 +121,7 @@ func (s *Lexer) ReadToken() (token Token, err error) {
 	case '|':
 		return s.makeValueToken(Pipe, "")
 	case '#':
-		if comment, err := s.readComment(); err != nil {
-			return comment, err
-		}
-		return s.ReadToken()
+		return s.readComment()
 
 	case '_', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z':
 		return s.readName()
