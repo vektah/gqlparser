@@ -55,12 +55,7 @@ func Test(t *testing.T, filename string, f func(t *testing.T, input string) Spec
 
 					if spec.Error == nil {
 						if result.Error != nil {
-							gqlErr, ok := err.(*gqlerror.Error)
-							if ok {
-								t.Errorf("unexpected error %s", gqlErr.Message)
-							} else {
-								t.Errorf("unexpected error %+v", gqlerror.Wrap(err))
-							}
+							t.Errorf("unexpected error %s", result.Error.Message)
 						}
 					} else if result.Error == nil {
 						t.Errorf("expected error but got none")
