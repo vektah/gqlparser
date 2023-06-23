@@ -35,6 +35,9 @@ func (p *parser) peek() lexer.Token {
 
 	if !p.peeked {
 		p.peekToken, p.peekError = p.lexer.ReadToken()
+		if p.peekToken.Kind == lexer.Comment {
+			return p.peek()
+		}
 		p.peeked = true
 	}
 
@@ -57,6 +60,9 @@ func (p *parser) next() lexer.Token {
 		p.prev, p.err = p.peekToken, p.peekError
 	} else {
 		p.prev, p.err = p.lexer.ReadToken()
+		if p.prev.Kind == lexer.Comment {
+			return p.next()
+		}
 	}
 	return p.prev
 }
