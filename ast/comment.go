@@ -34,3 +34,7 @@ func (c *CommentGroup) Text() string {
 	}
 	return builder.String()
 }
+
+func (c *CommentGroup) Dump() string {
+	return c.Text()
+}
