@@ -17,6 +17,39 @@ type parser struct {
 	peekError error
 
 	prev lexer.Token
+
+	comment *ast.CommentGroup
+}
+
+func (p *parser) consumeComment() (*ast.Comment, bool) {
+	if p.err != nil {
+		return nil, false
+	}
+	tok := p.peek()
+	if tok.Kind != lexer.Comment {
+		return nil, false
+	}
+	p.next()
+	return &ast.Comment{
+		Text:     tok.Value,
+		Position: &tok.Pos,
+	}, true
+}
+
+func (p *parser) consumeCommentGroup() {
+	if p.err != nil {
+		return
+	}
+	var comments []*ast.Comment
+	for {
+		comment, ok := p.consumeComment()
+		if !ok {
+			break
+		}
+		comments = append(comments, comment)
+	}
+
+	p.comment = &ast.CommentGroup{List: comments}
 }
 
 func (p *parser) peekPos() *ast.Position {
@@ -35,10 +68,10 @@ func (p *parser) peek() lexer.Token {
 
 	if !p.peeked {
 		p.peekToken, p.peekError = p.lexer.ReadToken()
-		if p.peekToken.Kind == lexer.Comment {
-			return p.peek()
-		}
 		p.peeked = true
+		if p.peekToken.Kind == lexer.Comment {
+			p.consumeCommentGroup()
+		}
 	}
 
 	return p.peekToken
@@ -57,11 +90,12 @@ func (p *parser) next() lexer.Token {
 	}
 	if p.peeked {
 		p.peeked = false
+		p.comment = nil
 		p.prev, p.err = p.peekToken, p.peekError
 	} else {
 		p.prev, p.err = p.lexer.ReadToken()
 		if p.prev.Kind == lexer.Comment {
-			return p.next()
+			p.consumeCommentGroup()
 		}
 	}
 	return p.prev
