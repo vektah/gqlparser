@@ -7,5 +7,6 @@ meow!
 type Cat {
 	# field description comment
 	"""Shiny brillian name."""
+	# field comment
 	name: String
 }

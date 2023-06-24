@@ -2,6 +2,7 @@ package parser
 
 import (
 	//nolint:revive
+
 	. "github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/lexer"
 )
@@ -204,6 +205,7 @@ func (p *parser) parseFieldDefinition() *FieldDefinition {
 		def.Description = desc.text
 	}
 
+	p.peek() // peek to set p.comment
 	def.AfterDescriptionComment = p.comment
 	def.Name = p.parseName()
 	def.Arguments = p.parseArgumentDefs()
@@ -232,6 +234,7 @@ func (p *parser) parseArgumentDef() *ArgumentDefinition {
 		def.Description = desc.text
 	}
 
+	p.peek() // peek to set p.comment
 	def.AfterDescriptionComment = p.comment
 	def.Name = p.parseName()
 	p.expect(lexer.Colon)
@@ -253,6 +256,7 @@ func (p *parser) parseInputValueDef() *FieldDefinition {
 		def.Description = desc.text
 	}
 
+	p.peek() // peek to set p.comment
 	def.AfterDescriptionComment = p.comment
 	def.Name = p.parseName()
 	p.expect(lexer.Colon)
@@ -341,6 +345,7 @@ func (p *parser) parseEnumValueDefinition() *EnumValueDefinition {
 		def.Description = desc.text
 	}
 
+	p.peek() // peek to set p.comment
 	def.AfterDescriptionComment = p.comment
 
 	def.Name = p.parseName()
