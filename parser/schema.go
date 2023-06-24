@@ -2,7 +2,6 @@ package parser
 
 import (
 	//nolint:revive
-	"github.com/vektah/gqlparser/v2/ast"
 	. "github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/lexer"
 )
@@ -361,7 +360,7 @@ func (p *parser) parseTypeSystemExtension(doc *SchemaDocument) {
 	}
 }
 
-func (p *parser) parseSchemaExtension(comment *ast.CommentGroup) *SchemaDefinition {
+func (p *parser) parseSchemaExtension(comment *CommentGroup) *SchemaDefinition {
 	p.expectKeyword("schema")
 
 	var def SchemaDefinition
@@ -377,7 +376,7 @@ func (p *parser) parseSchemaExtension(comment *ast.CommentGroup) *SchemaDefiniti
 	return &def
 }
 
-func (p *parser) parseScalarTypeExtension(comment *ast.CommentGroup) *Definition {
+func (p *parser) parseScalarTypeExtension(comment *CommentGroup) *Definition {
 	p.expectKeyword("scalar")
 
 	var def Definition
@@ -392,7 +391,7 @@ func (p *parser) parseScalarTypeExtension(comment *ast.CommentGroup) *Definition
 	return &def
 }
 
-func (p *parser) parseObjectTypeExtension(comment *ast.CommentGroup) *Definition {
+func (p *parser) parseObjectTypeExtension(comment *CommentGroup) *Definition {
 	p.expectKeyword("type")
 
 	var def Definition
@@ -409,7 +408,7 @@ func (p *parser) parseObjectTypeExtension(comment *ast.CommentGroup) *Definition
 	return &def
 }
 
-func (p *parser) parseInterfaceTypeExtension(comment *ast.CommentGroup) *Definition {
+func (p *parser) parseInterfaceTypeExtension(comment *CommentGroup) *Definition {
 	p.expectKeyword("interface")
 
 	var def Definition
@@ -425,7 +424,7 @@ func (p *parser) parseInterfaceTypeExtension(comment *ast.CommentGroup) *Definit
 	return &def
 }
 
-func (p *parser) parseUnionTypeExtension(comment *ast.CommentGroup) *Definition {
+func (p *parser) parseUnionTypeExtension(comment *CommentGroup) *Definition {
 	p.expectKeyword("union")
 
 	var def Definition
@@ -442,7 +441,7 @@ func (p *parser) parseUnionTypeExtension(comment *ast.CommentGroup) *Definition 
 	return &def
 }
 
-func (p *parser) parseEnumTypeExtension(comment *ast.CommentGroup) *Definition {
+func (p *parser) parseEnumTypeExtension(comment *CommentGroup) *Definition {
 	p.expectKeyword("enum")
 
 	var def Definition
@@ -458,7 +457,7 @@ func (p *parser) parseEnumTypeExtension(comment *ast.CommentGroup) *Definition {
 	return &def
 }
 
-func (p *parser) parseInputObjectTypeExtension(comment *ast.CommentGroup) *Definition {
+func (p *parser) parseInputObjectTypeExtension(comment *CommentGroup) *Definition {
 	p.expectKeyword("input")
 
 	var def Definition
