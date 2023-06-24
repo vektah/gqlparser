@@ -73,6 +73,9 @@ func (p *parser) parseSchemaDocument() *SchemaDocument {
 		}
 	}
 
+	// treat end of file comments
+	doc.Comment = p.comment
+
 	return &doc
 }
 

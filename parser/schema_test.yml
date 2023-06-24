@@ -25,6 +25,7 @@ object types:
         world: String
         # end of type comments
       }
+      # end of file comments
     ast: |
       <SchemaDocument>
         Definitions: [Definition]
@@ -38,6 +39,7 @@ object types:
                 AfterDescriptionComment: "# World\n# World another\n"
             AfterDescriptionComment: "# Hello\n# Hello another\n"
             EndOfDefinitionComment: "# end of type comments\n"
+        Comment: "# end of file comments\n"
 
   - name: with comments and description
     input: |
