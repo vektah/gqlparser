@@ -42,3 +42,5 @@ extend type Dog {
 	owner: Person! @permission(permission: "admin")
 	# end of type comment
 }
+# end of file comment
+# end of file comment 2

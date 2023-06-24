@@ -45,4 +45,5 @@ input Cat5 {
     name: String
     # end of Cat5 comment
 }
-
+# end of file comment
+# end of file comment 2

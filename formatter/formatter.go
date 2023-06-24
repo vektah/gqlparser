@@ -196,8 +196,6 @@ func (f *formatter) FormatSchemaDocument(doc *ast.SchemaDocument) {
 		return
 	}
 
-	f.FormatCommentGroup(doc.Comment)
-
 	f.FormatSchemaDefinitionList(doc.Schema, false)
 	f.FormatSchemaDefinitionList(doc.SchemaExtension, true)
 
@@ -205,6 +203,9 @@ func (f *formatter) FormatSchemaDocument(doc *ast.SchemaDocument) {
 
 	f.FormatDefinitionList(doc.Definitions, false)
 	f.FormatDefinitionList(doc.Extensions, true)
+
+	// doc.Comment is end of file comment, so emit last
+	f.FormatCommentGroup(doc.Comment)
 }
 
 func (f *formatter) FormatQueryDocument(doc *ast.QueryDocument) {
@@ -226,9 +227,10 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 	}
 
 	var (
-		beforeDescComment = new(ast.CommentGroup)
-		afterDescComment  = new(ast.CommentGroup)
-		description       string
+		beforeDescComment      = new(ast.CommentGroup)
+		afterDescComment       = new(ast.CommentGroup)
+		endOfDefinitionComment = new(ast.CommentGroup)
+		description            string
 	)
 
 	for _, def := range lists {
@@ -237,6 +239,9 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 		}
 		if def.AfterDescriptionComment != nil {
 			afterDescComment.List = append(afterDescComment.List, def.AfterDescriptionComment.List...)
+		}
+		if def.EndOfDefinitionComment != nil {
+			endOfDefinitionComment.List = append(endOfDefinitionComment.List, def.EndOfDefinitionComment.List...)
 		}
 		description += def.Description
 	}
@@ -254,6 +259,8 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 	for _, def := range lists {
 		f.FormatSchemaDefinition(def)
 	}
+
+	f.FormatCommentGroup(endOfDefinitionComment)
 
 	f.DecrementIndent()
 	f.WriteString("}").WriteNewline()

@@ -10,3 +10,5 @@ type Cat {
     # field comment
     name: String
 }
+# end of file comment
+# end of file comment 2

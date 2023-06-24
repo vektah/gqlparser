@@ -11,3 +11,5 @@ enum ConnectionStatus @foo {
 	ERROR
 }
 union PersonUnion @foo = Person
+# end of file comment
+# end of file comment 2

@@ -1,2 +1,4 @@
 directive @foo on FIELD | OBJECT
 directive @bar repeatable on FIELD | OBJECT
+# end of file comment
+# end of file comment 2
