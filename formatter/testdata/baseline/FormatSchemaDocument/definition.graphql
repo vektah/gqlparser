@@ -1,41 +1,39 @@
 # Cat0 comment
+# Cat0 comment 2
 scalar Cat0
 # Cat1 comment
 type Cat1 {
-  # Cat1 name comment
+	# Cat1 name comment
 	name: String
 }
-# Cat2 comment
 interface Cat2 {
-  # Cat2 name comment
+	# Cat2 name comment
 	name: String
 }
 # Cat3_0 comment
 type Cat3_0 {
-  # Cat3_0 name comment
+	# Cat3_0 name comment
 	name: String
 }
 # Cat3_1 comment
 type Cat3_1 {
-  # Cat3_1 name comment
+	# Cat3_1 name comment
 	name: String
 }
 # Cat3_2 comment
 type Cat3_2 {
-  # Cat3_2 name comment
+	# Cat3_2 name comment
 	name: String
 }
 # Cat3 comment
 union Cat3 = Cat3_0 | Cat3_1 | Cat3_2
 # Cat4 comment
 enum Cat4 {
-  # Cat4 NFC comment
 	NFC
-  # Cat4 MAINECOON comment
 	MAINECOON
 }
 # Cat5 comment
 input Cat5 {
-  # Cat5 name comment
+	# Cat5 name comment
 	name: String
 }
