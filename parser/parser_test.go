@@ -12,13 +12,16 @@ func TestParserUtils(t *testing.T) {
 	t.Run("test lookaround", func(t *testing.T) {
 		p := newParser("asdf 1.0 turtles")
 		require.Equal(t, "asdf", p.peek().Value)
-		require.Equal(t, "asdf", p.expectKeyword("asdf").Value)
+
+		tok, _ := p.expectKeyword("asdf")
+		require.Equal(t, "asdf", tok.Value)
 		require.Equal(t, "asdf", p.prev.Value)
 		require.Nil(t, p.err)
 
 		require.Equal(t, "1.0", p.peek().Value)
 		require.Equal(t, "1.0", p.peek().Value)
-		require.Equal(t, "1.0", p.expect(lexer.Float).Value)
+		tok, _ = p.expect(lexer.Float)
+		require.Equal(t, "1.0", tok.Value)
 		require.Equal(t, "1.0", p.prev.Value)
 		require.Nil(t, p.err)
 

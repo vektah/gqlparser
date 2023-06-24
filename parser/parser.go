@@ -101,24 +101,26 @@ func (p *parser) next() lexer.Token {
 	return p.prev
 }
 
-func (p *parser) expectKeyword(value string) lexer.Token {
+func (p *parser) expectKeyword(value string) (lexer.Token, *ast.CommentGroup) {
 	tok := p.peek()
+	comment := p.comment
 	if tok.Kind == lexer.Name && tok.Value == value {
-		return p.next()
+		return p.next(), comment
 	}
 
 	p.error(tok, "Expected %s, found %s", strconv.Quote(value), tok.String())
-	return tok
+	return tok, comment
 }
 
-func (p *parser) expect(kind lexer.Type) lexer.Token {
+func (p *parser) expect(kind lexer.Type) (lexer.Token, *ast.CommentGroup) {
 	tok := p.peek()
+	comment := p.comment
 	if tok.Kind == kind {
-		return p.next()
+		return p.next(), comment
 	}
 
 	p.error(tok, "Expected %s, found %s", kind, tok.Kind.String())
-	return tok
+	return tok, comment
 }
 
 func (p *parser) skip(kind lexer.Type) bool {

@@ -343,7 +343,7 @@ func (p *parser) parseTypeReference() *Type {
 }
 
 func (p *parser) parseName() string {
-	token := p.expect(lexer.Name)
+	token, _ := p.expect(lexer.Name)
 
 	return token.Value
 }
