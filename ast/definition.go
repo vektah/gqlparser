@@ -66,6 +66,7 @@ type FieldDefinition struct {
 	Type         *Type
 	Directives   DirectiveList
 	Position     *Position `dump:"-"`
+	Comment      *CommentGroup
 }
 
 type ArgumentDefinition struct {
@@ -75,6 +76,7 @@ type ArgumentDefinition struct {
 	Type         *Type
 	Directives   DirectiveList
 	Position     *Position `dump:"-"`
+	Comment      *CommentGroup
 }
 
 type EnumValueDefinition struct {
@@ -82,6 +84,7 @@ type EnumValueDefinition struct {
 	Name        string
 	Directives  DirectiveList
 	Position    *Position `dump:"-"`
+	Comment     *CommentGroup
 }
 
 type DirectiveDefinition struct {
@@ -91,4 +94,5 @@ type DirectiveDefinition struct {
 	Locations    []DirectiveLocation
 	IsRepeatable bool
 	Position     *Position `dump:"-"`
+	Comment      *CommentGroup
 }
