@@ -347,6 +347,30 @@ schema definition:
                 Operation: Operation("query")
                 Type: "Query"
 
+  - name: with comments and description
+    input: |
+      # before description comment
+      "description"
+      # after description comment
+      schema {
+        # before field comment
+        query: Query
+        # after field comment
+      }
+    ast: |
+      <SchemaDocument>
+        Schema: [SchemaDefinition]
+        - <SchemaDefinition>
+            Description: "description"
+            OperationTypes: [OperationTypeDefinition]
+            - <OperationTypeDefinition>
+                Operation: Operation("query")
+                Type: "Query"
+                Comment: "# before field comment\n"
+            BeforeDescriptionComment: "# before description comment\n"
+            AfterDescriptionComment: "# after description comment\n"
+            EndOfDefinitionComment: "# after field comment\n"
+
 schema extensions:
   - name: simple
     input: |
@@ -361,6 +385,26 @@ schema extensions:
             - <OperationTypeDefinition>
                 Operation: Operation("mutation")
                 Type: "Mutation"
+
+  - name: with comment and description
+    input: |
+      # before extend comment
+       extend schema {
+         # before field comment
+         mutation: Mutation
+         # after field comment
+       }
+    ast: |
+      <SchemaDocument>
+        SchemaExtension: [SchemaDefinition]
+        - <SchemaDefinition>
+            OperationTypes: [OperationTypeDefinition]
+            - <OperationTypeDefinition>
+                Operation: Operation("mutation")
+                Type: "Mutation"
+                Comment: "# before field comment\n"
+            AfterDescriptionComment: "# before extend comment\n"
+            EndOfDefinitionComment: "# after field comment\n"
 
   - name: directive only
     input: "extend schema @directive"

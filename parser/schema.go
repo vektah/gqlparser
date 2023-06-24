@@ -128,7 +128,7 @@ func (p *parser) parseSchemaDefinition(description descriptionWithComment) *Sche
 	def.AfterDescriptionComment = comment
 	def.Directives = p.parseDirectives(true)
 
-	p.some(lexer.BraceL, lexer.BraceR, func() {
+	def.EndOfDefinitionComment = p.some(lexer.BraceL, lexer.BraceR, func() {
 		def.OperationTypes = append(def.OperationTypes, p.parseOperationTypeDefinition())
 	})
 	return &def
@@ -409,7 +409,7 @@ func (p *parser) parseSchemaExtension(comment *CommentGroup) *SchemaDefinition {
 	def.Position = p.peekPos()
 	def.AfterDescriptionComment = comment
 	def.Directives = p.parseDirectives(true)
-	p.some(lexer.BraceL, lexer.BraceR, func() {
+	def.EndOfDefinitionComment = p.some(lexer.BraceL, lexer.BraceR, func() {
 		def.OperationTypes = append(def.OperationTypes, p.parseOperationTypeDefinition())
 	})
 	if len(def.Directives) == 0 && len(def.OperationTypes) == 0 {
