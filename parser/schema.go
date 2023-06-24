@@ -2,6 +2,7 @@ package parser
 
 import (
 	//nolint:revive
+	"github.com/vektah/gqlparser/v2/ast"
 	. "github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/lexer"
 )
@@ -338,30 +339,30 @@ func (p *parser) parseInputFieldsDefinition() FieldList {
 }
 
 func (p *parser) parseTypeSystemExtension(doc *SchemaDocument) {
-	p.expectKeyword("extend")
+	_, comment := p.expectKeyword("extend")
 
 	switch p.peek().Value {
 	case "schema":
-		doc.SchemaExtension = append(doc.SchemaExtension, p.parseSchemaExtension())
+		doc.SchemaExtension = append(doc.SchemaExtension, p.parseSchemaExtension(comment))
 	case "scalar":
-		doc.Extensions = append(doc.Extensions, p.parseScalarTypeExtension())
+		doc.Extensions = append(doc.Extensions, p.parseScalarTypeExtension(comment))
 	case "type":
-		doc.Extensions = append(doc.Extensions, p.parseObjectTypeExtension())
+		doc.Extensions = append(doc.Extensions, p.parseObjectTypeExtension(comment))
 	case "interface":
-		doc.Extensions = append(doc.Extensions, p.parseInterfaceTypeExtension())
+		doc.Extensions = append(doc.Extensions, p.parseInterfaceTypeExtension(comment))
 	case "union":
-		doc.Extensions = append(doc.Extensions, p.parseUnionTypeExtension())
+		doc.Extensions = append(doc.Extensions, p.parseUnionTypeExtension(comment))
 	case "enum":
-		doc.Extensions = append(doc.Extensions, p.parseEnumTypeExtension())
+		doc.Extensions = append(doc.Extensions, p.parseEnumTypeExtension(comment))
 	case "input":
-		doc.Extensions = append(doc.Extensions, p.parseInputObjectTypeExtension())
+		doc.Extensions = append(doc.Extensions, p.parseInputObjectTypeExtension(comment))
 	default:
 		p.unexpectedError()
 	}
 }
 
-func (p *parser) parseSchemaExtension() *SchemaDefinition {
-	_, comment := p.expectKeyword("schema")
+func (p *parser) parseSchemaExtension(comment *ast.CommentGroup) *SchemaDefinition {
+	p.expectKeyword("schema")
 
 	var def SchemaDefinition
 	def.Position = p.peekPos()
@@ -376,8 +377,8 @@ func (p *parser) parseSchemaExtension() *SchemaDefinition {
 	return &def
 }
 
-func (p *parser) parseScalarTypeExtension() *Definition {
-	_, comment := p.expectKeyword("scalar")
+func (p *parser) parseScalarTypeExtension(comment *ast.CommentGroup) *Definition {
+	p.expectKeyword("scalar")
 
 	var def Definition
 	def.Position = p.peekPos()
@@ -391,8 +392,8 @@ func (p *parser) parseScalarTypeExtension() *Definition {
 	return &def
 }
 
-func (p *parser) parseObjectTypeExtension() *Definition {
-	_, comment := p.expectKeyword("type")
+func (p *parser) parseObjectTypeExtension(comment *ast.CommentGroup) *Definition {
+	p.expectKeyword("type")
 
 	var def Definition
 	def.Position = p.peekPos()
@@ -408,8 +409,8 @@ func (p *parser) parseObjectTypeExtension() *Definition {
 	return &def
 }
 
-func (p *parser) parseInterfaceTypeExtension() *Definition {
-	_, comment := p.expectKeyword("interface")
+func (p *parser) parseInterfaceTypeExtension(comment *ast.CommentGroup) *Definition {
+	p.expectKeyword("interface")
 
 	var def Definition
 	def.Position = p.peekPos()
@@ -424,8 +425,8 @@ func (p *parser) parseInterfaceTypeExtension() *Definition {
 	return &def
 }
 
-func (p *parser) parseUnionTypeExtension() *Definition {
-	_, comment := p.expectKeyword("union")
+func (p *parser) parseUnionTypeExtension(comment *ast.CommentGroup) *Definition {
+	p.expectKeyword("union")
 
 	var def Definition
 	def.Position = p.peekPos()
@@ -441,8 +442,8 @@ func (p *parser) parseUnionTypeExtension() *Definition {
 	return &def
 }
 
-func (p *parser) parseEnumTypeExtension() *Definition {
-	_, comment := p.expectKeyword("enum")
+func (p *parser) parseEnumTypeExtension(comment *ast.CommentGroup) *Definition {
+	p.expectKeyword("enum")
 
 	var def Definition
 	def.Position = p.peekPos()
@@ -457,8 +458,8 @@ func (p *parser) parseEnumTypeExtension() *Definition {
 	return &def
 }
 
-func (p *parser) parseInputObjectTypeExtension() *Definition {
-	_, comment := p.expectKeyword("input")
+func (p *parser) parseInputObjectTypeExtension(comment *ast.CommentGroup) *Definition {
+	p.expectKeyword("input")
 
 	var def Definition
 	def.Position = p.peekPos()

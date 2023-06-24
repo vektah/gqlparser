@@ -167,6 +167,7 @@ object types:
 type extensions:
   - name: Object extension
     input: |
+      # comment
       extend type Hello {
         world: String
       }
@@ -180,6 +181,7 @@ type extensions:
             - <FieldDefinition>
                 Name: "world"
                 Type: String
+            Comment: # comment
 
   - name: without any fields
     input: "extend type Hello implements Greeting"
