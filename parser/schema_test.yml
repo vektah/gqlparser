@@ -37,6 +37,38 @@ object types:
                 AfterDescriptionComment: "# World\n# World another\n"
             AfterDescriptionComment: "# Hello\n# Hello another\n"
 
+  - name: with comments and description
+    input: |
+      # Hello
+      # Hello another
+      "type description"
+      # Hello after description
+      # Hello after description another
+      type Hello {
+        # World
+        # World another
+        "field description"
+        # World after description
+        # World after description another
+        world: String
+      }
+    ast: |
+      <SchemaDocument>
+        Definitions: [Definition]
+        - <Definition>
+            Kind: DefinitionKind("OBJECT")
+            Description: "type description"
+            Name: "Hello"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Description: "field description"
+                Name: "world"
+                Type: String
+                BeforeDescriptionComment: "# World\n# World another\n"
+                AfterDescriptionComment: "# World after description\n# World after description another\n"
+            BeforeDescriptionComment: "# Hello\n# Hello another\n"
+            AfterDescriptionComment: "# Hello after description\n# Hello after description another\n"
+
   - name: with description
     input: |
       "Description"
