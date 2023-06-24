@@ -1,7 +1,14 @@
+# before schema description comment
+"schema description"
+# after schema description comment
 schema {
+  # before query comment
 	query: TopQuery
+  # before mutation comment
 	mutation: TopMutation
+  # before subscription comment
 	subscription: TopSubscription
+  # end of schema comment
 }
 
 type TopMutation {

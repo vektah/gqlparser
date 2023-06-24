@@ -225,6 +225,26 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 		return
 	}
 
+	var (
+		beforeDescComment = new(ast.CommentGroup)
+		afterDescComment  = new(ast.CommentGroup)
+		description       string
+	)
+
+	for _, def := range lists {
+		if def.BeforeDescriptionComment != nil {
+			beforeDescComment.List = append(beforeDescComment.List, def.BeforeDescriptionComment.List...)
+		}
+		if def.AfterDescriptionComment != nil {
+			afterDescComment.List = append(afterDescComment.List, def.AfterDescriptionComment.List...)
+		}
+		description += def.Description
+	}
+
+	f.FormatCommentGroup(beforeDescComment)
+	f.WriteDescription(description)
+	f.FormatCommentGroup(afterDescComment)
+
 	if extension {
 		f.WriteWord("extend")
 	}
@@ -240,12 +260,6 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 }
 
 func (f *formatter) FormatSchemaDefinition(def *ast.SchemaDefinition) {
-	f.FormatCommentGroup(def.BeforeDescriptionComment)
-
-	f.WriteDescription(def.Description)
-
-	f.FormatCommentGroup(def.AfterDescriptionComment)
-
 	f.FormatDirectiveList(def.Directives)
 
 	f.FormatOperationTypeDefinitionList(def.OperationTypes)
