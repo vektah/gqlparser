@@ -18,7 +18,8 @@ type parser struct {
 
 	prev lexer.Token
 
-	comment *ast.CommentGroup
+	comment          *ast.CommentGroup
+	commentConsuming bool
 }
 
 func (p *parser) consumeComment() (*ast.Comment, bool) {
@@ -31,7 +32,7 @@ func (p *parser) consumeComment() (*ast.Comment, bool) {
 	}
 	p.next()
 	return &ast.Comment{
-		Text:     tok.Value,
+		Value:    tok.Value,
 		Position: &tok.Pos,
 	}, true
 }
@@ -40,6 +41,11 @@ func (p *parser) consumeCommentGroup() {
 	if p.err != nil {
 		return
 	}
+	if p.commentConsuming {
+		return
+	}
+	p.commentConsuming = true
+
 	var comments []*ast.Comment
 	for {
 		comment, ok := p.consumeComment()
@@ -50,6 +56,7 @@ func (p *parser) consumeCommentGroup() {
 	}
 
 	p.comment = &ast.CommentGroup{List: comments}
+	p.commentConsuming = false
 }
 
 func (p *parser) peekPos() *ast.Position {

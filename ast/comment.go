@@ -1,11 +1,19 @@
 package ast
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 type Comment struct {
-	Text     string
+	Value    string
 	Position *Position
 }
+
+func (c *Comment) Text() string {
+	return strings.TrimSpace(strings.TrimPrefix(c.Value, "#"))
+}
+
 type CommentGroup struct {
 	List []*Comment
 }
@@ -25,16 +33,25 @@ func (c *CommentGroup) End() int {
 }
 
 func (c *CommentGroup) Text() string {
-	if len(c.List) == 0 {
+	if c == nil || len(c.List) == 0 {
 		return ""
 	}
 	var builder strings.Builder
 	for _, comment := range c.List {
-		builder.WriteString(comment.Text)
+		builder.WriteString(comment.Text())
+		builder.WriteString("\n")
 	}
 	return builder.String()
 }
 
 func (c *CommentGroup) Dump() string {
-	return c.Text()
+	if len(c.List) == 0 {
+		return ""
+	}
+	var builder strings.Builder
+	for _, comment := range c.List {
+		builder.WriteString(comment.Value)
+		builder.WriteString("\n")
+	}
+	return strconv.Quote(builder.String())
 }

@@ -18,8 +18,10 @@ object types:
   - name: with comments
     input: |
       # Hello
+      # Hello another
       type Hello {
         # World
+        # World another
         world: String
       }
     ast: |
@@ -32,8 +34,8 @@ object types:
             - <FieldDefinition>
                 Name: "world"
                 Type: String
-                Comment: # World
-            Comment: # Hello
+                Comment: "# World\n# World another\n"
+            Comment: "# Hello\n# Hello another\n"
 
   - name: with description
     input: |
@@ -73,7 +75,7 @@ object types:
             - <FieldDefinition>
                 Name: "world"
                 Type: String
-            Comment: # Even with comments between them
+            Comment: "# Even with comments between them\n"
   - name: with field arg
     input: |
       type Hello {
@@ -181,7 +183,7 @@ type extensions:
             - <FieldDefinition>
                 Name: "world"
                 Type: String
-            Comment: # comment
+            Comment: "# comment\n"
 
   - name: without any fields
     input: "extend type Hello implements Greeting"
