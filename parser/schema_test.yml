@@ -23,6 +23,7 @@ object types:
         # World
         # World another
         world: String
+        # end of type comments
       }
     ast: |
       <SchemaDocument>
@@ -36,6 +37,7 @@ object types:
                 Type: String
                 AfterDescriptionComment: "# World\n# World another\n"
             AfterDescriptionComment: "# Hello\n# Hello another\n"
+            EndOfDefinitionComment: "# end of type comments\n"
 
   - name: with comments and description
     input: |
@@ -51,6 +53,8 @@ object types:
         # World after description
         # World after description another
         world: String
+        # end of definition coments
+        # end of definition comments another
       }
     ast: |
       <SchemaDocument>
@@ -68,6 +72,7 @@ object types:
                 AfterDescriptionComment: "# World after description\n# World after description another\n"
             BeforeDescriptionComment: "# Hello\n# Hello another\n"
             AfterDescriptionComment: "# Hello after description\n# Hello after description another\n"
+            EndOfDefinitionComment: "# end of definition coments\n# end of definition comments another\n"
 
   - name: with description
     input: |
@@ -205,7 +210,9 @@ type extensions:
     input: |
       # comment
       extend type Hello {
+        # comment world
         world: String
+        # end of definition comment
       }
     ast: |
       <SchemaDocument>
@@ -217,7 +224,9 @@ type extensions:
             - <FieldDefinition>
                 Name: "world"
                 Type: String
+                AfterDescriptionComment: "# comment world\n"
             AfterDescriptionComment: "# comment\n"
+            EndOfDefinitionComment: "# end of definition comment\n"
 
   - name: without any fields
     input: "extend type Hello implements Greeting"
