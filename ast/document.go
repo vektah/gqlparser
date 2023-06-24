@@ -74,7 +74,9 @@ type SchemaDefinition struct {
 	Directives     DirectiveList
 	OperationTypes OperationTypeDefinitionList
 	Position       *Position `dump:"-"`
-	Comment        *CommentGroup
+
+	BeforeDescriptionComment *CommentGroup
+	AfterDescriptionComment  *CommentGroup
 }
 
 type OperationTypeDefinition struct {

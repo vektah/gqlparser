@@ -6,6 +6,7 @@ type Cat1 {
 	# Cat1 name comment
 	name: String
 }
+# Cat2 comment
 interface Cat2 {
 	# Cat2 name comment
 	name: String
@@ -29,7 +30,9 @@ type Cat3_2 {
 }
 # Cat4 comment
 enum Cat4 {
+	# Cat4 NFC comment
 	NFC
+	# Cat4 MAINECOON comment
 	MAINECOON
 }
 # Cat5 comment

@@ -240,9 +240,11 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 }
 
 func (f *formatter) FormatSchemaDefinition(def *ast.SchemaDefinition) {
-	f.FormatCommentGroup(def.Comment)
+	f.FormatCommentGroup(def.BeforeDescriptionComment)
 
 	f.WriteDescription(def.Description)
+
+	f.FormatCommentGroup(def.AfterDescriptionComment)
 
 	f.FormatDirectiveList(def.Directives)
 
@@ -283,9 +285,11 @@ func (f *formatter) FormatFieldDefinition(field *ast.FieldDefinition) {
 		return
 	}
 
-	f.FormatCommentGroup(field.Comment)
+	f.FormatCommentGroup(field.BeforeDescriptionComment)
 
 	f.WriteDescription(field.Description)
+
+	f.FormatCommentGroup(field.AfterDescriptionComment)
 
 	f.WriteWord(field.Name).NoPadding()
 	f.FormatArgumentDefinitionList(field.Arguments)
@@ -321,12 +325,14 @@ func (f *formatter) FormatArgumentDefinitionList(lists ast.ArgumentDefinitionLis
 }
 
 func (f *formatter) FormatArgumentDefinition(def *ast.ArgumentDefinition) {
-	f.FormatCommentGroup(def.Comment)
+	f.FormatCommentGroup(def.BeforeDescriptionComment)
 
 	if def.Description != "" {
 		f.WriteNewline().IncrementIndent()
 		f.WriteDescription(def.Description)
 	}
+
+	f.FormatCommentGroup(def.AfterDescriptionComment)
 
 	f.WriteWord(def.Name).NoPadding().WriteString(":").NeedPadding()
 	f.FormatType(def.Type)
@@ -365,9 +371,12 @@ func (f *formatter) FormatDirectiveDefinition(def *ast.DirectiveDefinition) {
 		}
 	}
 
-	f.FormatCommentGroup(def.Comment)
+	f.FormatCommentGroup(def.BeforeDescriptionComment)
 
 	f.WriteDescription(def.Description)
+
+	f.FormatCommentGroup(def.AfterDescriptionComment)
+
 	f.WriteWord("directive").WriteString("@").WriteWord(def.Name)
 
 	if len(def.Arguments) != 0 {
@@ -409,9 +418,11 @@ func (f *formatter) FormatDefinition(def *ast.Definition, extend bool) {
 		return
 	}
 
-	f.FormatCommentGroup(def.Comment)
+	f.FormatCommentGroup(def.BeforeDescriptionComment)
 
 	f.WriteDescription(def.Description)
+
+	f.FormatCommentGroup(def.AfterDescriptionComment)
 
 	if extend {
 		f.WriteWord("extend")
@@ -471,9 +482,11 @@ func (f *formatter) FormatEnumValueList(lists ast.EnumValueList) {
 }
 
 func (f *formatter) FormatEnumValueDefinition(def *ast.EnumValueDefinition) {
-	f.FormatCommentGroup(def.Comment)
+	f.FormatCommentGroup(def.BeforeDescriptionComment)
 
 	f.WriteDescription(def.Description)
+
+	f.FormatCommentGroup(def.AfterDescriptionComment)
 
 	f.WriteWord(def.Name)
 	f.FormatDirectiveList(def.Directives)
