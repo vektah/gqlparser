@@ -1,8 +1,12 @@
+# description comment
 """
 Cat is best kawaii animal in the world.
 meow!
 """
+# type comment
 type Cat {
+	# field description comment
 	"""Shiny brillian name."""
+	# field comment
 	name: String
 }

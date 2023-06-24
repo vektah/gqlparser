@@ -45,7 +45,7 @@ func (p *parser) parseSchemaDocument() *SchemaDocument {
 			return nil
 		}
 
-		var description string
+		var description descriptionWithComment
 		if p.peek().Kind == lexer.BlockString || p.peek().Kind == lexer.String {
 			description = p.parseDescription()
 		}
@@ -63,7 +63,7 @@ func (p *parser) parseSchemaDocument() *SchemaDocument {
 		case "directive":
 			doc.Directives = append(doc.Directives, p.parseDirectiveDefinition(description))
 		case "extend":
-			if description != "" {
+			if description.text != "" {
 				p.unexpectedToken(p.prev)
 			}
 			p.parseTypeSystemExtension(&doc)
@@ -76,17 +76,20 @@ func (p *parser) parseSchemaDocument() *SchemaDocument {
 	return &doc
 }
 
-func (p *parser) parseDescription() string {
+func (p *parser) parseDescription() descriptionWithComment {
 	token := p.peek()
 
+	var desc descriptionWithComment
 	if token.Kind != lexer.BlockString && token.Kind != lexer.String {
-		return ""
+		return desc
 	}
 
-	return p.next().Value
+	desc.comment = p.comment
+	desc.text = p.next().Value
+	return desc
 }
 
-func (p *parser) parseTypeSystemDefinition(description string) *Definition {
+func (p *parser) parseTypeSystemDefinition(description descriptionWithComment) *Definition {
 	tok := p.peek()
 	if tok.Kind != lexer.Name {
 		p.unexpectedError()
@@ -112,12 +115,14 @@ func (p *parser) parseTypeSystemDefinition(description string) *Definition {
 	}
 }
 
-func (p *parser) parseSchemaDefinition(description string) *SchemaDefinition {
-	p.expectKeyword("schema")
+func (p *parser) parseSchemaDefinition(description descriptionWithComment) *SchemaDefinition {
+	_, comment := p.expectKeyword("schema")
 
-	def := SchemaDefinition{Description: description}
+	def := SchemaDefinition{}
 	def.Position = p.peekPos()
-	def.Description = description
+	def.BeforeDescriptionComment = description.comment
+	def.Description = description.text
+	def.AfterDescriptionComment = comment
 	def.Directives = p.parseDirectives(true)
 
 	p.some(lexer.BraceL, lexer.BraceR, func() {
@@ -129,31 +134,36 @@ func (p *parser) parseSchemaDefinition(description string) *SchemaDefinition {
 func (p *parser) parseOperationTypeDefinition() *OperationTypeDefinition {
 	var op OperationTypeDefinition
 	op.Position = p.peekPos()
+	op.Comment = p.comment
 	op.Operation = p.parseOperationType()
 	p.expect(lexer.Colon)
 	op.Type = p.parseName()
 	return &op
 }
 
-func (p *parser) parseScalarTypeDefinition(description string) *Definition {
-	p.expectKeyword("scalar")
+func (p *parser) parseScalarTypeDefinition(description descriptionWithComment) *Definition {
+	_, comment := p.expectKeyword("scalar")
 
 	var def Definition
 	def.Position = p.peekPos()
+	def.BeforeDescriptionComment = description.comment
+	def.Description = description.text
+	def.AfterDescriptionComment = comment
 	def.Kind = Scalar
-	def.Description = description
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	return &def
 }
 
-func (p *parser) parseObjectTypeDefinition(description string) *Definition {
-	p.expectKeyword("type")
+func (p *parser) parseObjectTypeDefinition(description descriptionWithComment) *Definition {
+	_, comment := p.expectKeyword("type")
 
 	var def Definition
 	def.Position = p.peekPos()
 	def.Kind = Object
-	def.Description = description
+	def.BeforeDescriptionComment = description.comment
+	def.Description = description.text
+	def.AfterDescriptionComment = comment
 	def.Name = p.parseName()
 	def.Interfaces = p.parseImplementsInterfaces()
 	def.Directives = p.parseDirectives(true)
@@ -187,7 +197,15 @@ func (p *parser) parseFieldsDefinition() FieldList {
 func (p *parser) parseFieldDefinition() *FieldDefinition {
 	var def FieldDefinition
 	def.Position = p.peekPos()
-	def.Description = p.parseDescription()
+
+	desc := p.parseDescription()
+	if desc.text != "" {
+		def.BeforeDescriptionComment = desc.comment
+		def.Description = desc.text
+	}
+
+	p.peek() // peek to set p.comment
+	def.AfterDescriptionComment = p.comment
 	def.Name = p.parseName()
 	def.Arguments = p.parseArgumentDefs()
 	p.expect(lexer.Colon)
@@ -208,7 +226,15 @@ func (p *parser) parseArgumentDefs() ArgumentDefinitionList {
 func (p *parser) parseArgumentDef() *ArgumentDefinition {
 	var def ArgumentDefinition
 	def.Position = p.peekPos()
-	def.Description = p.parseDescription()
+
+	desc := p.parseDescription()
+	if desc.text != "" {
+		def.BeforeDescriptionComment = desc.comment
+		def.Description = desc.text
+	}
+
+	p.peek() // peek to set p.comment
+	def.AfterDescriptionComment = p.comment
 	def.Name = p.parseName()
 	p.expect(lexer.Colon)
 	def.Type = p.parseTypeReference()
@@ -222,7 +248,15 @@ func (p *parser) parseArgumentDef() *ArgumentDefinition {
 func (p *parser) parseInputValueDef() *FieldDefinition {
 	var def FieldDefinition
 	def.Position = p.peekPos()
-	def.Description = p.parseDescription()
+
+	desc := p.parseDescription()
+	if desc.text != "" {
+		def.BeforeDescriptionComment = desc.comment
+		def.Description = desc.text
+	}
+
+	p.peek() // peek to set p.comment
+	def.AfterDescriptionComment = p.comment
 	def.Name = p.parseName()
 	p.expect(lexer.Colon)
 	def.Type = p.parseTypeReference()
@@ -233,13 +267,15 @@ func (p *parser) parseInputValueDef() *FieldDefinition {
 	return &def
 }
 
-func (p *parser) parseInterfaceTypeDefinition(description string) *Definition {
-	p.expectKeyword("interface")
+func (p *parser) parseInterfaceTypeDefinition(description descriptionWithComment) *Definition {
+	_, comment := p.expectKeyword("interface")
 
 	var def Definition
 	def.Position = p.peekPos()
 	def.Kind = Interface
-	def.Description = description
+	def.BeforeDescriptionComment = description.comment
+	def.Description = description.text
+	def.AfterDescriptionComment = comment
 	def.Name = p.parseName()
 	def.Interfaces = p.parseImplementsInterfaces()
 	def.Directives = p.parseDirectives(true)
@@ -247,13 +283,15 @@ func (p *parser) parseInterfaceTypeDefinition(description string) *Definition {
 	return &def
 }
 
-func (p *parser) parseUnionTypeDefinition(description string) *Definition {
-	p.expectKeyword("union")
+func (p *parser) parseUnionTypeDefinition(description descriptionWithComment) *Definition {
+	_, comment := p.expectKeyword("union")
 
 	var def Definition
 	def.Position = p.peekPos()
 	def.Kind = Union
-	def.Description = description
+	def.BeforeDescriptionComment = description.comment
+	def.Description = description.text
+	def.AfterDescriptionComment = comment
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	def.Types = p.parseUnionMemberTypes()
@@ -274,13 +312,15 @@ func (p *parser) parseUnionMemberTypes() []string {
 	return types
 }
 
-func (p *parser) parseEnumTypeDefinition(description string) *Definition {
-	p.expectKeyword("enum")
+func (p *parser) parseEnumTypeDefinition(description descriptionWithComment) *Definition {
+	_, comment := p.expectKeyword("enum")
 
 	var def Definition
 	def.Position = p.peekPos()
 	def.Kind = Enum
-	def.Description = description
+	def.BeforeDescriptionComment = description.comment
+	def.Description = description.text
+	def.AfterDescriptionComment = comment
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	def.EnumValues = p.parseEnumValuesDefinition()
@@ -296,21 +336,32 @@ func (p *parser) parseEnumValuesDefinition() EnumValueList {
 }
 
 func (p *parser) parseEnumValueDefinition() *EnumValueDefinition {
-	return &EnumValueDefinition{
-		Position:    p.peekPos(),
-		Description: p.parseDescription(),
-		Name:        p.parseName(),
-		Directives:  p.parseDirectives(true),
+	var def EnumValueDefinition
+	def.Position = p.peekPos()
+	desc := p.parseDescription()
+	if desc.text != "" {
+		def.BeforeDescriptionComment = desc.comment
+		def.Description = desc.text
 	}
+
+	p.peek() // peek to set p.comment
+	def.AfterDescriptionComment = p.comment
+
+	def.Name = p.parseName()
+	def.Directives = p.parseDirectives(true)
+
+	return &def
 }
 
-func (p *parser) parseInputObjectTypeDefinition(description string) *Definition {
-	p.expectKeyword("input")
+func (p *parser) parseInputObjectTypeDefinition(description descriptionWithComment) *Definition {
+	_, comment := p.expectKeyword("input")
 
 	var def Definition
 	def.Position = p.peekPos()
 	def.Kind = InputObject
-	def.Description = description
+	def.BeforeDescriptionComment = description.comment
+	def.Description = description.text
+	def.AfterDescriptionComment = comment
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
 	def.Fields = p.parseInputFieldsDefinition()
@@ -326,33 +377,34 @@ func (p *parser) parseInputFieldsDefinition() FieldList {
 }
 
 func (p *parser) parseTypeSystemExtension(doc *SchemaDocument) {
-	p.expectKeyword("extend")
+	_, comment := p.expectKeyword("extend")
 
 	switch p.peek().Value {
 	case "schema":
-		doc.SchemaExtension = append(doc.SchemaExtension, p.parseSchemaExtension())
+		doc.SchemaExtension = append(doc.SchemaExtension, p.parseSchemaExtension(comment))
 	case "scalar":
-		doc.Extensions = append(doc.Extensions, p.parseScalarTypeExtension())
+		doc.Extensions = append(doc.Extensions, p.parseScalarTypeExtension(comment))
 	case "type":
-		doc.Extensions = append(doc.Extensions, p.parseObjectTypeExtension())
+		doc.Extensions = append(doc.Extensions, p.parseObjectTypeExtension(comment))
 	case "interface":
-		doc.Extensions = append(doc.Extensions, p.parseInterfaceTypeExtension())
+		doc.Extensions = append(doc.Extensions, p.parseInterfaceTypeExtension(comment))
 	case "union":
-		doc.Extensions = append(doc.Extensions, p.parseUnionTypeExtension())
+		doc.Extensions = append(doc.Extensions, p.parseUnionTypeExtension(comment))
 	case "enum":
-		doc.Extensions = append(doc.Extensions, p.parseEnumTypeExtension())
+		doc.Extensions = append(doc.Extensions, p.parseEnumTypeExtension(comment))
 	case "input":
-		doc.Extensions = append(doc.Extensions, p.parseInputObjectTypeExtension())
+		doc.Extensions = append(doc.Extensions, p.parseInputObjectTypeExtension(comment))
 	default:
 		p.unexpectedError()
 	}
 }
 
-func (p *parser) parseSchemaExtension() *SchemaDefinition {
+func (p *parser) parseSchemaExtension(comment *CommentGroup) *SchemaDefinition {
 	p.expectKeyword("schema")
 
 	var def SchemaDefinition
 	def.Position = p.peekPos()
+	def.AfterDescriptionComment = comment
 	def.Directives = p.parseDirectives(true)
 	p.some(lexer.BraceL, lexer.BraceR, func() {
 		def.OperationTypes = append(def.OperationTypes, p.parseOperationTypeDefinition())
@@ -363,11 +415,12 @@ func (p *parser) parseSchemaExtension() *SchemaDefinition {
 	return &def
 }
 
-func (p *parser) parseScalarTypeExtension() *Definition {
+func (p *parser) parseScalarTypeExtension(comment *CommentGroup) *Definition {
 	p.expectKeyword("scalar")
 
 	var def Definition
 	def.Position = p.peekPos()
+	def.AfterDescriptionComment = comment
 	def.Kind = Scalar
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
@@ -377,11 +430,12 @@ func (p *parser) parseScalarTypeExtension() *Definition {
 	return &def
 }
 
-func (p *parser) parseObjectTypeExtension() *Definition {
+func (p *parser) parseObjectTypeExtension(comment *CommentGroup) *Definition {
 	p.expectKeyword("type")
 
 	var def Definition
 	def.Position = p.peekPos()
+	def.AfterDescriptionComment = comment
 	def.Kind = Object
 	def.Name = p.parseName()
 	def.Interfaces = p.parseImplementsInterfaces()
@@ -393,11 +447,12 @@ func (p *parser) parseObjectTypeExtension() *Definition {
 	return &def
 }
 
-func (p *parser) parseInterfaceTypeExtension() *Definition {
+func (p *parser) parseInterfaceTypeExtension(comment *CommentGroup) *Definition {
 	p.expectKeyword("interface")
 
 	var def Definition
 	def.Position = p.peekPos()
+	def.AfterDescriptionComment = comment
 	def.Kind = Interface
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
@@ -408,11 +463,12 @@ func (p *parser) parseInterfaceTypeExtension() *Definition {
 	return &def
 }
 
-func (p *parser) parseUnionTypeExtension() *Definition {
+func (p *parser) parseUnionTypeExtension(comment *CommentGroup) *Definition {
 	p.expectKeyword("union")
 
 	var def Definition
 	def.Position = p.peekPos()
+	def.AfterDescriptionComment = comment
 	def.Kind = Union
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
@@ -424,11 +480,12 @@ func (p *parser) parseUnionTypeExtension() *Definition {
 	return &def
 }
 
-func (p *parser) parseEnumTypeExtension() *Definition {
+func (p *parser) parseEnumTypeExtension(comment *CommentGroup) *Definition {
 	p.expectKeyword("enum")
 
 	var def Definition
 	def.Position = p.peekPos()
+	def.AfterDescriptionComment = comment
 	def.Kind = Enum
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
@@ -439,11 +496,12 @@ func (p *parser) parseEnumTypeExtension() *Definition {
 	return &def
 }
 
-func (p *parser) parseInputObjectTypeExtension() *Definition {
+func (p *parser) parseInputObjectTypeExtension(comment *CommentGroup) *Definition {
 	p.expectKeyword("input")
 
 	var def Definition
 	def.Position = p.peekPos()
+	def.AfterDescriptionComment = comment
 	def.Kind = InputObject
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(false)
@@ -454,13 +512,15 @@ func (p *parser) parseInputObjectTypeExtension() *Definition {
 	return &def
 }
 
-func (p *parser) parseDirectiveDefinition(description string) *DirectiveDefinition {
-	p.expectKeyword("directive")
+func (p *parser) parseDirectiveDefinition(description descriptionWithComment) *DirectiveDefinition {
+	_, comment := p.expectKeyword("directive")
 	p.expect(lexer.At)
 
 	var def DirectiveDefinition
 	def.Position = p.peekPos()
-	def.Description = description
+	def.BeforeDescriptionComment = description.comment
+	def.Description = description.text
+	def.AfterDescriptionComment = comment
 	def.Name = p.parseName()
 	def.Arguments = p.parseArgumentDefs()
 
@@ -487,7 +547,7 @@ func (p *parser) parseDirectiveLocations() []DirectiveLocation {
 }
 
 func (p *parser) parseDirectiveLocation() DirectiveLocation {
-	name := p.expect(lexer.Name)
+	name, _ := p.expect(lexer.Name)
 
 	switch name.Value {
 	case `QUERY`:
@@ -532,4 +592,9 @@ func (p *parser) parseDirectiveLocation() DirectiveLocation {
 
 	p.unexpectedToken(name)
 	return ""
+}
+
+type descriptionWithComment struct {
+	text    string
+	comment *CommentGroup
 }

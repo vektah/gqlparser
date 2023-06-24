@@ -1,6 +1,10 @@
+# FooBarQuery comment
 query FooBarQuery ($after: String!) {
+    # fizzList comment
     fizzList(first: 100, after: $after) {
+        # nodes comment
         nodes {
+            # id comment
             id
         }
     }
