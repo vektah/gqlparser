@@ -264,7 +264,7 @@ func (f *formatter) FormatOperationTypeDefinition(def *ast.OperationTypeDefiniti
 	f.WriteNewline()
 }
 
-func (f *formatter) FormatFieldList(fieldList ast.FieldList) {
+func (f *formatter) FormatFieldList(fieldList ast.FieldList, endOfDefComment *ast.CommentGroup) {
 	if len(fieldList) == 0 {
 		return
 	}
@@ -275,6 +275,8 @@ func (f *formatter) FormatFieldList(fieldList ast.FieldList) {
 	for _, field := range fieldList {
 		f.FormatFieldDefinition(field)
 	}
+
+	f.FormatCommentGroup(endOfDefComment)
 
 	f.DecrementIndent()
 	f.WriteString("}")
@@ -458,14 +460,14 @@ func (f *formatter) FormatDefinition(def *ast.Definition, extend bool) {
 		f.WriteWord("=").WriteWord(strings.Join(def.Types, " | "))
 	}
 
-	f.FormatFieldList(def.Fields)
+	f.FormatFieldList(def.Fields, def.EndOfDefinitionComment)
 
-	f.FormatEnumValueList(def.EnumValues)
+	f.FormatEnumValueList(def.EnumValues, def.EndOfDefinitionComment)
 
 	f.WriteNewline()
 }
 
-func (f *formatter) FormatEnumValueList(lists ast.EnumValueList) {
+func (f *formatter) FormatEnumValueList(lists ast.EnumValueList, endOfDefComment *ast.CommentGroup) {
 	if len(lists) == 0 {
 		return
 	}
@@ -476,6 +478,8 @@ func (f *formatter) FormatEnumValueList(lists ast.EnumValueList) {
 	for _, v := range lists {
 		f.FormatEnumValueDefinition(v)
 	}
+
+	f.FormatCommentGroup(endOfDefComment)
 
 	f.DecrementIndent()
 	f.WriteString("}")

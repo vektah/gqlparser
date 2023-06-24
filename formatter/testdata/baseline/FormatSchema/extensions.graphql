@@ -10,19 +10,23 @@ type Dog {
 	name: String!
 	# Dog owner comment
 	owner: Person! @permission(permission: "admin")
+	# end of type comment
 }
 # Person comment
 type Person @key(fields: "name") {
 	# Person name comment
 	name: String!
+	# end of type comment
 }
 # query extends comment
 type Query @extends {
 	# dogs comment
 	dogs: [Dog!]!
+	# end of type comment
 }
 # subscription comment
 type Subscription {
 	# dogEvents comment
 	dogEvents: [Dog!]!
+	# end of type comment
 }
