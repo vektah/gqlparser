@@ -1,3 +1,4 @@
 query {
+	# bar: foo comment
 	bar: foo
 }

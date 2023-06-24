@@ -1,7 +1,12 @@
+# query root comment
 query ($first: Int = 30, $after: String!) {
+    # searchCats comment
     searchCats(first: $first, after: $after) {
+        # nodes comment
         nodes {
+            # id comment
             id
+            # name comment
             name
         }
     }
