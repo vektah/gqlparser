@@ -34,6 +34,7 @@ type Definition struct {
 
 	BeforeDescriptionComment *CommentGroup
 	AfterDescriptionComment  *CommentGroup
+	EndOfDefinitionComment   *CommentGroup
 }
 
 func (d *Definition) IsLeafType() bool {

@@ -1,7 +1,14 @@
+# before schema description comment
+"schema description"
+# after schema description comment
 schema {
+  # before query comment
 	query: TopQuery
+  # before mutation comment
 	mutation: TopMutation
+  # before subscription comment
 	subscription: TopSubscription
+  # end of schema comment
 }
 
 type TopMutation {
@@ -47,3 +54,5 @@ type TopSubscription {
         arg2: String
       ): Boolean
 }
+# end of file comment
+# end of file comment 2

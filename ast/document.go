@@ -77,6 +77,7 @@ type SchemaDefinition struct {
 
 	BeforeDescriptionComment *CommentGroup
 	AfterDescriptionComment  *CommentGroup
+	EndOfDefinitionComment   *CommentGroup
 }
 
 type OperationTypeDefinition struct {

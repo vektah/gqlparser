@@ -196,8 +196,6 @@ func (f *formatter) FormatSchemaDocument(doc *ast.SchemaDocument) {
 		return
 	}
 
-	f.FormatCommentGroup(doc.Comment)
-
 	f.FormatSchemaDefinitionList(doc.Schema, false)
 	f.FormatSchemaDefinitionList(doc.SchemaExtension, true)
 
@@ -205,6 +203,9 @@ func (f *formatter) FormatSchemaDocument(doc *ast.SchemaDocument) {
 
 	f.FormatDefinitionList(doc.Definitions, false)
 	f.FormatDefinitionList(doc.Extensions, true)
+
+	// doc.Comment is end of file comment, so emit last
+	f.FormatCommentGroup(doc.Comment)
 }
 
 func (f *formatter) FormatQueryDocument(doc *ast.QueryDocument) {
@@ -225,6 +226,30 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 		return
 	}
 
+	var (
+		beforeDescComment      = new(ast.CommentGroup)
+		afterDescComment       = new(ast.CommentGroup)
+		endOfDefinitionComment = new(ast.CommentGroup)
+		description            string
+	)
+
+	for _, def := range lists {
+		if def.BeforeDescriptionComment != nil {
+			beforeDescComment.List = append(beforeDescComment.List, def.BeforeDescriptionComment.List...)
+		}
+		if def.AfterDescriptionComment != nil {
+			afterDescComment.List = append(afterDescComment.List, def.AfterDescriptionComment.List...)
+		}
+		if def.EndOfDefinitionComment != nil {
+			endOfDefinitionComment.List = append(endOfDefinitionComment.List, def.EndOfDefinitionComment.List...)
+		}
+		description += def.Description
+	}
+
+	f.FormatCommentGroup(beforeDescComment)
+	f.WriteDescription(description)
+	f.FormatCommentGroup(afterDescComment)
+
 	if extension {
 		f.WriteWord("extend")
 	}
@@ -235,17 +260,13 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 		f.FormatSchemaDefinition(def)
 	}
 
+	f.FormatCommentGroup(endOfDefinitionComment)
+
 	f.DecrementIndent()
 	f.WriteString("}").WriteNewline()
 }
 
 func (f *formatter) FormatSchemaDefinition(def *ast.SchemaDefinition) {
-	f.FormatCommentGroup(def.BeforeDescriptionComment)
-
-	f.WriteDescription(def.Description)
-
-	f.FormatCommentGroup(def.AfterDescriptionComment)
-
 	f.FormatDirectiveList(def.Directives)
 
 	f.FormatOperationTypeDefinitionList(def.OperationTypes)
@@ -264,7 +285,7 @@ func (f *formatter) FormatOperationTypeDefinition(def *ast.OperationTypeDefiniti
 	f.WriteNewline()
 }
 
-func (f *formatter) FormatFieldList(fieldList ast.FieldList) {
+func (f *formatter) FormatFieldList(fieldList ast.FieldList, endOfDefComment *ast.CommentGroup) {
 	if len(fieldList) == 0 {
 		return
 	}
@@ -275,6 +296,8 @@ func (f *formatter) FormatFieldList(fieldList ast.FieldList) {
 	for _, field := range fieldList {
 		f.FormatFieldDefinition(field)
 	}
+
+	f.FormatCommentGroup(endOfDefComment)
 
 	f.DecrementIndent()
 	f.WriteString("}")
@@ -458,14 +481,14 @@ func (f *formatter) FormatDefinition(def *ast.Definition, extend bool) {
 		f.WriteWord("=").WriteWord(strings.Join(def.Types, " | "))
 	}
 
-	f.FormatFieldList(def.Fields)
+	f.FormatFieldList(def.Fields, def.EndOfDefinitionComment)
 
-	f.FormatEnumValueList(def.EnumValues)
+	f.FormatEnumValueList(def.EnumValues, def.EndOfDefinitionComment)
 
 	f.WriteNewline()
 }
 
-func (f *formatter) FormatEnumValueList(lists ast.EnumValueList) {
+func (f *formatter) FormatEnumValueList(lists ast.EnumValueList, endOfDefComment *ast.CommentGroup) {
 	if len(lists) == 0 {
 		return
 	}
@@ -476,6 +499,8 @@ func (f *formatter) FormatEnumValueList(lists ast.EnumValueList) {
 	for _, v := range lists {
 		f.FormatEnumValueDefinition(v)
 	}
+
+	f.FormatCommentGroup(endOfDefComment)
 
 	f.DecrementIndent()
 	f.WriteString("}")

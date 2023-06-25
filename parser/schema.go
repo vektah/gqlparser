@@ -73,6 +73,9 @@ func (p *parser) parseSchemaDocument() *SchemaDocument {
 		}
 	}
 
+	// treat end of file comments
+	doc.Comment = p.comment
+
 	return &doc
 }
 
@@ -125,7 +128,7 @@ func (p *parser) parseSchemaDefinition(description descriptionWithComment) *Sche
 	def.AfterDescriptionComment = comment
 	def.Directives = p.parseDirectives(true)
 
-	p.some(lexer.BraceL, lexer.BraceR, func() {
+	def.EndOfDefinitionComment = p.some(lexer.BraceL, lexer.BraceR, func() {
 		def.OperationTypes = append(def.OperationTypes, p.parseOperationTypeDefinition())
 	})
 	return &def
@@ -167,7 +170,7 @@ func (p *parser) parseObjectTypeDefinition(description descriptionWithComment) *
 	def.Name = p.parseName()
 	def.Interfaces = p.parseImplementsInterfaces()
 	def.Directives = p.parseDirectives(true)
-	def.Fields = p.parseFieldsDefinition()
+	def.Fields, def.EndOfDefinitionComment = p.parseFieldsDefinition()
 	return &def
 }
 
@@ -186,12 +189,12 @@ func (p *parser) parseImplementsInterfaces() []string {
 	return types
 }
 
-func (p *parser) parseFieldsDefinition() FieldList {
+func (p *parser) parseFieldsDefinition() (FieldList, *CommentGroup) {
 	var defs FieldList
-	p.some(lexer.BraceL, lexer.BraceR, func() {
+	comment := p.some(lexer.BraceL, lexer.BraceR, func() {
 		defs = append(defs, p.parseFieldDefinition())
 	})
-	return defs
+	return defs, comment
 }
 
 func (p *parser) parseFieldDefinition() *FieldDefinition {
@@ -279,7 +282,7 @@ func (p *parser) parseInterfaceTypeDefinition(description descriptionWithComment
 	def.Name = p.parseName()
 	def.Interfaces = p.parseImplementsInterfaces()
 	def.Directives = p.parseDirectives(true)
-	def.Fields = p.parseFieldsDefinition()
+	def.Fields, def.EndOfDefinitionComment = p.parseFieldsDefinition()
 	return &def
 }
 
@@ -323,16 +326,16 @@ func (p *parser) parseEnumTypeDefinition(description descriptionWithComment) *De
 	def.AfterDescriptionComment = comment
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
-	def.EnumValues = p.parseEnumValuesDefinition()
+	def.EnumValues, def.EndOfDefinitionComment = p.parseEnumValuesDefinition()
 	return &def
 }
 
-func (p *parser) parseEnumValuesDefinition() EnumValueList {
+func (p *parser) parseEnumValuesDefinition() (EnumValueList, *CommentGroup) {
 	var values EnumValueList
-	p.some(lexer.BraceL, lexer.BraceR, func() {
+	comment := p.some(lexer.BraceL, lexer.BraceR, func() {
 		values = append(values, p.parseEnumValueDefinition())
 	})
-	return values
+	return values, comment
 }
 
 func (p *parser) parseEnumValueDefinition() *EnumValueDefinition {
@@ -364,16 +367,16 @@ func (p *parser) parseInputObjectTypeDefinition(description descriptionWithComme
 	def.AfterDescriptionComment = comment
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
-	def.Fields = p.parseInputFieldsDefinition()
+	def.Fields, def.EndOfDefinitionComment = p.parseInputFieldsDefinition()
 	return &def
 }
 
-func (p *parser) parseInputFieldsDefinition() FieldList {
+func (p *parser) parseInputFieldsDefinition() (FieldList, *CommentGroup) {
 	var values FieldList
-	p.some(lexer.BraceL, lexer.BraceR, func() {
+	comment := p.some(lexer.BraceL, lexer.BraceR, func() {
 		values = append(values, p.parseInputValueDef())
 	})
-	return values
+	return values, comment
 }
 
 func (p *parser) parseTypeSystemExtension(doc *SchemaDocument) {
@@ -406,7 +409,7 @@ func (p *parser) parseSchemaExtension(comment *CommentGroup) *SchemaDefinition {
 	def.Position = p.peekPos()
 	def.AfterDescriptionComment = comment
 	def.Directives = p.parseDirectives(true)
-	p.some(lexer.BraceL, lexer.BraceR, func() {
+	def.EndOfDefinitionComment = p.some(lexer.BraceL, lexer.BraceR, func() {
 		def.OperationTypes = append(def.OperationTypes, p.parseOperationTypeDefinition())
 	})
 	if len(def.Directives) == 0 && len(def.OperationTypes) == 0 {
@@ -440,7 +443,7 @@ func (p *parser) parseObjectTypeExtension(comment *CommentGroup) *Definition {
 	def.Name = p.parseName()
 	def.Interfaces = p.parseImplementsInterfaces()
 	def.Directives = p.parseDirectives(true)
-	def.Fields = p.parseFieldsDefinition()
+	def.Fields, def.EndOfDefinitionComment = p.parseFieldsDefinition()
 	if len(def.Interfaces) == 0 && len(def.Directives) == 0 && len(def.Fields) == 0 {
 		p.unexpectedError()
 	}
@@ -456,7 +459,7 @@ func (p *parser) parseInterfaceTypeExtension(comment *CommentGroup) *Definition 
 	def.Kind = Interface
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
-	def.Fields = p.parseFieldsDefinition()
+	def.Fields, def.EndOfDefinitionComment = p.parseFieldsDefinition()
 	if len(def.Directives) == 0 && len(def.Fields) == 0 {
 		p.unexpectedError()
 	}
@@ -489,7 +492,7 @@ func (p *parser) parseEnumTypeExtension(comment *CommentGroup) *Definition {
 	def.Kind = Enum
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(true)
-	def.EnumValues = p.parseEnumValuesDefinition()
+	def.EnumValues, def.EndOfDefinitionComment = p.parseEnumValuesDefinition()
 	if len(def.Directives) == 0 && len(def.EnumValues) == 0 {
 		p.unexpectedError()
 	}
@@ -505,7 +508,7 @@ func (p *parser) parseInputObjectTypeExtension(comment *CommentGroup) *Definitio
 	def.Kind = InputObject
 	def.Name = p.parseName()
 	def.Directives = p.parseDirectives(false)
-	def.Fields = p.parseInputFieldsDefinition()
+	def.Fields, def.EndOfDefinitionComment = p.parseInputFieldsDefinition()
 	if len(def.Directives) == 0 && len(def.Fields) == 0 {
 		p.unexpectedError()
 	}

@@ -6,11 +6,13 @@ scalar Cat0
 type Cat1 {
 	# Cat1 name comment
 	name: String
+	# end of Cat1 comment
 }
 # Cat2 comment
 interface Cat2 {
 	# Cat2 name comment
 	name: String
+	# end of Cat2 comment
 }
 # Cat3_0 comment
 type Cat3_0 {
@@ -35,9 +37,13 @@ enum Cat4 {
 	NFC
 	# Cat4 MAINECOON comment
 	MAINECOON
+	# end of Cat4 comment
 }
 # Cat5 comment
 input Cat5 {
 	# Cat5 name comment
 	name: String
+	# end of Cat5 comment
 }
+# end of file comment
+# end of file comment 2

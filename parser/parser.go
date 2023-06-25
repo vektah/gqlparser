@@ -164,10 +164,10 @@ func (p *parser) many(start lexer.Type, end lexer.Type, cb func()) {
 	p.next()
 }
 
-func (p *parser) some(start lexer.Type, end lexer.Type, cb func()) {
+func (p *parser) some(start lexer.Type, end lexer.Type, cb func()) *ast.CommentGroup {
 	hasDef := p.skip(start)
 	if !hasDef {
-		return
+		return nil
 	}
 
 	called := false
@@ -178,8 +178,10 @@ func (p *parser) some(start lexer.Type, end lexer.Type, cb func()) {
 
 	if !called {
 		p.error(p.peek(), "expected at least one definition, found %s", p.peek().Kind.String())
-		return
+		return nil
 	}
 
+	comment := p.comment
 	p.next()
+	return comment
 }
