@@ -11,7 +11,7 @@ type Comment struct {
 }
 
 func (c *Comment) Text() string {
-	return strings.TrimSpace(strings.TrimPrefix(c.Value, "#"))
+	return strings.TrimPrefix(c.Value, "#")
 }
 
 type CommentGroup struct {
