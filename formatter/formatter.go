@@ -726,5 +726,5 @@ func (f *formatter) FormatComment(comment *ast.Comment) {
 	if comment == nil {
 		return
 	}
-	f.WriteString("# ").WriteString(comment.Text()).WriteNewline()
+	f.WriteString("#").WriteString(comment.Text()).WriteNewline()
 }
