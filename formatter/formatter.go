@@ -18,12 +18,15 @@ type Formatter interface {
 //nolint:revive // Ignore "stuttering" name format.FormatterOption
 type FormatterOption func(*formatter)
 
+// WithIndent uses the given string for indenting block bodies in the output,
+// instead of the default, `"\t"`.
 func WithIndent(indent string) FormatterOption {
 	return func(f *formatter) {
 		f.indent = indent
 	}
 }
 
+// WithComments includes comments from the source/AST in the formatted output.
 func WithComments() FormatterOption {
 	return func(f *formatter) {
 		f.emitComments = true
