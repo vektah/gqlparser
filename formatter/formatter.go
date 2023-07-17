@@ -18,9 +18,18 @@ type Formatter interface {
 //nolint:revive // Ignore "stuttering" name format.FormatterOption
 type FormatterOption func(*formatter)
 
+// WithIndent uses the given string for indenting block bodies in the output,
+// instead of the default, `"\t"`.
 func WithIndent(indent string) FormatterOption {
 	return func(f *formatter) {
 		f.indent = indent
+	}
+}
+
+// WithComments includes comments from the source/AST in the formatted output.
+func WithComments() FormatterOption {
+	return func(f *formatter) {
+		f.emitComments = true
 	}
 }
 
@@ -38,9 +47,10 @@ func NewFormatter(w io.Writer, options ...FormatterOption) Formatter {
 type formatter struct {
 	writer io.Writer
 
-	indent      string
-	indentSize  int
-	emitBuiltin bool
+	indent       string
+	indentSize   int
+	emitBuiltin  bool
+	emitComments bool
 
 	padNext  bool
 	lineHead bool
@@ -714,7 +724,7 @@ func (f *formatter) FormatValue(value *ast.Value) {
 }
 
 func (f *formatter) FormatCommentGroup(group *ast.CommentGroup) {
-	if group == nil {
+	if !f.emitComments || group == nil {
 		return
 	}
 	for _, comment := range group.List {
@@ -723,7 +733,7 @@ func (f *formatter) FormatCommentGroup(group *ast.CommentGroup) {
 }
 
 func (f *formatter) FormatComment(comment *ast.Comment) {
-	if comment == nil {
+	if !f.emitComments || comment == nil {
 		return
 	}
 	f.WriteString("#").WriteString(comment.Text()).WriteNewline()
