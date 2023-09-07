@@ -74,8 +74,12 @@ func (s *Lexer) makeError(format string, args ...interface{}) (Token, *gqlerror.
 // This skips over whitespace and comments until it finds the next lexable
 // token, then lexes punctuators immediately or calls the appropriate helper
 // function for more complicated tokens.
-func (s *Lexer) ReadToken() (token Token, err *gqlerror.Error) {
+func (s *Lexer) ReadToken() (token Token, err error) {
+	t, e := s.ReadTokenGqlError()
+	return t, e.AsError()
+}
 
+func (s *Lexer) ReadTokenGqlError() (token Token, err *gqlerror.Error) {
 	s.ws()
 	s.start = s.end
 	s.startRunes = s.endRunes

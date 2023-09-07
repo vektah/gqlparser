@@ -74,7 +74,7 @@ func (p *parser) peek() lexer.Token {
 	}
 
 	if !p.peeked {
-		p.peekToken, p.peekError = p.lexer.ReadToken()
+		p.peekToken, p.peekError = p.lexer.ReadTokenGqlError()
 		p.peeked = true
 		if p.peekToken.Kind == lexer.Comment {
 			p.consumeCommentGroup()
@@ -100,7 +100,7 @@ func (p *parser) next() lexer.Token {
 		p.comment = nil
 		p.prev, p.err = p.peekToken, p.peekError
 	} else {
-		p.prev, p.err = p.lexer.ReadToken()
+		p.prev, p.err = p.lexer.ReadTokenGqlError()
 		if p.prev.Kind == lexer.Comment {
 			p.consumeCommentGroup()
 		}

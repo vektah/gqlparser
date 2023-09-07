@@ -13,7 +13,7 @@ func TestLexer(t *testing.T) {
 
 		ret := testrunner.Spec{}
 		for {
-			tok, err := l.ReadToken()
+			tok, err := l.ReadTokenGqlError()
 
 			if err != nil {
 				ret.Error = err
