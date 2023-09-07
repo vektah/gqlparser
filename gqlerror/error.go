@@ -11,7 +11,7 @@ import (
 
 // Error is the standard graphql error type described in https://spec.graphql.org/draft/#sec-Errors
 type Error struct {
-	err        error                  `json:"-"`
+	Err        error                  `json:"-"`
 	Message    string                 `json:"message"`
 	Path       ast.Path               `json:"path,omitempty"`
 	Locations  []Location             `json:"locations,omitempty"`
@@ -69,7 +69,7 @@ func (err Error) pathString() string {
 }
 
 func (err Error) Unwrap() error {
-	return err.err
+	return err.Err
 }
 
 func (errs List) Error() string {
@@ -101,7 +101,7 @@ func (errs List) As(target interface{}) bool {
 
 func WrapPath(path ast.Path, err error) *Error {
 	return &Error{
-		err:     err,
+		Err:     err,
 		Message: err.Error(),
 		Path:    path,
 	}
@@ -109,7 +109,7 @@ func WrapPath(path ast.Path, err error) *Error {
 
 func Wrap(err error) *Error {
 	return &Error{
-		err:     err,
+		Err:     err,
 		Message: err.Error(),
 	}
 }
