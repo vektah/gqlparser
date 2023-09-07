@@ -12,11 +12,12 @@ import (
 )
 
 func LoadSchema(inputs ...*Source) (*Schema, error) {
-	ast, err := parser.ParseSchemas(inputs...)
+	sd, err := parser.ParseSchemas(inputs...)
+
 	if err != nil {
-		return nil, err
+		return nil, gqlerror.WrapIfUnwrapped(err)
 	}
-	return ValidateSchemaDocument(ast)
+	return ValidateSchemaDocument(sd)
 }
 
 func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, error) {
@@ -32,16 +33,16 @@ func ValidateSchemaDocumentGqlError(ast *SchemaDocument) (*Schema, *gqlerror.Err
 		Implements:    map[string][]*Definition{},
 	}
 
-	for i, def := range ast.Definitions {
+	for i, def := range sd.Definitions {
 		if schema.Types[def.Name] != nil {
 			return nil, gqlerror.ErrorPosf(def.Position, "Cannot redeclare type %s.", def.Name)
 		}
-		schema.Types[def.Name] = ast.Definitions[i]
+		schema.Types[def.Name] = sd.Definitions[i]
 	}
 
-	defs := append(DefinitionList{}, ast.Definitions...)
+	defs := append(DefinitionList{}, sd.Definitions...)
 
-	for _, ext := range ast.Extensions {
+	for _, ext := range sd.Extensions {
 		def := schema.Types[ext.Name]
 		if def == nil {
 			schema.Types[ext.Name] = &Definition{
@@ -85,7 +86,7 @@ func ValidateSchemaDocumentGqlError(ast *SchemaDocument) (*Schema, *gqlerror.Err
 		}
 	}
 
-	for i, dir := range ast.Directives {
+	for i, dir := range sd.Directives {
 		if schema.Directives[dir.Name] != nil {
 			// While the spec says SDL must not (§3.5) explicitly define builtin
 			// scalars, it may (§3.13) define builtin directives. Here we check for
@@ -104,16 +105,16 @@ func ValidateSchemaDocumentGqlError(ast *SchemaDocument) (*Schema, *gqlerror.Err
 				return nil, gqlerror.ErrorPosf(dir.Position, "Cannot redeclare directive %s.", dir.Name)
 			}
 		}
-		schema.Directives[dir.Name] = ast.Directives[i]
+		schema.Directives[dir.Name] = sd.Directives[i]
 	}
 
-	if len(ast.Schema) > 1 {
-		return nil, gqlerror.ErrorPosf(ast.Schema[1].Position, "Cannot have multiple schema entry points, consider schema extensions instead.")
+	if len(sd.Schema) > 1 {
+		return nil, gqlerror.ErrorPosf(sd.Schema[1].Position, "Cannot have multiple schema entry points, consider schema extensions instead.")
 	}
 
-	if len(ast.Schema) == 1 {
-		schema.Description = ast.Schema[0].Description
-		for _, entrypoint := range ast.Schema[0].OperationTypes {
+	if len(sd.Schema) == 1 {
+		schema.Description = sd.Schema[0].Description
+		for _, entrypoint := range sd.Schema[0].OperationTypes {
 			def := schema.Types[entrypoint.Type]
 			if def == nil {
 				return nil, gqlerror.ErrorPosf(entrypoint.Position, "Schema root %s refers to a type %s that does not exist.", entrypoint.Operation, entrypoint.Type)
@@ -129,7 +130,7 @@ func ValidateSchemaDocumentGqlError(ast *SchemaDocument) (*Schema, *gqlerror.Err
 		}
 	}
 
-	for _, ext := range ast.SchemaExtension {
+	for _, ext := range sd.SchemaExtension {
 		for _, entrypoint := range ext.OperationTypes {
 			def := schema.Types[entrypoint.Type]
 			if def == nil {
@@ -157,7 +158,7 @@ func ValidateSchemaDocumentGqlError(ast *SchemaDocument) (*Schema, *gqlerror.Err
 	// Inferred root operation type names should be performed only when a `schema` directive is
 	// **not** provided, when it is, `Mutation` and `Subscription` becomes valid types and are not
 	// assigned as a root operation on the schema.
-	if len(ast.Schema) == 0 {
+	if len(sd.Schema) == 0 {
 		if schema.Query == nil && schema.Types["Query"] != nil {
 			schema.Query = schema.Types["Query"]
 		}
