@@ -6,6 +6,18 @@ import (
 	"github.com/vektah/gqlparser/v2/lexer"
 )
 
+func ParseSchemas(inputs ...*Source) (*SchemaDocument, error) {
+	sd := &SchemaDocument{}
+	for _, input := range inputs {
+		inputAst, err := ParseSchema(input)
+		if err != nil {
+			return nil, err
+		}
+		sd.Merge(inputAst)
+	}
+	return sd, nil
+}
+
 func ParseSchema(source *Source) (*SchemaDocument, error) {
 	p := parser{
 		lexer: lexer.New(source),
@@ -22,18 +34,6 @@ func ParseSchema(source *Source) (*SchemaDocument, error) {
 		def.BuiltIn = source.BuiltIn
 	}
 
-	return sd, nil
-}
-
-func ParseSchemas(inputs ...*Source) (*SchemaDocument, error) {
-	sd := &SchemaDocument{}
-	for _, input := range inputs {
-		inputAst, err := ParseSchema(input)
-		if err != nil {
-			return nil, err
-		}
-		sd.Merge(inputAst)
-	}
 	return sd, nil
 }
 

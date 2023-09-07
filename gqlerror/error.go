@@ -72,6 +72,13 @@ func (err *Error) Unwrap() error {
 	return err.err
 }
 
+func (err *Error) AsError() error {
+	if err == nil {
+		return nil
+	}
+	return err
+}
+
 func (errs List) Error() string {
 	var buf bytes.Buffer
 	for _, err := range errs {
