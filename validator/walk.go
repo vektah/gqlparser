@@ -277,7 +277,7 @@ func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
 		w.walkDirectives(nextParentDef, it.Directives, ast.LocationFragmentSpread)
 
 		if def != nil && !w.validatedFragmentSpreads[def.Name] {
-			// prevent inifinite recursion
+			// prevent infinite recursion
 			w.validatedFragmentSpreads[def.Name] = true
 			w.walkSelectionSet(nextParentDef, def.SelectionSet)
 		}

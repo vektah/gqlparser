@@ -120,7 +120,7 @@ func (p *parser) parseOptionalSelectionSet() SelectionSet {
 		selections = append(selections, p.parseSelection())
 	})
 
-	return SelectionSet(selections)
+	return selections
 }
 
 func (p *parser) parseRequiredSelectionSet() SelectionSet {
@@ -134,7 +134,7 @@ func (p *parser) parseRequiredSelectionSet() SelectionSet {
 		selections = append(selections, p.parseSelection())
 	})
 
-	return SelectionSet(selections)
+	return selections
 }
 
 func (p *parser) parseSelection() Selection {
