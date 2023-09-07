@@ -12,14 +12,24 @@ import (
 )
 
 func LoadSchema(inputs ...*Source) (*Schema, error) {
-	ast, err := parser.ParseSchemas(inputs...)
+	ast, err := LoadSchemaGqlError(inputs...)
+	return ast, err.AsError()
+}
+
+func LoadSchemaGqlError(inputs ...*Source) (*Schema, *gqlerror.Error) {
+	ast, err := parser.ParseSchemasGqlError(inputs...)
 	if err != nil {
 		return nil, err
 	}
-	return ValidateSchemaDocument(ast)
+	return ValidateSchemaDocumentGqlError(ast)
 }
 
 func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, error) {
+	schema, err := ValidateSchemaDocumentGqlError(ast)
+	return schema, err.AsError()
+}
+
+func ValidateSchemaDocumentGqlError(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 	schema := Schema{
 		Types:         map[string]*Definition{},
 		Directives:    map[string]*DirectiveDefinition{},

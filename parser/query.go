@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"github.com/vektah/gqlparser/v2/lexer"
 
 	//nolint:revive
@@ -8,6 +9,11 @@ import (
 )
 
 func ParseQuery(source *Source) (*QueryDocument, error) {
+	doc, err := ParseQueryGqlError(source)
+	return doc, err.AsError()
+}
+
+func ParseQueryGqlError(source *Source) (*QueryDocument, *gqlerror.Error) {
 	p := parser{
 		lexer: lexer.New(source),
 	}

@@ -3,10 +3,16 @@ package parser
 import (
 	//nolint:revive
 	. "github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"github.com/vektah/gqlparser/v2/lexer"
 )
 
 func ParseSchema(source *Source) (*SchemaDocument, error) {
+	doc, err := ParseSchemaGqlError(source)
+	return doc, err.AsError()
+}
+
+func ParseSchemaGqlError(source *Source) (*SchemaDocument, *gqlerror.Error) {
 	p := parser{
 		lexer: lexer.New(source),
 	}
@@ -26,9 +32,14 @@ func ParseSchema(source *Source) (*SchemaDocument, error) {
 }
 
 func ParseSchemas(inputs ...*Source) (*SchemaDocument, error) {
+	doc, err := ParseSchemasGqlError(inputs...)
+	return doc, err.AsError()
+}
+
+func ParseSchemasGqlError(inputs ...*Source) (*SchemaDocument, *gqlerror.Error) {
 	ast := &SchemaDocument{}
 	for _, input := range inputs {
-		inputAst, err := ParseSchema(input)
+		inputAst, err := ParseSchemaGqlError(input)
 		if err != nil {
 			return nil, err
 		}

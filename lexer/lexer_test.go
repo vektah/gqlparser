@@ -3,8 +3,6 @@ package lexer
 import (
 	"testing"
 
-	"github.com/vektah/gqlparser/v2/gqlerror"
-
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/parser/testrunner"
 )
@@ -18,7 +16,7 @@ func TestLexer(t *testing.T) {
 			tok, err := l.ReadToken()
 
 			if err != nil {
-				ret.Error = err.(*gqlerror.Error)
+				ret.Error = err
 				break
 			}
 
