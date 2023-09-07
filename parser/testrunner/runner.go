@@ -113,9 +113,9 @@ func Test(t *testing.T, filename string, f func(t *testing.T, input string) Spec
 					result.AST = strings.TrimSpace(result.AST)
 
 					if spec.AST != "" && spec.AST != result.AST {
-						diff := diff.LineDiff(spec.AST, result.AST)
-						if diff != "" {
-							t.Errorf("AST mismatch:\n%s", diff)
+						diffStr := diff.LineDiff(spec.AST, result.AST)
+						if diffStr != "" {
+							t.Errorf("AST mismatch:\n%s", diffStr)
 						}
 					}
 

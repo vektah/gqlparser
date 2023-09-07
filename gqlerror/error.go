@@ -64,11 +64,11 @@ func (err *Error) Error() string {
 	return res.String()
 }
 
-func (err Error) pathString() string {
+func (err *Error) pathString() string {
 	return err.Path.String()
 }
 
-func (err Error) Unwrap() error {
+func (err *Error) Unwrap() error {
 	return err.err
 }
 
@@ -92,7 +92,7 @@ func (errs List) Is(target error) bool {
 
 func (errs List) As(target interface{}) bool {
 	for _, err := range errs {
-		if errors.As(err, target) {
+		if errors.As(err, &target) {
 			return true
 		}
 	}
@@ -113,6 +113,19 @@ func WrapPath(path ast.Path, err error) *Error {
 func Wrap(err error) *Error {
 	if err == nil {
 		return nil
+	}
+	return &Error{
+		err:     err,
+		Message: err.Error(),
+	}
+}
+
+func WrapIfUnwrapped(err error) *Error {
+	if err == nil {
+		return nil
+	}
+	if gqlErr, ok := err.(*Error); ok {
+		return gqlErr
 	}
 	return &Error{
 		err:     err,
