@@ -69,7 +69,7 @@ func (err *Error) pathString() string {
 }
 
 func (err *Error) Unwrap() error {
-	return err.err
+	return err.Err
 }
 
 func (err *Error) AsError() error {
@@ -122,7 +122,7 @@ func Wrap(err error) *Error {
 		return nil
 	}
 	return &Error{
-		err:     err,
+		Err:     err,
 		Message: err.Error(),
 	}
 }
