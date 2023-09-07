@@ -17,9 +17,9 @@ type PathElement interface {
 var _ PathElement = PathIndex(0)
 var _ PathElement = PathName("")
 
-func (path Path) String() string {
+func (path *Path) String() string {
 	var str bytes.Buffer
-	for i, v := range path {
+	for i, v := range *path {
 		switch v := v.(type) {
 		case PathIndex:
 			str.WriteString(fmt.Sprintf("[%d]", v))
