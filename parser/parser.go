@@ -10,11 +10,11 @@ import (
 
 type parser struct {
 	lexer lexer.Lexer
-	err   error
+	err   *gqlerror.Error
 
 	peeked    bool
 	peekToken lexer.Token
-	peekError error
+	peekError *gqlerror.Error
 
 	prev lexer.Token
 
@@ -74,7 +74,9 @@ func (p *parser) peek() lexer.Token {
 	}
 
 	if !p.peeked {
-		p.peekToken, p.peekError = p.lexer.ReadToken()
+		var peekError error
+		p.peekToken, peekError = p.lexer.ReadToken()
+		p.peekError = gqlerror.WrapIfUnwrapped(peekError)
 		p.peeked = true
 		if p.peekToken.Kind == lexer.Comment {
 			p.consumeCommentGroup()
@@ -100,7 +102,9 @@ func (p *parser) next() lexer.Token {
 		p.comment = nil
 		p.prev, p.err = p.peekToken, p.peekError
 	} else {
-		p.prev, p.err = p.lexer.ReadToken()
+		var err error
+		p.prev, err = p.lexer.ReadToken()
+		p.err = gqlerror.WrapIfUnwrapped(err)
 		if p.prev.Kind == lexer.Comment {
 			p.consumeCommentGroup()
 		}
