@@ -120,6 +120,19 @@ func Wrap(err error) *Error {
 	}
 }
 
+func WrapIfUnwrapped(err error) *Error {
+	if err == nil {
+		return nil
+	}
+	if gqlErr, ok := err.(*Error); ok {
+		return gqlErr
+	}
+	return &Error{
+		err:     err,
+		Message: err.Error(),
+	}
+}
+
 func Errorf(message string, args ...interface{}) *Error {
 	return &Error{
 		Message: fmt.Sprintf(message, args...),
