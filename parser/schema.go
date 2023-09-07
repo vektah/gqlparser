@@ -32,11 +32,6 @@ func ParseSchemaGqlError(source *Source) (*SchemaDocument, *gqlerror.Error) {
 }
 
 func ParseSchemas(inputs ...*Source) (*SchemaDocument, error) {
-	doc, err := ParseSchemasGqlError(inputs...)
-	return doc, err.AsError()
-}
-
-func ParseSchemasGqlError(inputs ...*Source) (*SchemaDocument, *gqlerror.Error) {
 	ast := &SchemaDocument{}
 	for _, input := range inputs {
 		inputAst, err := ParseSchemaGqlError(input)

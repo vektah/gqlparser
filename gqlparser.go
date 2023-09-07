@@ -11,8 +11,7 @@ import (
 )
 
 func LoadSchema(str ...*ast.Source) (*ast.Schema, error) {
-	schema, err := validator.LoadSchemaGqlError(append([]*ast.Source{validator.Prelude}, str...)...)
-	return schema, err.AsError()
+	return validator.LoadSchema(append([]*ast.Source{validator.Prelude}, str...)...)
 }
 
 func MustLoadSchema(str ...*ast.Source) *ast.Schema {

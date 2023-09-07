@@ -12,16 +12,11 @@ import (
 )
 
 func LoadSchema(inputs ...*Source) (*Schema, error) {
-	ast, err := LoadSchemaGqlError(inputs...)
-	return ast, err.AsError()
-}
-
-func LoadSchemaGqlError(inputs ...*Source) (*Schema, *gqlerror.Error) {
-	ast, err := parser.ParseSchemasGqlError(inputs...)
+	ast, err := parser.ParseSchemas(inputs...)
 	if err != nil {
 		return nil, err
 	}
-	return ValidateSchemaDocumentGqlError(ast)
+	return ValidateSchemaDocument(ast)
 }
 
 func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, error) {
