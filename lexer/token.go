@@ -78,7 +78,7 @@ func (t Type) Name() string {
 	case Comment:
 		return "Comment"
 	}
-	return "Unknown " + strconv.Itoa(int(t))
+	return "Unknown " + strconv.Itoa(t)
 }
 
 func (t Type) String() string {
@@ -128,7 +128,7 @@ func (t Type) String() string {
 	case Comment:
 		return "Comment"
 	}
-	return "Unknown " + strconv.Itoa(int(t))
+	return "Unknown " + strconv.Itoa(t)
 }
 
 // Kind represents a type of token. The types are predefined as constants.
