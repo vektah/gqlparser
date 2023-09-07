@@ -100,6 +100,9 @@ func (errs List) As(target interface{}) bool {
 }
 
 func WrapPath(path ast.Path, err error) *Error {
+	if err == nil {
+		return nil
+	}
 	return &Error{
 		err:     err,
 		Message: err.Error(),
@@ -108,6 +111,9 @@ func WrapPath(path ast.Path, err error) *Error {
 }
 
 func Wrap(err error) *Error {
+	if err == nil {
+		return nil
+	}
 	return &Error{
 		err:     err,
 		Message: err.Error(),
