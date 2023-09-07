@@ -2,13 +2,11 @@ version: 2
 jobs:
   build:
     docker:
-      - image: golang:1.16
+      - image: golang:1.19
     working_directory: /gqlparser
     steps:
       - checkout
-      - run: >
-          go get -u github.com/mattn/goveralls
       - run: go test -race ./...
       - run: go test -coverprofile=/tmp/coverage.out -coverpkg=./... ./...
-      - run: goveralls -coverprofile=/tmp/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
-      - run: go test -count 25 ./... # check for flakey test ordering
+      - run: go run github.com/mattn/goveralls@latest -coverprofile=/tmp/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
+      - run: go test -count 25 ./... # check for flaky test ordering

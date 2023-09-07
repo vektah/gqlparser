@@ -6,35 +6,35 @@ import (
 	"github.com/vektah/gqlparser/v2/lexer"
 )
 
-func ParseSchema(source *Source) (*SchemaDocument, error) {
-	p := parser{
-		lexer: lexer.New(source),
-	}
-	ast, err := p.parseSchemaDocument(), p.err
-	if err != nil {
-		return nil, err
-	}
-
-	for _, def := range ast.Definitions {
-		def.BuiltIn = source.BuiltIn
-	}
-	for _, def := range ast.Extensions {
-		def.BuiltIn = source.BuiltIn
-	}
-
-	return ast, nil
-}
-
 func ParseSchemas(inputs ...*Source) (*SchemaDocument, error) {
-	ast := &SchemaDocument{}
+	sd := &SchemaDocument{}
 	for _, input := range inputs {
 		inputAst, err := ParseSchema(input)
 		if err != nil {
 			return nil, err
 		}
-		ast.Merge(inputAst)
+		sd.Merge(inputAst)
 	}
-	return ast, nil
+	return sd, nil
+}
+
+func ParseSchema(source *Source) (*SchemaDocument, error) {
+	p := parser{
+		lexer: lexer.New(source),
+	}
+	sd, err := p.parseSchemaDocument(), p.err
+	if err != nil {
+		return nil, err
+	}
+
+	for _, def := range sd.Definitions {
+		def.BuiltIn = source.BuiltIn
+	}
+	for _, def := range sd.Extensions {
+		def.BuiltIn = source.BuiltIn
+	}
+
+	return sd, nil
 }
 
 func (p *parser) parseSchemaDocument() *SchemaDocument {

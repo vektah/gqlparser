@@ -11,15 +11,15 @@ import (
 )
 
 func LoadSchema(str ...*ast.Source) (*ast.Schema, error) {
-	ast, err := validator.LoadSchema(append([]*ast.Source{validator.Prelude}, str...)...)
+	schema, err := validator.LoadSchema(append([]*ast.Source{validator.Prelude}, str...)...)
 	gqlErr, ok := err.(*gqlerror.Error)
 	if ok {
-		return ast, gqlErr
+		return schema, gqlErr
 	}
 	if err != nil {
-		return ast, gqlerror.Wrap(err)
+		return schema, gqlerror.Wrap(err)
 	}
-	return ast, nil
+	return schema, nil
 }
 
 func MustLoadSchema(str ...*ast.Source) *ast.Schema {
