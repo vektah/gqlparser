@@ -55,7 +55,7 @@ func (s *Lexer) makeValueToken(kind Type, value string) (Token, error) {
 	}, nil
 }
 
-func (s *Lexer) makeError(format string, args ...interface{}) (Token, error) {
+func (s *Lexer) makeError(format string, args ...interface{}) (Token, *gqlerror.Error) {
 	column := s.endRunes - s.lineStartRunes + 1
 	return Token{
 		Kind: Invalid,
@@ -74,8 +74,7 @@ func (s *Lexer) makeError(format string, args ...interface{}) (Token, error) {
 // This skips over whitespace and comments until it finds the next lexable
 // token, then lexes punctuators immediately or calls the appropriate helper
 // function for more complicated tokens.
-func (s *Lexer) ReadToken() (token Token, err error) {
-
+func (s *Lexer) ReadToken() (Token, error) {
 	s.ws()
 	s.start = s.end
 	s.startRunes = s.endRunes
