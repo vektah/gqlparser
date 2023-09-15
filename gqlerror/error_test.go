@@ -63,8 +63,8 @@ func TestList_As(t *testing.T) {
 		targetFound bool
 	}{
 		{
-			name:   "Empty list",
-			errs:   List{},
+			name: "Empty list",
+			errs: List{},
 		},
 		{
 			name:        "List with one error",
