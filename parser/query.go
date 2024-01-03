@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/vektah/gqlparser/v2/lexer"
 
 	//nolint:revive
@@ -315,12 +317,21 @@ func (p *parser) parseObjectField(isConst bool) *ChildValue {
 
 func (p *parser) parseDirectives(isConst bool) []*Directive {
 	var directives []*Directive
+	directiveCount := 0
+	maxDirectiveLimit := 10 // Define a reasonable limit
 
 	for p.peek().Kind == lexer.At {
 		if p.err != nil {
 			break
 		}
 		directives = append(directives, p.parseDirective(isConst))
+		directiveCount++
+
+		// Set an internal parser error if the directive limit is exceeded
+		if directiveCount > maxDirectiveLimit {
+			p.err = fmt.Errorf("exceeded directive limit of %d", maxDirectiveLimit)
+			break // Stop processing further directives
+		}
 	}
 	return directives
 }
