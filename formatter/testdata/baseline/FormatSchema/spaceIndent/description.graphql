@@ -3,6 +3,12 @@ Cat is best kawaii animal in the world.
 meow!
 """
 type Cat {
- """Shiny brillian name."""
+ """
+ Shiny brillian name.
+ """
  name: String
+ """
+ Only "meow" is allowed.
+ """
+ speaks: String
 }

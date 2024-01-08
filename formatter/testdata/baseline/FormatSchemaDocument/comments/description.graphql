@@ -6,9 +6,15 @@ meow!
 # type comment
 type Cat {
 	# field description comment
-	"""Shiny brillian name."""
+	"""
+	Shiny brillian name.
+	"""
 	# field comment
 	name: String
+	"""
+	Only "meow" is allowed.
+	"""
+	speaks: String
 }
 # end of file comment
 # end of file comment 2

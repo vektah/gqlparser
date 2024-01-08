@@ -110,13 +110,10 @@ func (f *formatter) WriteDescription(s string) *formatter {
 	}
 
 	f.WriteString(`"""`)
-	if ss := strings.Split(s, "\n"); len(ss) > 1 {
-		f.WriteNewline()
-		for _, s := range ss {
-			f.WriteString(s).WriteNewline()
-		}
-	} else {
-		f.WriteString(s)
+	ss := strings.Split(s, "\n")
+	f.WriteNewline()
+	for _, s := range ss {
+		f.WriteString(s).WriteNewline()
 	}
 
 	f.WriteString(`"""`).WriteNewline()
