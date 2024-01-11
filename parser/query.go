@@ -9,7 +9,7 @@ import (
 func ParseQuery(source *Source) (*QueryDocument, error) {
 	p := parser{
 		lexer:         lexer.New(source),
-		maxTokenLimit: 15000, // 15000 is the default value
+		maxTokenLimit: 0, // 0 is the default value
 	}
 	return p.parseQueryDocument(), p.err
 }
