@@ -20,7 +20,8 @@ func ParseSchemas(inputs ...*Source) (*SchemaDocument, error) {
 
 func ParseSchema(source *Source) (*SchemaDocument, error) {
 	p := parser{
-		lexer: lexer.New(source),
+		lexer:         lexer.New(source),
+		maxTokenLimit: 15000, // default value
 	}
 	sd, err := p.parseSchemaDocument(), p.err
 	if err != nil {

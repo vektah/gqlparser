@@ -2,14 +2,14 @@ package parser
 
 import (
 	"github.com/vektah/gqlparser/v2/lexer"
-
 	//nolint:revive
 	. "github.com/vektah/gqlparser/v2/ast"
 )
 
 func ParseQuery(source *Source) (*QueryDocument, error) {
 	p := parser{
-		lexer: lexer.New(source),
+		lexer:         lexer.New(source),
+		maxTokenLimit: 0, // 0 is the default value
 	}
 	return p.parseQueryDocument(), p.err
 }
@@ -321,6 +321,7 @@ func (p *parser) parseDirectives(isConst bool) []*Directive {
 			break
 		}
 		directives = append(directives, p.parseDirective(isConst))
+
 	}
 	return directives
 }

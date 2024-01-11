@@ -166,5 +166,8 @@ func TestParserUtils(t *testing.T) {
 }
 
 func newParser(input string) parser {
-	return parser{lexer: lexer.New(&ast.Source{Input: input, Name: "input.graphql"})}
+	return parser{
+		lexer:         lexer.New(&ast.Source{Input: input, Name: "input.graphql"}),
+		maxTokenLimit: 15000, // 15000 is the default value
+	}
 }
