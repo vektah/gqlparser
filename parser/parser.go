@@ -105,7 +105,7 @@ func (p *parser) next() lexer.Token {
 	}
 	// Increment the token count before reading the next token
 	p.tokenCount++
-	if p.tokenCount > p.maxTokenLimit {
+	if p.maxTokenLimit != 0 && p.tokenCount > p.maxTokenLimit {
 		p.err = fmt.Errorf("exceeded token limit of %d", p.maxTokenLimit)
 		return p.prev
 	}
