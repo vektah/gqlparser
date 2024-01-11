@@ -26,6 +26,10 @@ type parser struct {
 	maxTokenLimit int
 }
 
+func (p *parser) SetMaxTokenLimit(maxToken int) {
+	p.maxTokenLimit = maxToken
+}
+
 func (p *parser) consumeComment() (*ast.Comment, bool) {
 	if p.err != nil {
 		return nil, false
