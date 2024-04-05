@@ -1,0 +1,26 @@
+- name: Empty variables list
+  schema: 0
+  query: |
+    query foo(){
+      dog {
+        __typename
+      }
+    }
+
+  errors:
+    - message: "expected at least one definition, found )"
+      locations:
+      - {line: 1, column: 11}
+- name: Empty arguments list
+  schema: 0
+  query: |
+    query foo{
+      dog() {
+        __typename
+      }
+    }
+
+  errors:
+    - message: "expected at least one definition, found )"
+      locations:
+      - {line: 2, column: 7}
