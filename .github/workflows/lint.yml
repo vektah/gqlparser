@@ -1,46 +1,33 @@
 name: golangci-lint
 on:
+  workflow_dispatch:
   push:
     branches:
-    - main
+      - master
   pull_request:
-    branches:
-    - main
+    types: [ opened, synchronize ]
+# When a new revision is pushed to a PR, cancel all in-progress CI runs for that
+# PR. See https://docs.github.com/en/actions/using-jobs/using-concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   GOFLAGS: "-trimpath"
-  GO_VERSION: 1.19
 jobs:
-  resolve-modules:
-    name: Resolve Modules
-    #    runs-on: [self-hosted, linux, x64]
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - name: Checkout Sources
-        uses: actions/checkout@v2
-      - id: set-matrix
-        run: ./tools/resolve-modules.sh
-  golangci:
-    name: Linter
-    needs: resolve-modules
-    runs-on: ubuntu-latest
+  golangci-lint:
     strategy:
-      matrix: ${{ fromJson(needs.resolve-modules.outputs.matrix) }}
+      matrix:
+        go: ["1.21", "1.22"]
+    runs-on: ubuntu-latest
     steps:
-      - name: Install Go
-        uses: actions/setup-go@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          # stable: 'false' # Keep this line to be able to use rc and beta version of Go (ex: 1.18.0-rc1).
-          go-version: ${{ env.GO_VERSION }}
-      - uses: actions/checkout@v2
-      - name: lint
-        uses: golangci/golangci-lint-action@v3.2.0
+          go-version: ${{ matrix.go }}
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6.0.1
         with:
           version: latest
-          # skip cache because of flaky behaviors
-          skip-build-cache: true
-          skip-pkg-cache: true
-          working-directory: ${{ matrix.workdir }}
-          args: --timeout 5m --issues-exit-code=0
+          args: '--timeout 5m'
           # only-new-issues: true #show only new issues if it's a pull request. options working-directory and only-new-issues are incompatible

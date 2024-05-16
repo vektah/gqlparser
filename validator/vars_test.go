@@ -35,14 +35,14 @@ func TestValidateVars(t *testing.T) {
 		t.Run("with default", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query($id: Int! = 1) { intArg(i: $id) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			require.EqualValues(t, 1, vars["id"])
 		})
 
 		t.Run("with union", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query($id: Int! = 1) { intArg(i: $id) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			require.EqualValues(t, 1, vars["id"])
 		})
 	})
@@ -59,7 +59,7 @@ func TestValidateVars(t *testing.T) {
 		t.Run("defaults", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType! = {name: "foo"}) { structArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			require.EqualValues(t, map[string]interface{}{"name": "foo"}, vars["var"])
 		})
 
@@ -70,7 +70,7 @@ func TestValidateVars(t *testing.T) {
 					"name": "foobar",
 				},
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			require.EqualValues(t, map[string]interface{}{"name": "foobar"}, vars["var"])
 		})
 
@@ -82,7 +82,7 @@ func TestValidateVars(t *testing.T) {
 					"nullName": nil,
 				},
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			require.EqualValues(t, map[string]interface{}{"name": "foobar", "nullName": nil}, vars["var"])
 		})
 
@@ -112,7 +112,7 @@ func TestValidateVars(t *testing.T) {
 					"nullEmbedded": nil,
 				},
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 		})
 
 		t.Run("unknown field", func(t *testing.T) {
@@ -134,9 +134,8 @@ func TestValidateVars(t *testing.T) {
 					"__typename": "InputType",
 				},
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			require.EqualValues(t, map[string]interface{}{"__typename": "InputType", "name": "foobar"}, vars["var"])
-
 		})
 
 		t.Run("enum input object", func(t *testing.T) {
@@ -147,7 +146,7 @@ func TestValidateVars(t *testing.T) {
 					"enum": "A",
 				},
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 		})
 
 		t.Run("unknown enum value input object", func(t *testing.T) {
@@ -168,7 +167,7 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{"name": "hello"},
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			require.EqualValues(t, []map[string]interface{}{{"name": "hello"}}, vars["var"])
 		})
 
@@ -177,7 +176,7 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": 5,
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			expected := []int{5}
 			require.EqualValues(t, expected, vars["var"])
 		})
@@ -187,7 +186,7 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": []map[string]interface{}{{"and": 5}},
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			expected := []map[string]interface{}{{"and": []int{5}}}
 			require.EqualValues(t, expected, vars["var"])
 		})
@@ -195,7 +194,7 @@ func TestValidateVars(t *testing.T) {
 		t.Run("defaults", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!] = [{name: "foo"}]) { arrayArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			require.EqualValues(t, []interface{}{map[string]interface{}{
 				"name": "foo",
 			}}, vars["var"])
@@ -208,7 +207,7 @@ func TestValidateVars(t *testing.T) {
 					"name": "foo",
 				}},
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			require.EqualValues(t, []interface{}{map[string]interface{}{
 				"name": "foo",
 			}}, vars["var"])
@@ -249,7 +248,7 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": "asdf",
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			require.EqualValues(t, "asdf", vars["var"])
 		})
 
@@ -278,7 +277,7 @@ func TestValidateVars(t *testing.T) {
 		t.Run("Undefined -> Int", func(t *testing.T) {
 			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int) { optionalIntArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 		})
 
 		t.Run("Json Number -> Int", func(t *testing.T) {
@@ -286,7 +285,7 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": 10,
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			require.Equal(t, 10, vars["var"])
 		})
 
@@ -295,7 +294,7 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": 10.2,
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 			require.Equal(t, 10.2, vars["var"])
 		})
 
@@ -304,8 +303,8 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": nil,
 			})
-			require.Nil(t, gerr)
-			require.Equal(t, nil, vars["var"])
+			require.NoError(t, gerr)
+			require.Nil(t, vars["var"])
 		})
 
 		t.Run("Bool -> Int", func(t *testing.T) {
@@ -326,7 +325,7 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": []*int{&a, &b, nil},
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 		})
 	})
 
@@ -339,7 +338,7 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": []*string{&a, &b, nil},
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 		})
 	})
 
@@ -352,7 +351,7 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": []*bool{&a, &b, nil},
 			})
-			require.Nil(t, gerr)
+			require.NoError(t, gerr)
 		})
 	})
 }

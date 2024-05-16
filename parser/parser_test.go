@@ -16,20 +16,20 @@ func TestParserUtils(t *testing.T) {
 		tok, _ := p.expectKeyword("asdf")
 		require.Equal(t, "asdf", tok.Value)
 		require.Equal(t, "asdf", p.prev.Value)
-		require.Nil(t, p.err)
+		require.NoError(t, p.err)
 
 		require.Equal(t, "1.0", p.peek().Value)
 		require.Equal(t, "1.0", p.peek().Value)
 		tok, _ = p.expect(lexer.Float)
 		require.Equal(t, "1.0", tok.Value)
 		require.Equal(t, "1.0", p.prev.Value)
-		require.Nil(t, p.err)
+		require.NoError(t, p.err)
 
 		require.True(t, p.skip(lexer.Name))
-		require.Nil(t, p.err)
+		require.NoError(t, p.err)
 
 		require.Equal(t, lexer.EOF, p.peek().Kind)
-		require.Nil(t, p.err)
+		require.NoError(t, p.err)
 	})
 
 	t.Run("test many", func(t *testing.T) {
@@ -40,11 +40,11 @@ func TestParserUtils(t *testing.T) {
 			p.many(lexer.BracketL, lexer.BracketR, func() {
 				arr = append(arr, p.next().Value)
 			})
-			require.Nil(t, p.err)
+			require.NoError(t, p.err)
 			require.Equal(t, []string{"a", "b", "c", "d"}, arr)
 
 			require.Equal(t, lexer.EOF, p.peek().Kind)
-			require.Nil(t, p.err)
+			require.NoError(t, p.err)
 		})
 
 		t.Run("return if open is not found", func(t *testing.T) {
@@ -53,7 +53,7 @@ func TestParserUtils(t *testing.T) {
 			p.many(lexer.BracketL, lexer.BracketR, func() {
 				t.Error("cb should not be called")
 			})
-			require.Nil(t, p.err)
+			require.NoError(t, p.err)
 			require.Equal(t, "turtles", p.next().Value)
 		})
 
@@ -80,11 +80,11 @@ func TestParserUtils(t *testing.T) {
 			p.some(lexer.BracketL, lexer.BracketR, func() {
 				arr = append(arr, p.next().Value)
 			})
-			require.Nil(t, p.err)
+			require.NoError(t, p.err)
 			require.Equal(t, []string{"a", "b", "c", "d"}, arr)
 
 			require.Equal(t, lexer.EOF, p.peek().Kind)
-			require.Nil(t, p.err)
+			require.NoError(t, p.err)
 		})
 
 		t.Run("can't read empty array", func(t *testing.T) {
@@ -105,7 +105,7 @@ func TestParserUtils(t *testing.T) {
 			p.some(lexer.BracketL, lexer.BracketR, func() {
 				t.Error("cb should not be called")
 			})
-			require.Nil(t, p.err)
+			require.NoError(t, p.err)
 			require.Equal(t, "turtles", p.next().Value)
 		})
 

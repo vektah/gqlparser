@@ -32,8 +32,8 @@ func TestArg2Map(t *testing.T) {
 			{Name: "A", Value: &Value{Kind: NullValue}},
 			{Name: "B", Value: &Value{Kind: NullValue}},
 		}, nil)
-		require.Equal(t, nil, args["A"])
-		require.Equal(t, nil, args["B"])
+		require.Nil(t, args["A"])
+		require.Nil(t, args["B"])
 		require.Contains(t, args, "A")
 		require.Contains(t, args, "B")
 	})
@@ -55,8 +55,8 @@ func TestArg2Map(t *testing.T) {
 			"VarA": nil,
 			"VarB": nil,
 		})
-		require.Equal(t, nil, args["A"])
-		require.Equal(t, nil, args["B"])
+		require.Nil(t, args["A"])
+		require.Nil(t, args["B"])
 		require.Contains(t, args, "A")
 		require.Contains(t, args, "B")
 	})

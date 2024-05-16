@@ -57,7 +57,7 @@ func TestPath_MarshalJSON(t *testing.T) {
 	for _, spec := range specs {
 		t.Run(spec.Value.String(), func(t *testing.T) {
 			b, err := json.Marshal(spec.Value)
-			require.Nil(t, err)
+			require.NoError(t, err)
 
 			require.Equal(t, spec.Expected, string(b))
 		})
@@ -88,7 +88,7 @@ func TestPath_UnmarshalJSON(t *testing.T) {
 		t.Run(spec.Value, func(t *testing.T) {
 			var path Path
 			err := json.Unmarshal([]byte(spec.Value), &path)
-			require.Nil(t, err)
+			require.NoError(t, err)
 
 			require.Equal(t, spec.Expected, path)
 		})
