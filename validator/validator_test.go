@@ -36,7 +36,7 @@ extend type Query {
 		  }
 		}
 	}`})
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Nil(t, validator.Validate(s, q))
 }
 
@@ -68,8 +68,9 @@ query SomeOperation {
 		id
 	}
 }
-	`})
-	require.Nil(t, err)
+	`,
+	})
+	require.NoError(t, err)
 	r1 := validator.Validate(s, q1)
 	require.Len(t, r1, 1)
 	const errorString = `SomeOperation:4: Field "myAction" argument "myEnum" of type "Locale!" is required, but it was not provided.`
@@ -84,8 +85,9 @@ query SomeOperation ($locale: Locale! = DE) {
 		id
 	}
 }
-	`})
-	require.Nil(t, err)
+	`,
+	})
+	require.NoError(t, err)
 	require.Nil(t, validator.Validate(s, q2))
 
 	// Repeating same query and expecting to still return same validation error
@@ -110,7 +112,7 @@ func TestDeprecatingTypes(t *testing.T) {
 	}
 
 	_, err := validator.LoadSchema(append([]*ast.Source{validator.Prelude}, schema)...)
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestNoUnusedVariables(t *testing.T) {
@@ -132,7 +134,7 @@ func TestNoUnusedVariables(t *testing.T) {
 				bar @include(if: $flag)
 			}
 		`})
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.Nil(t, validator.Validate(s, q))
 	})
 }

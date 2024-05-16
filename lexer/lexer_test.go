@@ -16,7 +16,6 @@ func TestLexer(t *testing.T) {
 		ret := testrunner.Spec{}
 		for {
 			tok, err := l.ReadToken()
-
 			if err != nil {
 				ret.Error = err.(*gqlerror.Error)
 				break

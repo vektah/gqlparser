@@ -10,9 +10,9 @@ import (
 
 func TestWalker(t *testing.T) {
 	schema, err := LoadSchema(Prelude, &ast.Source{Input: "type Query { name: String }\n schema { query: Query }"})
-	require.Nil(t, err)
+	require.NoError(t, err)
 	query, err := parser.ParseQuery(&ast.Source{Input: "{ as: name }"})
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	called := false
 	observers := &Events{}
@@ -32,9 +32,9 @@ func TestWalker(t *testing.T) {
 
 func TestWalkInlineFragment(t *testing.T) {
 	schema, err := LoadSchema(Prelude, &ast.Source{Input: "type Query { name: String }\n schema { query: Query }"})
-	require.Nil(t, err)
+	require.NoError(t, err)
 	query, err := parser.ParseQuery(&ast.Source{Input: "{ ... { name } }"})
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	called := false
 	observers := &Events{}

@@ -35,7 +35,7 @@ func TestErrorFormatting(t *testing.T) {
 		err := ErrorLocf("", 66, 2, "kabloom")
 
 		require.Equal(t, `input:66: kabloom`, err.Error())
-		require.Equal(t, nil, err.Extensions["file"])
+		require.Nil(t, err.Extensions["file"])
 	})
 
 	t.Run("with filename", func(t *testing.T) {

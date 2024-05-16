@@ -215,7 +215,6 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 					t.Fatal(err)
 				}
 				return
-
 			} else if err != nil {
 				t.Fatal(err)
 			}

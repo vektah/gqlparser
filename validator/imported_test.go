@@ -43,7 +43,7 @@ func TestValidation(t *testing.T) {
 		d.pattern = regexp.MustCompile("^" + d.Rule + "$")
 	}
 
-	var schemas = make([]*ast.Schema, 0, len(rawSchemas))
+	schemas := make([]*ast.Schema, 0, len(rawSchemas))
 	for i, schema := range rawSchemas {
 		schema, err := gqlparser.LoadSchema(&ast.Source{Input: schema, Name: fmt.Sprintf("schemas.yml[%d]", i)})
 		if err != nil {
@@ -110,7 +110,7 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 					spec.Errors[i].Rule = spec.Rule
 
 					// remove inconsistent use of ;
-					spec.Errors[i].Message = strings.Replace(spec.Errors[i].Message, "; Did you mean", ". Did you mean", -1)
+					spec.Errors[i].Message = strings.ReplaceAll(spec.Errors[i].Message, "; Did you mean", ". Did you mean")
 				}
 				sort.Slice(spec.Errors, compareErrors(spec.Errors))
 				sort.Slice(finalErrors, compareErrors(finalErrors))

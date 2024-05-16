@@ -33,7 +33,7 @@ func TestTypePosition(t *testing.T) {
 					}
 			`,
 		})
-		assert.Nil(t, parseErr)
+		assert.NoError(t, parseErr)
 		assert.Equal(t, 2, schema.Definitions.ForName("query").Fields.ForName("me").Type.Position.Line)
 	})
 	t.Run("type line number with bang", func(t *testing.T) {
@@ -43,7 +43,7 @@ func TestTypePosition(t *testing.T) {
 					}
 			`,
 		})
-		assert.Nil(t, parseErr)
+		assert.NoError(t, parseErr)
 		assert.Equal(t, 2, schema.Definitions.ForName("query").Fields.ForName("me").Type.Position.Line)
 	})
 	t.Run("type line number with comments", func(t *testing.T) {
@@ -54,7 +54,7 @@ func TestTypePosition(t *testing.T) {
 					}
 			`,
 		})
-		assert.Nil(t, parseErr)
+		assert.NoError(t, parseErr)
 		assert.Equal(t, 3, schema.Definitions.ForName("query").Fields.ForName("me").Type.Position.Line)
 	})
 }
