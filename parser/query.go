@@ -321,7 +321,6 @@ func (p *parser) parseDirectives(isConst bool) []*Directive {
 			break
 		}
 		directives = append(directives, p.parseDirective(isConst))
-
 	}
 	return directives
 }
