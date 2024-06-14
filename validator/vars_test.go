@@ -53,7 +53,7 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": "hello",
 			})
-			require.EqualError(t, gerr, "input: variable.var must be a InputType")
+			require.EqualError(t, gerr, "input: variable.var must be a InputType, not a string")
 		})
 
 		t.Run("defaults", func(t *testing.T) {
