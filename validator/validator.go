@@ -17,10 +17,21 @@ type rule struct {
 
 var rules []rule
 
-// addRule to rule set.
+// addRule to initRule set.
 // f is called once each time `Validate` is executed.
 func AddRule(name string, f ruleFunc) {
 	rules = append(rules, rule{name: name, rule: f})
+}
+
+func RemoveRule(name string) {
+	var result []rule
+	for _, r := range rules {
+		if r.name == name {
+			continue
+		}
+		result = append(result, r)
+	}
+	rules = result
 }
 
 func Validate(schema *Schema, doc *QueryDocument) gqlerror.List {

@@ -138,3 +138,13 @@ func TestNoUnusedVariables(t *testing.T) {
 		require.Nil(t, validator.Validate(s, q))
 	})
 }
+
+func TestRemoveRule(t *testing.T) {
+	// no error
+	validator.RemoveRule("rule that does not exist")
+
+	validator.AddRule("Rule that should no longer exist", func(observers *validator.Events, addError validator.AddErrFunc) {})
+
+	// no error
+	validator.RemoveRule("Rule that should no longer exist")
+}
