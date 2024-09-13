@@ -24,7 +24,7 @@ func AddRule(name string, f ruleFunc) {
 }
 
 func RemoveRule(name string) {
-	result := make([]rule, len(rules))
+	var result []rule // nolint:prealloc // using initialized with len(rules) produces a race condition
 	for _, r := range rules {
 		if r.name == name {
 			continue
