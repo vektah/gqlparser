@@ -24,7 +24,7 @@ func AddRule(name string, f ruleFunc) {
 }
 
 func RemoveRule(name string) {
-	var result []rule
+	result := make([]rule, len(rules))
 	for _, r := range rules {
 		if r.name == name {
 			continue
