@@ -122,6 +122,10 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 				schema.Subscription = def
 			}
 		}
+		if err := validateDirectives(&schema, sd.Schema[0].Directives, LocationSchema, nil); err != nil {
+			return nil, err
+		}
+		schema.SchemaDirectives = append(schema.SchemaDirectives, sd.Schema[0].Directives...)
 	}
 
 	for _, ext := range sd.SchemaExtension {

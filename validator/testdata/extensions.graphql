@@ -2,9 +2,11 @@ schema {
     query: Query
 }
 
-extend schema {
+extend schema @authorization(allowedRoles: ["admin"]) {
     subscription: Subscription
 }
+
+directive @authorization(allowedRoles: [String!]!) on SCHEMA
 
 type Query {
     dogs: [Dog!]!
