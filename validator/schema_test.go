@@ -71,12 +71,13 @@ func TestLoadSchema(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Equal(t, "Subscription", s.Subscription.Name)
+		require.Equal(t, "dogEvents", s.Subscription.Fields[0].Name)
+
 		require.Equal(t, 1, len(s.SchemaDirectives))
 		require.Equal(t, "exampleOnSchemaDirective", s.SchemaDirectives[0].Name)
 		require.Equal(t, 1, len(s.SchemaDirectives[0].Arguments))
 		require.Equal(t, "name", s.SchemaDirectives[0].Arguments[0].Name)
 		require.Equal(t, "foo", s.SchemaDirectives[0].Arguments[0].Value.Raw)
-		require.Equal(t, "dogEvents", s.Subscription.Fields[0].Name)
 
 		require.Equal(t, "owner", s.Types["Dog"].Fields[1].Name)
 
