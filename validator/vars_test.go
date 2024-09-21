@@ -11,18 +11,18 @@ import (
 	"github.com/vektah/gqlparser/v2/validator"
 )
 
-var validateOption = &validator.ValidateOption{
-	Suggestion: validator.SuggestionOption{
-		DisableFieldNamesSuggestion: false,
-		DisableTypeNamesSuggestion:  false,
-	},
-}
-
 func TestValidateVars(t *testing.T) {
 	schema := gqlparser.MustLoadSchema(&ast.Source{
 		Name:  "vars.graphql",
 		Input: mustReadFile("./testdata/vars.graphql"),
 	})
+
+	validateOption := &validator.ValidateOption{
+		Suggestion: validator.SuggestionOption{
+			DisableFieldNamesSuggestion: false,
+			DisableTypeNamesSuggestion:  false,
+		},
+	}
 
 	t.Run("undefined variable", func(t *testing.T) {
 		t.Run("without default", func(t *testing.T) {

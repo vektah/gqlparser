@@ -19,11 +19,12 @@ import (
 )
 
 type Spec struct {
-	Name   string
-	Rule   string
-	Schema string
-	Query  string
-	Errors gqlerror.List
+	Name           string
+	Rule           string
+	Schema         string
+	Query          string
+	ValidateOption *validator.ValidateOption `yaml:"validateOption"`
+	Errors         gqlerror.List
 }
 
 type Deviation struct {
@@ -97,13 +98,7 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 				} else {
 					schema = schemas[idx]
 				}
-				validateOption := &validator.ValidateOption{
-					Suggestion: validator.SuggestionOption{
-						DisableFieldNamesSuggestion: false,
-						DisableTypeNamesSuggestion:  false,
-					},
-				}
-				_, errList := gqlparser.LoadQuery(schema, spec.Query, validateOption)
+				_, errList := gqlparser.LoadQuery(schema, spec.Query, spec.ValidateOption)
 				var finalErrors gqlerror.List
 				for _, err := range errList {
 					// ignore errors from other rules
