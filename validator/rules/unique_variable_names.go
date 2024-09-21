@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("UniqueVariableNames", func(observers *Events, addError AddErrFunc) {
+	AddRule("UniqueVariableNames", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
 		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
 			seen := map[string]int{}
 			for _, def := range operation.VariableDefinitions {

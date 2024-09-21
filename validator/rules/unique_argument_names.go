@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("UniqueArgumentNames", func(observers *Events, addError AddErrFunc) {
+	AddRule("UniqueArgumentNames", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
 		observers.OnField(func(walker *Walker, field *ast.Field) {
 			checkUniqueArgs(field.Arguments, addError)
 		})

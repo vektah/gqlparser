@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("KnownDirectives", func(observers *Events, addError AddErrFunc) {
+	AddRule("KnownDirectives", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
 		type mayNotBeUsedDirective struct {
 			Name   string
 			Line   int

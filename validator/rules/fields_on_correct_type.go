@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	AddRule("FieldsOnCorrectType", func(observers *Events, addError AddErrFunc) {
+	AddRule("FieldsOnCorrectType", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
 		observers.OnField(func(walker *Walker, field *ast.Field) {
 			if field.ObjectDefinition == nil || field.Definition != nil {
 				return

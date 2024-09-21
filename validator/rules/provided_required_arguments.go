@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("ProvidedRequiredArguments", func(observers *Events, addError AddErrFunc) {
+	AddRule("ProvidedRequiredArguments", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
 		observers.OnField(func(walker *Walker, field *ast.Field) {
 			if field.Definition == nil {
 				return

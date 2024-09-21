@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	AddRule("ValuesOfCorrectType", func(observers *Events, addError AddErrFunc) {
+	AddRule("ValuesOfCorrectType", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
 		observers.OnValue(func(walker *Walker, value *ast.Value) {
 			if value.Definition == nil || value.ExpectedType == nil {
 				return

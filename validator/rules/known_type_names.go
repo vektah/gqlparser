@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("KnownTypeNames", func(observers *Events, addError AddErrFunc) {
+	AddRule("KnownTypeNames", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
 		observers.OnVariable(func(walker *Walker, variable *ast.VariableDefinition) {
 			typeName := variable.Type.Name()
 			typdef := walker.Schema.Types[typeName]

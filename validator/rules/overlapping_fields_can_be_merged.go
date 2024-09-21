@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	AddRule("OverlappingFieldsCanBeMerged", func(observers *Events, addError AddErrFunc) {
+	AddRule("OverlappingFieldsCanBeMerged", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
 		/**
 		 * Algorithm:
 		 *

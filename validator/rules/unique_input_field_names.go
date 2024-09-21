@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("UniqueInputFieldNames", func(observers *Events, addError AddErrFunc) {
+	AddRule("UniqueInputFieldNames", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
 		observers.OnValue(func(walker *Walker, value *ast.Value) {
 			if value.Kind != ast.ObjectValue {
 				return

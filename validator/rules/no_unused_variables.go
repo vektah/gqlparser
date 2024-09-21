@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("NoUnusedVariables", func(observers *Events, addError AddErrFunc) {
+	AddRule("NoUnusedVariables", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
 		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
 			for _, varDef := range operation.VariableDefinitions {
 				if varDef.Used {

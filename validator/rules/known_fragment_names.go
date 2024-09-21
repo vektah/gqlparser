@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("KnownFragmentNames", func(observers *Events, addError AddErrFunc) {
+	AddRule("KnownFragmentNames", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
 		observers.OnFragmentSpread(func(walker *Walker, fragmentSpread *ast.FragmentSpread) {
 			if fragmentSpread.Definition == nil {
 				addError(
