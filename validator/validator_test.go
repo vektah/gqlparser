@@ -36,8 +36,16 @@ extend type Query {
 		  }
 		}
 	}`})
+
+	validateOption := &validator.ValidateOption{
+		Suggestion: validator.SuggestionOption{
+			DisableFieldNamesSuggestion: false,
+			DisableTypeNamesSuggestion:  false,
+		},
+	}
+
 	require.NoError(t, err)
-	require.Nil(t, validator.Validate(s, q))
+	require.Nil(t, validator.Validate(s, q, validateOption))
 }
 
 func TestValidationRulesAreIndependent(t *testing.T) {
@@ -70,8 +78,14 @@ query SomeOperation {
 }
 	`,
 	})
+	validateOption1 := &validator.ValidateOption{
+		Suggestion: validator.SuggestionOption{
+			DisableFieldNamesSuggestion: false,
+			DisableTypeNamesSuggestion:  false,
+		},
+	}
 	require.NoError(t, err)
-	r1 := validator.Validate(s, q1)
+	r1 := validator.Validate(s, q1, validateOption1)
 	require.Len(t, r1, 1)
 	const errorString = `SomeOperation:4: Field "myAction" argument "myEnum" of type "Locale!" is required, but it was not provided.`
 	require.EqualError(t, r1[0], errorString)
@@ -87,8 +101,14 @@ query SomeOperation ($locale: Locale! = DE) {
 }
 	`,
 	})
+	validateOption2 := &validator.ValidateOption{
+		Suggestion: validator.SuggestionOption{
+			DisableFieldNamesSuggestion: false,
+			DisableTypeNamesSuggestion:  false,
+		},
+	}
 	require.NoError(t, err)
-	require.Nil(t, validator.Validate(s, q2))
+	require.Nil(t, validator.Validate(s, q2, validateOption2))
 
 	// Repeating same query and expecting to still return same validation error
 	require.Len(t, r1, 1)
@@ -134,7 +154,13 @@ func TestNoUnusedVariables(t *testing.T) {
 				bar @include(if: $flag)
 			}
 		`})
+		validateOption := &validator.ValidateOption{
+			Suggestion: validator.SuggestionOption{
+				DisableFieldNamesSuggestion: false,
+				DisableTypeNamesSuggestion:  false,
+			},
+		}
 		require.NoError(t, err)
-		require.Nil(t, validator.Validate(s, q))
+		require.Nil(t, validator.Validate(s, q, validateOption))
 	})
 }

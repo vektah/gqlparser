@@ -2,6 +2,7 @@ package validator_test
 
 import (
 	"fmt"
+	"github.com/vektah/gqlparser/v2/validator"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -96,7 +97,13 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 				} else {
 					schema = schemas[idx]
 				}
-				_, errList := gqlparser.LoadQuery(schema, spec.Query)
+				validateOption := &validator.ValidateOption{
+					Suggestion: validator.SuggestionOption{
+						DisableFieldNamesSuggestion: false,
+						DisableTypeNamesSuggestion:  false,
+					},
+				}
+				_, errList := gqlparser.LoadQuery(schema, spec.Query, validateOption)
 				var finalErrors gqlerror.List
 				for _, err := range errList {
 					// ignore errors from other rules
