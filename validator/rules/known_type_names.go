@@ -46,16 +46,23 @@ func init() {
 				return
 			}
 
-			var possibleTypes []string
-			for _, t := range walker.Schema.Types {
-				possibleTypes = append(possibleTypes, t.Name)
-			}
+			if validateOption.IsDisableSuggestion() {
+				addError(
+					Message(`Unknown type "%s".`, typeName),
+					At(fragment.Position),
+				)
+			} else {
+				var possibleTypes []string
+				for _, t := range walker.Schema.Types {
+					possibleTypes = append(possibleTypes, t.Name)
+				}
 
-			addError(
-				Message(`Unknown type "%s".`, typeName),
-				SuggestListQuoted("Did you mean", typeName, possibleTypes),
-				At(fragment.Position),
-			)
+				addError(
+					Message(`Unknown type "%s".`, typeName),
+					SuggestListQuoted("Did you mean", typeName, possibleTypes),
+					At(fragment.Position),
+				)
+			}
 		})
 	})
 }

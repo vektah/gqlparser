@@ -65,31 +65,52 @@ func init() {
 
 			case ast.StringValue, ast.BlockValue:
 				if value.Definition.Kind == ast.Enum {
-					rawValStr := fmt.Sprint(rawVal)
-					addError(
-						Message(`Enum "%s" cannot represent non-enum value: %s.`, value.ExpectedType.String(), value.String()),
-						SuggestListQuoted("Did you mean the enum value", rawValStr, possibleEnums),
-						At(value.Position),
-					)
+					if validateOption.IsDisableSuggestion() {
+						addError(
+							Message(`Enum "%s" cannot represent non-enum value: %s.`, value.ExpectedType.String(), value.String()),
+							At(value.Position),
+						)
+					} else {
+						rawValStr := fmt.Sprint(rawVal)
+						addError(
+							Message(`Enum "%s" cannot represent non-enum value: %s.`, value.ExpectedType.String(), value.String()),
+							SuggestListQuoted("Did you mean the enum value", rawValStr, possibleEnums),
+							At(value.Position),
+						)
+					}
 				} else if !value.Definition.OneOf("String", "ID") {
 					unexpectedTypeMessage(addError, value)
 				}
 
 			case ast.EnumValue:
 				if value.Definition.Kind != ast.Enum {
-					rawValStr := fmt.Sprint(rawVal)
-					addError(
-						unexpectedTypeMessageOnly(value),
-						SuggestListUnquoted("Did you mean the enum value", rawValStr, possibleEnums),
-						At(value.Position),
-					)
+					if validateOption.IsDisableSuggestion() {
+						addError(
+							unexpectedTypeMessageOnly(value),
+							At(value.Position),
+						)
+					} else {
+						rawValStr := fmt.Sprint(rawVal)
+						addError(
+							unexpectedTypeMessageOnly(value),
+							SuggestListUnquoted("Did you mean the enum value", rawValStr, possibleEnums),
+							At(value.Position),
+						)
+					}
 				} else if value.Definition.EnumValues.ForName(value.Raw) == nil {
-					rawValStr := fmt.Sprint(rawVal)
-					addError(
-						Message(`Value "%s" does not exist in "%s" enum.`, value.String(), value.ExpectedType.String()),
-						SuggestListQuoted("Did you mean the enum value", rawValStr, possibleEnums),
-						At(value.Position),
-					)
+					if validateOption.IsDisableSuggestion() {
+						addError(
+							Message(`Value "%s" does not exist in "%s" enum.`, value.String(), value.ExpectedType.String()),
+							At(value.Position),
+						)
+					} else {
+						rawValStr := fmt.Sprint(rawVal)
+						addError(
+							Message(`Value "%s" does not exist in "%s" enum.`, value.String(), value.ExpectedType.String()),
+							SuggestListQuoted("Did you mean the enum value", rawValStr, possibleEnums),
+							At(value.Position),
+						)
+					}
 				}
 
 			case ast.BooleanValue:
@@ -114,16 +135,23 @@ func init() {
 
 				for _, fieldValue := range value.Children {
 					if value.Definition.Fields.ForName(fieldValue.Name) == nil {
-						var suggestions []string
-						for _, fieldValue := range value.Definition.Fields {
-							suggestions = append(suggestions, fieldValue.Name)
-						}
+						if validateOption.IsDisableSuggestion() {
+							addError(
+								Message(`Field "%s" is not defined by type "%s".`, fieldValue.Name, value.Definition.Name),
+								At(fieldValue.Position),
+							)
+						} else {
+							var suggestions []string
+							for _, fieldValue := range value.Definition.Fields {
+								suggestions = append(suggestions, fieldValue.Name)
+							}
 
-						addError(
-							Message(`Field "%s" is not defined by type "%s".`, fieldValue.Name, value.Definition.Name),
-							SuggestListQuoted("Did you mean", fieldValue.Name, suggestions),
-							At(fieldValue.Position),
-						)
+							addError(
+								Message(`Field "%s" is not defined by type "%s".`, fieldValue.Name, value.Definition.Name),
+								SuggestListQuoted("Did you mean", fieldValue.Name, suggestions),
+								At(fieldValue.Position),
+							)
+						}
 					}
 				}
 

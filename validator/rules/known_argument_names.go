@@ -20,16 +20,23 @@ func init() {
 					continue
 				}
 
-				var suggestions []string
-				for _, argDef := range field.Definition.Arguments {
-					suggestions = append(suggestions, argDef.Name)
-				}
+				if validateOption.IsDisableSuggestion() {
+					addError(
+						Message(`Unknown argument "%s" on field "%s.%s".`, arg.Name, field.ObjectDefinition.Name, field.Name),
+						At(field.Position),
+					)
+				} else {
+					var suggestions []string
+					for _, argDef := range field.Definition.Arguments {
+						suggestions = append(suggestions, argDef.Name)
+					}
 
-				addError(
-					Message(`Unknown argument "%s" on field "%s.%s".`, arg.Name, field.ObjectDefinition.Name, field.Name),
-					SuggestListQuoted("Did you mean", arg.Name, suggestions),
-					At(field.Position),
-				)
+					addError(
+						Message(`Unknown argument "%s" on field "%s.%s".`, arg.Name, field.ObjectDefinition.Name, field.Name),
+						SuggestListQuoted("Did you mean", arg.Name, suggestions),
+						At(field.Position),
+					)
+				}
 			}
 		})
 
@@ -43,16 +50,23 @@ func init() {
 					continue
 				}
 
-				var suggestions []string
-				for _, argDef := range directive.Definition.Arguments {
-					suggestions = append(suggestions, argDef.Name)
-				}
+				if validateOption.IsDisableSuggestion() {
+					addError(
+						Message(`Unknown argument "%s" on directive "@%s".`, arg.Name, directive.Name),
+						At(directive.Position),
+					)
+				} else {
+					var suggestions []string
+					for _, argDef := range directive.Definition.Arguments {
+						suggestions = append(suggestions, argDef.Name)
+					}
 
-				addError(
-					Message(`Unknown argument "%s" on directive "@%s".`, arg.Name, directive.Name),
-					SuggestListQuoted("Did you mean", arg.Name, suggestions),
-					At(directive.Position),
-				)
+					addError(
+						Message(`Unknown argument "%s" on directive "@%s".`, arg.Name, directive.Name),
+						SuggestListQuoted("Did you mean", arg.Name, suggestions),
+						At(directive.Position),
+					)
+				}
 			}
 		})
 	})

@@ -496,6 +496,23 @@
     - message: 'Enum "DogCommand" cannot represent non-enum value: "SIT". Did you mean the enum value "SIT"?'
       locations:
         - {line: 4, column: 41}
+- name: When DisableSuggestion is true, should not suggest enum value 1
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |2-
+
+            {
+              dog {
+                doesKnowCommand(dogCommand: "SIT")
+              }
+            }
+
+  validateOption:
+    disableSuggestion: true
+  errors:
+    - message: 'Enum "DogCommand" cannot represent non-enum value: "SIT".'
+      locations:
+        - {line: 4, column: 41}
 - name: Invalid Enum value/Boolean into Enum
   rule: ValuesOfCorrectType
   schema: 0
@@ -539,6 +556,23 @@
 
   errors:
     - message: Value "sit" does not exist in "DogCommand" enum. Did you mean the enum value "SIT"?
+      locations:
+        - {line: 4, column: 41}
+- name: When DisableSuggestion is true, should not suggest enum value 2
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |2-
+
+            {
+              dog {
+                doesKnowCommand(dogCommand: sit)
+              }
+            }
+
+  validateOption:
+    disableSuggestion: true
+  errors:
+    - message: Value "sit" does not exist in "DogCommand" enum.
       locations:
         - {line: 4, column: 41}
 - name: Valid List value/Good list value
@@ -938,6 +972,26 @@
 
   errors:
     - message: Field "invalidField" is not defined by type "ComplexInput". Did you mean "intField"?
+      locations:
+        - {line: 6, column: 15}
+- name: When DisableSuggestion is true, should not suggest field name
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |2-
+
+            {
+              complicatedArgs {
+                complexArgField(complexArg: {
+                  requiredField: true,
+                  invalidField: "value"
+                })
+              }
+            }
+
+  validateOption:
+    disableSuggestion: true
+  errors:
+    - message: Field "invalidField" is not defined by type "ComplexInput".
       locations:
         - {line: 6, column: 15}
 - name: Invalid input object value/reports error for custom scalar that returns undefined

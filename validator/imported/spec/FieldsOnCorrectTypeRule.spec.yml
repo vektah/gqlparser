@@ -242,7 +242,7 @@
           }
 
   errors: []
-- name: When DisableTypeNamesSuggestion is true, should not suggest type name
+- name: When DisableSuggestion is true, should not suggest type name
   rule: FieldsOnCorrectType
   schema: 1
   query: |2-
@@ -252,13 +252,12 @@
           }
 
   validateOption:
-    suggestion:
-      disableTypeNamesSuggestion: true
+    disableSuggestion: true
   errors:
     - message: Cannot query field "nickname" on type "Pet".
       locations:
         - { line: 3, column: 9 }
-- name: When DisableFieldNamesSuggestion is true, should not suggest field name
+- name: When DisableSuggestion is true, should not suggest field name
   rule: FieldsOnCorrectType
   schema: 1
   query: |2-
@@ -268,8 +267,7 @@
           }
 
   validateOption:
-    suggestion:
-      disableFieldNamesSuggestion: true
+    disableSuggestion: true
   errors:
     - message: Cannot query field "kawVolume" on type "Dog".
       locations:
