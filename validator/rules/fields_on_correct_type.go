@@ -20,9 +20,9 @@ func init() {
 
 			message := fmt.Sprintf(`Cannot query field "%s" on type "%s".`, field.Name, field.ObjectDefinition.Name)
 
-			if suggestedTypeNames := getSuggestedTypeNames(walker, field.ObjectDefinition, field.Name); suggestedTypeNames != nil {
+			if suggestedTypeNames := getSuggestedTypeNames(walker, field.ObjectDefinition, field.Name, validateOption); suggestedTypeNames != nil {
 				message += " Did you mean to use an inline fragment on " + QuotedOrList(suggestedTypeNames...) + "?"
-			} else if suggestedFieldNames := getSuggestedFieldNames(field.ObjectDefinition, field.Name); suggestedFieldNames != nil {
+			} else if suggestedFieldNames := getSuggestedFieldNames(field.ObjectDefinition, field.Name, validateOption); suggestedFieldNames != nil {
 				message += " Did you mean " + QuotedOrList(suggestedFieldNames...) + "?"
 			}
 
@@ -38,8 +38,11 @@ func init() {
 // that they implement. If any of those types include the provided field,
 // suggest them, sorted by how often the type is referenced,  starting
 // with Interfaces.
-func getSuggestedTypeNames(walker *Walker, parent *ast.Definition, name string) []string {
+func getSuggestedTypeNames(walker *Walker, parent *ast.Definition, name string, validateOption *ValidateOption) []string {
 	if !parent.IsAbstractType() {
+		return nil
+	}
+	if validateOption != nil && validateOption.Suggestion.DisableTypeNamesSuggestion {
 		return nil
 	}
 
@@ -93,8 +96,11 @@ func concatSlice(first []string, second []string) []string {
 
 // For the field name provided, determine if there are any similar field names
 // that may be the result of a typo.
-func getSuggestedFieldNames(parent *ast.Definition, name string) []string {
+func getSuggestedFieldNames(parent *ast.Definition, name string, validateOption *ValidateOption) []string {
 	if parent.Kind != ast.Object && parent.Kind != ast.Interface {
+		return nil
+	}
+	if validateOption != nil && validateOption.Suggestion.DisableFieldNamesSuggestion {
 		return nil
 	}
 
