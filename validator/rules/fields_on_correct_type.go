@@ -1,4 +1,4 @@
-package validator
+package rules
 
 import (
 	"fmt"
@@ -11,8 +11,9 @@ import (
 	. "github.com/vektah/gqlparser/v2/validator"
 )
 
-func init() {
-	AddRule("FieldsOnCorrectType", func(observers *Events, addError AddErrFunc) {
+var FieldsOnCorrectTypeRule = Rule{
+	Name: "FieldsOnCorrectType",
+	RuleFunc: func(observers *Events, addError AddErrFunc) {
 		observers.OnField(func(walker *Walker, field *ast.Field) {
 			if field.ObjectDefinition == nil || field.Definition != nil {
 				return
@@ -31,10 +32,14 @@ func init() {
 				At(field.Position),
 			)
 		})
-	})
+	},
 }
 
-// Go through all of the implementations of type, as well as the interfaces
+func init() {
+	AddRule(FieldsOnCorrectTypeRule.Name, FieldsOnCorrectTypeRule.RuleFunc)
+}
+
+// Go through all the implementations of type, as well as the interfaces
 // that they implement. If any of those types include the provided field,
 // suggest them, sorted by how often the type is referenced,  starting
 // with Interfaces.
