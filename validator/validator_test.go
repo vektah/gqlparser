@@ -139,3 +139,31 @@ func TestNoUnusedVariables(t *testing.T) {
 		require.Nil(t, validator.Validate(s, q))
 	})
 }
+
+func TestValidateOptionDisableSuggestion(t *testing.T) {
+	s := gqlparser.MustLoadSchema(&ast.Source{Name: "graph/schema.graphqls", Input: `
+		extend type User {
+			id: ID!
+		}
+
+		extend type Query {
+			user: User!
+		}
+	`, BuiltIn: false},
+	)
+
+	q, err := parser.ParseQuery(&ast.Source{Name: "ff", Input: `{
+		user {
+			idd
+		}
+	}`})
+
+	r := validator.Validate(s, q)
+	require.NoError(t, err)
+	require.Len(t, r, 1)
+	require.EqualError(t, r[0], `ff:3: Cannot query field "idd" on type "User". Did you mean "id"?`)
+
+	r = validator.Validate(s, q, validator.DisableSuggestion{})
+	require.Len(t, r, 1)
+	require.EqualError(t, r[0], `ff:3: Cannot query field "idd" on type "User".`)
+}
