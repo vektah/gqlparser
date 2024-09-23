@@ -19,13 +19,13 @@ func TestValidateVars(t *testing.T) {
 
 	t.Run("undefined variable", func(t *testing.T) {
 		t.Run("without default", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query($id: Int!) { intArg(i: $id) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query($id: Int!) { intArg(i: $id) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.EqualError(t, gerr, "input: variable.id must be defined")
 		})
 
 		t.Run("nil in required value", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query($id: Int!) { intArg(i: $id) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query($id: Int!) { intArg(i: $id) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"id": nil,
 			})
@@ -33,14 +33,14 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("with default", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query($id: Int! = 1) { intArg(i: $id) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query($id: Int! = 1) { intArg(i: $id) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.NoError(t, gerr)
 			require.EqualValues(t, 1, vars["id"])
 		})
 
 		t.Run("with union", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query($id: Int! = 1) { intArg(i: $id) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query($id: Int! = 1) { intArg(i: $id) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.NoError(t, gerr)
 			require.EqualValues(t, 1, vars["id"])
@@ -49,7 +49,7 @@ func TestValidateVars(t *testing.T) {
 
 	t.Run("input object", func(t *testing.T) {
 		t.Run("non object", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": "hello",
 			})
@@ -57,14 +57,14 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("defaults", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType! = {name: "foo"}) { structArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType! = {name: "foo"}) { structArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.NoError(t, gerr)
 			require.EqualValues(t, map[string]interface{}{"name": "foo"}, vars["var"])
 		})
 
 		t.Run("valid value", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{
 					"name": "foobar",
@@ -75,7 +75,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("null object field", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{
 					"name":     "foobar",
@@ -87,7 +87,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("missing required values", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{},
 			})
@@ -95,7 +95,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("null required field", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{
 					"name": nil,
@@ -105,7 +105,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("null embedded input object", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{
 					"name":         "foo",
@@ -116,7 +116,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("unknown field", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{
 					"name":    "foobar",
@@ -127,7 +127,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("unknown __typefield", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{
 					"name":       "foobar",
@@ -139,7 +139,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("enum input object", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{
 					"name": "foobar",
@@ -150,7 +150,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("unknown enum value input object", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: InputType!) { structArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{
 					"name": "foobar",
@@ -163,7 +163,7 @@ func TestValidateVars(t *testing.T) {
 
 	t.Run("array", func(t *testing.T) {
 		t.Run("non-null object value should be coerced to an array", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": map[string]interface{}{"name": "hello"},
 			})
@@ -172,7 +172,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("non-null int value should be coerced to an array", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [Int!]) { intArrayArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [Int!]) { intArrayArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": 5,
 			})
@@ -182,7 +182,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("non-null int deep value should be coerced to an array", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [CustomType]) { typeArrayArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [CustomType]) { typeArrayArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": []map[string]interface{}{{"and": 5}},
 			})
@@ -192,7 +192,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("defaults", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!] = [{name: "foo"}]) { arrayArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!] = [{name: "foo"}]) { arrayArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.NoError(t, gerr)
 			require.EqualValues(t, []interface{}{map[string]interface{}{
@@ -201,7 +201,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("valid value", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": []interface{}{map[string]interface{}{
 					"name": "foo",
@@ -214,7 +214,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("null element value", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": []interface{}{nil},
 			})
@@ -222,14 +222,14 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("missing required values", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [InputType!]) { arrayArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": []interface{}{map[string]interface{}{}},
 			})
 			require.EqualError(t, gerr, "input: variable.var[0].name must be defined")
 		})
 		t.Run("invalid variable paths", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var1: InputType!, $var2: InputType!) { a:structArg(i: $var1) b:structArg(i: $var2) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var1: InputType!, $var2: InputType!) { a:structArg(i: $var1) b:structArg(i: $var2) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var1": map[string]interface{}{
 					"name": "foobar",
@@ -244,7 +244,7 @@ func TestValidateVars(t *testing.T) {
 
 	t.Run("Scalars", func(t *testing.T) {
 		t.Run("String -> String", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: String!) { stringArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: String!) { stringArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": "asdf",
 			})
@@ -253,7 +253,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("Int -> String", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: String!) { stringArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: String!) { stringArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": 1,
 			})
@@ -261,7 +261,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("Nil -> String", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: String!) { stringArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: String!) { stringArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": nil,
 			})
@@ -269,19 +269,19 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("Undefined -> String!", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: String!) { stringArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: String!) { stringArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.EqualError(t, gerr, "input: variable.var must be defined")
 		})
 
 		t.Run("Undefined -> Int", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int) { optionalIntArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int) { optionalIntArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.NoError(t, gerr)
 		})
 
 		t.Run("Json Number -> Int", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int) { optionalIntArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int) { optionalIntArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": 10,
 			})
@@ -290,7 +290,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("Json Number -> Float", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: Float!) { floatArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: Float!) { floatArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": 10.2,
 			})
@@ -299,7 +299,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("Nil -> Int", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int) { optionalIntArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int) { optionalIntArg(i: $var) }`)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": nil,
 			})
@@ -308,7 +308,7 @@ func TestValidateVars(t *testing.T) {
 		})
 
 		t.Run("Bool -> Int", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int!) { intArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: Int!) { intArg(i: $var) }`)
 			_, gerr := validator.VariableValues(schema, q.Operations.ForName(""), map[string]interface{}{
 				"var": true,
 			})
@@ -318,7 +318,7 @@ func TestValidateVars(t *testing.T) {
 
 	t.Run("Int Array", func(t *testing.T) {
 		t.Run("Array with null", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [Int]) { intArrayArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [Int]) { intArrayArg(i: $var) }`)
 			a := 1
 			b := 2
 
@@ -331,7 +331,7 @@ func TestValidateVars(t *testing.T) {
 
 	t.Run("String Array", func(t *testing.T) {
 		t.Run("Array with null", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [String]) { stringArrayArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [String]) { stringArrayArg(i: $var) }`)
 			a := "1"
 			b := "2"
 
@@ -344,7 +344,7 @@ func TestValidateVars(t *testing.T) {
 
 	t.Run("Boolean Array", func(t *testing.T) {
 		t.Run("Array with null", func(t *testing.T) {
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: [Boolean]) { boolArrayArg(i: $var) }`, nil)
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: [Boolean]) { boolArrayArg(i: $var) }`)
 			a := true
 			b := false
 

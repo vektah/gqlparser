@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("VariablesInAllowedPosition", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
+	AddRule("VariablesInAllowedPosition", func(observers *Events, validateOption ValidateOption, addError AddErrFunc) {
 		observers.OnValue(func(walker *Walker, value *ast.Value) {
 			if value.Kind != ast.Variable || value.ExpectedType == nil || value.VariableDefinition == nil || walker.CurrentOperation == nil {
 				return

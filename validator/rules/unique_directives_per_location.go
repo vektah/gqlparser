@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("UniqueDirectivesPerLocation", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
+	AddRule("UniqueDirectivesPerLocation", func(observers *Events, validateOption ValidateOption, addError AddErrFunc) {
 		observers.OnDirectiveList(func(walker *Walker, directives []*ast.Directive) {
 			seen := map[string]bool{}
 

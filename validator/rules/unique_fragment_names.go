@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("UniqueFragmentNames", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
+	AddRule("UniqueFragmentNames", func(observers *Events, validateOption ValidateOption, addError AddErrFunc) {
 		seenFragments := map[string]bool{}
 
 		observers.OnFragment(func(walker *Walker, fragment *ast.FragmentDefinition) {

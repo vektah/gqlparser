@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	AddRule("NoFragmentCycles", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
+	AddRule("NoFragmentCycles", func(observers *Events, validateOption ValidateOption, addError AddErrFunc) {
 		visitedFrags := make(map[string]bool)
 
 		observers.OnFragment(func(walker *Walker, fragment *ast.FragmentDefinition) {

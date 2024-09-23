@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	AddRule("KnownRootType", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
+	AddRule("KnownRootType", func(observers *Events, validateOption ValidateOption, addError AddErrFunc) {
 		// A query's root must be a valid type.  Surprisingly, this isn't
 		// checked anywhere else!
 		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {

@@ -35,6 +35,14 @@ type Deviation struct {
 	pattern *regexp.Regexp
 }
 
+type TestValidateOptionFactor struct {
+	ValidateOption validator.ValidateOption
+}
+
+func (f TestValidateOptionFactor) Apply(_ validator.ValidateOption) validator.ValidateOption {
+	return f.ValidateOption
+}
+
 func TestValidation(t *testing.T) {
 	var rawSchemas []string
 	readYaml("./imported/spec/schemas.yml", &rawSchemas)
@@ -98,7 +106,13 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 				} else {
 					schema = schemas[idx]
 				}
-				_, errList := gqlparser.LoadQuery(schema, spec.Query, spec.ValidateOption)
+
+				var validateOptionFactors []validator.ValidateOptionFactor
+				if spec.ValidateOption != nil {
+					validateOptionFactors = append(validateOptionFactors, TestValidateOptionFactor{ValidateOption: *spec.ValidateOption})
+				}
+
+				_, errList := gqlparser.LoadQuery(schema, spec.Query, validateOptionFactors...)
 				var finalErrors gqlerror.List
 				for _, err := range errList {
 					// ignore errors from other rules

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	AddRule("SingleFieldSubscriptions", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
+	AddRule("SingleFieldSubscriptions", func(observers *Events, validateOption ValidateOption, addError AddErrFunc) {
 		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
 			if walker.Schema.Subscription == nil || operation.Operation != ast.Subscription {
 				return

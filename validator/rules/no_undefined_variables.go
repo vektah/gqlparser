@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("NoUndefinedVariables", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
+	AddRule("NoUndefinedVariables", func(observers *Events, validateOption ValidateOption, addError AddErrFunc) {
 		observers.OnValue(func(walker *Walker, value *ast.Value) {
 			if walker.CurrentOperation == nil || value.Kind != ast.Variable || value.VariableDefinition != nil {
 				return

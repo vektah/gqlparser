@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddRule("UniqueOperationNames", func(observers *Events, validateOption *ValidateOption, addError AddErrFunc) {
+	AddRule("UniqueOperationNames", func(observers *Events, validateOption ValidateOption, addError AddErrFunc) {
 		seen := map[string]bool{}
 
 		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {

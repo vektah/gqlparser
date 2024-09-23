@@ -8,7 +8,7 @@ import (
 
 type AddErrFunc func(options ...ErrorOption)
 
-type ruleFunc func(observers *Events, validateOption *ValidateOption, addError AddErrFunc)
+type ruleFunc func(observers *Events, validateOption ValidateOption, addError AddErrFunc)
 
 type rule struct {
 	name string
@@ -23,7 +23,7 @@ func AddRule(name string, f ruleFunc) {
 	rules = append(rules, rule{name: name, rule: f})
 }
 
-func Validate(schema *Schema, doc *QueryDocument, validateOption *ValidateOption) gqlerror.List {
+func Validate(schema *Schema, doc *QueryDocument, options ...ValidateOptionFactor) gqlerror.List {
 	var errs gqlerror.List
 	if schema == nil {
 		errs = append(errs, gqlerror.Errorf("cannot validate as Schema is nil"))
@@ -35,6 +35,12 @@ func Validate(schema *Schema, doc *QueryDocument, validateOption *ValidateOption
 		return errs
 	}
 	observers := &Events{}
+
+	validateOption := NewDefaultValidateOption()
+	for _, option := range options {
+		validateOption = option.Apply(validateOption)
+	}
+
 	for i := range rules {
 		rule := rules[i]
 		rule.rule(observers, validateOption, func(options ...ErrorOption) {

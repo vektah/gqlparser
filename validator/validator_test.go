@@ -38,7 +38,7 @@ extend type Query {
 	}`})
 
 	require.NoError(t, err)
-	require.Nil(t, validator.Validate(s, q, nil))
+	require.Nil(t, validator.Validate(s, q))
 }
 
 func TestValidationRulesAreIndependent(t *testing.T) {
@@ -72,7 +72,7 @@ query SomeOperation {
 	`,
 	})
 	require.NoError(t, err)
-	r1 := validator.Validate(s, q1, nil)
+	r1 := validator.Validate(s, q1)
 	require.Len(t, r1, 1)
 	const errorString = `SomeOperation:4: Field "myAction" argument "myEnum" of type "Locale!" is required, but it was not provided.`
 	require.EqualError(t, r1[0], errorString)
@@ -89,7 +89,7 @@ query SomeOperation ($locale: Locale! = DE) {
 	`,
 	})
 	require.NoError(t, err)
-	require.Nil(t, validator.Validate(s, q2, nil))
+	require.Nil(t, validator.Validate(s, q2))
 
 	// Repeating same query and expecting to still return same validation error
 	require.Len(t, r1, 1)
@@ -136,6 +136,6 @@ func TestNoUnusedVariables(t *testing.T) {
 			}
 		`})
 		require.NoError(t, err)
-		require.Nil(t, validator.Validate(s, q, nil))
+		require.Nil(t, validator.Validate(s, q))
 	})
 }
