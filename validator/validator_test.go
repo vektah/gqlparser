@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/parser"
@@ -137,4 +138,43 @@ func TestNoUnusedVariables(t *testing.T) {
 		require.NoError(t, err)
 		require.Nil(t, validator.Validate(s, q))
 	})
+}
+
+func TestCustomRuleSet(t *testing.T) {
+	someRule := validator.Rule{
+		Name: "SomeRule",
+		RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
+			addError(validator.Message("%s", "some error message"))
+		},
+	}
+
+	someOtherRule := validator.Rule{
+		Name: "SomeOtherRule",
+		RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
+			addError(validator.Message("%s", "some other error message"))
+		},
+	}
+
+	s := gqlparser.MustLoadSchema(
+		&ast.Source{
+			Name: "graph/schema.graphqls",
+			Input: `
+	type Query {
+		bar: String!
+	}
+	`, BuiltIn: false},
+	)
+
+	q, err := parser.ParseQuery(&ast.Source{
+		Name: "SomeQuery",
+		Input: `
+			query Foo($flag: Boolean!) {
+				...Bar
+			}
+		`})
+	require.NoError(t, err)
+	errList := validator.Validate(s, q, []validator.Rule{someRule, someOtherRule}...)
+	require.Len(t, errList, 2)
+	require.Equal(t, "some error message", errList[0].Message)
+	require.Equal(t, "some other error message", errList[1].Message)
 }
