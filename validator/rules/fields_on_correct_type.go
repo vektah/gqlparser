@@ -28,7 +28,7 @@ var FieldsOnCorrectTypeRule = Rule{
 			}
 
 			addError(
-				Message(message),
+				Message("%s", message),
 				At(field.Position),
 			)
 		})

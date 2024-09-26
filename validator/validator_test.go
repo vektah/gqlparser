@@ -141,18 +141,17 @@ func TestNoUnusedVariables(t *testing.T) {
 }
 
 func TestCustomRuleSet(t *testing.T) {
-
 	someRule := validator.Rule{
 		Name: "SomeRule",
 		RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
-			addError(validator.Message("some error message"))
+			addError(validator.Message("%s", "some error message"))
 		},
 	}
 
 	someOtherRule := validator.Rule{
 		Name: "SomeOtherRule",
 		RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
-			addError(validator.Message("some other error message"))
+			addError(validator.Message("%s", "some other error message"))
 		},
 	}
 

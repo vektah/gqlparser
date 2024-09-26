@@ -21,7 +21,7 @@ var FragmentsOnCompositeTypesRule = Rule{
 			message := fmt.Sprintf(`Fragment cannot condition on non composite type "%s".`, inlineFragment.TypeCondition)
 
 			addError(
-				Message(message),
+				Message("%s", message),
 				At(inlineFragment.Position),
 			)
 		})
@@ -34,7 +34,7 @@ var FragmentsOnCompositeTypesRule = Rule{
 			message := fmt.Sprintf(`Fragment "%s" cannot condition on non composite type "%s".`, fragment.Name, fragment.TypeCondition)
 
 			addError(
-				Message(message),
+				Message("%s", message),
 				At(fragment.Position),
 			)
 		})
