@@ -12,10 +12,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v2"
+
 	"github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
-	"gopkg.in/yaml.v2"
 )
 
 type Spec struct {
@@ -33,14 +34,6 @@ type Deviation struct {
 	Skip   string
 
 	pattern *regexp.Regexp
-}
-
-type TestValidateOptionFactor struct {
-	ValidateOption validator.ValidateOption
-}
-
-func (f TestValidateOptionFactor) Apply(_ validator.ValidateOption) validator.ValidateOption {
-	return f.ValidateOption
 }
 
 func TestValidation(t *testing.T) {
@@ -107,12 +100,7 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 					schema = schemas[idx]
 				}
 
-				var validateOptionFactors []validator.ValidateOptionFactor
-				if spec.ValidateOption != nil {
-					validateOptionFactors = append(validateOptionFactors, TestValidateOptionFactor{ValidateOption: *spec.ValidateOption})
-				}
-
-				_, errList := gqlparser.LoadQuery(schema, spec.Query, validateOptionFactors...)
+				_, errList := gqlparser.LoadQuery(schema, spec.Query)
 				var finalErrors gqlerror.List
 				for _, err := range errList {
 					// ignore errors from other rules

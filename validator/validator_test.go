@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/parser"
@@ -140,30 +141,41 @@ func TestNoUnusedVariables(t *testing.T) {
 	})
 }
 
-func TestValidateOptionDisableSuggestion(t *testing.T) {
-	s := gqlparser.MustLoadSchema(&ast.Source{Name: "graph/schema.graphqls", Input: `
-		extend type User {
-			id: ID!
-		}
+func TestCustomRuleSet(t *testing.T) {
+	someRule := validator.Rule{
+		Name: "SomeRule",
+		RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
+			addError(validator.Message("%s", "some error message"))
+		},
+	}
 
-		extend type Query {
-			user: User!
-		}
+	someOtherRule := validator.Rule{
+		Name: "SomeOtherRule",
+		RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
+			addError(validator.Message("%s", "some other error message"))
+		},
+	}
+
+	s := gqlparser.MustLoadSchema(
+		&ast.Source{
+			Name: "graph/schema.graphqls",
+			Input: `
+	type Query {
+		bar: String!
+	}
 	`, BuiltIn: false},
 	)
 
-	q, err := parser.ParseQuery(&ast.Source{Name: "ff", Input: `{
-		user {
-			idd
-		}
-	}`})
-
-	r := validator.Validate(s, q)
+	q, err := parser.ParseQuery(&ast.Source{
+		Name: "SomeQuery",
+		Input: `
+			query Foo($flag: Boolean!) {
+				...Bar
+			}
+		`})
 	require.NoError(t, err)
-	require.Len(t, r, 1)
-	require.EqualError(t, r[0], `ff:3: Cannot query field "idd" on type "User". Did you mean "id"?`)
-
-	r = validator.Validate(s, q, validator.DisableSuggestion{})
-	require.Len(t, r, 1)
-	require.EqualError(t, r[0], `ff:3: Cannot query field "idd" on type "User".`)
+	errList := validator.Validate(s, q, []validator.Rule{someRule, someOtherRule}...)
+	require.Len(t, errList, 2)
+	require.Equal(t, "some error message", errList[0].Message)
+	require.Equal(t, "some other error message", errList[1].Message)
 }

@@ -1,4 +1,4 @@
-package validator
+package rules
 
 import (
 	"fmt"
@@ -11,32 +11,48 @@ import (
 	. "github.com/vektah/gqlparser/v2/validator"
 )
 
-func init() {
-	AddRule("FieldsOnCorrectType", func(observers *Events, validateOption ValidateOption, addError AddErrFunc) {
-		observers.OnField(func(walker *Walker, field *ast.Field) {
-			if field.ObjectDefinition == nil || field.Definition != nil {
-				return
+func ruleFuncFieldsOnCorrectType(observers *Events, addError AddErrFunc, disableSuggestion bool) {
+	observers.OnField(func(walker *Walker, field *ast.Field) {
+		if field.ObjectDefinition == nil || field.Definition != nil {
+			return
+		}
+
+		message := fmt.Sprintf(`Cannot query field "%s" on type "%s".`, field.Name, field.ObjectDefinition.Name)
+
+		if !disableSuggestion {
+			if suggestedTypeNames := getSuggestedTypeNames(walker, field.ObjectDefinition, field.Name); suggestedTypeNames != nil {
+				message += " Did you mean to use an inline fragment on " + QuotedOrList(suggestedTypeNames...) + "?"
+			} else if suggestedFieldNames := getSuggestedFieldNames(field.ObjectDefinition, field.Name); suggestedFieldNames != nil {
+				message += " Did you mean " + QuotedOrList(suggestedFieldNames...) + "?"
 			}
+		}
 
-			message := fmt.Sprintf(`Cannot query field "%s" on type "%s".`, field.Name, field.ObjectDefinition.Name)
-
-			if !validateOption.IsDisableSuggestion() {
-				if suggestedTypeNames := getSuggestedTypeNames(walker, field.ObjectDefinition, field.Name); suggestedTypeNames != nil {
-					message += " Did you mean to use an inline fragment on " + QuotedOrList(suggestedTypeNames...) + "?"
-				} else if suggestedFieldNames := getSuggestedFieldNames(field.ObjectDefinition, field.Name); suggestedFieldNames != nil {
-					message += " Did you mean " + QuotedOrList(suggestedFieldNames...) + "?"
-				}
-			}
-
-			addError(
-				Message(message),
-				At(field.Position),
-			)
-		})
+		addError(
+			Message("%s", message),
+			At(field.Position),
+		)
 	})
 }
 
-// Go through all of the implementations of type, as well as the interfaces
+var FieldsOnCorrectTypeRule = Rule{
+	Name: "FieldsOnCorrectType",
+	RuleFunc: func(observers *Events, addError AddErrFunc) {
+		ruleFuncFieldsOnCorrectType(observers, addError, false)
+	},
+}
+
+var FieldsOnCorrectTypeRuleWithoutSuggestions = Rule{
+	Name: "FieldsOnCorrectTypeWithoutSuggestions",
+	RuleFunc: func(observers *Events, addError AddErrFunc) {
+		ruleFuncFieldsOnCorrectType(observers, addError, true)
+	},
+}
+
+func init() {
+	AddRule(FieldsOnCorrectTypeRule.Name, FieldsOnCorrectTypeRule.RuleFunc)
+}
+
+// Go through all the implementations of type, as well as the interfaces
 // that they implement. If any of those types include the provided field,
 // suggest them, sorted by how often the type is referenced,  starting
 // with Interfaces.

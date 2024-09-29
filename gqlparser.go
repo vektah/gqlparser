@@ -30,7 +30,7 @@ func MustLoadSchema(str ...*ast.Source) *ast.Schema {
 	return s
 }
 
-func LoadQuery(schema *ast.Schema, str string, options ...validator.ValidateOptionFactor) (*ast.QueryDocument, gqlerror.List) {
+func LoadQuery(schema *ast.Schema, str string) (*ast.QueryDocument, gqlerror.List) {
 	query, err := parser.ParseQuery(&ast.Source{Input: str})
 	if err != nil {
 		gqlErr, ok := err.(*gqlerror.Error)
@@ -39,7 +39,7 @@ func LoadQuery(schema *ast.Schema, str string, options ...validator.ValidateOpti
 		}
 		return nil, gqlerror.List{gqlerror.Wrap(err)}
 	}
-	errs := validator.Validate(schema, query, options...)
+	errs := validator.Validate(schema, query)
 	if len(errs) > 0 {
 		return nil, errs
 	}
@@ -47,8 +47,8 @@ func LoadQuery(schema *ast.Schema, str string, options ...validator.ValidateOpti
 	return query, nil
 }
 
-func MustLoadQuery(schema *ast.Schema, str string, options ...validator.ValidateOptionFactor) *ast.QueryDocument {
-	q, err := LoadQuery(schema, str, options...)
+func MustLoadQuery(schema *ast.Schema, str string) *ast.QueryDocument {
+	q, err := LoadQuery(schema, str)
 	if err != nil {
 		panic(err)
 	}

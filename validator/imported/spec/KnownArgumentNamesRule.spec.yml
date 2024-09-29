@@ -126,21 +126,6 @@
     - message: Unknown argument "iff" on directive "@skip". Did you mean "if"?
       locations:
         - {line: 3, column: 19}
-- name: When DisableSuggestion is true, should not suggest arg name on directive
-  rule: KnownArgumentNames
-  schema: 0
-  query: |2-
-
-          {
-            dog @skip(iff: true)
-          }
-
-  validateOption:
-    disableSuggestion: true
-  errors:
-    - message: Unknown argument "iff" on directive "@skip".
-      locations:
-        - {line: 3, column: 19}
 - name: invalid arg name
   rule: KnownArgumentNames
   schema: 0
@@ -165,21 +150,6 @@
 
   errors:
     - message: Unknown argument "DogCommand" on field "Dog.doesKnowCommand". Did you mean "dogCommand"?
-      locations:
-        - {line: 3, column: 25}
-- name: When DisableSuggestion is true, should not suggest arg name on field
-  rule: KnownArgumentNames
-  schema: 0
-  query: |2-
-
-          fragment invalidArgName on Dog {
-            doesKnowCommand(DogCommand: true)
-          }
-
-  validateOption:
-    disableSuggestion: true
-  errors:
-    - message: Unknown argument "DogCommand" on field "Dog.doesKnowCommand".
       locations:
         - {line: 3, column: 25}
 - name: unknown args amongst known args

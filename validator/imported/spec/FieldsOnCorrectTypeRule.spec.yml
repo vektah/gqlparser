@@ -242,33 +242,3 @@
           }
 
   errors: []
-- name: When DisableSuggestion is true, should not suggest type name
-  rule: FieldsOnCorrectType
-  schema: 1
-  query: |2-
-
-          fragment definedOnImplementorsButNotInterface on Pet {
-            nickname
-          }
-
-  validateOption:
-    disableSuggestion: true
-  errors:
-    - message: Cannot query field "nickname" on type "Pet".
-      locations:
-        - { line: 3, column: 9 }
-- name: When DisableSuggestion is true, should not suggest field name
-  rule: FieldsOnCorrectType
-  schema: 1
-  query: |2-
-
-          fragment aliasedLyingFieldTargetNotDefined on Dog {
-            barkVolume : kawVolume
-          }
-
-  validateOption:
-    disableSuggestion: true
-  errors:
-    - message: Cannot query field "kawVolume" on type "Dog".
-      locations:
-        - {line: 3, column: 9}
