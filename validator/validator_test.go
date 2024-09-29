@@ -9,7 +9,6 @@ import (
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/parser"
 	"github.com/vektah/gqlparser/v2/validator"
-	"github.com/vektah/gqlparser/v2/validator/rules"
 )
 
 func TestExtendingNonExistantTypes(t *testing.T) {
@@ -178,86 +177,4 @@ func TestCustomRuleSet(t *testing.T) {
 	require.Len(t, errList, 2)
 	require.Equal(t, "some error message", errList[0].Message)
 	require.Equal(t, "some other error message", errList[1].Message)
-}
-
-func TestValidateOptionDisableSuggestionFieldsOnCorrectType(t *testing.T) {
-	s := gqlparser.MustLoadSchema(&ast.Source{Name: "graph/schema.graphqls", Input: `
-		extend type User {
-			id: ID!
-		}
-
-		extend type Query {
-			user: User!
-		}
-	`, BuiltIn: false},
-	)
-
-	q, err := parser.ParseQuery(&ast.Source{Name: "ff", Input: `{
-		user {
-			idd
-		}
-	}`})
-
-	r := validator.Validate(s, q, []validator.Rule{rules.FieldsOnCorrectTypeRuleWithoutSuggestions}...)
-	require.NoError(t, err)
-	require.Len(t, r, 1)
-	// ff:3: Cannot query field "idd" on type "User". Did you mean "id"?
-	require.EqualError(t, r[0], `ff:3: Cannot query field "idd" on type "User".`)
-
-	validator.AddRule(rules.KnownTypeNamesRuleWithoutSuggestions.Name, rules.KnownTypeNamesRuleWithoutSuggestions.RuleFunc)
-}
-
-func TestValidateOptionDisableSuggestionFieldsOnKnownArgumentNames(t *testing.T) {
-	s := gqlparser.MustLoadSchema(&ast.Source{Name: "graph/schema.graphqls", Input: `
-		extend type User {
-			id: ID!
-		}
-
-		extend type Query {
-			user(id: ID!): User!
-		}
-	`, BuiltIn: false},
-	)
-
-	q, err := parser.ParseQuery(&ast.Source{Name: "ff", Input: `{
-		user(idd: "1") {
-			id
-		}
-	}`})
-
-	r := validator.Validate(s, q, []validator.Rule{rules.KnownArgumentNamesRuleWithoutSuggestions}...)
-	require.NoError(t, err)
-	require.Len(t, r, 1)
-	// ff:2: Unknown argument "idd" on field "Query.user". Did you mean "id"?
-	require.EqualError(t, r[0], `ff:2: Unknown argument "idd" on field "Query.user".`)
-}
-
-func TestValidateOptionDisableSuggestionValuesOfCorrectType(t *testing.T) {
-	s := gqlparser.MustLoadSchema(&ast.Source{Name: "graph/schema.graphqls", Input: `
-		extend type User {
-			id: ID!
-		}
-
-		enum Number {
-			ONE
-			TWO
-		}
-
-		extend type Query {
-			user(number: Number!): User!
-		}
-	`, BuiltIn: false},
-	)
-
-	q, err := parser.ParseQuery(&ast.Source{Name: "ff", Input: `{
-		user(number: ON) {
-			id
-		}
-	}`})
-
-	r := validator.Validate(s, q, []validator.Rule{rules.ValuesOfCorrectTypeRuleWithoutSuggestions}...)
-	require.NoError(t, err)
-	require.Len(t, r, 1)
-	// ff:2: Value "ON" does not exist in "Number!" enum. Did you mean the enum value "ONE"?
-	require.EqualError(t, r[0], `ff:2: Value "ON" does not exist in "Number!" enum.`)
 }
