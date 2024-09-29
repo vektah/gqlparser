@@ -39,7 +39,6 @@ func Validate(schema *Schema, doc *QueryDocument, rules ...Rule) gqlerror.List {
 		return errs
 	}
 	observers := &Events{}
-
 	for i := range rules {
 		rule := rules[i]
 		rule.RuleFunc(observers, func(options ...ErrorOption) {

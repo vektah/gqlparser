@@ -37,7 +37,6 @@ extend type Query {
 		  }
 		}
 	}`})
-
 	require.NoError(t, err)
 	require.Nil(t, validator.Validate(s, q))
 }
