@@ -2,7 +2,6 @@ package validator_test
 
 import (
 	"fmt"
-	"github.com/vektah/gqlparser/v2/validator"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -20,12 +19,11 @@ import (
 )
 
 type Spec struct {
-	Name           string
-	Rule           string
-	Schema         string
-	Query          string
-	ValidateOption *validator.ValidateOption `yaml:"validateOption"`
-	Errors         gqlerror.List
+	Name   string
+	Rule   string
+	Schema string
+	Query  string
+	Errors gqlerror.List
 }
 
 type Deviation struct {
