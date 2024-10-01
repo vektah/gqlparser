@@ -3,7 +3,7 @@
     "fmt": "prettier -w '*.js'"
   },
   "dependencies": {
-    "@babel/cli": "^7.24.8",
+    "@babel/cli": "^7.25.6",
     "@babel/core": "^7.25.2",
     "@babel/node": "^7.25.0",
     "@babel/plugin-transform-typescript": "^7.25.2",
