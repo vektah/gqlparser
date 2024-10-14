@@ -178,3 +178,13 @@ func TestCustomRuleSet(t *testing.T) {
 	require.Equal(t, "some error message", errList[0].Message)
 	require.Equal(t, "some other error message", errList[1].Message)
 }
+
+func TestRemoveRule(t *testing.T) {
+	// no error
+	validator.RemoveRule("rule that does not exist")
+
+	validator.AddRule("Rule that should no longer exist", func(observers *validator.Events, addError validator.AddErrFunc) {})
+
+	// no error
+	validator.RemoveRule("Rule that should no longer exist")
+}
