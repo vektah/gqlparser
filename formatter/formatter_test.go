@@ -25,6 +25,7 @@ var optionSets = []struct {
 	{"default", nil},
 	{"spaceIndent", []formatter.FormatterOption{formatter.WithIndent(" ")}},
 	{"comments", []formatter.FormatterOption{formatter.WithComments()}},
+	{"no_description", []formatter.FormatterOption{formatter.WithoutDescription()}},
 }
 
 func TestFormatter_FormatSchema(t *testing.T) {

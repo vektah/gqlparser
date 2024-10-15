@@ -1,0 +1,4 @@
+type Cat {
+	name: String
+	speaks: String
+}
