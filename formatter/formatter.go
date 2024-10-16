@@ -373,7 +373,10 @@ func (f *formatter) FormatArgumentDefinition(def *ast.ArgumentDefinition) {
 	f.FormatCommentGroup(def.BeforeDescriptionComment)
 
 	if def.Description != "" {
-		f.WriteNewline().IncrementIndent()
+		if !f.omitDescription {
+			f.WriteNewline()
+		}
+		f.IncrementIndent()
 		f.WriteDescription(def.Description)
 	}
 
