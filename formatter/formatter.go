@@ -394,7 +394,9 @@ func (f *formatter) FormatArgumentDefinition(def *ast.ArgumentDefinition) {
 
 	if def.Description != "" {
 		f.DecrementIndent()
-		f.WriteNewline()
+		if !f.omitDescription {
+			f.WriteNewline()
+		}
 	}
 }
 
