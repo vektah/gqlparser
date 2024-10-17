@@ -372,7 +372,7 @@ func (f *formatter) FormatArgumentDefinitionList(lists ast.ArgumentDefinitionLis
 func (f *formatter) FormatArgumentDefinition(def *ast.ArgumentDefinition) {
 	f.FormatCommentGroup(def.BeforeDescriptionComment)
 
-	if def.Description != "" {
+	if def.Description != "" && !f.omitDescription {
 		f.WriteNewline().IncrementIndent()
 		f.WriteDescription(def.Description)
 	}
@@ -389,7 +389,7 @@ func (f *formatter) FormatArgumentDefinition(def *ast.ArgumentDefinition) {
 
 	f.NeedPadding().FormatDirectiveList(def.Directives)
 
-	if def.Description != "" {
+	if def.Description != "" && !f.omitDescription {
 		f.DecrementIndent()
 		f.WriteNewline()
 	}
