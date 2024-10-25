@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -164,5 +165,15 @@ func TestList_Is(t *testing.T) {
 				t.Errorf("List.Is() returned nil target, wants concrete error")
 			}
 		})
+	}
+}
+
+func BenchmarkError(b *testing.B) {
+	list := List([]*Error{error1, error2})
+	for i := 0; i < b.N; i++ {
+		_ = underlyingError.Error()
+		_ = error1.Error()
+		_ = error2.Error()
+		_ = list.Error()
 	}
 }
