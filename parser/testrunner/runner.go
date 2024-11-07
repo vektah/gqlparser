@@ -8,7 +8,7 @@ import (
 
 	"github.com/andreyvit/diff"
 	"github.com/vektah/gqlparser/v2/gqlerror"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type Features map[string][]Spec
