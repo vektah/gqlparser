@@ -3,7 +3,7 @@ module github.com/vektah/gqlparser/v2
 go 1.21
 
 require (
-	github.com/agnivade/levenshtein v1.1.1
+	github.com/agnivade/levenshtein v1.2.0
 	github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v3 v3.0.1
