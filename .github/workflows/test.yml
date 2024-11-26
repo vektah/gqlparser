@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        go: ["1.21", "1.22"]
+        go: ["1.22", "1.23"]
           # MacOS is disabled due to the high cost multiplier on GH Actions.
           #- os: darwin
           #  run: macos-latest
