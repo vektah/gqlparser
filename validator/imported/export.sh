@@ -10,12 +10,12 @@ GIT_REF=origin/main
 if [[ -f "$EXPORTER_ROOT/graphql-js-commit.log" ]] ; then
   GIT_REF=$(cat "$EXPORTER_ROOT/graphql-js-commit.log")
 fi
-echo $GIT_REF
+echo "$GIT_REF"
 
 if [[ -d "$REPO_DIR" ]] ; then
     echo "fetching graphql-js with ${GIT_REF}"
     cd "$REPO_DIR" || exit
-    git fetch origin master
+    git fetch origin main
     git checkout "$GIT_REF"
     git reset --hard
 else
@@ -24,7 +24,7 @@ else
     cd "$REPO_DIR" || exit
     git checkout "$GIT_REF"
 fi
-git rev-parse HEAD > $EXPORTER_ROOT/graphql-js-commit.log
+git rev-parse HEAD > "$EXPORTER_ROOT/graphql-js-commit.log"
 
 cd "$EXPORTER_ROOT" || exit
 
