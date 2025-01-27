@@ -8,7 +8,7 @@
                 intArgField(intArg: 2)
               }
             }
-
+            
   errors: []
 - name: Valid values/Good negative int value
   rule: ValuesOfCorrectType
@@ -20,7 +20,7 @@
                 intArgField(intArg: -2)
               }
             }
-
+            
   errors: []
 - name: Valid values/Good boolean value
   rule: ValuesOfCorrectType
@@ -32,7 +32,7 @@
                 booleanArgField(booleanArg: true)
               }
             }
-
+            
   errors: []
 - name: Valid values/Good string value
   rule: ValuesOfCorrectType
@@ -44,7 +44,7 @@
                 stringArgField(stringArg: "foo")
               }
             }
-
+            
   errors: []
 - name: Valid values/Good float value
   rule: ValuesOfCorrectType
@@ -56,7 +56,7 @@
                 floatArgField(floatArg: 1.1)
               }
             }
-
+            
   errors: []
 - name: Valid values/Good negative float value
   rule: ValuesOfCorrectType
@@ -68,7 +68,7 @@
                 floatArgField(floatArg: -1.1)
               }
             }
-
+            
   errors: []
 - name: Valid values/Int into Float
   rule: ValuesOfCorrectType
@@ -80,7 +80,7 @@
                 floatArgField(floatArg: 1)
               }
             }
-
+            
   errors: []
 - name: Valid values/Int into ID
   rule: ValuesOfCorrectType
@@ -92,7 +92,7 @@
                 idArgField(idArg: 1)
               }
             }
-
+            
   errors: []
 - name: Valid values/String into ID
   rule: ValuesOfCorrectType
@@ -104,7 +104,7 @@
                 idArgField(idArg: "someIdString")
               }
             }
-
+            
   errors: []
 - name: Valid values/Good enum value
   rule: ValuesOfCorrectType
@@ -116,7 +116,7 @@
                 doesKnowCommand(dogCommand: SIT)
               }
             }
-
+            
   errors: []
 - name: Valid values/Enum with undefined value
   rule: ValuesOfCorrectType
@@ -128,7 +128,7 @@
                 enumArgField(enumArg: UNKNOWN)
               }
             }
-
+            
   errors: []
 - name: Valid values/Enum with null value
   rule: ValuesOfCorrectType
@@ -140,7 +140,7 @@
                 enumArgField(enumArg: NO_FUR)
               }
             }
-
+            
   errors: []
 - name: Valid values/null into nullable type
   rule: ValuesOfCorrectType
@@ -152,7 +152,7 @@
                 intArgField(intArg: null)
               }
             }
-
+            
   errors: []
 - name: Valid values/null into nullable type
   rule: ValuesOfCorrectType
@@ -164,7 +164,7 @@
                 name
               }
             }
-
+            
   errors: []
 - name: Invalid String values/Int into String
   rule: ValuesOfCorrectType
@@ -176,7 +176,7 @@
                 stringArgField(stringArg: 1)
               }
             }
-
+            
   errors:
     - message: 'String cannot represent a non string value: 1'
       locations:
@@ -191,7 +191,7 @@
                 stringArgField(stringArg: 1.0)
               }
             }
-
+            
   errors:
     - message: 'String cannot represent a non string value: 1.0'
       locations:
@@ -206,7 +206,7 @@
                 stringArgField(stringArg: true)
               }
             }
-
+            
   errors:
     - message: 'String cannot represent a non string value: true'
       locations:
@@ -221,7 +221,7 @@
                 stringArgField(stringArg: BAR)
               }
             }
-
+            
   errors:
     - message: 'String cannot represent a non string value: BAR'
       locations:
@@ -236,7 +236,7 @@
                 intArgField(intArg: "3")
               }
             }
-
+            
   errors:
     - message: 'Int cannot represent non-integer value: "3"'
       locations:
@@ -251,7 +251,7 @@
                 intArgField(intArg: 829384293849283498239482938)
               }
             }
-
+            
   errors:
     - message: 'Int cannot represent non 32-bit signed integer value: 829384293849283498239482938'
       locations:
@@ -266,7 +266,7 @@
                 intArgField(intArg: FOO)
               }
             }
-
+            
   errors:
     - message: 'Int cannot represent non-integer value: FOO'
       locations:
@@ -281,7 +281,7 @@
                 intArgField(intArg: 3.0)
               }
             }
-
+            
   errors:
     - message: 'Int cannot represent non-integer value: 3.0'
       locations:
@@ -296,7 +296,7 @@
                 intArgField(intArg: 3.333)
               }
             }
-
+            
   errors:
     - message: 'Int cannot represent non-integer value: 3.333'
       locations:
@@ -311,7 +311,7 @@
                 floatArgField(floatArg: "3.333")
               }
             }
-
+            
   errors:
     - message: 'Float cannot represent non numeric value: "3.333"'
       locations:
@@ -326,7 +326,7 @@
                 floatArgField(floatArg: true)
               }
             }
-
+            
   errors:
     - message: 'Float cannot represent non numeric value: true'
       locations:
@@ -341,7 +341,7 @@
                 floatArgField(floatArg: FOO)
               }
             }
-
+            
   errors:
     - message: 'Float cannot represent non numeric value: FOO'
       locations:
@@ -356,7 +356,7 @@
                 booleanArgField(booleanArg: 2)
               }
             }
-
+            
   errors:
     - message: 'Boolean cannot represent a non boolean value: 2'
       locations:
@@ -371,7 +371,7 @@
                 booleanArgField(booleanArg: 1.0)
               }
             }
-
+            
   errors:
     - message: 'Boolean cannot represent a non boolean value: 1.0'
       locations:
@@ -386,7 +386,7 @@
                 booleanArgField(booleanArg: "true")
               }
             }
-
+            
   errors:
     - message: 'Boolean cannot represent a non boolean value: "true"'
       locations:
@@ -401,7 +401,7 @@
                 booleanArgField(booleanArg: TRUE)
               }
             }
-
+            
   errors:
     - message: 'Boolean cannot represent a non boolean value: TRUE'
       locations:
@@ -416,7 +416,7 @@
                 idArgField(idArg: 1.0)
               }
             }
-
+            
   errors:
     - message: 'ID cannot represent a non-string and non-integer value: 1.0'
       locations:
@@ -431,7 +431,7 @@
                 idArgField(idArg: true)
               }
             }
-
+            
   errors:
     - message: 'ID cannot represent a non-string and non-integer value: true'
       locations:
@@ -446,7 +446,7 @@
                 idArgField(idArg: SOMETHING)
               }
             }
-
+            
   errors:
     - message: 'ID cannot represent a non-string and non-integer value: SOMETHING'
       locations:
@@ -461,7 +461,7 @@
                 doesKnowCommand(dogCommand: 2)
               }
             }
-
+            
   errors:
     - message: 'Enum "DogCommand" cannot represent non-enum value: 2.'
       locations:
@@ -476,7 +476,7 @@
                 doesKnowCommand(dogCommand: 1.0)
               }
             }
-
+            
   errors:
     - message: 'Enum "DogCommand" cannot represent non-enum value: 1.0.'
       locations:
@@ -491,7 +491,7 @@
                 doesKnowCommand(dogCommand: "SIT")
               }
             }
-
+            
   errors:
     - message: 'Enum "DogCommand" cannot represent non-enum value: "SIT". Did you mean the enum value "SIT"?'
       locations:
@@ -506,7 +506,7 @@
                 doesKnowCommand(dogCommand: true)
               }
             }
-
+            
   errors:
     - message: 'Enum "DogCommand" cannot represent non-enum value: true.'
       locations:
@@ -521,7 +521,7 @@
                 doesKnowCommand(dogCommand: JUGGLE)
               }
             }
-
+            
   errors:
     - message: Value "JUGGLE" does not exist in "DogCommand" enum.
       locations:
@@ -536,7 +536,7 @@
                 doesKnowCommand(dogCommand: sit)
               }
             }
-
+            
   errors:
     - message: Value "sit" does not exist in "DogCommand" enum. Did you mean the enum value "SIT"?
       locations:
@@ -551,7 +551,7 @@
                 stringListArgField(stringListArg: ["one", null, "two"])
               }
             }
-
+            
   errors: []
 - name: Valid List value/Empty list value
   rule: ValuesOfCorrectType
@@ -563,7 +563,7 @@
                 stringListArgField(stringListArg: [])
               }
             }
-
+            
   errors: []
 - name: Valid List value/Null value
   rule: ValuesOfCorrectType
@@ -575,7 +575,7 @@
                 stringListArgField(stringListArg: null)
               }
             }
-
+            
   errors: []
 - name: Valid List value/Single value into List
   rule: ValuesOfCorrectType
@@ -587,7 +587,7 @@
                 stringListArgField(stringListArg: "one")
               }
             }
-
+            
   errors: []
 - name: Invalid List value/Incorrect item type
   rule: ValuesOfCorrectType
@@ -599,7 +599,7 @@
                 stringListArgField(stringListArg: ["one", 2])
               }
             }
-
+            
   errors:
     - message: 'String cannot represent a non string value: 2'
       locations:
@@ -614,7 +614,7 @@
                 stringListArgField(stringListArg: 1)
               }
             }
-
+            
   errors:
     - message: 'String cannot represent a non string value: 1'
       locations:
@@ -629,7 +629,7 @@
                 isHouseTrained(atOtherHomes: true)
               }
             }
-
+            
   errors: []
 - name: Valid non-nullable value/No Arg on optional arg
   rule: ValuesOfCorrectType
@@ -641,7 +641,7 @@
                 isHouseTrained
               }
             }
-
+            
   errors: []
 - name: Valid non-nullable value/Multiple args
   rule: ValuesOfCorrectType
@@ -653,7 +653,7 @@
                 multipleReqs(req1: 1, req2: 2)
               }
             }
-
+            
   errors: []
 - name: Valid non-nullable value/Multiple args reverse order
   rule: ValuesOfCorrectType
@@ -665,7 +665,7 @@
                 multipleReqs(req2: 2, req1: 1)
               }
             }
-
+            
   errors: []
 - name: Valid non-nullable value/No args on multiple optional
   rule: ValuesOfCorrectType
@@ -677,7 +677,7 @@
                 multipleOpts
               }
             }
-
+            
   errors: []
 - name: Valid non-nullable value/One arg on multiple optional
   rule: ValuesOfCorrectType
@@ -689,7 +689,7 @@
                 multipleOpts(opt1: 1)
               }
             }
-
+            
   errors: []
 - name: Valid non-nullable value/Second arg on multiple optional
   rule: ValuesOfCorrectType
@@ -701,7 +701,7 @@
                 multipleOpts(opt2: 1)
               }
             }
-
+            
   errors: []
 - name: Valid non-nullable value/Multiple required args on mixedList
   rule: ValuesOfCorrectType
@@ -713,7 +713,7 @@
                 multipleOptAndReq(req1: 3, req2: 4)
               }
             }
-
+            
   errors: []
 - name: Valid non-nullable value/Multiple required and one optional arg on mixedList
   rule: ValuesOfCorrectType
@@ -725,7 +725,7 @@
                 multipleOptAndReq(req1: 3, req2: 4, opt1: 5)
               }
             }
-
+            
   errors: []
 - name: Valid non-nullable value/All required and optional args on mixedList
   rule: ValuesOfCorrectType
@@ -737,7 +737,7 @@
                 multipleOptAndReq(req1: 3, req2: 4, opt1: 5, opt2: 6)
               }
             }
-
+            
   errors: []
 - name: Invalid non-nullable value/Incorrect value type
   rule: ValuesOfCorrectType
@@ -749,7 +749,7 @@
                 multipleReqs(req2: "two", req1: "one")
               }
             }
-
+            
   errors:
     - message: 'Int cannot represent non-integer value: "two"'
       locations:
@@ -767,7 +767,7 @@
                 multipleReqs(req1: "one")
               }
             }
-
+            
   errors:
     - message: 'Int cannot represent non-integer value: "one"'
       locations:
@@ -782,7 +782,7 @@
                 multipleReqs(req1: null)
               }
             }
-
+            
   errors:
     - message: Expected value of type "Int!", found null.
       locations:
@@ -797,7 +797,7 @@
                 complexArgField
               }
             }
-
+            
   errors: []
 - name: Valid input object value/Partial object, only required
   rule: ValuesOfCorrectType
@@ -809,7 +809,7 @@
                 complexArgField(complexArg: { requiredField: true })
               }
             }
-
+            
   errors: []
 - name: Valid input object value/Partial object, required field can be falsy
   rule: ValuesOfCorrectType
@@ -821,7 +821,7 @@
                 complexArgField(complexArg: { requiredField: false })
               }
             }
-
+            
   errors: []
 - name: Valid input object value/Partial object, including required
   rule: ValuesOfCorrectType
@@ -833,7 +833,7 @@
                 complexArgField(complexArg: { requiredField: true, intField: 4 })
               }
             }
-
+            
   errors: []
 - name: Valid input object value/Full object
   rule: ValuesOfCorrectType
@@ -851,7 +851,7 @@
                 })
               }
             }
-
+            
   errors: []
 - name: Valid input object value/Full object with fields in different order
   rule: ValuesOfCorrectType
@@ -869,7 +869,31 @@
                 })
               }
             }
+            
+  errors: []
+- name: Valid oneOf input object value/Exactly one field
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |2-
 
+            {
+              complicatedArgs {
+                oneOfArgField(oneOfArg: { stringField: "abc" })
+              }
+            }
+            
+  errors: []
+- name: Valid oneOf input object value/Exactly one non-nullable variable
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |2-
+
+            query ($string: String!) {
+              complicatedArgs {
+                oneOfArgField(oneOfArg: { stringField: $string })
+              }
+            }
+            
   errors: []
 - name: Invalid input object value/Partial object, missing required
   rule: ValuesOfCorrectType
@@ -881,7 +905,7 @@
                 complexArgField(complexArg: { intField: 4 })
               }
             }
-
+            
   errors:
     - message: Field "ComplexInput.requiredField" of required type "Boolean!" was not provided.
       locations:
@@ -899,7 +923,7 @@
                 })
               }
             }
-
+            
   errors:
     - message: 'String cannot represent a non string value: 2'
       locations:
@@ -917,7 +941,7 @@
                 })
               }
             }
-
+            
   errors:
     - message: Expected value of type "Boolean!", found null.
       locations:
@@ -935,7 +959,7 @@
                 })
               }
             }
-
+            
   errors:
     - message: Field "invalidField" is not defined by type "ComplexInput". Did you mean "intField"?
       locations:
@@ -959,8 +983,68 @@
                 test3: anyArg(arg: [123, "abc"])
                 test4: anyArg(arg: {deep: [123, "abc"]})
               }
-
+              
   errors: []
+- name: Invalid oneOf input object value/Invalid field type
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |2-
+
+            {
+              complicatedArgs {
+                oneOfArgField(oneOfArg: { stringField: 2 })
+              }
+            }
+            
+  errors:
+    - message: 'String cannot represent a non string value: 2'
+      locations:
+        - {line: 4, column: 52}
+- name: Invalid oneOf input object value/Exactly one null field
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |2-
+
+            {
+              complicatedArgs {
+                oneOfArgField(oneOfArg: { stringField: null })
+              }
+            }
+            
+  errors:
+    - message: Field "OneOfInput.stringField" must be non-null.
+      locations:
+        - {line: 4, column: 37}
+- name: Invalid oneOf input object value/Exactly one nullable variable
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |2-
+
+            query ($string: String) {
+              complicatedArgs {
+                oneOfArgField(oneOfArg: { stringField: $string })
+              }
+            }
+            
+  errors:
+    - message: Variable "string" must be non-nullable to be used for OneOf Input Object "OneOfInput".
+      locations:
+        - {line: 4, column: 37}
+- name: Invalid oneOf input object value/More than one field
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |2-
+
+            {
+              complicatedArgs {
+                oneOfArgField(oneOfArg: { stringField: "abc", intField: 123 })
+              }
+            }
+            
+  errors:
+    - message: OneOf Input Object "OneOfInput" must specify exactly one key.
+      locations:
+        - {line: 4, column: 37}
 - name: Directive arguments/with directives of valid types
   rule: ValuesOfCorrectType
   schema: 0
@@ -974,7 +1058,7 @@
                 name
               }
             }
-
+            
   errors: []
 - name: Directive arguments/with directive with incorrect types
   rule: ValuesOfCorrectType
@@ -986,7 +1070,7 @@
                 name @skip(if: ENUM)
               }
             }
-
+            
   errors:
     - message: 'Boolean cannot represent a non boolean value: "yes"'
       locations:
@@ -1007,7 +1091,7 @@
             ) {
               dog { name }
             }
-
+            
   errors: []
 - name: Variable default values/variables with valid default null values
   rule: ValuesOfCorrectType
@@ -1021,7 +1105,7 @@
             ) {
               dog { name }
             }
-
+            
   errors: []
 - name: Variable default values/variables with invalid default null values
   rule: ValuesOfCorrectType
@@ -1035,7 +1119,7 @@
             ) {
               dog { name }
             }
-
+            
   errors:
     - message: Expected value of type "Int!", found null.
       locations:
@@ -1058,7 +1142,7 @@
             ) {
               dog { name }
             }
-
+            
   errors:
     - message: 'Int cannot represent non-integer value: "one"'
       locations:
@@ -1079,7 +1163,7 @@
             ) {
               dog { name }
             }
-
+            
   errors:
     - message: 'Boolean cannot represent a non boolean value: 123'
       locations:
@@ -1095,7 +1179,7 @@
             query MissingRequiredField($a: ComplexInput = {intField: 3}) {
               dog { name }
             }
-
+            
   errors:
     - message: Field "ComplexInput.requiredField" of required type "Boolean!" was not provided.
       locations:
@@ -1108,7 +1192,7 @@
             query InvalidItem($a: [String] = ["one", 2]) {
               dog { name }
             }
-
+            
   errors:
     - message: 'String cannot represent a non string value: 2'
       locations:

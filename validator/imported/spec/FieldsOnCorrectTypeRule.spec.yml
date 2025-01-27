@@ -7,7 +7,7 @@
             __typename
             name
           }
-
+          
   errors: []
 - name: Aliased object field selection
   rule: FieldsOnCorrectType
@@ -18,7 +18,7 @@
             tn : __typename
             otherName : name
           }
-
+          
   errors: []
 - name: Interface field selection
   rule: FieldsOnCorrectType
@@ -29,7 +29,7 @@
             __typename
             name
           }
-
+          
   errors: []
 - name: Aliased interface field selection
   rule: FieldsOnCorrectType
@@ -39,7 +39,7 @@
           fragment interfaceFieldSelection on Pet {
             otherName : name
           }
-
+          
   errors: []
 - name: Lying alias selection
   rule: FieldsOnCorrectType
@@ -49,7 +49,7 @@
           fragment lyingAliasSelection on Dog {
             name : nickname
           }
-
+          
   errors: []
 - name: Ignores fields on unknown type
   rule: FieldsOnCorrectType
@@ -59,7 +59,7 @@
           fragment unknownSelection on UnknownType {
             unknownField
           }
-
+          
   errors: []
 - name: reports errors when type is known again
   rule: FieldsOnCorrectType
@@ -73,7 +73,7 @@
               }
             }
           }
-
+          
   errors:
     - message: Cannot query field "unknown_pet_field" on type "Pet".
       locations:
@@ -89,7 +89,7 @@
           fragment fieldNotDefined on Dog {
             meowVolume
           }
-
+          
   errors:
     - message: Cannot query field "meowVolume" on type "Dog". Did you mean "barkVolume"?
       locations:
@@ -104,7 +104,7 @@
               deeper_unknown_field
             }
           }
-
+          
   errors:
     - message: Cannot query field "unknown_field" on type "Dog".
       locations:
@@ -119,7 +119,7 @@
               unknown_field
             }
           }
-
+          
   errors:
     - message: Cannot query field "unknown_field" on type "Pet".
       locations:
@@ -134,7 +134,7 @@
               meowVolume
             }
           }
-
+          
   errors:
     - message: Cannot query field "meowVolume" on type "Dog". Did you mean "barkVolume"?
       locations:
@@ -147,7 +147,7 @@
           fragment aliasedFieldTargetNotDefined on Dog {
             volume : mooVolume
           }
-
+          
   errors:
     - message: Cannot query field "mooVolume" on type "Dog". Did you mean "barkVolume"?
       locations:
@@ -160,7 +160,7 @@
           fragment aliasedLyingFieldTargetNotDefined on Dog {
             barkVolume : kawVolume
           }
-
+          
   errors:
     - message: Cannot query field "kawVolume" on type "Dog". Did you mean "barkVolume"?
       locations:
@@ -173,7 +173,7 @@
           fragment notDefinedOnInterface on Pet {
             tailLength
           }
-
+          
   errors:
     - message: Cannot query field "tailLength" on type "Pet".
       locations:
@@ -186,7 +186,7 @@
           fragment definedOnImplementorsButNotInterface on Pet {
             nickname
           }
-
+          
   errors:
     - message: Cannot query field "nickname" on type "Pet". Did you mean to use an inline fragment on "Cat" or "Dog"?
       locations:
@@ -199,7 +199,7 @@
           fragment directFieldSelectionOnUnion on CatOrDog {
             __typename
           }
-
+          
   errors: []
 - name: Direct field selection on union
   rule: FieldsOnCorrectType
@@ -209,7 +209,7 @@
           fragment directFieldSelectionOnUnion on CatOrDog {
             directField
           }
-
+          
   errors:
     - message: Cannot query field "directField" on type "CatOrDog".
       locations:
@@ -222,7 +222,7 @@
           fragment definedOnImplementorsQueriedOnUnion on CatOrDog {
             name
           }
-
+          
   errors:
     - message: Cannot query field "name" on type "CatOrDog". Did you mean to use an inline fragment on "Pet", "Cat", or "Dog"?
       locations:
@@ -240,5 +240,5 @@
               name
             }
           }
-
+          
   errors: []

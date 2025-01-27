@@ -1,7 +1,7 @@
 import fs from "fs";
 import Module from "module";
 import { testSchema } from "./graphql-js/src/validation/__tests__/harness";
-import { printSchema } from "./graphql-js/src/utilities";
+import { printSchema } from "./graphql-js/src";
 import yaml from "js-yaml";
 
 let schemas = [];

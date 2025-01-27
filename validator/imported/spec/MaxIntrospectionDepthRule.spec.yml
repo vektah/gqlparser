@@ -1,0 +1,674 @@
+- name: default introspection query
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        query IntrospectionQuery {
+          __schema {
+            
+            queryType { name kind }
+            mutationType { name kind }
+            subscriptionType { name kind }
+            types {
+              ...FullType
+            }
+            directives {
+              name
+              description
+              
+              locations
+              args {
+                ...InputValue
+              }
+            }
+          }
+        }
+        
+        fragment FullType on __Type {
+          kind
+          name
+          description
+          
+          
+          fields(includeDeprecated: true) {
+            name
+            description
+            args {
+              ...InputValue
+            }
+            type {
+              ...TypeRef
+            }
+            isDeprecated
+            deprecationReason
+          }
+          inputFields {
+            ...InputValue
+          }
+          interfaces {
+            ...TypeRef
+          }
+          enumValues(includeDeprecated: true) {
+            name
+            description
+            isDeprecated
+            deprecationReason
+          }
+          possibleTypes {
+            ...TypeRef
+          }
+        }
+        
+        fragment InputValue on __InputValue {
+          name
+          description
+          type { ...TypeRef }
+          defaultValue
+          
+          
+        }
+        
+        fragment TypeRef on __Type {
+          kind
+          name
+          ofType {
+            kind
+            name
+            ofType {
+              kind
+              name
+              ofType {
+                kind
+                name
+                ofType {
+                  kind
+                  name
+                  ofType {
+                    kind
+                    name
+                    ofType {
+                      kind
+                      name
+                      ofType {
+                        kind
+                        name
+                        ofType {
+                          kind
+                          name
+                          ofType {
+                            kind
+                            name
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+  errors: []
+- name: all options introspection query
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        query IntrospectionQuery {
+          __schema {
+            description
+            queryType { name kind }
+            mutationType { name kind }
+            subscriptionType { name kind }
+            types {
+              ...FullType
+            }
+            directives {
+              name
+              description
+              isRepeatable
+              locations
+              args(includeDeprecated: true) {
+                ...InputValue
+              }
+            }
+          }
+        }
+        
+        fragment FullType on __Type {
+          kind
+          name
+          description
+          specifiedByURL
+          
+          fields(includeDeprecated: true) {
+            name
+            description
+            args(includeDeprecated: true) {
+              ...InputValue
+            }
+            type {
+              ...TypeRef
+            }
+            isDeprecated
+            deprecationReason
+          }
+          inputFields(includeDeprecated: true) {
+            ...InputValue
+          }
+          interfaces {
+            ...TypeRef
+          }
+          enumValues(includeDeprecated: true) {
+            name
+            description
+            isDeprecated
+            deprecationReason
+          }
+          possibleTypes {
+            ...TypeRef
+          }
+        }
+        
+        fragment InputValue on __InputValue {
+          name
+          description
+          type { ...TypeRef }
+          defaultValue
+          isDeprecated
+          deprecationReason
+        }
+        
+        fragment TypeRef on __Type {
+          kind
+          name
+          ofType {
+            kind
+            name
+            ofType {
+              kind
+              name
+              ofType {
+                kind
+                name
+                ofType {
+                  kind
+                  name
+                  ofType {
+                    kind
+                    name
+                    ofType {
+                      kind
+                      name
+                      ofType {
+                        kind
+                        name
+                        ofType {
+                          kind
+                          name
+                          ofType {
+                            kind
+                            name
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+  errors: []
+- name: 3 flat fields introspection query
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        {
+          __type(name: "Query") {
+            trueFields: fields(includeDeprecated: true) {
+              name
+            }
+            falseFields: fields(includeDeprecated: false) {
+              name
+            }
+            omittedFields: fields {
+              name
+            }
+          }
+        }
+        
+  errors: []
+- name: 3 fields deep introspection query from __schema
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        {
+          __schema {
+            types {
+              fields {
+                type {
+                  fields {
+                    type {
+                      fields {
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+  errors:
+    - message: Maximum introspection depth exceeded
+      locations:
+        - {column: 7, line: 3}
+- name: 3 interfaces deep introspection query from __schema
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        {
+          __schema {
+            types {
+              interfaces {
+                interfaces {
+                  interfaces {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+  errors:
+    - message: Maximum introspection depth exceeded
+      locations:
+        - {column: 7, line: 3}
+- name: 3 possibleTypes deep introspection query from __schema
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        {
+          __schema {
+            types {
+              possibleTypes {
+                possibleTypes {
+                  possibleTypes {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+  errors:
+    - message: Maximum introspection depth exceeded
+      locations:
+        - {column: 7, line: 3}
+- name: 3 inputFields deep introspection query from __schema
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        {
+          __schema {
+            types {
+              inputFields {
+                type {
+                  inputFields {
+                    type {
+                      inputFields {
+                        type {
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+  errors:
+    - message: Maximum introspection depth exceeded
+      locations:
+        - {column: 7, line: 3}
+- name: 3 fields deep introspection query from multiple __schema
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        {
+          one: __schema {
+            types {
+              fields {
+                type {
+                  fields {
+                    type {
+                      fields {
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          two: __schema {
+            types {
+              fields {
+                type {
+                  fields {
+                    type {
+                      fields {
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          three: __schema {
+            types {
+              fields {
+                type {
+                  fields {
+                    type {
+                      fields {
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+  errors:
+    - message: Maximum introspection depth exceeded
+      locations:
+        - {column: 7, line: 3}
+    - locations:
+        - {column: 7, line: 18}
+      message: Maximum introspection depth exceeded
+    - locations:
+        - {column: 7, line: 33}
+      message: Maximum introspection depth exceeded
+- name: 3 fields deep introspection query from __type
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        {
+          __type(name: "Query") {
+            types {
+              fields {
+                type {
+                  fields {
+                    type {
+                      fields {
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+  errors:
+    - message: Maximum introspection depth exceeded
+      locations:
+        - {column: 7, line: 3}
+- name: 3 fields deep introspection query from multiple __type
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        {
+          one: __type(name: "Query") {
+            types {
+              fields {
+                type {
+                  fields {
+                    type {
+                      fields {
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          two: __type(name: "Query") {
+            types {
+              fields {
+                type {
+                  fields {
+                    type {
+                      fields {
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          three: __type(name: "Query") {
+            types {
+              fields {
+                type {
+                  fields {
+                    type {
+                      fields {
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+  errors:
+    - message: Maximum introspection depth exceeded
+      locations:
+        - {column: 7, line: 3}
+    - locations:
+        - {column: 7, line: 18}
+      message: Maximum introspection depth exceeded
+    - locations:
+        - {column: 7, line: 33}
+      message: Maximum introspection depth exceeded
+- name: 1 fields deep with 3 fields introspection query
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        {
+          __schema {
+            types {
+              fields {
+                type {
+                  oneFields: fields {
+                    name
+                  }
+                  twoFields: fields {
+                    name
+                  }
+                  threeFields: fields {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+  errors: []
+- name: 3 fields deep from varying parents introspection query
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        {
+          __schema {
+            types {
+              fields {
+                type {
+                  fields {
+                    type {
+                      ofType {
+                        fields {
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+  errors:
+    - message: Maximum introspection depth exceeded
+      locations:
+        - {column: 7, line: 3}
+- name: 3 fields deep introspection query with inline fragments
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        query test {
+          __schema {
+            types {
+              ... on __Type {
+                fields {
+                  type {
+                    ... on __Type {
+                      ofType {
+                        fields {
+                          type {
+                            ... on __Type {
+                              fields {
+                                name
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+  errors:
+    - message: Maximum introspection depth exceeded
+      locations:
+        - {column: 7, line: 3}
+- name: 3 fields deep introspection query with fragments
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        query test {
+          __schema {
+            types {
+              ...One
+            }
+          }
+        }
+        
+        fragment One on __Type {
+          fields {
+            type {
+              ...Two
+            }
+          }
+        }
+        
+        fragment Two on __Type {
+          fields {
+            type {
+              ...Three
+            }
+          }
+        }
+        
+        fragment Three on __Type {
+          fields {
+            name
+          }
+        }
+        
+  errors:
+    - message: Maximum introspection depth exceeded
+      locations:
+        - {column: 7, line: 3}
+- name: 3 fields deep inside inline fragment on query
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        {
+          ... {
+            __schema { types { fields { type { fields { type { fields { name } } } } } } }
+          }
+        }
+        
+  errors:
+    - message: Maximum introspection depth exceeded
+      locations:
+        - {column: 9, line: 4}
+- name: opts out if fragment is missing
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        query test {
+          __schema {
+            types {
+              ...Missing
+            }
+          }
+        }
+        
+  errors: []
+- name: doesn't infinitely recurse on fragment cycle
+  rule: MaxIntrospectionDepth
+  schema: 0
+  query: |2-
+
+        query test {
+          __schema {
+            types {
+              ...Cycle
+            }
+          }
+        }
+        fragment Cycle on __Type {
+          ...Cycle
+        }
+        
+  errors: []

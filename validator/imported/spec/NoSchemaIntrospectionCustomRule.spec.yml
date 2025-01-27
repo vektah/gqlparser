@@ -9,7 +9,7 @@
               someField
             }
           }
-
+          
   errors: []
 - name: ignores fields not in the schema
   rule: NoSchemaIntrospectionCustom
@@ -19,7 +19,7 @@
           {
             __introspect
           }
-
+          
   errors: []
 - name: reports error when a field with an introspection type is requested
   rule: NoSchemaIntrospectionCustom
@@ -33,7 +33,7 @@
               }
             }
           }
-
+          
   errors:
     - message: GraphQL introspection has been disabled, but the requested query contained the field "__schema".
       locations:
@@ -53,7 +53,7 @@
               }
             }
           }
-
+          
   errors:
     - message: GraphQL introspection has been disabled, but the requested query contained the field "__schema".
       locations:
@@ -77,7 +77,7 @@
               }
             }
           }
-
+          
   errors:
     - message: GraphQL introspection has been disabled, but the requested query contained the field "__schema".
       locations:
@@ -95,7 +95,7 @@
               introspectionField
             }
           }
-
+          
   errors:
     - message: GraphQL introspection has been disabled, but the requested query contained the field "introspectionField".
       locations:

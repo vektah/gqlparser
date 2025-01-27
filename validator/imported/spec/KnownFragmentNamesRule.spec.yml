@@ -24,7 +24,7 @@
           fragment HumanFields3 on Human {
             name
           }
-
+          
   errors: []
 - name: unknown fragment names are invalid
   rule: KnownFragmentNames
@@ -43,7 +43,7 @@
             name
             ...UnknownFragment3
           }
-
+          
   errors:
     - message: Unknown fragment "UnknownFragment1".
       locations:

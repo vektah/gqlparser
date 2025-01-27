@@ -6,7 +6,7 @@
           {
             field(arg: { f: true })
           }
-
+          
   errors: []
 - name: same input object within two args
   rule: UniqueInputFieldNames
@@ -16,7 +16,7 @@
           {
             field(arg1: { f: true }, arg2: { f: true })
           }
-
+          
   errors: []
 - name: multiple input object fields
   rule: UniqueInputFieldNames
@@ -26,7 +26,7 @@
           {
             field(arg: { f1: "value", f2: "value", f3: "value" })
           }
-
+          
   errors: []
 - name: allows for nested input objects with similar fields
   rule: UniqueInputFieldNames
@@ -44,7 +44,7 @@
               id: 1
             })
           }
-
+          
   errors: []
 - name: duplicate input object fields
   rule: UniqueInputFieldNames
@@ -54,7 +54,7 @@
           {
             field(arg: { f1: "value", f1: "value" })
           }
-
+          
   errors:
     - message: There can be only one input field named "f1".
       locations:
@@ -68,7 +68,7 @@
           {
             field(arg: { f1: "value", f1: "value", f1: "value" })
           }
-
+          
   errors:
     - message: There can be only one input field named "f1".
       locations:
@@ -86,7 +86,7 @@
           {
             field(arg: { f1: {f2: "value", f2: "value" }})
           }
-
+          
   errors:
     - message: There can be only one input field named "f2".
       locations:

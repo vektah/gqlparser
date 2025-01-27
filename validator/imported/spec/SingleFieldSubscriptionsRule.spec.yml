@@ -6,7 +6,7 @@
           subscription ImportantEmails {
             importantEmails
           }
-
+          
   errors: []
 - name: valid subscription with fragment
   rule: SingleFieldSubscriptions
@@ -23,7 +23,7 @@
               sender
             }
           }
-
+          
   errors: []
 - name: valid subscription with fragment and field
   rule: SingleFieldSubscriptions
@@ -43,7 +43,7 @@
               sender
             }
           }
-
+          
   errors: []
 - name: fails with more than one root field
   rule: SingleFieldSubscriptions
@@ -54,7 +54,7 @@
             importantEmails
             notImportantEmails
           }
-
+          
   errors:
     - message: Subscription "ImportantEmails" must select only one top level field.
       locations:
@@ -68,7 +68,7 @@
             importantEmails
             __typename
           }
-
+          
   errors:
     - message: Subscription "ImportantEmails" must select only one top level field.
       locations:
@@ -88,7 +88,7 @@
           fragment Introspection on SubscriptionRoot {
             typename: __typename
           }
-
+          
   errors:
     - message: Subscription "ImportantEmails" must select only one top level field.
       locations:
@@ -106,7 +106,7 @@
             notImportantEmails
             spamEmails
           }
-
+          
   errors:
     - message: Subscription "ImportantEmails" must select only one top level field.
       locations:
@@ -132,7 +132,7 @@
           fragment SpamEmails on SubscriptionRoot {
             spamEmails
           }
-
+          
   errors:
     - message: Subscription "ImportantEmails" must select only one top level field.
       locations:
@@ -151,7 +151,7 @@
           fragment A on SubscriptionRoot {
             ...A
           }
-
+          
   errors: []
 - name: fails with many more than one root field via fragments (anonymous)
   rule: SingleFieldSubscriptions
@@ -180,7 +180,7 @@
             spamEmails
             ...NonExistentFragment
           }
-
+          
   errors:
     - message: Anonymous Subscription must select only one top level field.
       locations:
@@ -198,7 +198,7 @@
             importantEmails
             notImportantEmails
           }
-
+          
   errors:
     - message: Anonymous Subscription must select only one top level field.
       locations:
@@ -211,7 +211,7 @@
           subscription ImportantEmails {
             __typename
           }
-
+          
   errors:
     - message: Subscription "ImportantEmails" must not select an introspection top level field.
       locations:
@@ -224,7 +224,7 @@
           subscription {
             __typename
           }
-
+          
   errors:
     - message: Anonymous Subscription must not select an introspection top level field.
       locations:
@@ -237,5 +237,5 @@
             subscription {
               __typename
             }
-
+            
   errors: []

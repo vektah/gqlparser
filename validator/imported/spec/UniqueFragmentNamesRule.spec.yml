@@ -6,7 +6,7 @@
           {
             field
           }
-
+          
   errors: []
 - name: one fragment
   rule: UniqueFragmentNames
@@ -20,7 +20,7 @@
           fragment fragA on Type {
             field
           }
-
+          
   errors: []
 - name: many fragments
   rule: UniqueFragmentNames
@@ -41,7 +41,7 @@
           fragment fragC on Type {
             fieldC
           }
-
+          
   errors: []
 - name: inline fragments are always unique
   rule: UniqueFragmentNames
@@ -56,7 +56,7 @@
               fieldB
             }
           }
-
+          
   errors: []
 - name: fragment and operation named the same
   rule: UniqueFragmentNames
@@ -69,7 +69,7 @@
           fragment Foo on Type {
             field
           }
-
+          
   errors: []
 - name: fragments named the same
   rule: UniqueFragmentNames
@@ -85,7 +85,7 @@
           fragment fragA on Type {
             fieldB
           }
-
+          
   errors:
     - message: There can be only one fragment named "fragA".
       locations:
@@ -102,7 +102,7 @@
           fragment fragA on Type {
             fieldB
           }
-
+          
   errors:
     - message: There can be only one fragment named "fragA".
       locations:
