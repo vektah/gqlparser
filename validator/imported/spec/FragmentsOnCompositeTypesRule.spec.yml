@@ -6,7 +6,7 @@
           fragment validFragment on Dog {
             barks
           }
-
+          
   errors: []
 - name: interface is valid fragment type
   rule: FragmentsOnCompositeTypes
@@ -16,7 +16,7 @@
           fragment validFragment on Pet {
             name
           }
-
+          
   errors: []
 - name: object is valid inline fragment type
   rule: FragmentsOnCompositeTypes
@@ -28,7 +28,7 @@
               barks
             }
           }
-
+          
   errors: []
 - name: interface is valid inline fragment type
   rule: FragmentsOnCompositeTypes
@@ -40,7 +40,7 @@
               name
             }
           }
-
+          
   errors: []
 - name: inline fragment without type is valid
   rule: FragmentsOnCompositeTypes
@@ -52,7 +52,7 @@
               name
             }
           }
-
+          
   errors: []
 - name: union is valid fragment type
   rule: FragmentsOnCompositeTypes
@@ -62,7 +62,7 @@
           fragment validFragment on CatOrDog {
             __typename
           }
-
+          
   errors: []
 - name: scalar is invalid fragment type
   rule: FragmentsOnCompositeTypes
@@ -72,7 +72,7 @@
           fragment scalarFragment on Boolean {
             bad
           }
-
+          
   errors:
     - message: Fragment "scalarFragment" cannot condition on non composite type "Boolean".
       locations:
@@ -85,7 +85,7 @@
           fragment scalarFragment on FurColor {
             bad
           }
-
+          
   errors:
     - message: Fragment "scalarFragment" cannot condition on non composite type "FurColor".
       locations:
@@ -98,7 +98,7 @@
           fragment inputFragment on ComplexInput {
             stringField
           }
-
+          
   errors:
     - message: Fragment "inputFragment" cannot condition on non composite type "ComplexInput".
       locations:
@@ -113,7 +113,7 @@
               barks
             }
           }
-
+          
   errors:
     - message: Fragment cannot condition on non composite type "String".
       locations:

@@ -5,7 +5,7 @@
 
           fragment objectWithinObject on Dog { ...dogFragment }
           fragment dogFragment on Dog { barkVolume }
-
+          
   errors: []
 - name: of the same object with inline fragment
   rule: PossibleFragmentSpreads
@@ -13,7 +13,7 @@
   query: |2-
 
           fragment objectWithinObjectAnon on Dog { ... on Dog { barkVolume } }
-
+          
   errors: []
 - name: object into an implemented interface
   rule: PossibleFragmentSpreads
@@ -22,7 +22,7 @@
 
           fragment objectWithinInterface on Pet { ...dogFragment }
           fragment dogFragment on Dog { barkVolume }
-
+          
   errors: []
 - name: object into containing union
   rule: PossibleFragmentSpreads
@@ -31,7 +31,7 @@
 
           fragment objectWithinUnion on CatOrDog { ...dogFragment }
           fragment dogFragment on Dog { barkVolume }
-
+          
   errors: []
 - name: union into contained object
   rule: PossibleFragmentSpreads
@@ -40,7 +40,7 @@
 
           fragment unionWithinObject on Dog { ...catOrDogFragment }
           fragment catOrDogFragment on CatOrDog { __typename }
-
+          
   errors: []
 - name: union into overlapping interface
   rule: PossibleFragmentSpreads
@@ -49,7 +49,7 @@
 
           fragment unionWithinInterface on Pet { ...catOrDogFragment }
           fragment catOrDogFragment on CatOrDog { __typename }
-
+          
   errors: []
 - name: union into overlapping union
   rule: PossibleFragmentSpreads
@@ -58,7 +58,7 @@
 
           fragment unionWithinUnion on DogOrHuman { ...catOrDogFragment }
           fragment catOrDogFragment on CatOrDog { __typename }
-
+          
   errors: []
 - name: interface into implemented object
   rule: PossibleFragmentSpreads
@@ -67,7 +67,7 @@
 
           fragment interfaceWithinObject on Dog { ...petFragment }
           fragment petFragment on Pet { name }
-
+          
   errors: []
 - name: interface into overlapping interface
   rule: PossibleFragmentSpreads
@@ -76,7 +76,7 @@
 
           fragment interfaceWithinInterface on Pet { ...beingFragment }
           fragment beingFragment on Being { name }
-
+          
   errors: []
 - name: interface into overlapping interface in inline fragment
   rule: PossibleFragmentSpreads
@@ -84,7 +84,7 @@
   query: |2-
 
           fragment interfaceWithinInterface on Pet { ... on Being { name } }
-
+          
   errors: []
 - name: interface into overlapping union
   rule: PossibleFragmentSpreads
@@ -93,7 +93,7 @@
 
           fragment interfaceWithinUnion on CatOrDog { ...petFragment }
           fragment petFragment on Pet { name }
-
+          
   errors: []
 - name: ignores incorrect type (caught by FragmentsOnCompositeTypesRule)
   rule: PossibleFragmentSpreads
@@ -102,7 +102,7 @@
 
           fragment petFragment on Pet { ...badInADifferentWay }
           fragment badInADifferentWay on String { name }
-
+          
   errors: []
 - name: ignores unknown fragments (caught by KnownFragmentNamesRule)
   rule: PossibleFragmentSpreads
@@ -110,7 +110,7 @@
   query: |2-
 
           fragment petFragment on Pet { ...UnknownFragment }
-
+          
   errors: []
 - name: different object into object
   rule: PossibleFragmentSpreads
@@ -119,7 +119,7 @@
 
           fragment invalidObjectWithinObject on Cat { ...dogFragment }
           fragment dogFragment on Dog { barkVolume }
-
+          
   errors:
     - message: Fragment "dogFragment" cannot be spread here as objects of type "Cat" can never be of type "Dog".
       locations:
@@ -132,7 +132,7 @@
           fragment invalidObjectWithinObjectAnon on Cat {
             ... on Dog { barkVolume }
           }
-
+          
   errors:
     - message: Fragment cannot be spread here as objects of type "Cat" can never be of type "Dog".
       locations:
@@ -144,7 +144,7 @@
 
           fragment invalidObjectWithinInterface on Pet { ...humanFragment }
           fragment humanFragment on Human { pets { name } }
-
+          
   errors:
     - message: Fragment "humanFragment" cannot be spread here as objects of type "Pet" can never be of type "Human".
       locations:
@@ -156,7 +156,7 @@
 
           fragment invalidObjectWithinUnion on CatOrDog { ...humanFragment }
           fragment humanFragment on Human { pets { name } }
-
+          
   errors:
     - message: Fragment "humanFragment" cannot be spread here as objects of type "CatOrDog" can never be of type "Human".
       locations:
@@ -168,7 +168,7 @@
 
           fragment invalidUnionWithinObject on Human { ...catOrDogFragment }
           fragment catOrDogFragment on CatOrDog { __typename }
-
+          
   errors:
     - message: Fragment "catOrDogFragment" cannot be spread here as objects of type "Human" can never be of type "CatOrDog".
       locations:
@@ -180,7 +180,7 @@
 
           fragment invalidUnionWithinInterface on Pet { ...humanOrAlienFragment }
           fragment humanOrAlienFragment on HumanOrAlien { __typename }
-
+          
   errors:
     - message: Fragment "humanOrAlienFragment" cannot be spread here as objects of type "Pet" can never be of type "HumanOrAlien".
       locations:
@@ -192,7 +192,7 @@
 
           fragment invalidUnionWithinUnion on CatOrDog { ...humanOrAlienFragment }
           fragment humanOrAlienFragment on HumanOrAlien { __typename }
-
+          
   errors:
     - message: Fragment "humanOrAlienFragment" cannot be spread here as objects of type "CatOrDog" can never be of type "HumanOrAlien".
       locations:
@@ -204,7 +204,7 @@
 
           fragment invalidInterfaceWithinObject on Cat { ...intelligentFragment }
           fragment intelligentFragment on Intelligent { iq }
-
+          
   errors:
     - message: Fragment "intelligentFragment" cannot be spread here as objects of type "Cat" can never be of type "Intelligent".
       locations:
@@ -218,7 +218,7 @@
             ...intelligentFragment
           }
           fragment intelligentFragment on Intelligent { iq }
-
+          
   errors:
     - message: Fragment "intelligentFragment" cannot be spread here as objects of type "Pet" can never be of type "Intelligent".
       locations:
@@ -231,7 +231,7 @@
           fragment invalidInterfaceWithinInterfaceAnon on Pet {
             ...on Intelligent { iq }
           }
-
+          
   errors:
     - message: Fragment cannot be spread here as objects of type "Pet" can never be of type "Intelligent".
       locations:
@@ -243,7 +243,7 @@
 
           fragment invalidInterfaceWithinUnion on HumanOrAlien { ...petFragment }
           fragment petFragment on Pet { name }
-
+          
   errors:
     - message: Fragment "petFragment" cannot be spread here as objects of type "HumanOrAlien" can never be of type "Pet".
       locations:

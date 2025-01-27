@@ -6,7 +6,7 @@
           fragment scalarSelection on Dog {
             barks
           }
-
+          
   errors: []
 - name: object type missing selection
   rule: ScalarLeafs
@@ -16,7 +16,7 @@
           query directQueryOnObjectWithoutSubFields {
             human
           }
-
+          
   errors:
     - message: Field "human" of type "Human" must have a selection of subfields. Did you mean "human { ... }"?
       locations:
@@ -29,7 +29,7 @@
           {
             human { pets }
           }
-
+          
   errors:
     - message: Field "pets" of type "[Pet]" must have a selection of subfields. Did you mean "pets { ... }"?
       locations:
@@ -42,7 +42,7 @@
           fragment scalarSelectionWithArgs on Dog {
             doesKnowCommand(dogCommand: SIT)
           }
-
+          
   errors: []
 - name: scalar selection not allowed on Boolean
   rule: ScalarLeafs
@@ -52,7 +52,7 @@
           fragment scalarSelectionsNotAllowedOnBoolean on Dog {
             barks { sinceWhen }
           }
-
+          
   errors:
     - message: Field "barks" must not have a selection since type "Boolean" has no subfields.
       locations:
@@ -65,7 +65,7 @@
           fragment scalarSelectionsNotAllowedOnEnum on Cat {
             furColor { inHexDec }
           }
-
+          
   errors:
     - message: Field "furColor" must not have a selection since type "FurColor" has no subfields.
       locations:
@@ -78,7 +78,7 @@
           fragment scalarSelectionsNotAllowedWithArgs on Dog {
             doesKnowCommand(dogCommand: SIT) { sinceWhen }
           }
-
+          
   errors:
     - message: Field "doesKnowCommand" must not have a selection since type "Boolean" has no subfields.
       locations:
@@ -91,7 +91,7 @@
           fragment scalarSelectionsNotAllowedWithDirectives on Dog {
             name @include(if: true) { isAlsoHumanName }
           }
-
+          
   errors:
     - message: Field "name" must not have a selection since type "String" has no subfields.
       locations:
@@ -104,7 +104,7 @@
           fragment scalarSelectionsNotAllowedWithDirectivesAndArgs on Dog {
             doesKnowCommand(dogCommand: SIT) @include(if: true) { sinceWhen }
           }
-
+          
   errors:
     - message: Field "doesKnowCommand" must not have a selection since type "Boolean" has no subfields.
       locations:

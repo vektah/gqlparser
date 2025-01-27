@@ -5,7 +5,7 @@
 
           query A($x: Int, $y: String) { __typename }
           query B($x: String, $y: Int) { __typename }
-
+          
   errors: []
 - name: duplicate variable names
   rule: UniqueVariableNames
@@ -15,7 +15,7 @@
           query A($x: Int, $x: Int, $x: String) { __typename }
           query B($x: String, $x: Int) { __typename }
           query C($x: Int, $x: Int) { __typename }
-
+          
   errors:
     - message: There can be only one variable named "$x".
       locations:

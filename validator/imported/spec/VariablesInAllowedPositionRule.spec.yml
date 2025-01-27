@@ -9,7 +9,7 @@
               booleanArgField(booleanArg: $booleanArg)
             }
           }
-
+          
   errors: []
 - name: Boolean => Boolean within fragment
   rule: VariablesInAllowedPosition
@@ -25,7 +25,7 @@
               ...booleanArgFrag
             }
           }
-
+          
   errors: []
 - name: Boolean => Boolean within fragment
   rule: VariablesInAllowedPosition
@@ -41,7 +41,7 @@
           fragment booleanArgFrag on ComplicatedArgs {
             booleanArgField(booleanArg: $booleanArg)
           }
-
+          
   errors: []
 - name: Boolean! => Boolean
   rule: VariablesInAllowedPosition
@@ -54,7 +54,7 @@
               booleanArgField(booleanArg: $nonNullBooleanArg)
             }
           }
-
+          
   errors: []
 - name: Boolean! => Boolean within fragment
   rule: VariablesInAllowedPosition
@@ -71,7 +71,7 @@
               ...booleanArgFrag
             }
           }
-
+          
   errors: []
 - name: '[String] => [String]'
   rule: VariablesInAllowedPosition
@@ -84,7 +84,7 @@
               stringListArgField(stringListArg: $stringListVar)
             }
           }
-
+          
   errors: []
 - name: '[String!] => [String]'
   rule: VariablesInAllowedPosition
@@ -97,7 +97,7 @@
               stringListArgField(stringListArg: $stringListVar)
             }
           }
-
+          
   errors: []
 - name: String => [String] in item position
   rule: VariablesInAllowedPosition
@@ -110,7 +110,7 @@
               stringListArgField(stringListArg: [$stringVar])
             }
           }
-
+          
   errors: []
 - name: String! => [String] in item position
   rule: VariablesInAllowedPosition
@@ -123,7 +123,7 @@
               stringListArgField(stringListArg: [$stringVar])
             }
           }
-
+          
   errors: []
 - name: ComplexInput => ComplexInput
   rule: VariablesInAllowedPosition
@@ -136,7 +136,7 @@
               complexArgField(complexArg: $complexVar)
             }
           }
-
+          
   errors: []
 - name: ComplexInput => ComplexInput in field position
   rule: VariablesInAllowedPosition
@@ -149,7 +149,7 @@
               complexArgField(complexArg: {requiredArg: $boolVar})
             }
           }
-
+          
   errors: []
 - name: Boolean! => Boolean! in directive
   rule: VariablesInAllowedPosition
@@ -160,7 +160,7 @@
           {
             dog @include(if: $boolVar)
           }
-
+          
   errors: []
 - name: Int => Int!
   rule: VariablesInAllowedPosition
@@ -172,7 +172,7 @@
               nonNullIntArgField(nonNullIntArg: $intArg)
             }
           }
-
+          
   errors:
     - message: Variable "$intArg" of type "Int" used in position expecting type "Int!".
       locations:
@@ -192,7 +192,7 @@
               ...nonNullIntArgFieldFrag
             }
           }
-
+          
   errors:
     - message: Variable "$intArg" of type "Int" used in position expecting type "Int!".
       locations:
@@ -216,7 +216,7 @@
               ...outerFrag
             }
           }
-
+          
   errors:
     - message: Variable "$intArg" of type "Int" used in position expecting type "Int!".
       locations:
@@ -232,7 +232,7 @@
               booleanArgField(booleanArg: $stringVar)
             }
           }
-
+          
   errors:
     - message: Variable "$stringVar" of type "String" used in position expecting type "Boolean".
       locations:
@@ -248,7 +248,7 @@
               stringListArgField(stringListArg: $stringVar)
             }
           }
-
+          
   errors:
     - message: Variable "$stringVar" of type "String" used in position expecting type "[String]".
       locations:
@@ -262,7 +262,7 @@
           query Query($boolVar: Boolean) {
             dog @include(if: $boolVar)
           }
-
+          
   errors:
     - message: Variable "$boolVar" of type "Boolean" used in position expecting type "Boolean!".
       locations:
@@ -276,7 +276,7 @@
           query Query($stringVar: String) {
             dog @include(if: $stringVar)
           }
-
+          
   errors:
     - message: Variable "$stringVar" of type "String" used in position expecting type "Boolean!".
       locations:
@@ -293,7 +293,7 @@
               stringListNonNullArgField(stringListNonNullArg: $stringListVar)
             }
           }
-
+          
   errors:
     - message: Variable "$stringListVar" of type "[String]" used in position expecting type "[String!]".
       locations:
@@ -309,7 +309,7 @@
                 nonNullIntArgField(nonNullIntArg: $intVar)
               }
             }
-
+            
   errors:
     - message: Variable "$intVar" of type "Int" used in position expecting type "Int!".
       locations:
