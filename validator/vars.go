@@ -41,7 +41,6 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 				hasValue = true
 			} else if v.Type.NonNull {
 				return nil, gqlerror.ErrorPathf(validator.path, "must be defined")
-			}
 		}
 
 		if hasValue {
@@ -67,7 +66,6 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 							return nil, gqlerror.ErrorPathf(validator.path, "cannot use value %f as %s", f, v.Type.NamedType)
 						}
 						rv = reflect.ValueOf(f)
-					}
 				}
 				if rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
 					rv = rv.Elem()
@@ -78,7 +76,6 @@ func VariableValues(schema *ast.Schema, op *ast.OperationDefinition, variables m
 					return nil, err
 				}
 				coercedVars[v.Variable] = rval.Interface()
-			}
 		}
 
 		validator.path = validator.path[0 : len(validator.path)-1]
@@ -118,7 +115,6 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 			_, err := v.validateVarType(typ.Elem, field)
 			if err != nil {
 				return val, err
-			}
 		}
 		return val, nil
 	}
@@ -142,7 +138,6 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 		for _, enumVal := range def.EnumValues {
 			if strings.EqualFold(val.String(), enumVal.Name) {
 				isValidEnum = true
-			}
 		}
 		if !isValidEnum {
 			return val, gqlerror.ErrorPathf(v.path, "%s is not a valid %s", val.String(), def.Name)
@@ -178,12 +173,22 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 			return val, nil
 		}
 		return val, gqlerror.ErrorPathf(v.path, "cannot use %s as %s", kind.String(), typ.NamedType)
+		// Apply default values for input objects when using inline arguments
+		for _, fieldDef := range def.Fields {
+			if !val.MapIndex(reflect.ValueOf(fieldDef.Name)).IsValid() && fieldDef.DefaultValue != nil {
+				defaultValue, err := fieldDef.DefaultValue.Value(nil)
+				if err == nil {
+					val.SetMapIndex(reflect.ValueOf(fieldDef.Name), reflect.ValueOf(defaultValue))
+				}
+			}
+		}
 	case ast.InputObject:
 		if val.Kind() != reflect.Map {
 			return val, gqlerror.ErrorPathf(v.path, "must be a %s, not a %s", def.Name, val.Kind())
 		}
 
 		// check for unknown fields
+		// Check for unknown fields and apply default values
 		for _, name := range val.MapKeys() {
 			val.MapIndex(name)
 			fieldDef := def.Fields.ForName(name.String())
@@ -195,22 +200,39 @@ func (v *varValidator) validateVarType(typ *ast.Type, val reflect.Value) (reflec
 				continue
 			case fieldDef == nil:
 				return val, gqlerror.ErrorPathf(v.path, "unknown field")
-			}
 		}
 
-		for _, fieldDef := range def.Fields {
+		// Validate fields and apply default values
 			resetPath()
 			v.path = append(v.path, ast.PathName(fieldDef.Name))
 
 			field := val.MapIndex(reflect.ValueOf(fieldDef.Name))
+			if !field.IsValid() && fieldDef.DefaultValue != nil {
+				defaultValue, err := fieldDef.DefaultValue.Value(nil)
+				if err == nil {
+					field = reflect.ValueOf(defaultValue)
+					val.SetMapIndex(reflect.ValueOf(fieldDef.Name), field)
+				}
+			}
 			if !field.IsValid() {
 				if fieldDef.Type.NonNull {
+					if fieldDef.DefaultValue != nil {
+						defaultValue, err := fieldDef.DefaultValue.Value(nil)
+						if err == nil {
+							field = reflect.ValueOf(defaultValue)
+							val.SetMapIndex(reflect.ValueOf(fieldDef.Name), field)
+							continue
+						}
+					}
+					return val, gqlerror.ErrorPathf(v.path, "must be defined")
+				}
+				continue
+			}
 					if fieldDef.DefaultValue != nil {
 						var err error
 						_, err = fieldDef.DefaultValue.Value(nil)
 						if err == nil {
 							continue
-						}
 					}
 					return val, gqlerror.ErrorPathf(v.path, "must be defined")
 				}
