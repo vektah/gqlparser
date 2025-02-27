@@ -160,7 +160,6 @@ func TestSchemaDescriptionWithQuotesAtEnd(t *testing.T) {
 		  field: String
 		}
 		`, BuiltIn: false})
-		require.Error(t, err, "Currently fails but should parse successfully")
-		require.Contains(t, err.Error(), "Unexpected <Invalid>", "Error should be about unexpected invalid token")
+		require.NoError(t, err, "Schema with quotes at end of description should parse successfully")
 	})
 }
