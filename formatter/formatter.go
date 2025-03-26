@@ -552,7 +552,7 @@ func (f *formatter) FormatOperationDefinition(def *ast.OperationDefinition) {
 
 	f.WriteWord(string(def.Operation))
 	if def.Name != "" {
-		f.WriteWord(def.Name)
+		f.WriteString(def.Name)
 	}
 	f.FormatVariableDefinitionList(def.VariableDefinitions)
 	f.FormatDirectiveList(def.Directives)
