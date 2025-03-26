@@ -7,7 +7,7 @@ query FooBarQuery($after: String!) {
 			# id comment
 			id
 			# FooFragment comment
-			... FooFragment
+			...FooFragment
 			# on Foo comment
 			... on Foo {
 				# on Foo id comment

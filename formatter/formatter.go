@@ -707,7 +707,7 @@ func (f *formatter) FormatField(field *ast.Field) {
 func (f *formatter) FormatFragmentSpread(spread *ast.FragmentSpread) {
 	f.FormatCommentGroup(spread.Comment)
 
-	f.WriteWord("...").WriteWord(spread.Name)
+	f.WriteString("...").WriteWord(spread.Name)
 
 	f.FormatDirectiveList(spread.Directives)
 }
