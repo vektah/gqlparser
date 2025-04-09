@@ -1,33 +1,32 @@
 name: golangci-lint
 on:
-  workflow_dispatch:
   push:
     branches:
-      - master
+    - master
   pull_request:
-    types: [ opened, synchronize ]
+    types: [opened, synchronize]
 # When a new revision is pushed to a PR, cancel all in-progress CI runs for that
 # PR. See https://docs.github.com/en/actions/using-jobs/using-concurrency
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
-
 env:
+  GOTOOLCHAIN: local
   GOFLAGS: "-trimpath"
 jobs:
   golangci-lint:
     strategy:
       matrix:
-        go: ["1.22", "1.23"]
+        go: ["1.23", "1.24"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ${{ matrix.go }}
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v7.0.0
-        with:
-          version: latest
-          args: '--timeout 5m'
-          # only-new-issues: true #show only new issues if it's a pull request. options working-directory and only-new-issues are incompatible
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.go }}
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v7.0.0
+      with:
+        version: latest
+        args: '--timeout 5m'
+        # only-new-issues: true #show only new issues if it's a pull request. options working-directory and only-new-issues are incompatible
