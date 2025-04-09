@@ -47,6 +47,13 @@ func WithoutDescription() FormatterOption {
 	}
 }
 
+// WithCompacted enables compacted output, which removes all unnecessary whitespace.
+func WithCompacted() FormatterOption {
+	return func(f *formatter) {
+		f.compacted = true
+	}
+}
+
 func NewFormatter(w io.Writer, options ...FormatterOption) Formatter {
 	f := &formatter{
 		indent: "\t",
@@ -66,6 +73,7 @@ type formatter struct {
 	emitBuiltin     bool
 	emitComments    bool
 	omitDescription bool
+	compacted       bool
 
 	padNext  bool
 	lineHead bool
@@ -553,6 +561,9 @@ func (f *formatter) FormatOperationDefinition(def *ast.OperationDefinition) {
 	f.WriteWord(string(def.Operation))
 	if def.Name != "" {
 		f.WriteWord(def.Name)
+		if f.compacted {
+			f.NoPadding()
+		}
 	}
 	f.FormatVariableDefinitionList(def.VariableDefinitions)
 	f.FormatDirectiveList(def.Directives)
@@ -707,7 +718,11 @@ func (f *formatter) FormatField(field *ast.Field) {
 func (f *formatter) FormatFragmentSpread(spread *ast.FragmentSpread) {
 	f.FormatCommentGroup(spread.Comment)
 
-	f.WriteWord("...").WriteWord(spread.Name)
+	f.WriteWord("...")
+	if f.compacted {
+		f.NoPadding()
+	}
+	f.WriteWord(spread.Name)
 
 	f.FormatDirectiveList(spread.Directives)
 }
