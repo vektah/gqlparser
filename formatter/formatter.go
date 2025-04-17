@@ -176,7 +176,11 @@ func (f *formatter) FormatSchema(schema *ast.Schema) {
 		if !inSchema {
 			inSchema = true
 
-			f.WriteWord("schema").WriteString("{").WriteNewline()
+			f.WriteWord("schema")
+
+			f.FormatDirectiveList(schema.SchemaDirectives)
+
+			f.WriteString("{").WriteNewline()
 			f.IncrementIndent()
 		}
 	}
@@ -283,22 +287,43 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 	if extension {
 		f.WriteWord("extend")
 	}
-	f.WriteWord("schema").WriteString("{").WriteNewline()
-	f.IncrementIndent()
+	f.WriteWord("schema")
 
+	f.IncrementIndent()
 	for _, def := range lists {
-		f.FormatSchemaDefinition(def)
+		f.FormatDirectiveList(def.Directives)
+	}
+	f.DecrementIndent()
+
+	// Don't output empty schema definition block for extensions
+	if !extension || !f.IsSchemaDefinitionsEmpty(lists) {
+		f.WriteString("{").WriteNewline()
+		f.IncrementIndent()
+
+		for _, def := range lists {
+			f.FormatSchemaDefinition(def)
+		}
+
+		f.FormatCommentGroup(endOfDefinitionComment)
+
+		f.DecrementIndent()
+		f.WriteString("}")
 	}
 
-	f.FormatCommentGroup(endOfDefinitionComment)
+	f.WriteNewline()
+}
 
-	f.DecrementIndent()
-	f.WriteString("}").WriteNewline()
+// Return true if schema definitions is empty (besides directives), false otherwise
+func (f *formatter) IsSchemaDefinitionsEmpty(lists ast.SchemaDefinitionList) bool {
+	for _, def := range lists {
+		if len(def.OperationTypes) > 0 {
+			return false
+		}
+	}
+	return true
 }
 
 func (f *formatter) FormatSchemaDefinition(def *ast.SchemaDefinition) {
-	f.FormatDirectiveList(def.Directives)
-
 	f.FormatOperationTypeDefinitionList(def.OperationTypes)
 }
 
