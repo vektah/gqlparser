@@ -176,7 +176,11 @@ func (f *formatter) FormatSchema(schema *ast.Schema) {
 		if !inSchema {
 			inSchema = true
 
-			f.WriteWord("schema").WriteString("{").WriteNewline()
+			f.WriteWord("schema")
+
+			f.FormatDirectiveList(schema.SchemaDirectives)
+
+			f.WriteString("{").WriteNewline()
 			f.IncrementIndent()
 		}
 	}
