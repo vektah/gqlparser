@@ -1,0 +1,11 @@
+schema @schemaDirective(arg: ["val1","val2"]) @schemaExtensionDirective1(arg: ["val1","val2"]) @schemaExtensionDirective2(arg: ["val1","val2"]) @schemaExtensionDirective3(arg: ["val1","val2"]) {
+	query: Dummy
+	subscription: Dummy
+}
+directive @schemaDirective(arg: [String!]!) on SCHEMA
+directive @schemaExtensionDirective1(arg: [String!]!) on SCHEMA
+directive @schemaExtensionDirective2(arg: [String!]!) on SCHEMA
+directive @schemaExtensionDirective3(arg: [String!]!) on SCHEMA
+type Dummy {
+	id: ID
+}
