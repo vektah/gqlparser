@@ -1,0 +1,5 @@
+extend schema @schemaDirective
+directive @schemaDirective on SCHEMA
+type Query {
+	id: ID
+}
