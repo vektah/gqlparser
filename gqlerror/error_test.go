@@ -53,6 +53,18 @@ func TestErrorFormatting(t *testing.T) {
 	})
 }
 
+func TestErrorPosition(t *testing.T) {
+	t.Run("with nil position", func(t *testing.T) {
+		err := ErrorLocf("", -1, -1, "kabloom")
+		errNilPosition := ErrorPosf(nil, "%s", "kabloom")
+
+		require.Equal(t, `input:-1:-1: kabloom`, err.Error())
+		require.Equal(t, errNilPosition.Error(), err.Error())
+		require.Nil(t, err.Extensions["file"])
+		require.Nil(t, errNilPosition.Extensions["file"])
+	})
+}
+
 func TestList_As(t *testing.T) {
 	t.Parallel()
 
