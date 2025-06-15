@@ -1,0 +1,57 @@
+"""
+schema description
+"""
+schema {
+	query: TopQuery
+	mutation: Mutation
+}
+type Mutation {
+	noop: Boolean
+	noop2(
+		"""
+		noop2 foo bar
+		"""
+		arg: String
+	): Boolean
+	noop3(
+		"""
+		noop3 foo bar
+		"""
+		arg: String
+	): Boolean
+}
+type TopQuery {
+	noop: Boolean
+	noop2(
+		"""
+		noop2 foo bar
+		"""
+		arg: String
+	): Boolean
+	noop3(
+		"""
+		noop3 foo bar
+		"""
+		arg: String
+	): Boolean
+}
+type Subscription {
+	noop: Boolean
+	noop2(
+		"""
+		noop2 foo bar
+		"""
+		arg: String
+	): Boolean
+	noop3(
+		"""
+		noop3 foo bar
+		"""
+		arg1: String
+
+		"""
+		noop3 foo bar
+		"""
+		arg2: String
+	): Boolean
+}
