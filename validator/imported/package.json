@@ -14,7 +14,7 @@
     "js-yaml": "^4.0.0"
   },
   "devDependencies": {
-    "prettier": "^3.5.3"
+    "prettier": "^3.6.0"
   },
   "engines": {
     "node": ">= 22"
