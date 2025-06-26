@@ -4,7 +4,7 @@ import (
 	"github.com/vektah/gqlparser/v2/ast"
 
 	//nolint:staticcheck // Validator rules each use dot imports for convenience.
-	. "github.com/vektah/gqlparser/v2/validator"
+	. "github.com/vektah/gqlparser/v2/validator/core"
 )
 
 var UniqueOperationNamesRule = Rule{
@@ -24,6 +24,3 @@ var UniqueOperationNamesRule = Rule{
 	},
 }
 
-func init() {
-	AddRule(UniqueOperationNamesRule.Name, UniqueOperationNamesRule.RuleFunc)
-}

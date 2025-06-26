@@ -4,7 +4,7 @@ import (
 	"github.com/vektah/gqlparser/v2/ast"
 
 	//nolint:staticcheck // Validator rules each use dot imports for convenience.
-	. "github.com/vektah/gqlparser/v2/validator"
+	. "github.com/vektah/gqlparser/v2/validator/core"
 )
 
 func ruleFuncKnownTypeNames(observers *Events, addError AddErrFunc, disableSuggestion bool) {
@@ -79,6 +79,3 @@ var KnownTypeNamesRuleWithoutSuggestions = Rule{
 	},
 }
 
-func init() {
-	AddRule(KnownTypeNamesRule.Name, KnownTypeNamesRule.RuleFunc)
-}

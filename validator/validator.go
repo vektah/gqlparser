@@ -4,18 +4,35 @@ import (
 	//nolint:staticcheck // bad, yeah
 	. "github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
+	"github.com/vektah/gqlparser/v2/validator/core"
+	validatorrules "github.com/vektah/gqlparser/v2/validator/rules"
 )
 
-type AddErrFunc func(options ...ErrorOption)
+type AddErrFunc = core.AddErrFunc
+type RuleFunc = core.RuleFunc
+type Rule = core.Rule
+type Events = core.Events
+type ErrorOption = core.ErrorOption
+type Walker = core.Walker
 
-type RuleFunc func(observers *Events, addError AddErrFunc)
+var Message = core.Message
+var QuotedOrList = core.QuotedOrList
+var OrList = core.OrList
 
-type Rule struct {
-	Name     string
-	RuleFunc RuleFunc
+// Walk is an alias for core.Walk
+func Walk(schema *Schema, document *QueryDocument, observers *Events) {
+	core.Walk(schema, document, observers)
 }
 
 var specifiedRules []Rule
+
+func init() {
+	// Initialize specifiedRules with default rules
+	defaultRules := validatorrules.NewDefaultRules()
+	for name, ruleFunc := range defaultRules.GetInner() {
+		specifiedRules = append(specifiedRules, Rule{Name: name, RuleFunc: ruleFunc})
+	}
+}
 
 // AddRule adds a rule to the rule set.
 // ruleFunc is called once each time `Validate` is executed.
@@ -74,7 +91,7 @@ func Validate(schema *Schema, doc *QueryDocument, rules ...Rule) gqlerror.List {
 	if len(errs) > 0 {
 		return errs
 	}
-	observers := &Events{}
+	observers := &core.Events{}
 	for i := range rules {
 		rule := rules[i]
 		rule.RuleFunc(observers, func(options ...ErrorOption) {
