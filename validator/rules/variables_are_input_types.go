@@ -29,4 +29,3 @@ var VariablesAreInputTypesRule = Rule{
 		})
 	},
 }
-

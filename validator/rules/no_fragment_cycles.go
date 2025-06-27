@@ -71,7 +71,6 @@ var NoFragmentCyclesRule = Rule{
 	},
 }
 
-
 func getFragmentSpreads(node ast.SelectionSet) []*ast.FragmentSpread {
 	var spreads []*ast.FragmentSpread
 

@@ -78,4 +78,3 @@ var KnownTypeNamesRuleWithoutSuggestions = Rule{
 		ruleFuncKnownTypeNames(observers, addError, true)
 	},
 }
-

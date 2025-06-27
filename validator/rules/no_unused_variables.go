@@ -31,4 +31,3 @@ var NoUnusedVariablesRule = Rule{
 		})
 	},
 }
-

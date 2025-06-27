@@ -20,4 +20,3 @@ var LoneAnonymousOperationRule = Rule{
 		})
 	},
 }
-

@@ -29,4 +29,3 @@ var NoUndefinedVariablesRule = Rule{
 		})
 	},
 }
-

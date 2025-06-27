@@ -1,8 +1,9 @@
 package validator_test
 
 import (
-	"github.com/vektah/gqlparser/v2/validator/rules"
 	"testing"
+
+	"github.com/vektah/gqlparser/v2/validator/rules"
 
 	"github.com/stretchr/testify/require"
 

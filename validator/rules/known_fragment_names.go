@@ -20,4 +20,3 @@ var KnownFragmentNamesRule = Rule{
 		})
 	},
 }
-

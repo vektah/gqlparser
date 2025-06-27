@@ -84,4 +84,3 @@ func checkDepthFragmentSpread(fragmentSpread *ast.FragmentSpread, visitedFragmen
 	defer delete(visitedFragments, fragmentName)
 	return checkDepthSelectionSet(fragment.SelectionSet, visitedFragments, depth)
 }
-

@@ -1,14 +1,14 @@
 package rules
 
-import . "github.com/vektah/gqlparser/v2/validator/core"
+import "github.com/vektah/gqlparser/v2/validator/core"
 
 type Rules struct {
-	rules map[string]RuleFunc
+	rules map[string]core.RuleFunc
 }
 
-func NewRules(rs ...Rule) *Rules {
+func NewRules(rs ...core.Rule) *Rules {
 	r := &Rules{
-		rules: make(map[string]RuleFunc),
+		rules: make(map[string]core.RuleFunc),
 	}
 
 	for _, rule := range rs {
@@ -19,7 +19,7 @@ func NewRules(rs ...Rule) *Rules {
 }
 
 func NewDefaultRules() *Rules {
-	rules := []Rule{
+	rules := []core.Rule{
 		FieldsOnCorrectTypeRule,
 		FragmentsOnCompositeTypesRule,
 		KnownArgumentNamesRule,
@@ -54,16 +54,16 @@ func NewDefaultRules() *Rules {
 	return r
 }
 
-func (r *Rules) AddRule(name string, ruleFunc RuleFunc) {
+func (r *Rules) AddRule(name string, ruleFunc core.RuleFunc) {
 	if r.rules == nil {
-		r.rules = make(map[string]RuleFunc)
+		r.rules = make(map[string]core.RuleFunc)
 	}
 	r.rules[name] = ruleFunc
 }
 
-func (r *Rules) GetInner() map[string]RuleFunc {
+func (r *Rules) GetInner() map[string]core.RuleFunc {
 	if r.rules == nil {
-		return make(map[string]RuleFunc)
+		return make(map[string]core.RuleFunc)
 	}
 	return r.rules
 }
@@ -74,9 +74,9 @@ func (r *Rules) RemoveRule(name string) {
 	}
 }
 
-func (r *Rules) ReplaceRule(name string, ruleFunc RuleFunc) {
+func (r *Rules) ReplaceRule(name string, ruleFunc core.RuleFunc) {
 	if r.rules == nil {
-		r.rules = make(map[string]RuleFunc)
+		r.rules = make(map[string]core.RuleFunc)
 	}
 	r.rules[name] = ruleFunc
 }

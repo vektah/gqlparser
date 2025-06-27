@@ -31,7 +31,7 @@ func MustLoadSchema(str ...*ast.Source) *ast.Schema {
 	return s
 }
 
-// deprecated: use LoadQueryWithRules instead.
+// Deprecated: use LoadQueryWithRules instead.
 func LoadQuery(schema *ast.Schema, str string) (*ast.QueryDocument, gqlerror.List) {
 	query, err := parser.ParseQuery(&ast.Source{Input: str})
 	if err != nil {
@@ -66,7 +66,7 @@ func LoadQueryWithRules(schema *ast.Schema, str string, rules *rules.Rules) (*as
 	return query, nil
 }
 
-// deprecated: use MustLoadQueryWithRules instead.
+// Deprecated: use MustLoadQueryWithRules instead.
 func MustLoadQuery(schema *ast.Schema, str string) *ast.QueryDocument {
 	q, err := LoadQuery(schema, str)
 	if err != nil {

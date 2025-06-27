@@ -23,4 +23,3 @@ var UniqueFragmentNamesRule = Rule{
 		})
 	},
 }
-
