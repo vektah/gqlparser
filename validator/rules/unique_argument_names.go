@@ -20,7 +20,6 @@ var UniqueArgumentNamesRule = Rule{
 	},
 }
 
-
 func checkUniqueArgs(args ast.ArgumentList, addError AddErrFunc) {
 	knownArgNames := map[string]int{}
 

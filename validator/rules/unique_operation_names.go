@@ -23,4 +23,3 @@ var UniqueOperationNamesRule = Rule{
 		})
 	},
 }
-

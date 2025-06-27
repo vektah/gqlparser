@@ -108,7 +108,6 @@ var OverlappingFieldsCanBeMergedRule = Rule{
 	},
 }
 
-
 type pairSet struct {
 	data map[string]map[string]bool
 }

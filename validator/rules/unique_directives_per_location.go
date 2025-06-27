@@ -25,4 +25,3 @@ var UniqueDirectivesPerLocationRule = Rule{
 		})
 	},
 }
-

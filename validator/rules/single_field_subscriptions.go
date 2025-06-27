@@ -44,7 +44,6 @@ var SingleFieldSubscriptionsRule = Rule{
 	},
 }
 
-
 type topField struct {
 	name     string
 	position *ast.Position

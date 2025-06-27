@@ -213,7 +213,6 @@ var ValuesOfCorrectTypeRuleWithoutSuggestions = Rule{
 	},
 }
 
-
 func unexpectedTypeMessage(addError AddErrFunc, v *ast.Value) {
 	addError(
 		unexpectedTypeMessageOnly(v),

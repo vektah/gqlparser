@@ -82,4 +82,3 @@ var KnownArgumentNamesRuleWithoutSuggestions = Rule{
 		ruleFuncKnownArgumentNames(observers, addError, true)
 	},
 }
-

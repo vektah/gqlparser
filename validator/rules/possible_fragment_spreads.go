@@ -68,4 +68,3 @@ var PossibleFragmentSpreadsRule = Rule{
 		})
 	},
 }
-
