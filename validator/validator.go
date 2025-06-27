@@ -76,6 +76,7 @@ func ReplaceRule(name string, ruleFunc RuleFunc) {
 	specifiedRules = result
 }
 
+// Deprecated: use ValidateWithRules instead.
 func Validate(schema *Schema, doc *QueryDocument, rules ...Rule) gqlerror.List {
 	if rules == nil {
 		rules = specifiedRules
