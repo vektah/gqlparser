@@ -108,3 +108,35 @@ func Validate(schema *Schema, doc *QueryDocument, rules ...Rule) gqlerror.List {
 	Walk(schema, doc, observers)
 	return errs
 }
+
+func ValidateWithRules(schema *Schema, doc *QueryDocument, rules *validatorrules.Rules) gqlerror.List {
+	if rules == nil {
+		rules = validatorrules.NewDefaultRules()
+	}
+
+	var errs gqlerror.List
+	if schema == nil {
+		errs = append(errs, gqlerror.Errorf("cannot validate as Schema is nil"))
+	}
+	if doc == nil {
+		errs = append(errs, gqlerror.Errorf("cannot validate as QueryDocument is nil"))
+	}
+	if len(errs) > 0 {
+		return errs
+	}
+	observers := &core.Events{}
+	for name, ruleFunc := range rules.GetInner() {
+		ruleFunc(observers, func(options ...ErrorOption) {
+			err := &gqlerror.Error{
+				Rule: name,
+			}
+			for _, o := range options {
+				o(err)
+			}
+			errs = append(errs, err)
+		})
+	}
+
+	Walk(schema, doc, observers)
+	return errs
+}

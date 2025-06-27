@@ -1,6 +1,7 @@
 package validator_test
 
 import (
+	"github.com/vektah/gqlparser/v2/validator/rules"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -39,6 +40,7 @@ extend type Query {
 	}`})
 	require.NoError(t, err)
 	require.Nil(t, validator.Validate(s, q))
+	require.Nil(t, validator.ValidateWithRules(s, q, nil))
 }
 
 func TestValidationRulesAreIndependent(t *testing.T) {
@@ -96,6 +98,61 @@ query SomeOperation ($locale: Locale! = DE) {
 	require.EqualError(t, r1[0], errorString)
 }
 
+func TestValidationRulesAreIndependentWithRules(t *testing.T) {
+	s := gqlparser.MustLoadSchema(
+		&ast.Source{Name: "graph/schema.graphqls", Input: `
+extend type Query {
+    myAction(myEnum: Locale!): SomeResult!
+}
+
+type SomeResult {
+    id: String
+}
+
+enum Locale {
+    EN
+    LT
+    DE
+}
+`, BuiltIn: false},
+	)
+
+	// Validation as a first call
+	q1, err := parser.ParseQuery(&ast.Source{
+		Name: "SomeOperation", Input: `
+query SomeOperation {
+	# Note: Not providing mandatory parameter: (myEnum: Locale!)
+	myAction {
+		id
+	}
+}
+	`,
+	})
+	require.NoError(t, err)
+	r1 := validator.ValidateWithRules(s, q1, nil)
+	require.Len(t, r1, 1)
+	const errorString = `SomeOperation:4:2: Field "myAction" argument "myEnum" of type "Locale!" is required, but it was not provided.`
+	require.EqualError(t, r1[0], errorString)
+
+	// Some other call that should not affect validator behavior
+	q2, err := parser.ParseQuery(&ast.Source{
+		Name: "SomeOperation", Input: `
+# Note: there is default enum value in variables
+query SomeOperation ($locale: Locale! = DE) {
+	myAction(myEnum: $locale) {
+		id
+	}
+}
+	`,
+	})
+	require.NoError(t, err)
+	require.Nil(t, validator.ValidateWithRules(s, q2, nil))
+
+	// Repeating same query and expecting to still return same validation error
+	require.Len(t, r1, 1)
+	require.EqualError(t, r1[0], errorString)
+}
+
 func TestDeprecatingTypes(t *testing.T) {
 	schema := &ast.Source{
 		Name: "graph/schema.graphqls",
@@ -140,6 +197,30 @@ func TestNoUnusedVariables(t *testing.T) {
 	})
 }
 
+func TestNoUnusedVariablesWithRules(t *testing.T) {
+	// https://github.com/99designs/gqlgen/issues/2028
+	t.Run("gqlgen issues #2028", func(t *testing.T) {
+		s := gqlparser.MustLoadSchema(
+			&ast.Source{Name: "graph/schema.graphqls", Input: `
+	type Query {
+		bar: String!
+	}
+	`, BuiltIn: false},
+		)
+
+		q, err := parser.ParseQuery(&ast.Source{Name: "2028", Input: `
+			query Foo($flag: Boolean!) {
+				...Bar
+			}
+			fragment Bar on Query {
+				bar @include(if: $flag)
+			}
+		`})
+		require.NoError(t, err)
+		require.Nil(t, validator.ValidateWithRules(s, q, nil))
+	})
+}
+
 func TestCustomRuleSet(t *testing.T) {
 	someRule := validator.Rule{
 		Name: "SomeRule",
@@ -174,6 +255,45 @@ func TestCustomRuleSet(t *testing.T) {
 		`})
 	require.NoError(t, err)
 	errList := validator.Validate(s, q, []validator.Rule{someRule, someOtherRule}...)
+	require.Len(t, errList, 2)
+	require.Equal(t, "some error message", errList[0].Message)
+	require.Equal(t, "some other error message", errList[1].Message)
+}
+
+func TestCustomRuleSetWithRules(t *testing.T) {
+	someRule := validator.Rule{
+		Name: "SomeRule",
+		RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
+			addError(validator.Message("%s", "some error message"))
+		},
+	}
+
+	someOtherRule := validator.Rule{
+		Name: "SomeOtherRule",
+		RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
+			addError(validator.Message("%s", "some other error message"))
+		},
+	}
+
+	s := gqlparser.MustLoadSchema(
+		&ast.Source{
+			Name: "graph/schema.graphqls",
+			Input: `
+	type Query {
+		bar: String!
+	}
+	`, BuiltIn: false},
+	)
+
+	q, err := parser.ParseQuery(&ast.Source{
+		Name: "SomeQuery",
+		Input: `
+			query Foo($flag: Boolean!) {
+				...Bar
+			}
+		`})
+	require.NoError(t, err)
+	errList := validator.ValidateWithRules(s, q, rules.NewRules(someRule, someOtherRule))
 	require.Len(t, errList, 2)
 	require.Equal(t, "some error message", errList[0].Message)
 	require.Equal(t, "some other error message", errList[1].Message)
