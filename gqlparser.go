@@ -6,9 +6,6 @@ import (
 	"github.com/vektah/gqlparser/v2/parser"
 	"github.com/vektah/gqlparser/v2/validator"
 	"github.com/vektah/gqlparser/v2/validator/rules"
-
-	// Blank import is used to load up the validator rules.
-	_ "github.com/vektah/gqlparser/v2/validator/rules"
 )
 
 func LoadSchema(str ...*ast.Source) (*ast.Schema, error) {
