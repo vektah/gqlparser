@@ -1,10 +1,15 @@
 package rules
 
-import "github.com/vektah/gqlparser/v2/validator/core"
+import (
+	"slices"
+
+	"github.com/vektah/gqlparser/v2/validator/core"
+)
 
 // Rules manages GraphQL validation rules.
 type Rules struct {
-	rules map[string]core.RuleFunc
+	rules        map[string]core.RuleFunc
+	ruleNameKeys []string // for deterministic order
 }
 
 // NewRules creates a Rules instance with the specified rules.
@@ -66,12 +71,16 @@ func (r *Rules) AddRule(name string, ruleFunc core.RuleFunc) {
 
 	if _, exists := r.rules[name]; !exists {
 		r.rules[name] = ruleFunc
+		r.ruleNameKeys = append(r.ruleNameKeys, name)
 	}
 }
 
 // GetInner returns the internal rule map.
 // If the map is not initialized, it returns an empty map.
 func (r *Rules) GetInner() map[string]core.RuleFunc {
+	if r == nil {
+		return nil // impossible nonsense, hopefully
+	}
 	if r.rules == nil {
 		return make(map[string]core.RuleFunc)
 	}
@@ -81,14 +90,26 @@ func (r *Rules) GetInner() map[string]core.RuleFunc {
 // RemoveRule removes a rule with the specified name from the rule set.
 // If no rule with the specified name exists, it does nothing.
 func (r *Rules) RemoveRule(name string) {
+	if r == nil {
+		return // impossible nonsense, hopefully
+	}
 	if r.rules != nil {
 		delete(r.rules, name)
+	}
+
+	if len(r.ruleNameKeys) > 0 {
+		r.ruleNameKeys = slices.DeleteFunc(r.ruleNameKeys, func(s string) bool {
+			return s == name // delete the name rule key
+		})
 	}
 }
 
 // ReplaceRule replaces a rule with the specified name with a new rule function.
 // If no rule with the specified name exists, it does nothing.
 func (r *Rules) ReplaceRule(name string, ruleFunc core.RuleFunc) {
+	if r == nil {
+		return // impossible nonsense, hopefully
+	}
 	if r.rules == nil {
 		r.rules = make(map[string]core.RuleFunc)
 	}

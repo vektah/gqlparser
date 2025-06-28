@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"sort"
 	//nolint:staticcheck // bad, yeah
 	. "github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -8,16 +9,20 @@ import (
 	validatorrules "github.com/vektah/gqlparser/v2/validator/rules"
 )
 
-type AddErrFunc = core.AddErrFunc
-type RuleFunc = core.RuleFunc
-type Rule = core.Rule
-type Events = core.Events
-type ErrorOption = core.ErrorOption
-type Walker = core.Walker
+type (
+	AddErrFunc  = core.AddErrFunc
+	RuleFunc    = core.RuleFunc
+	Rule        = core.Rule
+	Events      = core.Events
+	ErrorOption = core.ErrorOption
+	Walker      = core.Walker
+)
 
-var Message = core.Message
-var QuotedOrList = core.QuotedOrList
-var OrList = core.OrList
+var (
+	Message      = core.Message
+	QuotedOrList = core.QuotedOrList
+	OrList       = core.OrList
+)
 
 // Walk is an alias for core.Walk
 func Walk(schema *Schema, document *QueryDocument, observers *Events) {
@@ -31,6 +36,8 @@ func init() {
 	defaultRules := validatorrules.NewDefaultRules()
 	for name, ruleFunc := range defaultRules.GetInner() {
 		specifiedRules = append(specifiedRules, Rule{Name: name, RuleFunc: ruleFunc})
+		// ensure initial default is in deterministic order
+		sort.Sort(core.NameSorter(specifiedRules))
 	}
 }
 
@@ -126,10 +133,18 @@ func ValidateWithRules(schema *Schema, doc *QueryDocument, rules *validatorrules
 		return errs
 	}
 	observers := &core.Events{}
+
+	var currentRules []Rule // nolint:prealloc // would require extra local refs for len
 	for name, ruleFunc := range rules.GetInner() {
-		ruleFunc(observers, func(options ...ErrorOption) {
+		currentRules = append(currentRules, Rule{Name: name, RuleFunc: ruleFunc})
+		// ensure deterministic order evaluation
+		sort.Sort(core.NameSorter(currentRules))
+	}
+
+	for _, currentRule := range currentRules {
+		currentRule.RuleFunc(observers, func(options ...ErrorOption) {
 			err := &gqlerror.Error{
-				Rule: name,
+				Rule: currentRule.Name,
 			}
 			for _, o := range options {
 				o(err)
