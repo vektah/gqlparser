@@ -58,7 +58,10 @@ func (r *Rules) AddRule(name string, ruleFunc core.RuleFunc) {
 	if r.rules == nil {
 		r.rules = make(map[string]core.RuleFunc)
 	}
-	r.rules[name] = ruleFunc
+
+	if _, exists := r.rules[name]; !exists {
+		r.rules[name] = ruleFunc
+	}
 }
 
 func (r *Rules) GetInner() map[string]core.RuleFunc {
@@ -78,5 +81,7 @@ func (r *Rules) ReplaceRule(name string, ruleFunc core.RuleFunc) {
 	if r.rules == nil {
 		r.rules = make(map[string]core.RuleFunc)
 	}
-	r.rules[name] = ruleFunc
+	if _, exists := r.rules[name]; exists {
+		r.rules[name] = ruleFunc
+	}
 }
