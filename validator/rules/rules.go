@@ -2,10 +2,12 @@ package rules
 
 import "github.com/vektah/gqlparser/v2/validator/core"
 
+// Rules manages GraphQL validation rules.
 type Rules struct {
 	rules map[string]core.RuleFunc
 }
 
+// NewRules creates a Rules instance with the specified rules.
 func NewRules(rs ...core.Rule) *Rules {
 	r := &Rules{
 		rules: make(map[string]core.RuleFunc),
@@ -18,6 +20,7 @@ func NewRules(rs ...core.Rule) *Rules {
 	return r
 }
 
+// NewDefaultRules creates a Rules instance containing the default GraphQL validation rule set.
 func NewDefaultRules() *Rules {
 	rules := []core.Rule{
 		FieldsOnCorrectTypeRule,
@@ -54,13 +57,20 @@ func NewDefaultRules() *Rules {
 	return r
 }
 
+// AddRule adds a rule with the specified name and rule function to the rule set.
+// If a rule with the same name already exists, it will not be added.
 func (r *Rules) AddRule(name string, ruleFunc core.RuleFunc) {
 	if r.rules == nil {
 		r.rules = make(map[string]core.RuleFunc)
 	}
-	r.rules[name] = ruleFunc
+
+	if _, exists := r.rules[name]; !exists {
+		r.rules[name] = ruleFunc
+	}
 }
 
+// GetInner returns the internal rule map.
+// If the map is not initialized, it returns an empty map.
 func (r *Rules) GetInner() map[string]core.RuleFunc {
 	if r.rules == nil {
 		return make(map[string]core.RuleFunc)
@@ -68,15 +78,21 @@ func (r *Rules) GetInner() map[string]core.RuleFunc {
 	return r.rules
 }
 
+// RemoveRule removes a rule with the specified name from the rule set.
+// If no rule with the specified name exists, it does nothing.
 func (r *Rules) RemoveRule(name string) {
 	if r.rules != nil {
 		delete(r.rules, name)
 	}
 }
 
+// ReplaceRule replaces a rule with the specified name with a new rule function.
+// If no rule with the specified name exists, it does nothing.
 func (r *Rules) ReplaceRule(name string, ruleFunc core.RuleFunc) {
 	if r.rules == nil {
 		r.rules = make(map[string]core.RuleFunc)
 	}
-	r.rules[name] = ruleFunc
+	if _, exists := r.rules[name]; exists {
+		r.rules[name] = ruleFunc
+	}
 }
