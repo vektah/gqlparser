@@ -98,3 +98,16 @@ func TestNewDefaultRules(t *testing.T) {
 
 	require.NotEmpty(t, inner)
 }
+
+// TestGetInnerReturnsCopy confirms that GetInner returns a copy of the internal map.
+func TestGetInnerReturnsCopy(t *testing.T) {
+	rs := rules.NewRules(core.Rule{Name: "DummyRule", RuleFunc: func(*core.Events, core.AddErrFunc) {}})
+
+	first := rs.GetInner()
+	delete(first, "DummyRule")
+
+	second := rs.GetInner()
+	if _, ok := second["DummyRule"]; !ok {
+		t.Fatalf("modifying the returned map affected internal state")
+	}
+}
