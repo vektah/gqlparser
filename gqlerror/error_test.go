@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -34,14 +35,14 @@ func TestErrorFormatting(t *testing.T) {
 	t.Run("without filename", func(t *testing.T) {
 		err := ErrorLocf("", 66, 2, "kabloom")
 
-		require.Equal(t, `input:66: kabloom`, err.Error())
+		require.Equal(t, `input:66:2: kabloom`, err.Error())
 		require.Nil(t, err.Extensions["file"])
 	})
 
 	t.Run("with filename", func(t *testing.T) {
 		err := ErrorLocf("schema.graphql", 66, 2, "kabloom")
 
-		require.Equal(t, `schema.graphql:66: kabloom`, err.Error())
+		require.Equal(t, `schema.graphql:66:2: kabloom`, err.Error())
 		require.Equal(t, "schema.graphql", err.Extensions["file"])
 	})
 
@@ -49,6 +50,18 @@ func TestErrorFormatting(t *testing.T) {
 		err := ErrorPathf(ast.Path{ast.PathName("a"), ast.PathIndex(1), ast.PathName("b")}, "kabloom")
 
 		require.Equal(t, `input: a[1].b kabloom`, err.Error())
+	})
+}
+
+func TestErrorPosition(t *testing.T) {
+	t.Run("with nil position", func(t *testing.T) {
+		err := ErrorLocf("", -1, -1, "kabloom")
+		errNilPosition := ErrorPosf(nil, "%s", "kabloom")
+
+		require.Equal(t, `input:-1:-1: kabloom`, err.Error())
+		require.Equal(t, errNilPosition.Error(), err.Error())
+		require.Nil(t, err.Extensions["file"])
+		require.Nil(t, errNilPosition.Extensions["file"])
 	})
 }
 
@@ -164,5 +177,15 @@ func TestList_Is(t *testing.T) {
 				t.Errorf("List.Is() returned nil target, wants concrete error")
 			}
 		})
+	}
+}
+
+func BenchmarkError(b *testing.B) {
+	list := List([]*Error{error1, error2})
+	for i := 0; i < b.N; i++ {
+		_ = underlyingError.Error()
+		_ = error1.Error()
+		_ = error2.Error()
+		_ = list.Error()
 	}
 }

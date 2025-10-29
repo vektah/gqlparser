@@ -5,7 +5,7 @@
 
           fragment fragA on Dog { ...fragB }
           fragment fragB on Dog { name }
-
+          
   errors: []
 - name: spreading twice is not circular
   rule: NoFragmentCycles
@@ -14,7 +14,7 @@
 
           fragment fragA on Dog { ...fragB, ...fragB }
           fragment fragB on Dog { name }
-
+          
   errors: []
 - name: spreading twice indirectly is not circular
   rule: NoFragmentCycles
@@ -24,7 +24,7 @@
           fragment fragA on Dog { ...fragB, ...fragC }
           fragment fragB on Dog { ...fragC }
           fragment fragC on Dog { name }
-
+          
   errors: []
 - name: double spread within abstract types
   rule: NoFragmentCycles
@@ -40,7 +40,7 @@
             ... on Dog { ...nameFragment }
             ... on Cat { ...nameFragment }
           }
-
+          
   errors: []
 - name: does not false positive on unknown fragment
   rule: NoFragmentCycles
@@ -50,7 +50,7 @@
           fragment nameFragment on Pet {
             ...UnknownFragment
           }
-
+          
   errors: []
 - name: spreading recursively within field fails
   rule: NoFragmentCycles
@@ -58,7 +58,7 @@
   query: |2-
 
           fragment fragA on Human { relatives { ...fragA } },
-
+          
   errors:
     - message: Cannot spread fragment "fragA" within itself.
       locations:
@@ -69,7 +69,7 @@
   query: |2-
 
           fragment fragA on Dog { ...fragA }
-
+          
   errors:
     - message: Cannot spread fragment "fragA" within itself.
       locations:
@@ -84,7 +84,7 @@
               ...fragA
             }
           }
-
+          
   errors:
     - message: Cannot spread fragment "fragA" within itself.
       locations:
@@ -96,7 +96,7 @@
 
           fragment fragA on Dog { ...fragB }
           fragment fragB on Dog { ...fragA }
-
+          
   errors:
     - message: Cannot spread fragment "fragA" within itself via "fragB".
       locations:
@@ -109,7 +109,7 @@
 
           fragment fragB on Dog { ...fragA }
           fragment fragA on Dog { ...fragB }
-
+          
   errors:
     - message: Cannot spread fragment "fragB" within itself via "fragA".
       locations:
@@ -130,7 +130,7 @@
               ...fragA
             }
           }
-
+          
   errors:
     - message: Cannot spread fragment "fragA" within itself via "fragB".
       locations:
@@ -149,7 +149,7 @@
           fragment fragZ on Dog { ...fragO }
           fragment fragO on Dog { ...fragP }
           fragment fragP on Dog { ...fragA, ...fragX }
-
+          
   errors:
     - message: Cannot spread fragment "fragA" within itself via "fragB", "fragC", "fragO", "fragP".
       locations:
@@ -173,7 +173,7 @@
           fragment fragA on Dog { ...fragB, ...fragC }
           fragment fragB on Dog { ...fragA }
           fragment fragC on Dog { ...fragA }
-
+          
   errors:
     - message: Cannot spread fragment "fragA" within itself via "fragB".
       locations:
@@ -191,7 +191,7 @@
           fragment fragA on Dog { ...fragC }
           fragment fragB on Dog { ...fragC }
           fragment fragC on Dog { ...fragA, ...fragB }
-
+          
   errors:
     - message: Cannot spread fragment "fragA" within itself via "fragC".
       locations:
@@ -209,7 +209,7 @@
           fragment fragA on Dog { ...fragB }
           fragment fragB on Dog { ...fragB, ...fragC }
           fragment fragC on Dog { ...fragA, ...fragB }
-
+          
   errors:
     - message: Cannot spread fragment "fragB" within itself.
       locations:

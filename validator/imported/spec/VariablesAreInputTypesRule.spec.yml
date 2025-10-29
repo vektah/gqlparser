@@ -6,7 +6,7 @@
           query Foo($a: Unknown, $b: [[Unknown!]]!) {
             field(a: $a, b: $b)
           }
-
+          
   errors: []
 - name: input types are valid
   rule: VariablesAreInputTypes
@@ -16,7 +16,7 @@
           query Foo($a: String, $b: [Boolean!]!, $c: ComplexInput) {
             field(a: $a, b: $b, c: $c)
           }
-
+          
   errors: []
 - name: output types are invalid
   rule: VariablesAreInputTypes
@@ -26,7 +26,7 @@
           query Foo($a: Dog, $b: [[CatOrDog!]]!, $c: Pet) {
             field(a: $a, b: $b, c: $c)
           }
-
+          
   errors:
     - locations:
         - {line: 2, column: 21}

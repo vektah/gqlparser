@@ -11,7 +11,7 @@
           fragment Frag on Dog {
             name
           }
-
+          
   errors: []
 - name: with standard directives
   rule: KnownDirectives
@@ -28,7 +28,7 @@
               }
             }
           }
-
+          
   errors: []
 - name: with unknown directive
   rule: KnownDirectives
@@ -40,7 +40,7 @@
               name
             }
           }
-
+          
   errors:
     - message: Unknown directive "@unknown".
       locations:
@@ -59,7 +59,7 @@
               }
             }
           }
-
+          
   errors:
     - message: Unknown directive "@unknown".
       locations:
@@ -95,7 +95,7 @@
           fragment Frag on Human @onFragmentDefinition {
             name @onField
           }
-
+          
   errors: []
 - name: with misplaced directives
   rule: KnownDirectives
@@ -122,7 +122,7 @@
           fragment Frag on Human @onQuery {
             name @onQuery
           }
-
+          
   errors:
     - message: Directive "@onQuery" may not be used on VARIABLE_DEFINITION.
       locations:

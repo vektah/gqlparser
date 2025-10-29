@@ -3,36 +3,33 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+    - master
   pull_request:
-    types: [ opened, synchronize ]
+    types: [opened, synchronize]
 # When a new revision is pushed to a PR, cancel all in-progress CI runs for that
 # PR. See https://docs.github.com/en/actions/using-jobs/using-concurrency
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
-
 jobs:
   go-test:
-    name: Go Test (${{ matrix.os }})
-    runs-on: ${{ matrix.run }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        go: ["1.21", "1.22"]
-          # MacOS is disabled due to the high cost multiplier on GH Actions.
-          #- os: darwin
-          #  run: macos-latest
-          # Windows not allowed currently because of line-ending conversion issues.
-          #- os: windows
-          #  run: windows-latest
+        go: ["1.22", "1.23"]
+        # MacOS is disabled due to the high cost multiplier on GH Actions.
+        #- os: darwin
+        # Windows not allowed currently because of line-ending conversion issues.
+        #- os: windows
+    name: Go Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ${{ matrix.go }}
-      - name: Unit Test Golang
-        run: go test ./...
-        timeout-minutes: 30
+    - uses: actions/checkout@v5
+    - uses: actions/setup-go@v6
+      with:
+        go-version: ${{ matrix.go }}
+    - name: Unit Test Golang
+      run: go test ./...
+      timeout-minutes: 30

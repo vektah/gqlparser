@@ -6,7 +6,7 @@
           fragment fragA on Type {
             field
           }
-
+          
   errors: []
 - name: one anon operation
   rule: UniqueOperationNames
@@ -16,7 +16,7 @@
           {
             field
           }
-
+          
   errors: []
 - name: one named operation
   rule: UniqueOperationNames
@@ -26,7 +26,7 @@
           query Foo {
             field
           }
-
+          
   errors: []
 - name: multiple operations
   rule: UniqueOperationNames
@@ -40,7 +40,7 @@
           query Bar {
             field
           }
-
+          
   errors: []
 - name: multiple operations of different types
   rule: UniqueOperationNames
@@ -58,7 +58,7 @@
           subscription Baz {
             field
           }
-
+          
   errors: []
 - name: fragment and operation named the same
   rule: UniqueOperationNames
@@ -71,7 +71,7 @@
           fragment Foo on Type {
             field
           }
-
+          
   errors: []
 - name: multiple operations of same name
   rule: UniqueOperationNames
@@ -84,7 +84,7 @@
           query Foo {
             fieldB
           }
-
+          
   errors:
     - message: There can be only one operation named "Foo".
       locations:
@@ -101,7 +101,7 @@
           mutation Foo {
             fieldB
           }
-
+          
   errors:
     - message: There can be only one operation named "Foo".
       locations:
@@ -118,7 +118,7 @@
           subscription Foo {
             fieldB
           }
-
+          
   errors:
     - message: There can be only one operation named "Foo".
       locations:

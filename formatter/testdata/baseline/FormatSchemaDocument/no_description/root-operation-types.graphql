@@ -1,0 +1,19 @@
+schema {
+	query: TopQuery
+	mutation: Mutation
+}
+type Mutation {
+	noop: Boolean
+	noop2(arg: String): Boolean
+	noop3(arg: String): Boolean
+}
+type TopQuery {
+	noop: Boolean
+	noop2(arg: String): Boolean
+	noop3(arg: String): Boolean
+}
+type Subscription {
+	noop: Boolean
+	noop2(arg: String): Boolean
+	noop3(arg1: String arg2: String): Boolean
+}

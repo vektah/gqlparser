@@ -1,0 +1,11 @@
+schema @schemaDirective {
+	# Since this operation has default type name "Query", it will be
+	# dropped by FormatSchema(), and the schema definition will became
+	# empty. So @schemaDirective should be moved to schema extension to not
+	# be lost.
+	query: Query
+}
+directive @schemaDirective on SCHEMA
+type Query {
+	id: ID
+}

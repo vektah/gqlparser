@@ -6,7 +6,7 @@
             {
               normalField
             }
-
+            
   errors: []
 - name: no deprecated fields/ignores unknown fields
   rule: NoDeprecatedCustom
@@ -20,7 +20,7 @@
             fragment UnknownFragment on UnknownType {
               deprecatedField
             }
-
+            
   errors: []
 - name: no deprecated fields/reports error when a deprecated field is selected
   rule: NoDeprecatedCustom
@@ -34,7 +34,7 @@
             fragment QueryFragment on Query {
               deprecatedField
             }
-
+            
   errors:
     - message: The field Query.deprecatedField is deprecated. Some field reason.
       locations:
@@ -50,7 +50,7 @@
             {
               normalField(normalArg: "")
             }
-
+            
   errors: []
 - name: no deprecated arguments on fields/ignores unknown arguments
   rule: NoDeprecatedCustom
@@ -61,7 +61,7 @@
               someField(unknownArg: "")
               unknownField(deprecatedArg: "")
             }
-
+            
   errors: []
 - name: no deprecated arguments on fields/reports error when a deprecated argument is used
   rule: NoDeprecatedCustom
@@ -71,7 +71,7 @@
             {
               someField(deprecatedArg: "")
             }
-
+            
   errors:
     - message: Field "Query.someField" argument "deprecatedArg" is deprecated. Some arg reason.
       locations:
@@ -84,7 +84,7 @@
             {
               someField @someDirective(normalArg: "")
             }
-
+            
   errors: []
 - name: no deprecated arguments on directives/ignores unknown arguments
   rule: NoDeprecatedCustom
@@ -95,7 +95,7 @@
               someField @someDirective(unknownArg: "")
               someField @unknownDirective(deprecatedArg: "")
             }
-
+            
   errors: []
 - name: no deprecated arguments on directives/reports error when a deprecated argument is used
   rule: NoDeprecatedCustom
@@ -105,7 +105,7 @@
             {
               someField @someDirective(deprecatedArg: "")
             }
-
+            
   errors:
     - message: Directive "@someDirective" argument "deprecatedArg" is deprecated. Some arg reason.
       locations:
@@ -120,7 +120,7 @@
                 someArg: { normalField: "" }
               ) @someDirective(someArg: { normalField: "" })
             }
-
+            
   errors: []
 - name: no deprecated input fields/ignores unknown input fields
   rule: NoDeprecatedCustom
@@ -140,7 +140,7 @@
                 unknownArg: { unknownField: "" }
               )
             }
-
+            
   errors: []
 - name: no deprecated input fields/reports error when a deprecated input field is used
   rule: NoDeprecatedCustom
@@ -152,7 +152,7 @@
                 someArg: { deprecatedField: "" }
               ) @someDirective(someArg: { deprecatedField: "" })
             }
-
+            
   errors:
     - message: The input field InputType.deprecatedField is deprecated. Some input field reason.
       locations:
@@ -168,7 +168,7 @@
             {
               normalField(enumArg: NORMAL_VALUE)
             }
-
+            
   errors: []
 - name: no deprecated enum values/ignores unknown enum values
   rule: NoDeprecatedCustom
@@ -187,7 +187,7 @@
             fragment SomeFragment on Query {
               someField(enumArg: UNKNOWN_VALUE)
             }
-
+            
   errors: []
 - name: no deprecated enum values/reports error when a deprecated enum value is used
   rule: NoDeprecatedCustom
@@ -199,7 +199,7 @@
             ) {
               someField(enumArg: DEPRECATED_VALUE)
             }
-
+            
   errors:
     - message: The enum value "EnumType.DEPRECATED_VALUE" is deprecated. Some enum reason.
       locations:

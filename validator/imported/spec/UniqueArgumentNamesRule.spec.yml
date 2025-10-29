@@ -6,7 +6,7 @@
           {
             field
           }
-
+          
   errors: []
 - name: no arguments on directive
   rule: UniqueArgumentNames
@@ -16,7 +16,7 @@
           {
             field @directive
           }
-
+          
   errors: []
 - name: argument on field
   rule: UniqueArgumentNames
@@ -26,7 +26,7 @@
           {
             field(arg: "value")
           }
-
+          
   errors: []
 - name: argument on directive
   rule: UniqueArgumentNames
@@ -36,7 +36,7 @@
           {
             field @directive(arg: "value")
           }
-
+          
   errors: []
 - name: same argument on two fields
   rule: UniqueArgumentNames
@@ -47,7 +47,7 @@
             one: field(arg: "value")
             two: field(arg: "value")
           }
-
+          
   errors: []
 - name: same argument on field and directive
   rule: UniqueArgumentNames
@@ -57,7 +57,7 @@
           {
             field(arg: "value") @directive(arg: "value")
           }
-
+          
   errors: []
 - name: same argument on two directives
   rule: UniqueArgumentNames
@@ -67,7 +67,7 @@
           {
             field @directive1(arg: "value") @directive2(arg: "value")
           }
-
+          
   errors: []
 - name: multiple field arguments
   rule: UniqueArgumentNames
@@ -77,7 +77,7 @@
           {
             field(arg1: "value", arg2: "value", arg3: "value")
           }
-
+          
   errors: []
 - name: multiple directive arguments
   rule: UniqueArgumentNames
@@ -87,7 +87,7 @@
           {
             field @directive(arg1: "value", arg2: "value", arg3: "value")
           }
-
+          
   errors: []
 - name: duplicate field arguments
   rule: UniqueArgumentNames
@@ -97,7 +97,7 @@
           {
             field(arg1: "value", arg1: "value")
           }
-
+          
   errors:
     - message: There can be only one argument named "arg1".
       locations:
@@ -111,7 +111,7 @@
           {
             field(arg1: "value", arg1: "value", arg1: "value")
           }
-
+          
   errors:
     - message: There can be only one argument named "arg1".
       locations:
@@ -126,7 +126,7 @@
           {
             field @directive(arg1: "value", arg1: "value")
           }
-
+          
   errors:
     - message: There can be only one argument named "arg1".
       locations:
@@ -140,7 +140,7 @@
           {
             field @directive(arg1: "value", arg1: "value", arg1: "value")
           }
-
+          
   errors:
     - message: There can be only one argument named "arg1".
       locations:

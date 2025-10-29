@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: golang:1.19
+      - image: golang:1.22
     working_directory: /gqlparser
     steps:
       - checkout

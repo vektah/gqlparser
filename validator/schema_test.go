@@ -136,3 +136,30 @@ func TestSchemaDescription(t *testing.T) {
 	want := "A simple GraphQL schema which is well described."
 	require.Equal(t, want, s.Description)
 }
+
+func TestSchemaDescriptionWithQuotesAtEnd(t *testing.T) {
+	// This test demonstrates a bug in the parser where quotes at the end of a
+	// description without a space cause parsing errors
+
+	t.Run("working case - quotes followed by space at end of description", func(t *testing.T) {
+		// This case works correctly - note the space after the quote and before the closing """
+		_, err := LoadSchema(Prelude, &ast.Source{Name: "test", Input: `
+		"""This is a "test" """
+		type Query {
+		  field: String
+		}
+		`, BuiltIn: false})
+		require.NoError(t, err, "Schema with quotes followed by space at end of description should parse successfully")
+	})
+
+	t.Run("bug - quotes at end of description", func(t *testing.T) {
+		// This case fails - note the quote directly before the closing """
+		_, err := LoadSchema(Prelude, &ast.Source{Name: "test", Input: `
+		"""This is a "test""""
+		type Query {
+		  field: String
+		}
+		`, BuiltIn: false})
+		require.NoError(t, err, "Schema with quotes at end of description should parse successfully")
+	})
+}

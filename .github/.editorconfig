@@ -1,0 +1,12 @@
+# top-most EditorConfig file
+root = true
+
+# Ignore yaml https://learn.microsoft.com/en-us/visualstudio/code-quality/use-roslyn-analyzers?view=vs-2022
+[*.{yaml,yml,yml.j2,yaml.j2}]
+generated_code = true
+# charset = unset
+# end_of_line = unset
+# insert_final_newline = unset
+# trim_trailing_whitespace = unset
+# indent_style = unset
+# indent_size = unset

@@ -16,7 +16,7 @@
           fragment PetFields on Pet {
             name
           }
-
+          
   errors: []
 - name: unknown type names are invalid
   rule: KnownTypeNames
@@ -32,7 +32,7 @@
           fragment PetFields on Peat {
             name
           }
-
+          
   errors:
     - message: Unknown type "JumbledUpLetters".
       locations:
@@ -51,7 +51,7 @@
           query ($id: ID, $float: Float, $int: Int) {
             __typename
           }
-
+          
   errors:
     - message: Unknown type "ID".
       locations:

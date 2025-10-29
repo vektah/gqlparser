@@ -6,7 +6,7 @@
           query Foo($a: String, $b: String, $c: String) {
             field(a: $a, b: $b, c: $c)
           }
-
+          
   errors: []
 - name: all variables deeply defined
   rule: NoUndefinedVariables
@@ -20,7 +20,7 @@
               }
             }
           }
-
+          
   errors: []
 - name: all variables deeply in inline fragments defined
   rule: NoUndefinedVariables
@@ -38,7 +38,7 @@
               }
             }
           }
-
+          
   errors: []
 - name: all variables in fragments deeply defined
   rule: NoUndefinedVariables
@@ -61,7 +61,7 @@
           fragment FragC on Type {
             field(c: $c)
           }
-
+          
   errors: []
 - name: variable within single fragment defined in multiple operations
   rule: NoUndefinedVariables
@@ -77,7 +77,7 @@
           fragment FragA on Type {
             field(a: $a)
           }
-
+          
   errors: []
 - name: variable within fragments defined in operations
   rule: NoUndefinedVariables
@@ -96,7 +96,7 @@
           fragment FragB on Type {
             field(b: $b)
           }
-
+          
   errors: []
 - name: variable within recursive fragment defined
   rule: NoUndefinedVariables
@@ -111,7 +111,7 @@
               ...FragA
             }
           }
-
+          
   errors: []
 - name: variable not defined
   rule: NoUndefinedVariables
@@ -121,7 +121,7 @@
           query Foo($a: String, $b: String, $c: String) {
             field(a: $a, b: $b, c: $c, d: $d)
           }
-
+          
   errors:
     - message: Variable "$d" is not defined by operation "Foo".
       locations:
@@ -135,7 +135,7 @@
           {
             field(a: $a)
           }
-
+          
   errors:
     - message: Variable "$a" is not defined.
       locations:
@@ -149,7 +149,7 @@
           query Foo($b: String) {
             field(a: $a, b: $b, c: $c)
           }
-
+          
   errors:
     - message: Variable "$a" is not defined by operation "Foo".
       locations:
@@ -170,7 +170,7 @@
           fragment FragA on Type {
             field(a: $a)
           }
-
+          
   errors:
     - message: Variable "$a" is not defined.
       locations:
@@ -197,7 +197,7 @@
           fragment FragC on Type {
             field(c: $c)
           }
-
+          
   errors:
     - message: Variable "$c" is not defined by operation "Foo".
       locations:
@@ -224,7 +224,7 @@
           fragment FragC on Type {
             field(c: $c)
           }
-
+          
   errors:
     - message: Variable "$a" is not defined by operation "Foo".
       locations:
@@ -248,7 +248,7 @@
           fragment FragAB on Type {
             field(a: $a, b: $b)
           }
-
+          
   errors:
     - message: Variable "$b" is not defined by operation "Foo".
       locations:
@@ -272,7 +272,7 @@
           fragment FragAB on Type {
             field(a: $a, b: $b)
           }
-
+          
   errors:
     - message: Variable "$a" is not defined by operation "Foo".
       locations:
@@ -299,7 +299,7 @@
           fragment FragB on Type {
             field(b: $b)
           }
-
+          
   errors:
     - message: Variable "$a" is not defined by operation "Foo".
       locations:
@@ -328,7 +328,7 @@
           fragment FragC on Type {
             field2(c: $c)
           }
-
+          
   errors:
     - message: Variable "$a" is not defined by operation "Foo".
       locations:

@@ -6,7 +6,7 @@
           fragment fragA on Type {
             field
           }
-
+          
   errors: []
 - name: one anon operation
   rule: LoneAnonymousOperation
@@ -16,7 +16,7 @@
           {
             field
           }
-
+          
   errors: []
 - name: multiple named operations
   rule: LoneAnonymousOperation
@@ -30,7 +30,7 @@
           query Bar {
             field
           }
-
+          
   errors: []
 - name: anon operation with fragment
   rule: LoneAnonymousOperation
@@ -43,7 +43,7 @@
           fragment Foo on Type {
             field
           }
-
+          
   errors: []
 - name: multiple anon operations
   rule: LoneAnonymousOperation
@@ -56,7 +56,7 @@
           {
             fieldB
           }
-
+          
   errors:
     - message: This anonymous operation must be the only defined operation.
       locations:
@@ -75,7 +75,7 @@
           mutation Foo {
             fieldB
           }
-
+          
   errors:
     - message: This anonymous operation must be the only defined operation.
       locations:
@@ -91,7 +91,7 @@
           subscription Foo {
             fieldB
           }
-
+          
   errors:
     - message: This anonymous operation must be the only defined operation.
       locations:

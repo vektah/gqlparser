@@ -6,7 +6,7 @@
           query ($a: String, $b: String, $c: String) {
             field(a: $a, b: $b, c: $c)
           }
-
+          
   errors: []
 - name: uses all variables deeply
   rule: NoUnusedVariables
@@ -20,7 +20,7 @@
               }
             }
           }
-
+          
   errors: []
 - name: uses all variables deeply in inline fragments
   rule: NoUnusedVariables
@@ -38,7 +38,7 @@
               }
             }
           }
-
+          
   errors: []
 - name: uses all variables in fragments
   rule: NoUnusedVariables
@@ -61,7 +61,7 @@
           fragment FragC on Type {
             field(c: $c)
           }
-
+          
   errors: []
 - name: variable used by fragment in multiple operations
   rule: NoUnusedVariables
@@ -80,7 +80,7 @@
           fragment FragB on Type {
             field(b: $b)
           }
-
+          
   errors: []
 - name: variable used by recursive fragment
   rule: NoUnusedVariables
@@ -95,7 +95,7 @@
               ...FragA
             }
           }
-
+          
   errors: []
 - name: variable not used
   rule: NoUnusedVariables
@@ -105,7 +105,7 @@
           query ($a: String, $b: String, $c: String) {
             field(a: $a, b: $b)
           }
-
+          
   errors:
     - message: Variable "$c" is never used.
       locations:
@@ -118,7 +118,7 @@
           query Foo($a: String, $b: String, $c: String) {
             field(b: $b)
           }
-
+          
   errors:
     - message: Variable "$a" is never used in operation "Foo".
       locations:
@@ -147,7 +147,7 @@
           fragment FragC on Type {
             field
           }
-
+          
   errors:
     - message: Variable "$c" is never used in operation "Foo".
       locations:
@@ -173,7 +173,7 @@
           fragment FragC on Type {
             field
           }
-
+          
   errors:
     - message: Variable "$a" is never used in operation "Foo".
       locations:
@@ -195,7 +195,7 @@
           fragment FragB on Type {
             field(b: $b)
           }
-
+          
   errors:
     - message: Variable "$b" is never used in operation "Foo".
       locations:
@@ -217,7 +217,7 @@
           fragment FragB on Type {
             field(b: $b)
           }
-
+          
   errors:
     - message: Variable "$b" is never used in operation "Foo".
       locations:

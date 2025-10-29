@@ -1,0 +1,7 @@
+schema @schemaDirective {
+	query: Query
+}
+directive @schemaDirective on SCHEMA
+type Query {
+	id: ID
+}
