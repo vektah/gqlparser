@@ -20,12 +20,12 @@ jobs:
         go: ["1.23", "1.24"]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
       with:
         go-version: ${{ matrix.go }}
     - name: golangci-lint
-      uses: golangci/golangci-lint-action@v9.0.0
+      uses: golangci/golangci-lint-action@v9.1.0
       with:
         version: latest
         args: '--timeout 5m'
