@@ -1015,21 +1015,6 @@
     - message: Field "OneOfInput.stringField" must be non-null.
       locations:
         - {line: 4, column: 37}
-- name: Invalid oneOf input object value/Exactly one nullable variable
-  rule: ValuesOfCorrectType
-  schema: 0
-  query: |2-
-
-            query ($string: String) {
-              complicatedArgs {
-                oneOfArgField(oneOfArg: { stringField: $string })
-              }
-            }
-            
-  errors:
-    - message: Variable "string" must be non-nullable to be used for OneOf Input Object "OneOfInput".
-      locations:
-        - {line: 4, column: 37}
 - name: Invalid oneOf input object value/More than one field
   rule: ValuesOfCorrectType
   schema: 0
