@@ -346,3 +346,43 @@
               dog @include(if: $boolVar)
             }
   errors: []
+- name: Allows exactly one non-nullable variable
+  rule: VariablesInAllowedPosition
+  schema: 0
+  query: |2-
+
+          query ($string: String!) {
+            complicatedArgs {
+              oneOfArgField(oneOfArg: { stringField: $string })
+            }
+          }
+          
+  errors: []
+- name: Undefined variable in oneOf input object
+  rule: VariablesInAllowedPosition
+  schema: 0
+  query: |2-
+
+          {
+            complicatedArgs {
+              oneOfArgField(oneOfArg: { stringField: $undefinedVariable })
+            }
+          }
+          
+  errors: []
+- name: Forbids one nullable variable
+  rule: VariablesInAllowedPosition
+  schema: 0
+  query: |2-
+
+          query ($string: String) {
+            complicatedArgs {
+              oneOfArgField(oneOfArg: { stringField: $string })
+            }
+          }
+          
+  errors:
+    - message: Variable "$string" is of type "String" but must be non-nullable to be used for OneOf Input Object "OneOfInput".
+      locations:
+        - {line: 2, column: 14}
+        - {line: 4, column: 50}
