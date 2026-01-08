@@ -118,6 +118,10 @@ func Validate(schema *Schema, doc *QueryDocument, rules ...Rule) gqlerror.List {
 }
 
 func ValidateWithRules(schema *Schema, doc *QueryDocument, rules *validatorrules.Rules) gqlerror.List {
+	return ValidateWithRulesAndStopOnFirstError(schema, doc, rules, false)
+}
+
+func ValidateWithRulesAndStopOnFirstError(schema *Schema, doc *QueryDocument, rules *validatorrules.Rules, stopOnFirstError bool) gqlerror.List {
 	if rules == nil {
 		rules = validatorrules.NewDefaultRules()
 	}
@@ -132,7 +136,9 @@ func ValidateWithRules(schema *Schema, doc *QueryDocument, rules *validatorrules
 	if len(errs) > 0 {
 		return errs
 	}
-	observers := &core.Events{}
+	observers := &core.Events{
+		StopOnFirstError: stopOnFirstError,
+	}
 
 	var currentRules []Rule // nolint:prealloc // would require extra local refs for len
 	for name, ruleFunc := range rules.GetInner() {
@@ -150,6 +156,10 @@ func ValidateWithRules(schema *Schema, doc *QueryDocument, rules *validatorrules
 				o(err)
 			}
 			errs = append(errs, err)
+
+			if observers.StopOnFirstError {
+				observers.Stopped = true
+			}
 		})
 	}
 
