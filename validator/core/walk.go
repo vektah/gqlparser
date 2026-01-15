@@ -17,6 +17,10 @@ type Events struct {
 	directiveList    []func(walker *Walker, directives []*ast.Directive)
 	value            []func(walker *Walker, value *ast.Value)
 	variable         []func(walker *Walker, variable *ast.VariableDefinition)
+
+	// Stopped indicates traversal should stop early. This is set by validators
+	// that wish to abort walking once an error has been encountered.
+	Stopped bool
 }
 
 func (o *Events) OnOperation(f func(walker *Walker, operation *ast.OperationDefinition)) {
@@ -76,6 +80,9 @@ type Walker struct {
 }
 
 func (w *Walker) walk() {
+	if w.Observers != nil && w.Observers.Stopped {
+		return
+	}
 	for _, child := range w.Document.Operations {
 		w.validatedFragmentSpreads = make(map[string]bool)
 		w.walkOperation(child)
@@ -87,6 +94,9 @@ func (w *Walker) walk() {
 }
 
 func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
+	if w.Observers != nil && w.Observers.Stopped {
+		return
+	}
 	w.CurrentOperation = operation
 	for _, varDef := range operation.VariableDefinitions {
 		varDef.Definition = w.Schema.Types[varDef.Type.Name()]
@@ -130,6 +140,9 @@ func (w *Walker) walkOperation(operation *ast.OperationDefinition) {
 }
 
 func (w *Walker) walkFragment(it *ast.FragmentDefinition) {
+	if w.Observers != nil && w.Observers.Stopped {
+		return
+	}
 	def := w.Schema.Types[it.TypeCondition]
 
 	it.Definition = def
@@ -143,6 +156,9 @@ func (w *Walker) walkFragment(it *ast.FragmentDefinition) {
 }
 
 func (w *Walker) walkDirectives(parentDef *ast.Definition, directives []*ast.Directive, location ast.DirectiveLocation) {
+	if w.Observers != nil && w.Observers.Stopped {
+		return
+	}
 	for _, dir := range directives {
 		def := w.Schema.Directives[dir.Name]
 		dir.Definition = def
@@ -169,6 +185,9 @@ func (w *Walker) walkDirectives(parentDef *ast.Definition, directives []*ast.Dir
 }
 
 func (w *Walker) walkValue(value *ast.Value) {
+	if w.Observers != nil && w.Observers.Stopped {
+		return
+	}
 	if value.Kind == ast.Variable && w.CurrentOperation != nil {
 		value.VariableDefinition = w.CurrentOperation.VariableDefinitions.ForName(value.Raw)
 		if value.VariableDefinition != nil {
@@ -207,6 +226,9 @@ func (w *Walker) walkValue(value *ast.Value) {
 }
 
 func (w *Walker) walkArgument(argDef *ast.ArgumentDefinition, arg *ast.Argument) {
+	if w.Observers != nil && w.Observers.Stopped {
+		return
+	}
 	if argDef != nil {
 		arg.Value.ExpectedType = argDef.Type
 		arg.Value.ExpectedTypeHasDefault = argDef.DefaultValue != nil && argDef.DefaultValue.Kind != ast.NullValue
@@ -217,12 +239,18 @@ func (w *Walker) walkArgument(argDef *ast.ArgumentDefinition, arg *ast.Argument)
 }
 
 func (w *Walker) walkSelectionSet(parentDef *ast.Definition, it ast.SelectionSet) {
+	if w.Observers != nil && w.Observers.Stopped {
+		return
+	}
 	for _, child := range it {
 		w.walkSelection(parentDef, child)
 	}
 }
 
 func (w *Walker) walkSelection(parentDef *ast.Definition, it ast.Selection) {
+	if w.Observers != nil && w.Observers.Stopped {
+		return
+	}
 	switch it := it.(type) {
 	case *ast.Field:
 		var def *ast.FieldDefinition
