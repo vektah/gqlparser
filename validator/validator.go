@@ -118,10 +118,10 @@ func Validate(schema *Schema, doc *QueryDocument, rules ...Rule) gqlerror.List {
 }
 
 func ValidateWithRules(schema *Schema, doc *QueryDocument, rules *validatorrules.Rules) gqlerror.List {
-	return ValidateWithRulesAndStopOnFirstError(schema, doc, rules, false)
+	return ValidateWithRulesAndMaximumErrors(schema, doc, rules, 0)
 }
 
-func ValidateWithRulesAndStopOnFirstError(schema *Schema, doc *QueryDocument, rules *validatorrules.Rules, stopOnFirstError bool) gqlerror.List {
+func ValidateWithRulesAndMaximumErrors(schema *Schema, doc *QueryDocument, rules *validatorrules.Rules, maximumErrors int) gqlerror.List {
 	if rules == nil {
 		rules = validatorrules.NewDefaultRules()
 	}
@@ -133,12 +133,13 @@ func ValidateWithRulesAndStopOnFirstError(schema *Schema, doc *QueryDocument, ru
 	if doc == nil {
 		errs = append(errs, gqlerror.Errorf("cannot validate as QueryDocument is nil"))
 	}
+	if maximumErrors < 0 {
+		errs = append(errs, gqlerror.Errorf("maximumErrors cannot be negative"))
+	}
 	if len(errs) > 0 {
 		return errs
 	}
-	observers := &core.Events{
-		StopOnFirstError: stopOnFirstError,
-	}
+	observers := &core.Events{}
 
 	var currentRules []Rule // nolint:prealloc // would require extra local refs for len
 	for name, ruleFunc := range rules.GetInner() {
@@ -157,7 +158,7 @@ func ValidateWithRulesAndStopOnFirstError(schema *Schema, doc *QueryDocument, ru
 			}
 			errs = append(errs, err)
 
-			if observers.StopOnFirstError {
+			if maximumErrors > 0 && len(errs) >= maximumErrors {
 				observers.Stopped = true
 			}
 		})

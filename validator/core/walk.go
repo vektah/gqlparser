@@ -18,9 +18,6 @@ type Events struct {
 	value            []func(walker *Walker, value *ast.Value)
 	variable         []func(walker *Walker, variable *ast.VariableDefinition)
 
-	// StopOnFirstError indicates whether to stop traversal on the first error.
-	StopOnFirstError bool
-
 	// Stopped indicates traversal should stop early. This is set by validators
 	// that wish to abort walking once an error has been encountered.
 	Stopped bool

@@ -50,3 +50,23 @@ func TestWalkInlineFragment(t *testing.T) {
 
 	require.True(t, called)
 }
+
+func TestWalkStoppedEarly(t *testing.T) {
+	schema, err := LoadSchema(Prelude, &ast.Source{Input: "type Query { name: String, age: Int }\n schema { query: Query }"})
+	require.NoError(t, err)
+	query, err := parser.ParseQuery(&ast.Source{Input: "{ name age }"})
+	require.NoError(t, err)
+
+	fieldCount := 0
+	observers := &Events{}
+	observers.OnField(func(walker *Walker, field *ast.Field) {
+		fieldCount++
+		if fieldCount == 1 {
+			observers.Stopped = true
+		}
+	})
+
+	Walk(schema, query, observers)
+
+	require.Equal(t, 1, fieldCount)
+}
