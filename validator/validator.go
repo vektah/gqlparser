@@ -118,6 +118,10 @@ func Validate(schema *Schema, doc *QueryDocument, rules ...Rule) gqlerror.List {
 }
 
 func ValidateWithRules(schema *Schema, doc *QueryDocument, rules *validatorrules.Rules) gqlerror.List {
+	return ValidateWithRulesAndMaximumErrors(schema, doc, rules, 0)
+}
+
+func ValidateWithRulesAndMaximumErrors(schema *Schema, doc *QueryDocument, rules *validatorrules.Rules, maximumErrors int) gqlerror.List {
 	if rules == nil {
 		rules = validatorrules.NewDefaultRules()
 	}
@@ -128,6 +132,9 @@ func ValidateWithRules(schema *Schema, doc *QueryDocument, rules *validatorrules
 	}
 	if doc == nil {
 		errs = append(errs, gqlerror.Errorf("cannot validate as QueryDocument is nil"))
+	}
+	if maximumErrors < 0 {
+		errs = append(errs, gqlerror.Errorf("maximumErrors cannot be negative"))
 	}
 	if len(errs) > 0 {
 		return errs
@@ -150,6 +157,10 @@ func ValidateWithRules(schema *Schema, doc *QueryDocument, rules *validatorrules
 				o(err)
 			}
 			errs = append(errs, err)
+
+			if maximumErrors > 0 && len(errs) >= maximumErrors {
+				observers.Stopped = true
+			}
 		})
 	}
 

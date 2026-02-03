@@ -318,3 +318,215 @@ func TestRemoveRule(t *testing.T) {
 	// no error
 	validator.RemoveRule("Rule that should no longer exist")
 }
+
+func TestValidateWithRulesAndMaximumErrors(t *testing.T) {
+	t.Run("maximumErrors limits error count", func(t *testing.T) {
+		s := gqlparser.MustLoadSchema(
+			&ast.Source{
+				Name: "graph/schema.graphqls",
+				Input: `
+			type Query {
+				field1: String!
+				field2: String!
+				field3: String!
+			}
+		`, BuiltIn: false},
+		)
+
+		q, err := parser.ParseQuery(&ast.Source{
+			Name: "SomeQuery",
+			Input: `
+			query {
+				field1
+				field2
+				field3
+			}
+		`})
+		require.NoError(t, err)
+
+		// Create a rule that generates errors for each field
+		errorRule := validator.Rule{
+			Name: "ErrorRule",
+			RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
+				observers.OnField(func(walker *validator.Walker, field *ast.Field) {
+					addError(validator.Message("Error for field %s", field.Name))
+				})
+			},
+		}
+
+		rules := rules.NewRules(errorRule)
+		errList := validator.ValidateWithRulesAndMaximumErrors(s, q, rules, 2)
+
+		// Should only return 2 errors even though there are 3 fields
+		require.Len(t, errList, 2)
+	})
+
+	t.Run("maximumErrors zero means no limit", func(t *testing.T) {
+		s := gqlparser.MustLoadSchema(
+			&ast.Source{
+				Name: "graph/schema.graphqls",
+				Input: `
+			type Query {
+				field1: String!
+				field2: String!
+				field3: String!
+			}
+		`, BuiltIn: false},
+		)
+
+		q, err := parser.ParseQuery(&ast.Source{
+			Name: "SomeQuery",
+			Input: `
+			query {
+				field1
+				field2
+				field3
+			}
+		`})
+		require.NoError(t, err)
+
+		// Create a rule that generates errors for each field
+		errorRule := validator.Rule{
+			Name: "ErrorRule",
+			RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
+				observers.OnField(func(walker *validator.Walker, field *ast.Field) {
+					addError(validator.Message("Error for field %s", field.Name))
+				})
+			},
+		}
+
+		rules := rules.NewRules(errorRule)
+		errList := validator.ValidateWithRulesAndMaximumErrors(s, q, rules, 0)
+
+		// Should return all errors when maximumErrors is 0
+		require.Len(t, errList, 3)
+	})
+
+	t.Run("negative maximumErrors returns error", func(t *testing.T) {
+		s := gqlparser.MustLoadSchema(
+			&ast.Source{
+				Name: "graph/schema.graphqls",
+				Input: `
+			type Query {
+				field1: String!
+			}
+		`, BuiltIn: false},
+		)
+
+		q, err := parser.ParseQuery(&ast.Source{
+			Name: "SomeQuery",
+			Input: `
+			query {
+				field1
+			}
+		`})
+		require.NoError(t, err)
+
+		errList := validator.ValidateWithRulesAndMaximumErrors(s, q, nil, -1)
+
+		// Should return an error about negative maximumErrors
+		require.Len(t, errList, 1)
+		require.Contains(t, errList[0].Message, "maximumErrors cannot be negative")
+	})
+
+	t.Run("maximumErrors stops traversal early", func(t *testing.T) {
+		s := gqlparser.MustLoadSchema(
+			&ast.Source{
+				Name: "graph/schema.graphqls",
+				Input: `
+			type Query {
+				field1: String!
+				field2: String!
+				field3: String!
+				field4: String!
+				field5: String!
+			}
+		`, BuiltIn: false},
+		)
+
+		q, err := parser.ParseQuery(&ast.Source{
+			Name: "SomeQuery",
+			Input: `
+			query {
+				field1
+				field2
+				field3
+				field4
+				field5
+			}
+		`})
+		require.NoError(t, err)
+
+		fieldCount := 0
+		// Create a rule that generates errors and counts fields
+		errorRule := validator.Rule{
+			Name: "ErrorRule",
+			RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
+				observers.OnField(func(walker *validator.Walker, field *ast.Field) {
+					fieldCount++
+					addError(validator.Message("Error for field %s", field.Name))
+				})
+			},
+		}
+
+		rules := rules.NewRules(errorRule)
+		errList := validator.ValidateWithRulesAndMaximumErrors(s, q, rules, 2)
+
+		// Should only return 2 errors
+		require.Len(t, errList, 2)
+		// Should have stopped traversal early after exactly 2 fields processed
+		require.Equal(t, 2, fieldCount)
+	})
+
+	t.Run("maximumErrors with multiple rules", func(t *testing.T) {
+		s := gqlparser.MustLoadSchema(
+			&ast.Source{
+				Name: "graph/schema.graphqls",
+				Input: `
+			type Query {
+				field1: String!
+				field2: String!
+			}
+		`, BuiltIn: false},
+		)
+
+		q, err := parser.ParseQuery(&ast.Source{
+			Name: "SomeQuery",
+			Input: `
+			query {
+				field1
+				field2
+			}
+		`})
+		require.NoError(t, err)
+
+		// Create two rules that each generate errors and count fields
+		fieldCount := 0
+		rule1 := validator.Rule{
+			Name: "Rule1",
+			RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
+				observers.OnField(func(walker *validator.Walker, field *ast.Field) {
+					fieldCount++
+					addError(validator.Message("Rule1 error for field %s", field.Name))
+				})
+			},
+		}
+		rule2 := validator.Rule{
+			Name: "Rule2",
+			RuleFunc: func(observers *validator.Events, addError validator.AddErrFunc) {
+				observers.OnField(func(walker *validator.Walker, field *ast.Field) {
+					fieldCount++
+					addError(validator.Message("Rule2 error for field %s", field.Name))
+				})
+			},
+		}
+
+		rules := rules.NewRules(rule1, rule2)
+		errList := validator.ValidateWithRulesAndMaximumErrors(s, q, rules, 3)
+
+		// Although we set maximumErrors to 3, we expect 4 errors here (2 rules × 2 fields).
+		// The limit is evaluated after the batch is processed, allowing a final overflow.
+		require.Equal(t, 4, fieldCount)
+		require.Equal(t, 4, len(errList))
+	})
+}
