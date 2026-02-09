@@ -38,7 +38,7 @@ extend type Query {
 		}
 	}`})
 	require.NoError(t, err)
-	//nolint:staticcheck
+
 	require.Nil(t, validator.Validate(s, q))
 	require.Nil(t, validator.ValidateWithRules(s, q, nil))
 }
@@ -74,7 +74,7 @@ query SomeOperation {
 	`,
 	})
 	require.NoError(t, err)
-	//nolint:staticcheck
+
 	r1 := validator.Validate(s, q1)
 	require.Len(t, r1, 1)
 	const errorString = `SomeOperation:4:2: Field "myAction" argument "myEnum" of type "Locale!" is required, but it was not provided.`
@@ -92,7 +92,7 @@ query SomeOperation ($locale: Locale! = DE) {
 	`,
 	})
 	require.NoError(t, err)
-	//nolint:staticcheck
+
 	require.Nil(t, validator.Validate(s, q2))
 
 	// Repeating same query and expecting to still return same validation error
@@ -195,7 +195,7 @@ func TestNoUnusedVariables(t *testing.T) {
 			}
 		`})
 		require.NoError(t, err)
-		//nolint:staticcheck
+
 		require.Nil(t, validator.Validate(s, q))
 	})
 }
@@ -259,7 +259,7 @@ func TestCustomRuleSet(t *testing.T) {
 		`,
 	})
 	require.NoError(t, err)
-	//nolint:staticcheck
+
 	errList := validator.Validate(s, q, []validator.Rule{someRule, someOtherRule}...)
 	require.Len(t, errList, 2)
 	require.Equal(t, "some error message", errList[0].Message)

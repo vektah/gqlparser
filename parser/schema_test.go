@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,8 +15,12 @@ func TestSchemaDocument(t *testing.T) {
 		doc, err := ParseSchema(&ast.Source{Input: input, Name: "spec"})
 		if err != nil {
 			return testrunner.Spec{
-				Error: err.(*gqlerror.Error),
-				AST:   ast.Dump(doc),
+				Error: func() *gqlerror.Error {
+					target := &gqlerror.Error{}
+					_ = errors.As(err, &target)
+					return target
+				}(),
+				AST: ast.Dump(doc),
 			}
 		}
 		return testrunner.Spec{

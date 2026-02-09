@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"errors"
 	"os"
 	"testing"
 
@@ -76,9 +77,9 @@ func TestLoadSchema(t *testing.T) {
 		require.Equal(t, "Subscription", s.Subscription.Name)
 		require.Equal(t, "dogEvents", s.Subscription.Fields[0].Name)
 
-		require.Equal(t, 1, len(s.SchemaDirectives))
+		require.Len(t, s.SchemaDirectives, 1)
 		require.Equal(t, "exampleOnSchemaDirective", s.SchemaDirectives[0].Name)
-		require.Equal(t, 1, len(s.SchemaDirectives[0].Arguments))
+		require.Len(t, s.SchemaDirectives[0].Arguments, 1)
 		require.Equal(t, "name", s.SchemaDirectives[0].Arguments[0].Name)
 		require.Equal(t, "foo", s.SchemaDirectives[0].Arguments[0].Value.Raw)
 
@@ -115,7 +116,11 @@ func TestLoadSchema(t *testing.T) {
 		_, err := LoadSchema(Prelude, &ast.Source{Input: input})
 		if err != nil {
 			return testrunner.Spec{
-				Error: err.(*gqlerror.Error),
+				Error: func() *gqlerror.Error {
+					target := &gqlerror.Error{}
+					_ = errors.As(err, &target)
+					return target
+				}(),
 			}
 		}
 		return testrunner.Spec{}

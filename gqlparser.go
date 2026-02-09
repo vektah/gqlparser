@@ -1,6 +1,8 @@
 package gqlparser
 
 import (
+	"errors"
+
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"github.com/vektah/gqlparser/v2/parser"
@@ -10,7 +12,8 @@ import (
 
 func LoadSchema(str ...*ast.Source) (*ast.Schema, error) {
 	schema, err := validator.LoadSchema(append([]*ast.Source{validator.Prelude}, str...)...)
-	gqlErr, ok := err.(*gqlerror.Error)
+	gqlErr := &gqlerror.Error{}
+	ok := errors.As(err, &gqlErr)
 	if ok {
 		return schema, gqlErr
 	}
@@ -32,7 +35,8 @@ func MustLoadSchema(str ...*ast.Source) *ast.Schema {
 func LoadQuery(schema *ast.Schema, str string) (*ast.QueryDocument, gqlerror.List) {
 	query, err := parser.ParseQuery(&ast.Source{Input: str})
 	if err != nil {
-		gqlErr, ok := err.(*gqlerror.Error)
+		gqlErr := &gqlerror.Error{}
+		ok := errors.As(err, &gqlErr)
 		if ok {
 			return nil, gqlerror.List{gqlErr}
 		}
@@ -53,7 +57,8 @@ func LoadQueryWithRules(
 ) (*ast.QueryDocument, gqlerror.List) {
 	query, err := parser.ParseQuery(&ast.Source{Input: str})
 	if err != nil {
-		gqlErr, ok := err.(*gqlerror.Error)
+		gqlErr := &gqlerror.Error{}
+		ok := errors.As(err, &gqlErr)
 		if ok {
 			return nil, gqlerror.List{gqlErr}
 		}

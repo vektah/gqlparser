@@ -122,7 +122,7 @@ func calcThreshold(a string) (threshold int) {
 	if threshold < 1 {
 		threshold = 1
 	}
-	return
+	return threshold
 }
 
 // Computes the lexical distance between strings A and B.
@@ -136,7 +136,7 @@ func calcThreshold(a string) (threshold int) {
 // as a single edit which helps identify mis-cased values with an edit distance
 // of 1.
 //
-// This distance can be useful for detecting typos in input or sorting
+// This distance can be useful for detecting typos in input or sorting.
 func lexicalDistance(a, b string) int {
 	if a == b {
 		return 0

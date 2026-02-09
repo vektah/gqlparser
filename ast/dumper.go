@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Dump turns ast into a stable string format for assertions in tests
+// Dump turns ast into a stable string format for assertions in tests.
 func Dump(i interface{}) string {
 	v := reflect.ValueOf(i)
 

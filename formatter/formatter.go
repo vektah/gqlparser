@@ -15,7 +15,6 @@ type Formatter interface {
 	FormatQueryDocument(doc *ast.QueryDocument)
 }
 
-//nolint:revive // Ignore "stuttering" name format.FormatterOption
 type FormatterOption func(*formatter)
 
 // WithIndent uses the given string for indenting block bodies in the output,
@@ -281,6 +280,7 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 		description            string
 	)
 
+	var descriptionSb284 strings.Builder
 	for _, def := range lists {
 		if def.BeforeDescriptionComment != nil {
 			beforeDescComment.List = append(
@@ -297,8 +297,9 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 				endOfDefinitionComment.List,
 				def.EndOfDefinitionComment.List...)
 		}
-		description += def.Description
+		descriptionSb284.WriteString(def.Description)
 	}
+	description += descriptionSb284.String()
 
 	f.FormatCommentGroup(beforeDescComment)
 	f.WriteDescription(description)
@@ -333,7 +334,7 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 	f.WriteNewline()
 }
 
-// Return true if schema definitions is empty (besides directives), false otherwise
+// Return true if schema definitions is empty (besides directives), false otherwise.
 func (f *formatter) IsSchemaDefinitionsEmpty(lists ast.SchemaDefinitionList) bool {
 	for _, def := range lists {
 		if len(def.OperationTypes) > 0 {

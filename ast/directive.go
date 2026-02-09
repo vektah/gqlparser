@@ -3,7 +3,7 @@ package ast
 type DirectiveLocation string
 
 const (
-	// Executable
+	// Executable.
 	LocationQuery              DirectiveLocation = `QUERY`
 	LocationMutation           DirectiveLocation = `MUTATION`
 	LocationSubscription       DirectiveLocation = `SUBSCRIPTION`
@@ -12,7 +12,7 @@ const (
 	LocationFragmentSpread     DirectiveLocation = `FRAGMENT_SPREAD`
 	LocationInlineFragment     DirectiveLocation = `INLINE_FRAGMENT`
 
-	// Type System
+	// Type System.
 	LocationSchema               DirectiveLocation = `SCHEMA`
 	LocationScalar               DirectiveLocation = `SCALAR`
 	LocationObject               DirectiveLocation = `OBJECT`

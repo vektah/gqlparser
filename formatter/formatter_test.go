@@ -192,7 +192,6 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 		if f.IsDir() {
 			continue
 		}
-		f := f
 
 		t.Run(f.Name(), func(t *testing.T) {
 			result := cfg.Run(t, cfg, f)

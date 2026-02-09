@@ -2,6 +2,7 @@ package validator
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -12,9 +13,9 @@ import (
 )
 
 //nolint:staticcheck // We do not care about capitalized error strings
-var ErrUnexpectedType = fmt.Errorf("Unexpected Type")
+var ErrUnexpectedType = errors.New("Unexpected Type")
 
-// VariableValues coerces and validates variable values
+// VariableValues coerces and validates variable values.
 func VariableValues(
 	schema *ast.Schema,
 	op *ast.OperationDefinition,

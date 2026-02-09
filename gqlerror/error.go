@@ -141,7 +141,8 @@ func WrapIfUnwrapped(err error) *Error {
 	if err == nil {
 		return nil
 	}
-	if gqlErr, ok := err.(*Error); ok {
+	gqlErr := &Error{}
+	if errors.As(err, &gqlErr) {
 		return gqlErr
 	}
 	return &Error{
