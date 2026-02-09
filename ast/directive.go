@@ -38,7 +38,7 @@ type Directive struct {
 	Location         DirectiveLocation
 }
 
-func (d *Directive) ArgumentMap(vars map[string]interface{}) map[string]interface{} {
+func (d *Directive) ArgumentMap(vars map[string]any) map[string]any {
 	if d.Definition == nil {
 		return nil
 	}

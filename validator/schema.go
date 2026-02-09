@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -468,13 +469,7 @@ func validateDirectives(
 		if dirDefinition == nil {
 			return gqlerror.ErrorPosf(dir.Position, "Undefined directive %s.", dir.Name)
 		}
-		validKind := false
-		for _, dirLocation := range dirDefinition.Locations {
-			if dirLocation == location {
-				validKind = true
-				break
-			}
-		}
+		validKind := slices.Contains(dirDefinition.Locations, location)
 		if !validKind {
 			return gqlerror.ErrorPosf(
 				dir.Position,
@@ -614,12 +609,7 @@ func validateTypeImplementsAncestors(
 }
 
 func containsString(slice []string, want string) bool {
-	for _, str := range slice {
-		if want == str {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(slice, want)
 }
 
 func isCovariant(schema *Schema, required *Type, actual *Type) bool {
@@ -658,12 +648,7 @@ func validateName(pos *Position, name string) *gqlerror.Error {
 }
 
 func isValidKind(kind DefinitionKind, valid ...DefinitionKind) bool {
-	for _, k := range valid {
-		if kind == k {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(valid, kind)
 }
 
 func kindList(kinds ...DefinitionKind) string {

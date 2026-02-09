@@ -41,7 +41,7 @@ func (path Path) String() string {
 }
 
 func (path *Path) UnmarshalJSON(b []byte) error {
-	var vs []interface{}
+	var vs []any
 	err := json.Unmarshal(b, &vs)
 	if err != nil {
 		return err

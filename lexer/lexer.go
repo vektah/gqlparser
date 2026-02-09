@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"bytes"
+	"slices"
 	"unicode/utf8"
 
 	"github.com/vektah/gqlparser/v2/ast"
@@ -55,7 +56,7 @@ func (s *Lexer) makeValueToken(kind Type, value string) (Token, error) {
 	}, nil
 }
 
-func (s *Lexer) makeError(format string, args ...interface{}) (Token, *gqlerror.Error) {
+func (s *Lexer) makeError(format string, args ...any) (Token, *gqlerror.Error) {
 	column := s.endRunes - s.lineStartRunes + 1
 	return Token{
 		Kind: Invalid,
@@ -316,12 +317,10 @@ func (s *Lexer) acceptByte(bytes ...uint8) bool {
 		return false
 	}
 
-	for _, accepted := range bytes {
-		if s.Input[s.end] == accepted {
-			s.end++
-			s.endRunes++
-			return true
-		}
+	if slices.Contains(bytes, s.Input[s.end]) {
+		s.end++
+		s.endRunes++
+		return true
 	}
 	return false
 }

@@ -30,7 +30,7 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"id": nil,
 				},
 			)
@@ -64,7 +64,7 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": "hello",
 				},
 			)
@@ -79,7 +79,7 @@ func TestValidateVars(t *testing.T) {
 			)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.NoError(t, gerr)
-			require.EqualValues(t, map[string]interface{}{"name": "foo"}, vars["var"])
+			require.EqualValues(t, map[string]any{"name": "foo"}, vars["var"])
 		})
 
 		t.Run("valid value", func(t *testing.T) {
@@ -91,14 +91,14 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name": "foobar",
 					},
 				},
 			)
 			require.NoError(t, gerr)
-			require.EqualValues(t, map[string]interface{}{"name": "foobar"}, vars["var"])
+			require.EqualValues(t, map[string]any{"name": "foobar"}, vars["var"])
 		})
 
 		t.Run("null object field", func(t *testing.T) {
@@ -110,8 +110,8 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name":     "foobar",
 						"nullName": nil,
 					},
@@ -120,7 +120,7 @@ func TestValidateVars(t *testing.T) {
 			require.NoError(t, gerr)
 			require.EqualValues(
 				t,
-				map[string]interface{}{"name": "foobar", "nullName": nil},
+				map[string]any{"name": "foobar", "nullName": nil},
 				vars["var"],
 			)
 		})
@@ -134,8 +134,8 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{},
+				map[string]any{
+					"var": map[string]any{},
 				},
 			)
 			require.EqualError(t, gerr, "input: variable.var.name must be defined")
@@ -150,8 +150,8 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name": nil,
 					},
 				},
@@ -168,8 +168,8 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name":         "foo",
 						"nullEmbedded": nil,
 					},
@@ -187,8 +187,8 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name":    "foobar",
 						"foobard": true,
 					},
@@ -206,8 +206,8 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name":       "foobar",
 						"__typename": "InputType",
 					},
@@ -216,7 +216,7 @@ func TestValidateVars(t *testing.T) {
 			require.NoError(t, gerr)
 			require.EqualValues(
 				t,
-				map[string]interface{}{"__typename": "InputType", "name": "foobar"},
+				map[string]any{"__typename": "InputType", "name": "foobar"},
 				vars["var"],
 			)
 		})
@@ -230,8 +230,8 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name": "foobar",
 						"enum": "A",
 					},
@@ -249,8 +249,8 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name": "foobar",
 						"enum": "B",
 					},
@@ -270,12 +270,12 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{"name": "hello"},
+				map[string]any{
+					"var": map[string]any{"name": "hello"},
 				},
 			)
 			require.NoError(t, gerr)
-			require.EqualValues(t, []map[string]interface{}{{"name": "hello"}}, vars["var"])
+			require.EqualValues(t, []map[string]any{{"name": "hello"}}, vars["var"])
 		})
 
 		t.Run("non-null int value should be coerced to an array", func(t *testing.T) {
@@ -284,7 +284,7 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": 5,
 				},
 			)
@@ -302,12 +302,12 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": []map[string]interface{}{{"and": 5}},
+				map[string]any{
+					"var": []map[string]any{{"and": 5}},
 				},
 			)
 			require.NoError(t, gerr)
-			expected := []map[string]interface{}{{"and": []int{5}}}
+			expected := []map[string]any{{"and": []int{5}}}
 			require.EqualValues(t, expected, vars["var"])
 		})
 
@@ -319,7 +319,7 @@ func TestValidateVars(t *testing.T) {
 			)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.NoError(t, gerr)
-			require.EqualValues(t, []interface{}{map[string]interface{}{
+			require.EqualValues(t, []any{map[string]any{
 				"name": "foo",
 			}}, vars["var"])
 		})
@@ -333,14 +333,14 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": []interface{}{map[string]interface{}{
+				map[string]any{
+					"var": []any{map[string]any{
 						"name": "foo",
 					}},
 				},
 			)
 			require.NoError(t, gerr)
-			require.EqualValues(t, []interface{}{map[string]interface{}{
+			require.EqualValues(t, []any{map[string]any{
 				"name": "foo",
 			}}, vars["var"])
 		})
@@ -354,8 +354,8 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": []interface{}{nil},
+				map[string]any{
+					"var": []any{nil},
 				},
 			)
 			require.EqualError(t, gerr, "input: variable.var[0] cannot be null")
@@ -370,8 +370,8 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": []interface{}{map[string]interface{}{}},
+				map[string]any{
+					"var": []any{map[string]any{}},
 				},
 			)
 			require.EqualError(t, gerr, "input: variable.var[0].name must be defined")
@@ -385,11 +385,11 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var1": map[string]interface{}{
+				map[string]any{
+					"var1": map[string]any{
 						"name": "foobar",
 					},
-					"var2": map[string]interface{}{
+					"var2": map[string]any{
 						"nullName": "foobar",
 					},
 				},
@@ -405,7 +405,7 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": "asdf",
 				},
 			)
@@ -419,7 +419,7 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": 1,
 				},
 			)
@@ -432,7 +432,7 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": nil,
 				},
 			)
@@ -459,7 +459,7 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": 10,
 				},
 			)
@@ -473,7 +473,7 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": 10.2,
 				},
 			)
@@ -487,7 +487,7 @@ func TestValidateVars(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": nil,
 				},
 			)
@@ -501,7 +501,7 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": true,
 				},
 			)
@@ -519,7 +519,7 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": []*int{&a, &b, nil},
 				},
 			)
@@ -540,7 +540,7 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": []*string{&a, &b, nil},
 				},
 			)
@@ -561,7 +561,7 @@ func TestValidateVars(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": []*bool{&a, &b, nil},
 				},
 			)
@@ -596,7 +596,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"id": nil,
 				},
 			)
@@ -636,7 +636,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": "hello",
 				},
 			)
@@ -651,7 +651,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.NoError(t, gerr)
-			require.EqualValues(t, map[string]interface{}{"name": "foo"}, vars["var"])
+			require.EqualValues(t, map[string]any{"name": "foo"}, vars["var"])
 		})
 
 		t.Run("valid value", func(t *testing.T) {
@@ -663,14 +663,14 @@ func TestValidateVarsWithRules(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name": "foobar",
 					},
 				},
 			)
 			require.NoError(t, gerr)
-			require.EqualValues(t, map[string]interface{}{"name": "foobar"}, vars["var"])
+			require.EqualValues(t, map[string]any{"name": "foobar"}, vars["var"])
 		})
 
 		t.Run("null object field", func(t *testing.T) {
@@ -682,8 +682,8 @@ func TestValidateVarsWithRules(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name":     "foobar",
 						"nullName": nil,
 					},
@@ -692,7 +692,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			require.NoError(t, gerr)
 			require.EqualValues(
 				t,
-				map[string]interface{}{"name": "foobar", "nullName": nil},
+				map[string]any{"name": "foobar", "nullName": nil},
 				vars["var"],
 			)
 		})
@@ -706,8 +706,8 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{},
+				map[string]any{
+					"var": map[string]any{},
 				},
 			)
 			require.EqualError(t, gerr, "input: variable.var.name must be defined")
@@ -722,8 +722,8 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name": nil,
 					},
 				},
@@ -740,8 +740,8 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name":         "foo",
 						"nullEmbedded": nil,
 					},
@@ -759,8 +759,8 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name":    "foobar",
 						"foobard": true,
 					},
@@ -778,8 +778,8 @@ func TestValidateVarsWithRules(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name":       "foobar",
 						"__typename": "InputType",
 					},
@@ -788,7 +788,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			require.NoError(t, gerr)
 			require.EqualValues(
 				t,
-				map[string]interface{}{"__typename": "InputType", "name": "foobar"},
+				map[string]any{"__typename": "InputType", "name": "foobar"},
 				vars["var"],
 			)
 		})
@@ -802,8 +802,8 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name": "foobar",
 						"enum": "A",
 					},
@@ -821,8 +821,8 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{
+				map[string]any{
+					"var": map[string]any{
 						"name": "foobar",
 						"enum": "B",
 					},
@@ -842,12 +842,12 @@ func TestValidateVarsWithRules(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": map[string]interface{}{"name": "hello"},
+				map[string]any{
+					"var": map[string]any{"name": "hello"},
 				},
 			)
 			require.NoError(t, gerr)
-			require.EqualValues(t, []map[string]interface{}{{"name": "hello"}}, vars["var"])
+			require.EqualValues(t, []map[string]any{{"name": "hello"}}, vars["var"])
 		})
 
 		t.Run("non-null int value should be coerced to an array", func(t *testing.T) {
@@ -859,7 +859,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": 5,
 				},
 			)
@@ -877,12 +877,12 @@ func TestValidateVarsWithRules(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": []map[string]interface{}{{"and": 5}},
+				map[string]any{
+					"var": []map[string]any{{"and": 5}},
 				},
 			)
 			require.NoError(t, gerr)
-			expected := []map[string]interface{}{{"and": []int{5}}}
+			expected := []map[string]any{{"and": []int{5}}}
 			require.EqualValues(t, expected, vars["var"])
 		})
 
@@ -894,7 +894,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			)
 			vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), nil)
 			require.NoError(t, gerr)
-			require.EqualValues(t, []interface{}{map[string]interface{}{
+			require.EqualValues(t, []any{map[string]any{
 				"name": "foo",
 			}}, vars["var"])
 		})
@@ -908,14 +908,14 @@ func TestValidateVarsWithRules(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": []interface{}{map[string]interface{}{
+				map[string]any{
+					"var": []any{map[string]any{
 						"name": "foo",
 					}},
 				},
 			)
 			require.NoError(t, gerr)
-			require.EqualValues(t, []interface{}{map[string]interface{}{
+			require.EqualValues(t, []any{map[string]any{
 				"name": "foo",
 			}}, vars["var"])
 		})
@@ -929,8 +929,8 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": []interface{}{nil},
+				map[string]any{
+					"var": []any{nil},
 				},
 			)
 			require.EqualError(t, gerr, "input: variable.var[0] cannot be null")
@@ -945,8 +945,8 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var": []interface{}{map[string]interface{}{}},
+				map[string]any{
+					"var": []any{map[string]any{}},
 				},
 			)
 			require.EqualError(t, gerr, "input: variable.var[0].name must be defined")
@@ -960,11 +960,11 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
-					"var1": map[string]interface{}{
+				map[string]any{
+					"var1": map[string]any{
 						"name": "foobar",
 					},
-					"var2": map[string]interface{}{
+					"var2": map[string]any{
 						"nullName": "foobar",
 					},
 				},
@@ -983,7 +983,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": "asdf",
 				},
 			)
@@ -1000,7 +1000,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": 1,
 				},
 			)
@@ -1016,7 +1016,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": nil,
 				},
 			)
@@ -1052,7 +1052,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": 10,
 				},
 			)
@@ -1069,7 +1069,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": 10.2,
 				},
 			)
@@ -1086,7 +1086,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": nil,
 				},
 			)
@@ -1103,7 +1103,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": true,
 				},
 			)
@@ -1124,7 +1124,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": []*int{&a, &b, nil},
 				},
 			)
@@ -1145,7 +1145,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": []*string{&a, &b, nil},
 				},
 			)
@@ -1166,7 +1166,7 @@ func TestValidateVarsWithRules(t *testing.T) {
 			_, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
-				map[string]interface{}{
+				map[string]any{
 					"var": []*bool{&a, &b, nil},
 				},
 			)

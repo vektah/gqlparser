@@ -19,9 +19,9 @@ var ErrUnexpectedType = errors.New("Unexpected Type")
 func VariableValues(
 	schema *ast.Schema,
 	op *ast.OperationDefinition,
-	variables map[string]interface{},
-) (map[string]interface{}, error) {
-	coercedVars := map[string]interface{}{}
+	variables map[string]any,
+) (map[string]any, error) {
+	coercedVars := map[string]any{}
 
 	validator := varValidator{
 		path:   ast.Path{ast.PathName("variable")},

@@ -91,7 +91,7 @@ func (p *parser) peek() lexer.Token {
 	return p.peekToken
 }
 
-func (p *parser) error(tok lexer.Token, format string, args ...interface{}) {
+func (p *parser) error(tok lexer.Token, format string, args ...any) {
 	if p.err != nil {
 		return
 	}

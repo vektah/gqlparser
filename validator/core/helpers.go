@@ -12,7 +12,7 @@ import (
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
-func Message(msg string, args ...interface{}) ErrorOption {
+func Message(msg string, args ...any) ErrorOption {
 	return func(err *gqlerror.Error) {
 		err.Message += fmt.Sprintf(msg, args...)
 	}
@@ -51,7 +51,7 @@ func SuggestListUnquoted(prefix string, typed string, suggestions []string) Erro
 	}
 }
 
-func Suggestf(suggestion string, args ...interface{}) ErrorOption {
+func Suggestf(suggestion string, args ...any) ErrorOption {
 	return func(err *gqlerror.Error) {
 		err.Message += " Did you mean " + fmt.Sprintf(suggestion, args...) + "?"
 	}
@@ -117,11 +117,7 @@ func SuggestionList(input string, options []string) []string {
 func calcThreshold(a string) (threshold int) {
 	// the logic is copied from here
 	// https://github.com/graphql/graphql-js/blob/47bd8c8897c72d3efc17ecb1599a95cee6bac5e8/src/jsutils/suggestionList.ts#L14
-	threshold = int(math.Floor(float64(len(a))*0.4) + 1)
-
-	if threshold < 1 {
-		threshold = 1
-	}
+	threshold = max(int(math.Floor(float64(len(a))*0.4)+1), 1)
 	return threshold
 }
 

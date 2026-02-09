@@ -306,7 +306,7 @@ func compareErrors(errors gqlerror.List) func(i, j int) bool {
 	}
 }
 
-func readYaml(filename string, result interface{}) {
+func readYaml(filename string, result any) {
 	b, err := os.ReadFile(filename)
 	if err != nil {
 		panic(err)
