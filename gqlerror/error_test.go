@@ -47,7 +47,10 @@ func TestErrorFormatting(t *testing.T) {
 	})
 
 	t.Run("with path", func(t *testing.T) {
-		err := ErrorPathf(ast.Path{ast.PathName("a"), ast.PathIndex(1), ast.PathName("b")}, "kabloom")
+		err := ErrorPathf(
+			ast.Path{ast.PathName("a"), ast.PathIndex(1), ast.PathName("b")},
+			"kabloom",
+		)
 
 		require.Equal(t, `input: a[1].b kabloom`, err.Error())
 	})
@@ -103,8 +106,6 @@ func TestList_As(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
-
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -165,7 +166,6 @@ func TestList_Is(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -182,7 +182,7 @@ func TestList_Is(t *testing.T) {
 
 func BenchmarkError(b *testing.B) {
 	list := List([]*Error{error1, error2})
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = underlyingError.Error()
 		_ = error1.Error()
 		_ = error2.Error()

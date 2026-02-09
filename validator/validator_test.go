@@ -3,14 +3,13 @@ package validator_test
 import (
 	"testing"
 
-	"github.com/vektah/gqlparser/v2/validator/rules"
-
 	"github.com/stretchr/testify/require"
 
 	"github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/parser"
 	"github.com/vektah/gqlparser/v2/validator"
+	"github.com/vektah/gqlparser/v2/validator/rules"
 )
 
 func TestExtendingNonExistantTypes(t *testing.T) {
@@ -40,7 +39,7 @@ extend type Query {
 		}
 	}`})
 	require.NoError(t, err)
-	//nolint:staticcheck
+
 	require.Nil(t, validator.Validate(s, q))
 	require.Nil(t, validator.ValidateWithRules(s, q, nil))
 }
@@ -76,7 +75,7 @@ query SomeOperation {
 	`,
 	})
 	require.NoError(t, err)
-	//nolint:staticcheck
+
 	r1 := validator.Validate(s, q1)
 	require.Len(t, r1, 1)
 	const errorString = `SomeOperation:4:2: Field "myAction" argument "myEnum" of type "Locale!" is required, but it was not provided.`
@@ -94,7 +93,7 @@ query SomeOperation ($locale: Locale! = DE) {
 	`,
 	})
 	require.NoError(t, err)
-	//nolint:staticcheck
+
 	require.Nil(t, validator.Validate(s, q2))
 
 	// Repeating same query and expecting to still return same validation error
@@ -197,7 +196,7 @@ func TestNoUnusedVariables(t *testing.T) {
 			}
 		`})
 		require.NoError(t, err)
-		//nolint:staticcheck
+
 		require.Nil(t, validator.Validate(s, q))
 	})
 }
@@ -248,7 +247,8 @@ func TestCustomRuleSet(t *testing.T) {
 	type Query {
 		bar: String!
 	}
-	`, BuiltIn: false},
+	`, BuiltIn: false,
+		},
 	)
 
 	q, err := parser.ParseQuery(&ast.Source{
@@ -257,9 +257,10 @@ func TestCustomRuleSet(t *testing.T) {
 			query Foo($flag: Boolean!) {
 				...Bar
 			}
-		`})
+		`,
+	})
 	require.NoError(t, err)
-	//nolint:staticcheck
+
 	errList := validator.Validate(s, q, []validator.Rule{someRule, someOtherRule}...)
 	require.Len(t, errList, 2)
 	require.Equal(t, "some error message", errList[0].Message)
@@ -288,7 +289,8 @@ func TestCustomRuleSetWithRules(t *testing.T) {
 	type Query {
 		bar: String!
 	}
-	`, BuiltIn: false},
+	`, BuiltIn: false,
+		},
 	)
 
 	q, err := parser.ParseQuery(&ast.Source{
@@ -297,13 +299,15 @@ func TestCustomRuleSetWithRules(t *testing.T) {
 			query Foo($flag: Boolean!) {
 				...Bar
 			}
-		`})
+		`,
+	})
 	require.NoError(t, err)
 	errList := validator.ValidateWithRules(s, q, rules.NewRules(someRule, someOtherRule))
 	require.Len(t, errList, 2)
 
 	// because we hold rules in a map, the order is not guaranteed
-	// this is fine because we used to add the rule in the init function, so it didn't need to be specified as a requirement for the order.
+	// this is fine because we used to add the rule in the init function, so it didn't need to be
+	// specified as a requirement for the order.
 	messages := []string{errList[0].Message, errList[1].Message}
 	require.Contains(t, messages, "some error message")
 	require.Contains(t, messages, "some other error message")
@@ -313,7 +317,10 @@ func TestRemoveRule(t *testing.T) {
 	// no error
 	validator.RemoveRule("rule that does not exist")
 
-	validator.AddRule("Rule that should no longer exist", func(observers *validator.Events, addError validator.AddErrFunc) {})
+	validator.AddRule(
+		"Rule that should no longer exist",
+		func(observers *validator.Events, addError validator.AddErrFunc) {},
+	)
 
 	// no error
 	validator.RemoveRule("Rule that should no longer exist")

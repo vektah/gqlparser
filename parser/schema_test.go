@@ -1,12 +1,13 @@
 package parser
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/vektah/gqlparser/v2/gqlerror"
 
 	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"github.com/vektah/gqlparser/v2/parser/testrunner"
 )
 
@@ -15,8 +16,12 @@ func TestSchemaDocument(t *testing.T) {
 		doc, err := ParseSchema(&ast.Source{Input: input, Name: "spec"})
 		if err != nil {
 			return testrunner.Spec{
-				Error: err.(*gqlerror.Error),
-				AST:   ast.Dump(doc),
+				Error: func() *gqlerror.Error {
+					target := &gqlerror.Error{}
+					_ = errors.As(err, &target)
+					return target
+				}(),
+				AST: ast.Dump(doc),
 			}
 		}
 		return testrunner.Spec{
@@ -34,7 +39,11 @@ func TestTypePosition(t *testing.T) {
 			`,
 		})
 		assert.NoError(t, parseErr)
-		assert.Equal(t, 2, schema.Definitions.ForName("query").Fields.ForName("me").Type.Position.Line)
+		assert.Equal(
+			t,
+			2,
+			schema.Definitions.ForName("query").Fields.ForName("me").Type.Position.Line,
+		)
 	})
 	t.Run("type line number with bang", func(t *testing.T) {
 		schema, parseErr := ParseSchema(&ast.Source{
@@ -44,7 +53,11 @@ func TestTypePosition(t *testing.T) {
 			`,
 		})
 		assert.NoError(t, parseErr)
-		assert.Equal(t, 2, schema.Definitions.ForName("query").Fields.ForName("me").Type.Position.Line)
+		assert.Equal(
+			t,
+			2,
+			schema.Definitions.ForName("query").Fields.ForName("me").Type.Position.Line,
+		)
 	})
 	t.Run("type line number with comments", func(t *testing.T) {
 		schema, parseErr := ParseSchema(&ast.Source{
@@ -55,6 +68,10 @@ func TestTypePosition(t *testing.T) {
 			`,
 		})
 		assert.NoError(t, parseErr)
-		assert.Equal(t, 3, schema.Definitions.ForName("query").Fields.ForName("me").Type.Position.Line)
+		assert.Equal(
+			t,
+			3,
+			schema.Definitions.ForName("query").Fields.ForName("me").Type.Position.Line,
+		)
 	})
 }

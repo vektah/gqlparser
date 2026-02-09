@@ -8,7 +8,11 @@ import (
 
 func TestArg2Map(t *testing.T) {
 	defs := ArgumentDefinitionList{
-		{Name: "A", Type: NamedType("String", nil), DefaultValue: &Value{Kind: StringValue, Raw: "defaultA"}},
+		{
+			Name:         "A",
+			Type:         NamedType("String", nil),
+			DefaultValue: &Value{Kind: StringValue, Raw: "defaultA"},
+		},
 		{Name: "B", Type: NamedType("String", nil)},
 	}
 
@@ -42,7 +46,7 @@ func TestArg2Map(t *testing.T) {
 		args := arg2map(defs, ArgumentList{
 			{Name: "A", Value: &Value{Kind: Variable, Raw: "VarA"}},
 			{Name: "B", Value: &Value{Kind: Variable, Raw: "VarB"}},
-		}, map[string]interface{}{})
+		}, map[string]any{})
 		require.Equal(t, "defaultA", args["A"])
 		require.NotContains(t, args, "B")
 	})
@@ -51,7 +55,7 @@ func TestArg2Map(t *testing.T) {
 		args := arg2map(defs, ArgumentList{
 			{Name: "A", Value: &Value{Kind: Variable, Raw: "VarA"}},
 			{Name: "B", Value: &Value{Kind: Variable, Raw: "VarB"}},
-		}, map[string]interface{}{
+		}, map[string]any{
 			"VarA": nil,
 			"VarB": nil,
 		})
@@ -65,7 +69,7 @@ func TestArg2Map(t *testing.T) {
 		args := arg2map(defs, ArgumentList{
 			{Name: "A", Value: &Value{Kind: Variable, Raw: "VarA"}},
 			{Name: "B", Value: &Value{Kind: Variable, Raw: "VarB"}},
-		}, map[string]interface{}{
+		}, map[string]any{
 			"VarA": "varvalA",
 			"VarB": "varvalB",
 		})

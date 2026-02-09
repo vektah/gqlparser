@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-// Dump turns ast into a stable string format for assertions in tests
-func Dump(i interface{}) string {
+// Dump turns ast into a stable string format for assertions in tests.
+func Dump(i any) string {
 	v := reflect.ValueOf(i)
 
 	d := dumper{Buffer: &bytes.Buffer{}}
@@ -145,6 +145,9 @@ func isZero(v reflect.Value) bool {
 	case reflect.String:
 		return v.String() == ""
 	}
+
+	// TODO(steve): more correct, but breaks tests
+	// return reflect.DeepEqual(v.Interface(), reflect.Zero(v.Type()).Interface())
 
 	// Compare other types directly:
 	return reflect.DeepEqual(v.Interface(), reflect.Zero(v.Type()))

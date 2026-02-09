@@ -46,7 +46,9 @@ func TestValidation(t *testing.T) {
 
 	schemas := make([]*ast.Schema, 0, len(rawSchemas))
 	for i, schema := range rawSchemas {
-		schema, err := gqlparser.LoadSchema(&ast.Source{Input: schema, Name: fmt.Sprintf("schemas.yml[%d]", i)})
+		schema, err := gqlparser.LoadSchema(
+			&ast.Source{Input: schema, Name: fmt.Sprintf("schemas.yml[%d]", i)},
+		)
 		if err != nil {
 			panic(err)
 		}
@@ -91,7 +93,9 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 				var schema *ast.Schema
 				if idx, err := strconv.Atoi(spec.Schema); err != nil {
 					var gqlErr error
-					schema, gqlErr = gqlparser.LoadSchema(&ast.Source{Input: spec.Schema, Name: spec.Name})
+					schema, gqlErr = gqlparser.LoadSchema(
+						&ast.Source{Input: spec.Schema, Name: spec.Name},
+					)
 					if gqlErr != nil {
 						t.Fatal(err)
 					}
@@ -113,13 +117,21 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 					spec.Errors[i].Rule = spec.Rule
 
 					// remove inconsistent use of ;
-					spec.Errors[i].Message = strings.ReplaceAll(spec.Errors[i].Message, "; Did you mean", ". Did you mean")
+					spec.Errors[i].Message = strings.ReplaceAll(
+						spec.Errors[i].Message,
+						"; Did you mean",
+						". Did you mean",
+					)
 				}
 				sort.Slice(spec.Errors, compareErrors(spec.Errors))
 				sort.Slice(finalErrors, compareErrors(finalErrors))
 
 				if len(finalErrors) != len(spec.Errors) {
-					t.Errorf("wrong number of errors returned\ngot:\n%s\nwant:\n%s", finalErrors.Error(), spec.Errors)
+					t.Errorf(
+						"wrong number of errors returned\ngot:\n%s\nwant:\n%s",
+						finalErrors.Error(),
+						spec.Errors,
+					)
 				} else {
 					for i := range spec.Errors {
 						expected := spec.Errors[i]
@@ -149,7 +161,12 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 						}
 
 						if len(errLocs) > 0 {
-							t.Errorf("%s\ngot:  %s\nwant: %s", strings.Join(errLocs, ", "), finalErrors[i].Error(), spec.Errors[i].Error())
+							t.Errorf(
+								"%s\ngot:  %s\nwant: %s",
+								strings.Join(errLocs, ", "),
+								finalErrors[i].Error(),
+								spec.Errors[i].Error(),
+							)
 						}
 					}
 				}
@@ -163,7 +180,12 @@ func runSpec(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filen
 	})
 }
 
-func runSpecWithRules(t *testing.T, schemas []*ast.Schema, deviations []*Deviation, filename string) {
+func runSpecWithRules(
+	t *testing.T,
+	schemas []*ast.Schema,
+	deviations []*Deviation,
+	filename string,
+) {
 	ruleName := strings.TrimSuffix(filepath.Base(filename), ".spec.yml")
 
 	var specs []Spec
@@ -189,7 +211,9 @@ func runSpecWithRules(t *testing.T, schemas []*ast.Schema, deviations []*Deviati
 				var schema *ast.Schema
 				if idx, err := strconv.Atoi(spec.Schema); err != nil {
 					var gqlErr error
-					schema, gqlErr = gqlparser.LoadSchema(&ast.Source{Input: spec.Schema, Name: spec.Name})
+					schema, gqlErr = gqlparser.LoadSchema(
+						&ast.Source{Input: spec.Schema, Name: spec.Name},
+					)
 					if gqlErr != nil {
 						t.Fatal(err)
 					}
@@ -210,13 +234,21 @@ func runSpecWithRules(t *testing.T, schemas []*ast.Schema, deviations []*Deviati
 					spec.Errors[i].Rule = spec.Rule
 
 					// remove inconsistent use of ;
-					spec.Errors[i].Message = strings.ReplaceAll(spec.Errors[i].Message, "; Did you mean", ". Did you mean")
+					spec.Errors[i].Message = strings.ReplaceAll(
+						spec.Errors[i].Message,
+						"; Did you mean",
+						". Did you mean",
+					)
 				}
 				sort.Slice(spec.Errors, compareErrors(spec.Errors))
 				sort.Slice(finalErrors, compareErrors(finalErrors))
 
 				if len(finalErrors) != len(spec.Errors) {
-					t.Errorf("wrong number of errors returned\ngot:\n%s\nwant:\n%s", finalErrors.Error(), spec.Errors)
+					t.Errorf(
+						"wrong number of errors returned\ngot:\n%s\nwant:\n%s",
+						finalErrors.Error(),
+						spec.Errors,
+					)
 				} else {
 					for i := range spec.Errors {
 						expected := spec.Errors[i]
@@ -246,7 +278,12 @@ func runSpecWithRules(t *testing.T, schemas []*ast.Schema, deviations []*Deviati
 						}
 
 						if len(errLocs) > 0 {
-							t.Errorf("%s\ngot:  %s\nwant: %s", strings.Join(errLocs, ", "), finalErrors[i].Error(), spec.Errors[i].Error())
+							t.Errorf(
+								"%s\ngot:  %s\nwant: %s",
+								strings.Join(errLocs, ", "),
+								finalErrors[i].Error(),
+								spec.Errors[i].Error(),
+							)
 						}
 					}
 				}
@@ -270,7 +307,7 @@ func compareErrors(errors gqlerror.List) func(i, j int) bool {
 	}
 }
 
-func readYaml(filename string, result interface{}) {
+func readYaml(filename string, result any) {
 	b, err := os.ReadFile(filename)
 	if err != nil {
 		panic(err)

@@ -10,6 +10,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/stretchr/testify/assert"
+
 	"github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/formatter"
@@ -192,7 +193,6 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 		if f.IsDir() {
 			continue
 		}
-		f := f
 
 		t.Run(f.Name(), func(t *testing.T) {
 			result := cfg.Run(t, cfg, f)
@@ -226,7 +226,12 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 			}
 
 			if utf8.Valid(expected) {
-				assert.Equalf(t, string(expected), string(result), "if you want to accept new result. use -u option")
+				assert.Equalf(
+					t,
+					string(expected),
+					string(result),
+					"if you want to accept new result. use -u option",
+				)
 			}
 		})
 	}

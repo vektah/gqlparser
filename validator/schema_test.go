@@ -1,13 +1,14 @@
 package validator
 
 import (
+	"errors"
 	"os"
 	"testing"
 
-	"github.com/vektah/gqlparser/v2/gqlerror"
-
 	"github.com/stretchr/testify/require"
+
 	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"github.com/vektah/gqlparser/v2/parser/testrunner"
 )
 
@@ -19,7 +20,11 @@ func TestLoadSchema(t *testing.T) {
 		boolDef := s.Types["Boolean"]
 		require.Equal(t, "Boolean", boolDef.Name)
 		require.Equal(t, ast.Scalar, boolDef.Kind)
-		require.Equal(t, "The `Boolean` scalar type represents `true` or `false`.", boolDef.Description)
+		require.Equal(
+			t,
+			"The `Boolean` scalar type represents `true` or `false`.",
+			boolDef.Description,
+		)
 
 		deferDef := s.Directives["defer"]
 		require.Equal(t, "defer", deferDef.Name, "@defer exists.")
@@ -73,9 +78,9 @@ func TestLoadSchema(t *testing.T) {
 		require.Equal(t, "Subscription", s.Subscription.Name)
 		require.Equal(t, "dogEvents", s.Subscription.Fields[0].Name)
 
-		require.Equal(t, 1, len(s.SchemaDirectives))
+		require.Len(t, s.SchemaDirectives, 1)
 		require.Equal(t, "exampleOnSchemaDirective", s.SchemaDirectives[0].Name)
-		require.Equal(t, 1, len(s.SchemaDirectives[0].Arguments))
+		require.Len(t, s.SchemaDirectives[0].Arguments, 1)
 		require.Equal(t, "name", s.SchemaDirectives[0].Arguments[0].Name)
 		require.Equal(t, "foo", s.SchemaDirectives[0].Arguments[0].Value.Raw)
 
@@ -112,7 +117,11 @@ func TestLoadSchema(t *testing.T) {
 		_, err := LoadSchema(Prelude, &ast.Source{Input: input})
 		if err != nil {
 			return testrunner.Spec{
-				Error: err.(*gqlerror.Error),
+				Error: func() *gqlerror.Error {
+					target := &gqlerror.Error{}
+					_ = errors.As(err, &target)
+					return target
+				}(),
 			}
 		}
 		return testrunner.Spec{}
@@ -149,7 +158,11 @@ func TestSchemaDescriptionWithQuotesAtEnd(t *testing.T) {
 		  field: String
 		}
 		`, BuiltIn: false})
-		require.NoError(t, err, "Schema with quotes followed by space at end of description should parse successfully")
+		require.NoError(
+			t,
+			err,
+			"Schema with quotes followed by space at end of description should parse successfully",
+		)
 	})
 
 	t.Run("bug - quotes at end of description", func(t *testing.T) {
@@ -160,6 +173,10 @@ func TestSchemaDescriptionWithQuotesAtEnd(t *testing.T) {
 		  field: String
 		}
 		`, BuiltIn: false})
-		require.NoError(t, err, "Schema with quotes at end of description should parse successfully")
+		require.NoError(
+			t,
+			err,
+			"Schema with quotes at end of description should parse successfully",
+		)
 	})
 }

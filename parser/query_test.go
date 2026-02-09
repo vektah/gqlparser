@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,11 @@ func TestQueryDocument(t *testing.T) {
 	testrunner.Test(t, "query_test.yml", func(t *testing.T, input string) testrunner.Spec {
 		doc, err := ParseQuery(&ast.Source{Input: input, Name: "spec"})
 		if err != nil {
-			gqlErr := err.(*gqlerror.Error)
+			gqlErr := func() *gqlerror.Error {
+				target := &gqlerror.Error{}
+				_ = errors.As(err, &target)
+				return target
+			}()
 			return testrunner.Spec{
 				Error: gqlErr,
 				AST:   ast.Dump(doc),
@@ -41,6 +46,10 @@ query SomeOperation {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, 3, query.Operations.ForName("SomeOperation").Position.Line)
-		assert.Equal(t, 5, query.Operations.ForName("SomeOperation").SelectionSet[0].GetPosition().Line)
+		assert.Equal(
+			t,
+			5,
+			query.Operations.ForName("SomeOperation").SelectionSet[0].GetPosition().Line,
+		)
 	})
 }

@@ -62,6 +62,10 @@ func TestBlockStringValue(t *testing.T) {
 
 `)
 
-		require.Equal(t, "Hello,      \n  World!    \n            \nYours,      \n  GraphQL.  ", result)
+		require.Equal(
+			t,
+			"Hello,      \n  World!    \n            \nYours,      \n  GraphQL.  ",
+			result,
+		)
 	})
 }
