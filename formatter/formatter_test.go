@@ -226,7 +226,12 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 			}
 
 			if utf8.Valid(expected) {
-				assert.Equalf(t, string(expected), string(result), "if you want to accept new result. use -u option")
+				assert.Equalf(
+					t,
+					string(expected),
+					string(result),
+					"if you want to accept new result. use -u option",
+				)
 			}
 		})
 	}

@@ -3,14 +3,12 @@ package validator_test
 import (
 	"testing"
 
-	"github.com/vektah/gqlparser/v2/validator/rules"
-
 	"github.com/stretchr/testify/require"
-
 	"github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/parser"
 	"github.com/vektah/gqlparser/v2/validator"
+	"github.com/vektah/gqlparser/v2/validator/rules"
 )
 
 func TestExtendingNonExistantTypes(t *testing.T) {
@@ -248,7 +246,8 @@ func TestCustomRuleSet(t *testing.T) {
 	type Query {
 		bar: String!
 	}
-	`, BuiltIn: false},
+	`, BuiltIn: false,
+		},
 	)
 
 	q, err := parser.ParseQuery(&ast.Source{
@@ -257,7 +256,8 @@ func TestCustomRuleSet(t *testing.T) {
 			query Foo($flag: Boolean!) {
 				...Bar
 			}
-		`})
+		`,
+	})
 	require.NoError(t, err)
 	//nolint:staticcheck
 	errList := validator.Validate(s, q, []validator.Rule{someRule, someOtherRule}...)
@@ -288,7 +288,8 @@ func TestCustomRuleSetWithRules(t *testing.T) {
 	type Query {
 		bar: String!
 	}
-	`, BuiltIn: false},
+	`, BuiltIn: false,
+		},
 	)
 
 	q, err := parser.ParseQuery(&ast.Source{
@@ -297,7 +298,8 @@ func TestCustomRuleSetWithRules(t *testing.T) {
 			query Foo($flag: Boolean!) {
 				...Bar
 			}
-		`})
+		`,
+	})
 	require.NoError(t, err)
 	errList := validator.ValidateWithRules(s, q, rules.NewRules(someRule, someOtherRule))
 	require.Len(t, errList, 2)
@@ -313,7 +315,10 @@ func TestRemoveRule(t *testing.T) {
 	// no error
 	validator.RemoveRule("rule that does not exist")
 
-	validator.AddRule("Rule that should no longer exist", func(observers *validator.Events, addError validator.AddErrFunc) {})
+	validator.AddRule(
+		"Rule that should no longer exist",
+		func(observers *validator.Events, addError validator.AddErrFunc) {},
+	)
 
 	// no error
 	validator.RemoveRule("Rule that should no longer exist")

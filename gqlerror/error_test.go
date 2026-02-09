@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -47,7 +46,10 @@ func TestErrorFormatting(t *testing.T) {
 	})
 
 	t.Run("with path", func(t *testing.T) {
-		err := ErrorPathf(ast.Path{ast.PathName("a"), ast.PathIndex(1), ast.PathName("b")}, "kabloom")
+		err := ErrorPathf(
+			ast.Path{ast.PathName("a"), ast.PathIndex(1), ast.PathName("b")},
+			"kabloom",
+		)
 
 		require.Equal(t, `input: a[1].b kabloom`, err.Error())
 	})

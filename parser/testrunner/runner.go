@@ -61,10 +61,15 @@ func Test(t *testing.T, filename string, f func(t *testing.T, input string) Spec
 						t.Errorf("expected error but got none")
 					default:
 						if result.Error.Message != spec.Error.Message {
-							t.Errorf("wrong error returned\nexpected: %s\ngot:      %s", spec.Error.Message, result.Error.Message)
+							t.Errorf(
+								"wrong error returned\nexpected: %s\ngot:      %s",
+								spec.Error.Message,
+								result.Error.Message,
+							)
 						}
 
-						if result.Error.Locations[0].Column != spec.Error.Locations[0].Column || result.Error.Locations[0].Line != spec.Error.Locations[0].Line {
+						if result.Error.Locations[0].Column != spec.Error.Locations[0].Column ||
+							result.Error.Locations[0].Line != spec.Error.Locations[0].Line {
 							t.Errorf(
 								"wrong error location:\nexpected: line %d column %d\ngot:      line %d column %d",
 								spec.Error.Locations[0].Line,
@@ -85,26 +90,63 @@ func Test(t *testing.T, filename string, f func(t *testing.T, input string) Spec
 						for i, tok := range result.Tokens {
 							expected := spec.Tokens[i]
 
-							if !strings.EqualFold(strings.ReplaceAll(expected.Kind, "_", ""), tok.Kind) {
-								t.Errorf("token[%d].kind should be %s, was %s", i, expected.Kind, tok.Kind)
+							if !strings.EqualFold(
+								strings.ReplaceAll(expected.Kind, "_", ""),
+								tok.Kind,
+							) {
+								t.Errorf(
+									"token[%d].kind should be %s, was %s",
+									i,
+									expected.Kind,
+									tok.Kind,
+								)
 							}
 							if expected.Value != "undefined" && expected.Value != tok.Value {
-								t.Errorf("token[%d].value incorrect\nexpected: %s\ngot:      %s", i, strconv.Quote(expected.Value), strconv.Quote(tok.Value))
+								t.Errorf(
+									"token[%d].value incorrect\nexpected: %s\ngot:      %s",
+									i,
+									strconv.Quote(expected.Value),
+									strconv.Quote(tok.Value),
+								)
 							}
 							if expected.Start != 0 && expected.Start != tok.Start {
-								t.Errorf("token[%d].start should be %d, was %d", i, expected.Start, tok.Start)
+								t.Errorf(
+									"token[%d].start should be %d, was %d",
+									i,
+									expected.Start,
+									tok.Start,
+								)
 							}
 							if expected.End != 0 && expected.End != tok.End {
-								t.Errorf("token[%d].end should be %d, was %d", i, expected.End, tok.End)
+								t.Errorf(
+									"token[%d].end should be %d, was %d",
+									i,
+									expected.End,
+									tok.End,
+								)
 							}
 							if expected.Line != 0 && expected.Line != tok.Line {
-								t.Errorf("token[%d].line should be %d, was %d", i, expected.Line, tok.Line)
+								t.Errorf(
+									"token[%d].line should be %d, was %d",
+									i,
+									expected.Line,
+									tok.Line,
+								)
 							}
 							if expected.Column != 0 && expected.Column != tok.Column {
-								t.Errorf("token[%d].column should be %d, was %d", i, expected.Column, tok.Column)
+								t.Errorf(
+									"token[%d].column should be %d, was %d",
+									i,
+									expected.Column,
+									tok.Column,
+								)
 							}
 							if tok.Src != "spec" {
-								t.Errorf("token[%d].source.name should be spec, was %s", i, strconv.Quote(tok.Src))
+								t.Errorf(
+									"token[%d].source.name should be spec, was %s",
+									i,
+									strconv.Quote(tok.Src),
+								)
 							}
 						}
 					}

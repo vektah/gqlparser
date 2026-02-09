@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"github.com/vektah/gqlparser/v2/parser/testrunner"
@@ -41,6 +40,10 @@ query SomeOperation {
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, 3, query.Operations.ForName("SomeOperation").Position.Line)
-		assert.Equal(t, 5, query.Operations.ForName("SomeOperation").SelectionSet[0].GetPosition().Line)
+		assert.Equal(
+			t,
+			5,
+			query.Operations.ForName("SomeOperation").SelectionSet[0].GetPosition().Line,
+		)
 	})
 }

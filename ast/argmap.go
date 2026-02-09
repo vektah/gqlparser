@@ -1,6 +1,10 @@
 package ast
 
-func arg2map(defs ArgumentDefinitionList, args ArgumentList, vars map[string]interface{}) map[string]interface{} {
+func arg2map(
+	defs ArgumentDefinitionList,
+	args ArgumentList,
+	vars map[string]interface{},
+) map[string]interface{} {
 	result := map[string]interface{}{}
 	var err error
 

@@ -101,7 +101,9 @@ func TestNewDefaultRules(t *testing.T) {
 
 // TestGetInnerReturnsCopy confirms that GetInner returns a copy of the internal map.
 func TestGetInnerReturnsCopy(t *testing.T) {
-	rs := rules.NewRules(core.Rule{Name: "DummyRule", RuleFunc: func(*core.Events, core.AddErrFunc) {}})
+	rs := rules.NewRules(
+		core.Rule{Name: "DummyRule", RuleFunc: func(*core.Events, core.AddErrFunc) {}},
+	)
 
 	first := rs.GetInner()
 	delete(first, "DummyRule")

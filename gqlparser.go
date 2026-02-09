@@ -46,7 +46,11 @@ func LoadQuery(schema *ast.Schema, str string) (*ast.QueryDocument, gqlerror.Lis
 	return query, nil
 }
 
-func LoadQueryWithRules(schema *ast.Schema, str string, rules *rules.Rules) (*ast.QueryDocument, gqlerror.List) {
+func LoadQueryWithRules(
+	schema *ast.Schema,
+	str string,
+	rules *rules.Rules,
+) (*ast.QueryDocument, gqlerror.List) {
 	query, err := parser.ParseQuery(&ast.Source{Input: str})
 	if err != nil {
 		gqlErr, ok := err.(*gqlerror.Error)

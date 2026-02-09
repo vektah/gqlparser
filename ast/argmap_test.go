@@ -8,7 +8,11 @@ import (
 
 func TestArg2Map(t *testing.T) {
 	defs := ArgumentDefinitionList{
-		{Name: "A", Type: NamedType("String", nil), DefaultValue: &Value{Kind: StringValue, Raw: "defaultA"}},
+		{
+			Name:         "A",
+			Type:         NamedType("String", nil),
+			DefaultValue: &Value{Kind: StringValue, Raw: "defaultA"},
+		},
 		{Name: "B", Type: NamedType("String", nil)},
 	}
 

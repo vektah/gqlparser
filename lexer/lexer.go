@@ -122,7 +122,59 @@ func (s *Lexer) ReadToken() (Token, error) {
 	case '#':
 		return s.readComment()
 
-	case '_', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z':
+	case '_',
+		'a',
+		'b',
+		'c',
+		'd',
+		'e',
+		'f',
+		'g',
+		'h',
+		'i',
+		'j',
+		'k',
+		'l',
+		'm',
+		'n',
+		'o',
+		'p',
+		'q',
+		'r',
+		's',
+		't',
+		'u',
+		'v',
+		'w',
+		'x',
+		'y',
+		'z',
+		'A',
+		'B',
+		'C',
+		'D',
+		'E',
+		'F',
+		'G',
+		'H',
+		'I',
+		'J',
+		'K',
+		'L',
+		'M',
+		'N',
+		'O',
+		'P',
+		'Q',
+		'R',
+		'S',
+		'T',
+		'U',
+		'V',
+		'W',
+		'X',
+		'Y',
+		'Z':
 		return s.readName()
 
 	case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
@@ -144,7 +196,9 @@ func (s *Lexer) ReadToken() (Token, error) {
 	}
 
 	if r == '\'' {
-		return s.makeError(`Unexpected single quote character ('), did you mean to use a double quote (")?`)
+		return s.makeError(
+			`Unexpected single quote character ('), did you mean to use a double quote (")?`,
+		)
 	}
 
 	return s.makeError(`Cannot parse the unexpected character "%s".`, string(r))
@@ -370,7 +424,10 @@ func (s *Lexer) readString() (Token, error) {
 				if !ok {
 					s.end++
 					s.endRunes++
-					return s.makeError("Invalid character escape sequence: \\%s.", s.Input[s.end:s.end+5])
+					return s.makeError(
+						"Invalid character escape sequence: \\%s.",
+						s.Input[s.end:s.end+5],
+					)
 				}
 				buf.WriteRune(r)
 				s.end += 6

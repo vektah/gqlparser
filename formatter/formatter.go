@@ -283,13 +283,19 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 
 	for _, def := range lists {
 		if def.BeforeDescriptionComment != nil {
-			beforeDescComment.List = append(beforeDescComment.List, def.BeforeDescriptionComment.List...)
+			beforeDescComment.List = append(
+				beforeDescComment.List,
+				def.BeforeDescriptionComment.List...)
 		}
 		if def.AfterDescriptionComment != nil {
-			afterDescComment.List = append(afterDescComment.List, def.AfterDescriptionComment.List...)
+			afterDescComment.List = append(
+				afterDescComment.List,
+				def.AfterDescriptionComment.List...)
 		}
 		if def.EndOfDefinitionComment != nil {
-			endOfDefinitionComment.List = append(endOfDefinitionComment.List, def.EndOfDefinitionComment.List...)
+			endOfDefinitionComment.List = append(
+				endOfDefinitionComment.List,
+				def.EndOfDefinitionComment.List...)
 		}
 		description += def.Description
 	}
@@ -557,7 +563,10 @@ func (f *formatter) FormatDefinition(def *ast.Definition, extend bool) {
 	f.WriteNewline()
 }
 
-func (f *formatter) FormatEnumValueList(lists ast.EnumValueList, endOfDefComment *ast.CommentGroup) {
+func (f *formatter) FormatEnumValueList(
+	lists ast.EnumValueList,
+	endOfDefComment *ast.CommentGroup,
+) {
 	if len(lists) == 0 {
 		return
 	}

@@ -5,7 +5,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
 	. "github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/parser"
 )
@@ -34,21 +33,69 @@ func TestNamedTypeCompatability(t *testing.T) {
 	assert.True(t, NamedType("A", nil).IsCompatible(NamedType("A", nil)))
 	assert.False(t, NamedType("A", nil).IsCompatible(NamedType("B", nil)))
 
-	assert.True(t, ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("A", nil), nil)))
-	assert.False(t, ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("B", nil), nil)))
-	assert.False(t, ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("B", nil), nil)))
+	assert.True(
+		t,
+		ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("A", nil), nil)),
+	)
+	assert.False(
+		t,
+		ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("B", nil), nil)),
+	)
+	assert.False(
+		t,
+		ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("B", nil), nil)),
+	)
 
-	assert.True(t, ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("A", nil), nil)))
-	assert.False(t, ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("B", nil), nil)))
-	assert.False(t, ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("B", nil), nil)))
+	assert.True(
+		t,
+		ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("A", nil), nil)),
+	)
+	assert.False(
+		t,
+		ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("B", nil), nil)),
+	)
+	assert.False(
+		t,
+		ListType(NamedType("A", nil), nil).IsCompatible(ListType(NamedType("B", nil), nil)),
+	)
 
 	assert.True(t, NonNullNamedType("A", nil).IsCompatible(NamedType("A", nil)))
 	assert.False(t, NamedType("A", nil).IsCompatible(NonNullNamedType("A", nil)))
 
-	assert.True(t, NonNullListType(NamedType("String", nil), nil).IsCompatible(NonNullListType(NamedType("String", nil), nil)))
-	assert.True(t, NonNullListType(NamedType("String", nil), nil).IsCompatible(ListType(NamedType("String", nil), nil)))
-	assert.False(t, ListType(NamedType("String", nil), nil).IsCompatible(NonNullListType(NamedType("String", nil), nil)))
+	assert.True(
+		t,
+		NonNullListType(
+			NamedType("String", nil),
+			nil,
+		).IsCompatible(NonNullListType(NamedType("String", nil), nil)),
+	)
+	assert.True(
+		t,
+		NonNullListType(
+			NamedType("String", nil),
+			nil,
+		).IsCompatible(ListType(NamedType("String", nil), nil)),
+	)
+	assert.False(
+		t,
+		ListType(
+			NamedType("String", nil),
+			nil,
+		).IsCompatible(NonNullListType(NamedType("String", nil), nil)),
+	)
 
-	assert.True(t, ListType(NonNullNamedType("String", nil), nil).IsCompatible(ListType(NamedType("String", nil), nil)))
-	assert.False(t, ListType(NamedType("String", nil), nil).IsCompatible(ListType(NonNullNamedType("String", nil), nil)))
+	assert.True(
+		t,
+		ListType(
+			NonNullNamedType("String", nil),
+			nil,
+		).IsCompatible(ListType(NamedType("String", nil), nil)),
+	)
+	assert.False(
+		t,
+		ListType(
+			NamedType("String", nil),
+			nil,
+		).IsCompatible(ListType(NonNullNamedType("String", nil), nil)),
+	)
 }

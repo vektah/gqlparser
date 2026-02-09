@@ -94,7 +94,11 @@ func TestParserUtils(t *testing.T) {
 			p.some(lexer.BracketL, lexer.BracketR, func() {
 				arr = append(arr, p.next().Value)
 			})
-			require.EqualError(t, p.err, "input.graphql:1:2: expected at least one definition, found ]")
+			require.EqualError(
+				t,
+				p.err,
+				"input.graphql:1:2: expected at least one definition, found ]",
+			)
 			require.Equal(t, []string(nil), arr)
 			require.NotEqual(t, lexer.EOF, p.peek().Kind)
 		})

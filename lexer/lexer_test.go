@@ -3,9 +3,8 @@ package lexer
 import (
 	"testing"
 
-	"github.com/vektah/gqlparser/v2/gqlerror"
-
 	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"github.com/vektah/gqlparser/v2/parser/testrunner"
 )
 

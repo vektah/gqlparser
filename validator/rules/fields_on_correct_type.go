@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/vektah/gqlparser/v2/ast"
-
 	//nolint:staticcheck // Validator rules each use dot imports for convenience.
 	. "github.com/vektah/gqlparser/v2/validator/core"
 )
@@ -17,12 +16,24 @@ func ruleFuncFieldsOnCorrectType(observers *Events, addError AddErrFunc, disable
 			return
 		}
 
-		message := fmt.Sprintf(`Cannot query field "%s" on type "%s".`, field.Name, field.ObjectDefinition.Name)
+		message := fmt.Sprintf(
+			`Cannot query field "%s" on type "%s".`,
+			field.Name,
+			field.ObjectDefinition.Name,
+		)
 
 		if !disableSuggestion {
-			if suggestedTypeNames := getSuggestedTypeNames(walker, field.ObjectDefinition, field.Name); suggestedTypeNames != nil {
-				message += " Did you mean to use an inline fragment on " + QuotedOrList(suggestedTypeNames...) + "?"
-			} else if suggestedFieldNames := getSuggestedFieldNames(field.ObjectDefinition, field.Name); suggestedFieldNames != nil {
+			if suggestedTypeNames := getSuggestedTypeNames(
+				walker,
+				field.ObjectDefinition,
+				field.Name,
+			); suggestedTypeNames != nil {
+				message += " Did you mean to use an inline fragment on " + QuotedOrList(
+					suggestedTypeNames...) + "?"
+			} else if suggestedFieldNames := getSuggestedFieldNames(
+				field.ObjectDefinition,
+				field.Name,
+			); suggestedFieldNames != nil {
 				message += " Did you mean " + QuotedOrList(suggestedFieldNames...) + "?"
 			}
 		}

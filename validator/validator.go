@@ -2,6 +2,7 @@ package validator
 
 import (
 	"sort"
+
 	//nolint:staticcheck // bad, yeah
 	. "github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -117,7 +118,11 @@ func Validate(schema *Schema, doc *QueryDocument, rules ...Rule) gqlerror.List {
 	return errs
 }
 
-func ValidateWithRules(schema *Schema, doc *QueryDocument, rules *validatorrules.Rules) gqlerror.List {
+func ValidateWithRules(
+	schema *Schema,
+	doc *QueryDocument,
+	rules *validatorrules.Rules,
+) gqlerror.List {
 	if rules == nil {
 		rules = validatorrules.NewDefaultRules()
 	}

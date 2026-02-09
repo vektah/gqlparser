@@ -9,7 +9,10 @@ import (
 )
 
 func TestWalker(t *testing.T) {
-	schema, err := LoadSchema(Prelude, &ast.Source{Input: "type Query { name: String }\n schema { query: Query }"})
+	schema, err := LoadSchema(
+		Prelude,
+		&ast.Source{Input: "type Query { name: String }\n schema { query: Query }"},
+	)
 	require.NoError(t, err)
 	query, err := parser.ParseQuery(&ast.Source{Input: "{ as: name }"})
 	require.NoError(t, err)
@@ -31,7 +34,10 @@ func TestWalker(t *testing.T) {
 }
 
 func TestWalkInlineFragment(t *testing.T) {
-	schema, err := LoadSchema(Prelude, &ast.Source{Input: "type Query { name: String }\n schema { query: Query }"})
+	schema, err := LoadSchema(
+		Prelude,
+		&ast.Source{Input: "type Query { name: String }\n schema { query: Query }"},
+	)
 	require.NoError(t, err)
 	query, err := parser.ParseQuery(&ast.Source{Input: "{ ... { name } }"})
 	require.NoError(t, err)
