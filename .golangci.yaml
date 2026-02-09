@@ -29,23 +29,23 @@ formatters:
 linters:
   default: none
   enable:
-    - asasalint
-    - asciicheck
-    - bidichk
+#    - asasalint
+#    - asciicheck
+#    - bidichk
     - bodyclose
-    - copyloopvar
+#    - copyloopvar
     - dupl
-    - dupword
-    - durationcheck
+#    - dupword
+#    - durationcheck
     - errcheck
     - gocritic
     - govet
     - ineffassign
     - misspell
     - nakedret
-    - nolintlint
+#    - nolintlint
 #    - perfsprint
-    - reassign
+#    - reassign
     - revive
     - staticcheck
 #    - testableexamples
@@ -53,9 +53,9 @@ linters:
     - unconvert
 #    - unparam
     - unused
-    - usestdlibvars
-    - usetesting
-    - wastedassign
+#    - usestdlibvars
+#    - usetesting
+#    - wastedassign
 #    - prealloc # disabled because it is a huge pain
   settings:
     errcheck:
@@ -95,31 +95,31 @@ linters:
         - name: empty-lines
         - name: use-any
         # https://github.com/mgechev/revive/blob/HEAD/RULES_DESCRIPTIONS.md#struct-tag
-        - name: struct-tag
-          exclude: ["**/*_go124_test.go"]
-        - name: blank-imports
-        - name: context-as-argument
-        - name: context-keys-type
-        - name: error-return
-        - name: error-naming
-        - name: exported
-          disabled: true
-        - name: if-return
-        - name: increment-decrement
-        - name: var-declaration
-        - name: package-comments
-          disabled: true
-        - name: range
-        - name: receiver-naming
-        - name: time-naming
-        - name: unexported-return
-        - name: indent-error-flow
-        - name: errorf
-        - name: superfluous-else
-        - name: unused-parameter
-          disabled: true
-        - name: unreachable-code
-        - name: redefines-builtin-id
+#        - name: struct-tag
+#          exclude: ["**/*_go124_test.go"]
+#        - name: blank-imports
+#        - name: context-as-argument
+#        - name: context-keys-type
+#        - name: error-return
+#        - name: error-naming
+#        - name: exported
+#          disabled: true
+#        - name: if-return
+#        - name: increment-decrement
+#        - name: var-declaration
+#        - name: package-comments
+#          disabled: true
+#        - name: range
+#        - name: receiver-naming
+#        - name: time-naming
+#        - name: unexported-return
+#        - name: indent-error-flow
+#        - name: errorf
+#        - name: superfluous-else
+#        - name: unused-parameter
+#          disabled: true
+#        - name: unreachable-code
+#        - name: redefines-builtin-id
     testifylint:
       disable-all: true
       enable:

@@ -612,7 +612,7 @@ func containsString(slice []string, want string) bool {
 	return slices.Contains(slice, want)
 }
 
-func isCovariant(schema *Schema, required *Type, actual *Type) bool {
+func isCovariant(schema *Schema, required, actual *Type) bool {
 	if required.NonNull && !actual.NonNull {
 		return false
 	}

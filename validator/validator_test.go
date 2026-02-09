@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/parser"
@@ -305,7 +306,8 @@ func TestCustomRuleSetWithRules(t *testing.T) {
 	require.Len(t, errList, 2)
 
 	// because we hold rules in a map, the order is not guaranteed
-	// this is fine because we used to add the rule in the init function, so it didn't need to be specified as a requirement for the order.
+	// this is fine because we used to add the rule in the init function, so it didn't need to be
+	// specified as a requirement for the order.
 	messages := []string{errList[0].Message, errList[1].Message}
 	require.Contains(t, messages, "some error message")
 	require.Contains(t, messages, "some other error message")

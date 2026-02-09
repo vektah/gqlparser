@@ -385,7 +385,8 @@ func (s *Lexer) readString() (Token, error) {
 
 		case '"':
 			t, err := s.makeToken(String)
-			// the token should not include the quotes in its value, but should cover them in its position
+			// the token should not include the quotes in its value, but should cover them in its
+			// position
 			t.Pos.Start--
 			t.Pos.End++
 

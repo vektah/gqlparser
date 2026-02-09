@@ -110,7 +110,7 @@ func getSuggestedTypeNames(walker *Walker, parent *ast.Definition, name string) 
 // we ensure that appending elements results
 // in a slice backed by a distinct array.
 // This method prevents the shared array issue.
-func concatSlice(first []string, second []string) []string {
+func concatSlice(first, second []string) []string {
 	n := len(first)
 	return append(first[:n:n], second...)
 }

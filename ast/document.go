@@ -65,7 +65,8 @@ func (s *Schema) AddImplements(name string, iface *Definition) {
 	s.Implements[name] = append(s.Implements[name], iface)
 }
 
-// GetImplements returns all the interface and union definitions that the given definition satisfies.
+// GetImplements returns all the interface and union definitions that the given definition
+// satisfies.
 func (s *Schema) GetImplements(def *Definition) []*Definition {
 	return s.Implements[def.Name]
 }

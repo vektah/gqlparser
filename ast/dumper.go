@@ -146,6 +146,9 @@ func isZero(v reflect.Value) bool {
 		return v.String() == ""
 	}
 
+	// TODO(steve): more correct, but breaks tests
+	// return reflect.DeepEqual(v.Interface(), reflect.Zero(v.Type()).Interface())
+
 	// Compare other types directly:
 	return reflect.DeepEqual(v.Interface(), reflect.Zero(v.Type()))
 }

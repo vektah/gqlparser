@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/agnivade/levenshtein"
+
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
@@ -33,7 +34,7 @@ func At(position *ast.Position) ErrorOption {
 	}
 }
 
-func SuggestListQuoted(prefix string, typed string, suggestions []string) ErrorOption {
+func SuggestListQuoted(prefix, typed string, suggestions []string) ErrorOption {
 	suggested := SuggestionList(typed, suggestions)
 	return func(err *gqlerror.Error) {
 		if len(suggested) > 0 {
@@ -42,7 +43,7 @@ func SuggestListQuoted(prefix string, typed string, suggestions []string) ErrorO
 	}
 }
 
-func SuggestListUnquoted(prefix string, typed string, suggestions []string) ErrorOption {
+func SuggestListUnquoted(prefix, typed string, suggestions []string) ErrorOption {
 	suggested := SuggestionList(typed, suggestions)
 	return func(err *gqlerror.Error) {
 		if len(suggested) > 0 {

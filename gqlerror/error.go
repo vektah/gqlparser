@@ -183,7 +183,7 @@ func ErrorPosf(pos *ast.Position, message string, args ...any) *Error {
 	)
 }
 
-func ErrorLocf(file string, line int, col int, message string, args ...any) *Error {
+func ErrorLocf(file string, line, col int, message string, args ...any) *Error {
 	var extensions map[string]any
 	if file != "" {
 		extensions = map[string]any{"file": file}

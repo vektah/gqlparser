@@ -81,7 +81,8 @@ var OverlappingFieldsCanBeMergedRule = Rule{
 		})
 		observers.OnField(func(walker *Walker, field *ast.Field) {
 			if walker.CurrentOperation == nil {
-				// When checking both Operation and Fragment, errors are duplicated when processing FragmentDefinition referenced from Operation
+				// When checking both Operation and Fragment, errors are duplicated when processing
+				// FragmentDefinition referenced from Operation
 				return
 			}
 			m.walker = walker
@@ -550,7 +551,7 @@ func (m *overlappingFieldsCanBeMergedManager) findConflict(
 	}
 }
 
-func sameArguments(args1 []*ast.Argument, args2 []*ast.Argument) bool {
+func sameArguments(args1, args2 []*ast.Argument) bool {
 	if len(args1) != len(args2) {
 		return false
 	}
@@ -569,7 +570,7 @@ func sameArguments(args1 []*ast.Argument, args2 []*ast.Argument) bool {
 	return true
 }
 
-func sameValue(value1 *ast.Value, value2 *ast.Value) bool {
+func sameValue(value1, value2 *ast.Value) bool {
 	if value1.Kind != value2.Kind {
 		return false
 	}
@@ -579,7 +580,7 @@ func sameValue(value1 *ast.Value, value2 *ast.Value) bool {
 	return true
 }
 
-func doTypesConflict(walker *Walker, type1 *ast.Type, type2 *ast.Type) bool {
+func doTypesConflict(walker *Walker, type1, type2 *ast.Type) bool {
 	if type1.Elem != nil {
 		if type2.Elem != nil {
 			return doTypesConflict(walker, type1.Elem, type2.Elem)
