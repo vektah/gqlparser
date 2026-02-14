@@ -395,7 +395,8 @@ func (f *formatter) FormatFieldDefinition(field *ast.FieldDefinition) {
 	if !f.emitIntrospection && strings.HasPrefix(field.Name, "__") {
 		return
 	}
-	if !f.emitBuiltin && (field.Position != nil && field.Position.Src != nil && field.Position.Src.BuiltIn) {
+	if !f.emitBuiltin &&
+		(field.Position != nil && field.Position.Src != nil && field.Position.Src.BuiltIn) {
 		return
 	}
 
