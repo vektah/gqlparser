@@ -41,8 +41,9 @@ func WithBuiltin() FormatterOption {
 	}
 }
 
-// WithNonIntrospectionBuiltin includes builtin fields/directives/etc from the source/AST in the formatted output,
-// but excludes the introspection types and fields that starts with "__".
+// WithNonIntrospectionBuiltin includes builtin fields/directives/etc from the
+// source/AST in the formatted output, but excludes the introspection types and
+// fields that starts with "__".
 func WithNonIntrospectionBuiltin() FormatterOption {
 	return func(f *formatter) {
 		f.emitBuiltin = true
