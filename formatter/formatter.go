@@ -36,6 +36,15 @@ func WithComments() FormatterOption {
 func WithBuiltin() FormatterOption {
 	return func(f *formatter) {
 		f.emitBuiltin = true
+		f.emitIntrospection = true
+	}
+}
+
+// WithNonIntrospectionBuiltin includes builtin fields/directives/etc from the source/AST in the formatted output,
+// but excludes the introspection types and fields that starts with "__".
+func WithNonIntrospectionBuiltin() FormatterOption {
+	return func(f *formatter) {
+		f.emitBuiltin = true
 	}
 }
 
@@ -67,12 +76,13 @@ func NewFormatter(w io.Writer, options ...FormatterOption) Formatter {
 type formatter struct {
 	writer io.Writer
 
-	indent          string
-	indentSize      int
-	emitBuiltin     bool
-	emitComments    bool
-	omitDescription bool
-	compacted       bool
+	indent            string
+	indentSize        int
+	emitBuiltin       bool
+	emitIntrospection bool
+	emitComments      bool
+	omitDescription   bool
+	compacted         bool
 
 	padNext  bool
 	lineHead bool
@@ -334,7 +344,7 @@ func (f *formatter) FormatSchemaDefinitionList(lists ast.SchemaDefinitionList, e
 	f.WriteNewline()
 }
 
-// Return true if schema definitions is empty (besides directives), false otherwise.
+// Return true if schema definitions is empty (besides directives), false otherwise
 func (f *formatter) IsSchemaDefinitionsEmpty(lists ast.SchemaDefinitionList) bool {
 	for _, def := range lists {
 		if len(def.OperationTypes) > 0 {
@@ -380,7 +390,10 @@ func (f *formatter) FormatFieldList(fieldList ast.FieldList, endOfDefComment *as
 }
 
 func (f *formatter) FormatFieldDefinition(field *ast.FieldDefinition) {
-	if !f.emitBuiltin && strings.HasPrefix(field.Name, "__") {
+	if !f.emitIntrospection && strings.HasPrefix(field.Name, "__") {
+		return
+	}
+	if !f.emitBuiltin && (field.Position != nil && field.Position.Src != nil && field.Position.Src.BuiltIn) {
 		return
 	}
 
@@ -464,10 +477,8 @@ func (f *formatter) FormatDirectiveDefinitionList(lists ast.DirectiveDefinitionL
 }
 
 func (f *formatter) FormatDirectiveDefinition(def *ast.DirectiveDefinition) {
-	if !f.emitBuiltin {
-		if def.Position.Src.BuiltIn {
-			return
-		}
+	if !f.emitBuiltin && (def.Position != nil && def.Position.Src != nil && def.Position.Src.BuiltIn) {
+		return
 	}
 
 	f.FormatCommentGroup(def.BeforeDescriptionComment)
@@ -513,6 +524,9 @@ func (f *formatter) FormatDefinitionList(lists ast.DefinitionList, extend bool) 
 }
 
 func (f *formatter) FormatDefinition(def *ast.Definition, extend bool) {
+	if !f.emitIntrospection && strings.HasPrefix(def.Name, "__") {
+		return
+	}
 	if !f.emitBuiltin && def.BuiltIn {
 		return
 	}
@@ -564,10 +578,7 @@ func (f *formatter) FormatDefinition(def *ast.Definition, extend bool) {
 	f.WriteNewline()
 }
 
-func (f *formatter) FormatEnumValueList(
-	lists ast.EnumValueList,
-	endOfDefComment *ast.CommentGroup,
-) {
+func (f *formatter) FormatEnumValueList(lists ast.EnumValueList, endOfDefComment *ast.CommentGroup) {
 	if len(lists) == 0 {
 		return
 	}

@@ -28,6 +28,8 @@ var optionSets = []struct {
 	{"comments", []formatter.FormatterOption{formatter.WithComments()}},
 	{"no_description", []formatter.FormatterOption{formatter.WithoutDescription()}},
 	{"compacted", []formatter.FormatterOption{formatter.WithCompacted()}},
+	{"builtin", []formatter.FormatterOption{formatter.WithBuiltin()}},
+	{"non_introspection_builtin", []formatter.FormatterOption{formatter.WithNonIntrospectionBuiltin()}},
 }
 
 func TestFormatter_FormatSchema(t *testing.T) {
