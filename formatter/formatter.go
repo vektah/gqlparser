@@ -15,6 +15,7 @@ type Formatter interface {
 	FormatQueryDocument(doc *ast.QueryDocument)
 }
 
+//nolint:revive // Ignore "stuttering" name formatter.FormatterOption
 type FormatterOption func(*formatter)
 
 // WithIndent uses the given string for indenting block bodies in the output,
