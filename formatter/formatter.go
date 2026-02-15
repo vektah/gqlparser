@@ -480,7 +480,8 @@ func (f *formatter) FormatDirectiveDefinitionList(lists ast.DirectiveDefinitionL
 }
 
 func (f *formatter) FormatDirectiveDefinition(def *ast.DirectiveDefinition) {
-	if !f.emitBuiltin && (def.Position != nil && def.Position.Src != nil && def.Position.Src.BuiltIn) {
+	if !f.emitBuiltin &&
+		(def.Position != nil && def.Position.Src != nil && def.Position.Src.BuiltIn) {
 		return
 	}
 
@@ -581,7 +582,10 @@ func (f *formatter) FormatDefinition(def *ast.Definition, extend bool) {
 	f.WriteNewline()
 }
 
-func (f *formatter) FormatEnumValueList(lists ast.EnumValueList, endOfDefComment *ast.CommentGroup) {
+func (f *formatter) FormatEnumValueList(
+	lists ast.EnumValueList,
+	endOfDefComment *ast.CommentGroup,
+) {
 	if len(lists) == 0 {
 		return
 	}
