@@ -27,7 +27,7 @@ func (path Path) String() string {
 	for i, v := range path {
 		switch v := v.(type) {
 		case PathIndex:
-			str.WriteString(fmt.Sprintf("[%d]", v))
+			fmt.Fprintf(&str, "[%d]", v)
 		case PathName:
 			if i != 0 {
 				str.WriteByte('.')
