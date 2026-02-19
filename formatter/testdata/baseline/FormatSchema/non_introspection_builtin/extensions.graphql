@@ -1,0 +1,90 @@
+"""
+Directs the executor to defer this fragment when the `if` argument is true or undefined.
+"""
+directive @defer(
+	"""
+	Deferred when true or undefined.
+	"""
+	if: Boolean = true
+
+	"""
+	Unique name
+	"""
+	label: String
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+"""
+Marks an element of a GraphQL schema as no longer supported.
+"""
+directive @deprecated(
+	"""
+	Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/).
+	"""
+	reason: String = "No longer supported"
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
+directive @extends on OBJECT
+"""
+Directs the executor to include this field or fragment only when the `if` argument is true.
+"""
+directive @include(
+	"""
+	Included when true.
+	"""
+	if: Boolean!
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+directive @key(fields: String!) on OBJECT | INTERFACE
+"""
+Indicates exactly one field must be supplied and this field must not be `null`.
+"""
+directive @oneOf on INPUT_OBJECT
+directive @permission(permission: String!) on FIELD_DEFINITION
+"""
+Directs the executor to skip this field or fragment when the `if` argument is true.
+"""
+directive @skip(
+	"""
+	Skipped when true.
+	"""
+	if: Boolean!
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+"""
+Exposes a URL that specifies the behavior of this scalar.
+"""
+directive @specifiedBy(
+	"""
+	The URL that specifies the behavior of this scalar.
+	"""
+	url: String!
+) on SCALAR
+"""
+The `Boolean` scalar type represents `true` or `false`.
+"""
+scalar Boolean
+type Dog {
+	name: String!
+	owner: Person! @permission(permission: "admin")
+}
+"""
+The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).
+"""
+scalar Float
+"""
+The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as "4") or integer (such as 4) input value will be accepted as an ID.
+"""
+scalar ID
+"""
+The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.
+"""
+scalar Int
+type Person @key(fields: "name") {
+	name: String!
+}
+type Query @extends {
+	dogs: [Dog!]!
+}
+"""
+The `String`scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.
+"""
+scalar String
+type Subscription {
+	dogEvents: [Dog!]!
+}

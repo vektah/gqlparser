@@ -28,6 +28,11 @@ var optionSets = []struct {
 	{"comments", []formatter.FormatterOption{formatter.WithComments()}},
 	{"no_description", []formatter.FormatterOption{formatter.WithoutDescription()}},
 	{"compacted", []formatter.FormatterOption{formatter.WithCompacted()}},
+	{"builtin", []formatter.FormatterOption{formatter.WithBuiltin()}},
+	{
+		"non_introspection_builtin",
+		[]formatter.FormatterOption{formatter.WithNonIntrospectionBuiltin()},
+	},
 }
 
 func TestFormatter_FormatSchema(t *testing.T) {
@@ -40,10 +45,10 @@ func TestFormatter_FormatSchema(t *testing.T) {
 		t.Run(optionSet.name, func(t *testing.T) {
 			executeGoldenTesting(t, &goldenConfig{
 				SourceDir: testSourceDir,
-				BaselineFileName: func(cfg *goldenConfig, f os.DirEntry) string {
+				BaselineFileName: func(_ *goldenConfig, f os.DirEntry) string {
 					return path.Join(testBaselineDir, f.Name())
 				},
-				Run: func(t *testing.T, cfg *goldenConfig, f os.DirEntry) []byte {
+				Run: func(t *testing.T, _ *goldenConfig, f os.DirEntry) []byte {
 					// load stuff
 					schema, gqlErr := gqlparser.LoadSchema(&ast.Source{
 						Name:  f.Name(),
@@ -58,10 +63,18 @@ func TestFormatter_FormatSchema(t *testing.T) {
 					formatter.NewFormatter(&buf, opts...).FormatSchema(schema)
 
 					// validity check
-					_, gqlErr = gqlparser.LoadSchema(&ast.Source{
+					source := &ast.Source{
 						Name:  f.Name(),
 						Input: buf.String(),
-					})
+					}
+
+					switch optionSet.name {
+					case "builtin", "non_introspection_builtin":
+						_, gqlErr = parser.ParseSchema(source)
+					default:
+						_, gqlErr = gqlparser.LoadSchema(source)
+					}
+
 					if gqlErr != nil {
 						t.Log(buf.String())
 						t.Fatal(gqlErr)
@@ -84,10 +97,10 @@ func TestFormatter_FormatSchemaDocument(t *testing.T) {
 		t.Run(optionSet.name, func(t *testing.T) {
 			executeGoldenTesting(t, &goldenConfig{
 				SourceDir: testSourceDir,
-				BaselineFileName: func(cfg *goldenConfig, f os.DirEntry) string {
+				BaselineFileName: func(_ *goldenConfig, f os.DirEntry) string {
 					return path.Join(testBaselineDir, f.Name())
 				},
-				Run: func(t *testing.T, cfg *goldenConfig, f os.DirEntry) []byte {
+				Run: func(t *testing.T, _ *goldenConfig, f os.DirEntry) []byte {
 					// load stuff
 					doc, gqlErr := parser.ParseSchema(&ast.Source{
 						Name:  f.Name(),
@@ -128,10 +141,10 @@ func TestFormatter_FormatQueryDocument(t *testing.T) {
 		t.Run(optionSet.name, func(t *testing.T) {
 			executeGoldenTesting(t, &goldenConfig{
 				SourceDir: testSourceDir,
-				BaselineFileName: func(cfg *goldenConfig, f os.DirEntry) string {
+				BaselineFileName: func(_ *goldenConfig, f os.DirEntry) string {
 					return path.Join(testBaselineDir, f.Name())
 				},
-				Run: func(t *testing.T, cfg *goldenConfig, f os.DirEntry) []byte {
+				Run: func(t *testing.T, _ *goldenConfig, f os.DirEntry) []byte {
 					// load stuff
 					doc, gqlErr := parser.ParseQuery(&ast.Source{
 						Name:  f.Name(),
@@ -186,7 +199,7 @@ func executeGoldenTesting(t *testing.T, cfg *goldenConfig) {
 
 	fs, err := os.ReadDir(cfg.SourceDir)
 	if err != nil {
-		t.Fatal(fs)
+		t.Fatal(err)
 	}
 
 	for _, f := range fs {
