@@ -141,3 +141,31 @@
       locations:
         - {line: 3, column: 15}
         - {line: 3, column: 26}
+- name: custom repeatable directives in same location
+  rule: UniqueDirectivesPerLocation
+  schema: |
+    directive @customRepeatable repeatable on FIELD
+    type Query {
+      field: String
+    }
+  query: |
+    {
+      field @customRepeatable @customRepeatable
+    }
+  errors: []
+- name: duplicate custom non-repeatable directives in one location
+  rule: UniqueDirectivesPerLocation
+  schema: |
+    directive @customNonRepeatable on FIELD
+    type Query {
+      field: String
+    }
+  query: |
+    {
+      field @customNonRepeatable @customNonRepeatable
+    }
+  errors:
+    - message: The directive "@customNonRepeatable" can only be used once at this location.
+      locations:
+        - {line: 2, column: 13}
+        - {line: 2, column: 35}
