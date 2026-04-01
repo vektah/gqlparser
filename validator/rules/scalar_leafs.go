@@ -19,7 +19,11 @@ func ruleFuncScalarLeafs(observers *Events, addError AddErrFunc, disableSuggesti
 
 		if fieldType.IsLeafType() && len(field.SelectionSet) > 0 {
 			addError(
-				Message(`Field "%s" must not have a selection since type "%s" has no subfields.`, field.Name, fieldType.Name),
+				Message(
+					`Field "%s" must not have a selection since type "%s" has no subfields.`,
+					field.Name,
+					fieldType.Name,
+				),
 				At(field.Position),
 			)
 		}
@@ -27,7 +31,11 @@ func ruleFuncScalarLeafs(observers *Events, addError AddErrFunc, disableSuggesti
 		if !fieldType.IsLeafType() && len(field.SelectionSet) == 0 {
 			if disableSuggestion {
 				addError(
-					Message(`Field "%s" of type "%s" must have a selection of subfields.`, field.Name, field.Definition.Type.String()),
+					Message(
+						`Field "%s" of type "%s" must have a selection of subfields.`,
+						field.Name,
+						field.Definition.Type.String(),
+					),
 					At(field.Position),
 				)
 			} else {
