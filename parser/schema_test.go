@@ -30,6 +30,72 @@ func TestSchemaDocument(t *testing.T) {
 	})
 }
 
+func TestFieldPositionWithBlockStringDescription(t *testing.T) {
+	schema, parseErr := ParseSchema(&ast.Source{
+		Input: `type Query {
+					"""
+					multi
+					line
+					"""
+					myField: String
+				}`,
+	})
+	assert.NoError(t, parseErr)
+	field := schema.Definitions.ForName("Query").Fields.ForName("myField")
+	assert.Equal(t, 6, field.Position.Line)
+	assert.Equal(t, 6, field.Position.Column)
+}
+
+func TestArgumentPositionWithBlockStringDescription(t *testing.T) {
+	schema, parseErr := ParseSchema(&ast.Source{
+		Input: `type Query {
+					myField(
+						"""
+						multi
+						line
+						"""
+						myArg: String
+					): String
+				}`,
+	})
+	assert.NoError(t, parseErr)
+	arg := schema.Definitions.ForName("Query").Fields.ForName("myField").Arguments.ForName("myArg")
+	assert.Equal(t, 7, arg.Position.Line)
+	assert.Greater(t, arg.Position.Column, 0)
+}
+
+func TestInputValuePositionWithBlockStringDescription(t *testing.T) {
+	schema, parseErr := ParseSchema(&ast.Source{
+		Input: `input MyInput {
+					"""
+					multi
+					line
+					"""
+					myField: String
+				}`,
+	})
+	assert.NoError(t, parseErr)
+	field := schema.Definitions.ForName("MyInput").Fields.ForName("myField")
+	assert.Equal(t, 6, field.Position.Line)
+	assert.Greater(t, field.Position.Column, 0)
+}
+
+func TestEnumValuePositionWithBlockStringDescription(t *testing.T) {
+	schema, parseErr := ParseSchema(&ast.Source{
+		Input: `enum MyEnum {
+					"""
+					multi
+					line
+					"""
+					MY_VALUE
+				}`,
+	})
+	assert.NoError(t, parseErr)
+	val := schema.Definitions.ForName("MyEnum").EnumValues.ForName("MY_VALUE")
+	assert.Equal(t, 6, val.Position.Line)
+	assert.Greater(t, val.Position.Column, 0)
+}
+
 func TestTypePosition(t *testing.T) {
 	t.Run("type line number with no bang", func(t *testing.T) {
 		schema, parseErr := ParseSchema(&ast.Source{
