@@ -131,7 +131,10 @@ function exportSpecDefinitions() {
     expectSDLValidationErrors(schema, rule, sdlStr) {
       return resultProxy("expectSDLValidationErrors", {
         toDeepEqual(expected) {
-          // ignore now...
+          // ignore now...  pluggable named-rule system here is for
+          // query/operation validation only.
+          // SDL Validation happens imperatively in ValidateSchemaDocument in
+          // schema.go, at schema load time so error messages will diverge.
           // console.warn(rule.name, sdlStr, JSON.stringify(expected, null, 2));
         },
       });
@@ -209,7 +212,7 @@ function exportSpecDefinitions() {
   let schemaList = schemas.map((s) => printSchema(s));
 
   schemaList[0] += `
-# injected becuase upstream spec is missing some types
+# injected because upstream spec is missing some types
 extend type QueryRoot {
     field: T
     f1: Type

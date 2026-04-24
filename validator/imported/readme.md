@@ -8,7 +8,7 @@ Direct modifications should not be made to most of this directory, instead take 
 # update to latest
 $ rm graphql-js-commit.log && ./export.sh
 
-# re-generate with known revision
+# re-generate with known revision set in graphql-js-commit.log
 $ ./export.sh
 ```
 
