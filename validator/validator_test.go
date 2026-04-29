@@ -223,6 +223,31 @@ func TestNoUnusedVariablesWithRules(t *testing.T) {
 		require.NoError(t, err)
 		require.Nil(t, validator.ValidateWithRules(s, q, nil))
 	})
+
+	t.Run("variable used in fragment definition directive", func(t *testing.T) {
+		s := gqlparser.MustLoadSchema(
+			&ast.Source{Name: "graph/schema.graphqls", Input: `
+	directive @testDirective(x: Int) on FRAGMENT_DEFINITION
+
+	type Query {
+		bar: String!
+	}
+	`, BuiltIn: false},
+		)
+
+		q, err := parser.ParseQuery(&ast.Source{Name: "fragmentDefinitionDirective", Input: `
+			query Foo($x: Int) {
+				...Bar
+			}
+
+			fragment Bar on Query @testDirective(x: $x) {
+				bar
+			}
+		`})
+		require.NoError(t, err)
+
+		require.Nil(t, validator.ValidateWithRules(s, q, nil))
+	})
 }
 
 func TestCustomRuleSet(t *testing.T) {
