@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
