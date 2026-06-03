@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/andreyvit/diff"
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
 
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -156,10 +156,7 @@ func Test(t *testing.T, filename string, f func(t *testing.T, input string) Spec
 					result.AST = strings.TrimSpace(result.AST)
 
 					if spec.AST != "" && spec.AST != result.AST {
-						diffStr := diff.LineDiff(spec.AST, result.AST)
-						if diffStr != "" {
-							t.Errorf("AST mismatch:\n%s", diffStr)
-						}
+						assert.Equal(t, spec.AST, result.AST, "AST mismatch")
 					}
 
 					if t.Failed() {

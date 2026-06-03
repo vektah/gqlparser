@@ -1,10 +1,8 @@
 package ast
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/andreyvit/diff"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,6 +26,5 @@ func TestDump(t *testing.T) {
           Name: "bar"
   - <Directive>`
 
-	fmt.Println(diff.LineDiff(expected, res))
 	require.Equal(t, expected, res)
 }
