@@ -346,6 +346,37 @@ func TestValidateVars(t *testing.T) {
 			}}, vars["var"])
 		})
 
+		t.Run("null nested list value", func(t *testing.T) {
+			//nolint:staticcheck
+			q := gqlparser.MustLoadQuery(
+				schema,
+				`query foo($var: [[InputType!]]) { nestedArrayArg(i: $var) }`,
+			)
+			vars, gerr := validator.VariableValues(
+				schema,
+				q.Operations.ForName(""),
+				map[string]any{
+					"var": []any{
+						[]any{
+							map[string]any{
+								"name": "foo",
+							},
+						},
+						nil,
+					},
+				},
+			)
+			require.NoError(t, gerr)
+			require.EqualValues(t, []any{
+				[]any{
+					map[string]any{
+						"name": "foo",
+					},
+				},
+				nil,
+			}, vars["var"])
+		})
+
 		t.Run("null element value", func(t *testing.T) {
 			//nolint:staticcheck
 			q := gqlparser.MustLoadQuery(
