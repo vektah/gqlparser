@@ -421,6 +421,19 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		}
 	}
 
+	for idx, typ1 := range def.Types {
+		for _, typ2 := range def.Types[idx+1:] {
+			if typ1 == typ2 {
+				return gqlerror.ErrorPosf(
+					def.Position,
+					"Union type %s can only include type %s once.",
+					def.Name,
+					typ2,
+				)
+			}
+		}
+	}
+
 	if !def.BuiltIn {
 		// GraphQL spec has reserved type names a lot!
 		err := validateName(def.Position, def.Name)
