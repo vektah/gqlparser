@@ -9,6 +9,7 @@ import (
 
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
+	"github.com/vektah/gqlparser/v2/parser"
 	"github.com/vektah/gqlparser/v2/parser/testrunner"
 )
 
@@ -179,4 +180,33 @@ func TestSchemaDescriptionWithQuotesAtEnd(t *testing.T) {
 			"Schema with quotes at end of description should parse successfully",
 		)
 	})
+}
+
+func TestUnionDuplicateMemberFallbackPosition(t *testing.T) {
+	// When a union definition has no per-member TypePositions (e.g. it was built
+	// programmatically rather than parsed), duplicate detection falls back to the
+	// definition's own position instead of risking a misaligned member position.
+	// Simulate that by parsing a valid schema and clearing the positions.
+	sd, err := parser.ParseSchemas(
+		Prelude,
+		&ast.Source{Name: "t", Input: "union Foo = Bar | Bar\ntype Bar { id: ID }\n"},
+	)
+	require.NoError(t, err)
+	for _, def := range sd.Definitions {
+		if def.Name == "Foo" {
+			def.TypePositions = nil
+		}
+	}
+
+	_, err = ValidateSchemaDocument(sd)
+	require.Error(t, err)
+
+	var gerr *gqlerror.Error
+	require.ErrorAs(t, err, &gerr)
+	require.Contains(t, gerr.Message, "Union type Foo can only include type Bar once.")
+	// Falls back to the union definition's own position (line 1, column 7), not a
+	// member position.
+	require.Len(t, gerr.Locations, 1)
+	require.Equal(t, 1, gerr.Locations[0].Line)
+	require.Equal(t, 7, gerr.Locations[0].Column)
 }
