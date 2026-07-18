@@ -42,6 +42,18 @@ type ChildValue struct {
 	Comment  *CommentGroup
 }
 
+// isUnsetVariable reports whether v is a variable reference with no supplied
+// value and no default — it should be treated as absent, not null.
+func (v *Value) isUnsetVariable(vars map[string]any) bool {
+	if v.Kind != Variable {
+		return false
+	}
+	if _, ok := vars[v.Raw]; ok {
+		return false
+	}
+	return v.VariableDefinition == nil || v.VariableDefinition.DefaultValue == nil
+}
+
 func (v *Value) Value(vars map[string]any) (any, error) {
 	if v == nil {
 		return nil, nil
@@ -78,11 +90,8 @@ func (v *Value) Value(vars map[string]any) (any, error) {
 	case ObjectValue:
 		val := map[string]any{}
 		for _, elem := range v.Children {
-			if elem.Value.Kind == Variable {
-				if _, ok := vars[elem.Value.Raw]; !ok &&
-					(elem.Value.VariableDefinition == nil || elem.Value.VariableDefinition.DefaultValue == nil) {
-					continue
-				}
+			if elem.Value.isUnsetVariable(vars) {
+				continue
 			}
 			elemVal, err := elem.Value.Value(vars)
 			if err != nil {
