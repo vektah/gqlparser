@@ -1,6 +1,7 @@
 package gqlerror
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
@@ -66,6 +67,97 @@ func TestErrorPosition(t *testing.T) {
 		require.Nil(t, err.Extensions["file"])
 		require.Nil(t, errNilPosition.Extensions["file"])
 	})
+}
+
+func TestError_Is(t *testing.T) {
+	t.Parallel()
+
+	matchingPath := ast.Path{ast.PathName("query"), ast.PathIndex(1)}
+	matchingLocations := []Location{{Line: 2, Column: 3}}
+	matchingExtensions := map[string]any{"code": "INVALID", "nested": []string{"a", "b"}}
+
+	tests := []struct {
+		name    string
+		err     *Error
+		target  error
+		want    bool
+		reverse bool
+	}{
+		{
+			name:    "identical messages",
+			err:     &Error{Message: "invalid query"},
+			target:  &Error{Message: "invalid query"},
+			want:    true,
+			reverse: true,
+		},
+		{
+			name: "identical fields",
+			err: &Error{
+				Message:    "invalid query",
+				Rule:       "KnownTypeNames",
+				Path:       matchingPath,
+				Locations:  matchingLocations,
+				Extensions: matchingExtensions,
+			},
+			target: &Error{
+				Message:    "invalid query",
+				Rule:       "KnownTypeNames",
+				Path:       ast.Path{ast.PathName("query"), ast.PathIndex(1)},
+				Locations:  []Location{{Line: 2, Column: 3}},
+				Extensions: map[string]any{"code": "INVALID", "nested": []string{"a", "b"}},
+			},
+			want:    true,
+			reverse: true,
+		},
+		{
+			name:   "different message",
+			err:    &Error{Message: "first"},
+			target: &Error{Message: "second"},
+		},
+		{
+			name:   "different rule",
+			err:    &Error{Message: "invalid", Rule: "RuleA"},
+			target: &Error{Message: "invalid", Rule: "RuleB"},
+		},
+		{
+			name:   "different path",
+			err:    &Error{Message: "invalid", Path: ast.Path{ast.PathName("a")}},
+			target: &Error{Message: "invalid", Path: ast.Path{ast.PathName("b")}},
+		},
+		{
+			name:   "different locations",
+			err:    &Error{Message: "invalid", Locations: []Location{{Line: 1, Column: 1}}},
+			target: &Error{Message: "invalid", Locations: []Location{{Line: 1, Column: 2}}},
+		},
+		{
+			name:   "different extensions",
+			err:    &Error{Message: "invalid", Extensions: map[string]any{"code": "A"}},
+			target: &Error{Message: "invalid", Extensions: map[string]any{"code": "B"}},
+		},
+		{
+			name:   "wrapped non gqlerror target",
+			err:    &Error{Err: underlyingError, Message: "wrapped"},
+			target: underlyingError,
+			want:   true,
+		},
+		{
+			name: "nil target",
+			err:  &Error{Message: "invalid"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			require.Equal(t, tt.want, errors.Is(tt.err, tt.target))
+			if tt.reverse {
+				require.Equal(t, tt.want, errors.Is(tt.target, tt.err))
+			}
+		})
+	}
+
+	var nilErr *Error
+	require.True(t, nilErr.Is(nil))
 }
 
 func TestList_As(t *testing.T) {

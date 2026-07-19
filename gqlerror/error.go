@@ -3,6 +3,7 @@ package gqlerror
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -72,6 +73,23 @@ func (err *Error) pathString() string {
 
 func (err *Error) Unwrap() error {
 	return err.Err
+}
+
+func (err *Error) Is(target error) bool {
+	if err == nil {
+		return target == nil
+	}
+
+	var gqlErr *Error
+	if !errors.As(target, &gqlErr) || gqlErr == nil {
+		return false
+	}
+
+	return err.Message == gqlErr.Message &&
+		err.Rule == gqlErr.Rule &&
+		reflect.DeepEqual(err.Path, gqlErr.Path) &&
+		reflect.DeepEqual(err.Locations, gqlErr.Locations) &&
+		reflect.DeepEqual(err.Extensions, gqlErr.Extensions)
 }
 
 func (err *Error) AsError() error {
