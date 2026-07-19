@@ -2,6 +2,7 @@ package gqlerror
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -158,6 +159,14 @@ func TestError_Is(t *testing.T) {
 
 	var nilErr *Error
 	require.True(t, nilErr.Is(nil))
+
+	t.Run("does not match wrapped target", func(t *testing.T) {
+		err := &Error{Message: "invalid query"}
+		equivalent := &Error{Message: "invalid query"}
+
+		require.True(t, errors.Is(err, equivalent))
+		require.False(t, errors.Is(err, fmt.Errorf("ctx: %w", equivalent)))
+	})
 }
 
 func TestList_As(t *testing.T) {

@@ -80,8 +80,8 @@ func (err *Error) Is(target error) bool {
 		return target == nil
 	}
 
-	var gqlErr *Error
-	if !errors.As(target, &gqlErr) || gqlErr == nil {
+	gqlErr, ok := target.(*Error)
+	if !ok || gqlErr == nil {
 		return false
 	}
 
