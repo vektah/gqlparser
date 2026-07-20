@@ -164,8 +164,8 @@ func TestError_Is(t *testing.T) {
 		err := &Error{Message: "invalid query"}
 		equivalent := &Error{Message: "invalid query"}
 
-		require.True(t, errors.Is(err, equivalent))
-		require.False(t, errors.Is(err, fmt.Errorf("ctx: %w", equivalent)))
+		require.ErrorIs(t, err, equivalent)
+		require.NotErrorIs(t, err, fmt.Errorf("ctx: %w", equivalent))
 	})
 }
 
@@ -262,6 +262,14 @@ func TestList_Is(t *testing.T) {
 				error2,
 			},
 			target:           underlyingError,
+			hasMatchingError: true,
+		},
+		{
+			name: "List with structurally matching error",
+			errs: List{
+				{Message: "invalid query"},
+			},
+			target:           &Error{Message: "invalid query"},
 			hasMatchingError: true,
 		},
 	}
