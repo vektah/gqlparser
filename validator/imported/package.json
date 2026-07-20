@@ -3,7 +3,7 @@
     "fmt": "prettier -w '*.js'"
   },
   "dependencies": {
-    "@babel/cli": "^8.0.1",
+    "@babel/cli": "^8.0.4",
     "@babel/core": "^8.0.1",
     "@babel/node": "^8.0.1",
     "@babel/plugin-transform-typescript": "^8.0.1",
@@ -14,7 +14,7 @@
     "js-yaml": "^5.2.1"
   },
   "devDependencies": {
-    "prettier": "^3.9.4"
+    "prettier": "^3.9.5"
   },
   "engines": {
     "node": ">= 22"
