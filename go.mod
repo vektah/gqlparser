@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/agnivade/levenshtein v1.2.1
 	github.com/stretchr/testify v1.11.1
-	go.yaml.in/yaml/v3 v3.0.4
+	go.yaml.in/yaml/v3 v3.0.5
 )
 
 require (
