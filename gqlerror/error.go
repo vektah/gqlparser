@@ -3,6 +3,7 @@ package gqlerror
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -74,6 +75,25 @@ func (err *Error) Unwrap() error {
 	return err.Err
 }
 
+// Is reports whether target has the same Message, Rule, Path, Locations, and
+// Extensions. The wrapped Err is intentionally not compared.
+func (err *Error) Is(target error) bool {
+	if err == nil {
+		return target == nil
+	}
+
+	gqlErr, ok := target.(*Error)
+	if !ok || gqlErr == nil {
+		return false
+	}
+
+	return err.Message == gqlErr.Message &&
+		err.Rule == gqlErr.Rule &&
+		reflect.DeepEqual(err.Path, gqlErr.Path) &&
+		reflect.DeepEqual(err.Locations, gqlErr.Locations) &&
+		reflect.DeepEqual(err.Extensions, gqlErr.Extensions)
+}
+
 func (err *Error) AsError() error {
 	if err == nil {
 		return nil
@@ -90,6 +110,8 @@ func (errs List) Error() string {
 	return buf.String()
 }
 
+// Is reports whether any error in the list matches target according to
+// errors.Is, including structural matches defined by Error.Is.
 func (errs List) Is(target error) bool {
 	for _, err := range errs {
 		if errors.Is(err, target) {
