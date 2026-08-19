@@ -577,6 +577,30 @@ func sameValue(value1, value2 *ast.Value) bool {
 	if value1.Raw != value2.Raw {
 		return false
 	}
+	// Object and list values keep their contents in Children with an empty Raw, so
+	// the Raw comparison above is not enough to tell them apart. Compare the children
+	// too, otherwise every object (or list) value looks equal to every other one and
+	// fields with differing composite arguments are wrongly allowed to merge.
+	if len(value1.Children) != len(value2.Children) {
+		return false
+	}
+	switch value1.Kind {
+	case ast.ObjectValue:
+		// Input object field order is not significant, so match children by name.
+		for _, child1 := range value1.Children {
+			child2 := value2.Children.ForName(child1.Name)
+			if child2 == nil || !sameValue(child1.Value, child2) {
+				return false
+			}
+		}
+	default:
+		// List (and any other composite) values are compared position by position.
+		for i := range value1.Children {
+			if !sameValue(value1.Children[i].Value, value2.Children[i].Value) {
+				return false
+			}
+		}
+	}
 	return true
 }
 
