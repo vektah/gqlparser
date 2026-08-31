@@ -68,5 +68,6 @@ echo "  https://github.com/${ORG}/${REPO}/releases/tag/${VERSION}"
 
 echo "Now go write some release notes! https://github.com/${ORG}/${REPO}/releases"
 # Prime the Go module proxy so `go get` sees the new version promptly.
-curl -sS "https://proxy.golang.org/github.com/${ORG}/${REPO}/@v/${VERSION}.info"
+# Note! The required v2 because we are past v0/v1!
+curl -sS "https://proxy.golang.org/github.com/${ORG}/${REPO}/v2/@v/${VERSION}.info"
 echo
