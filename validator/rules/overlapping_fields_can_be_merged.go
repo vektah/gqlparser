@@ -69,7 +69,8 @@ var OverlappingFieldsCanBeMergedRule = Rule{
 		 */
 
 		m := &overlappingFieldsCanBeMergedManager{
-			comparedFragmentPairs: pairSet{data: make(map[string]map[string]bool)},
+			comparedFragmentPairs:        pairSet{data: make(map[string]map[string]bool)},
+			cachedFieldsAndFragmentNames: make(map[selectionSetKey]fieldCollection),
 		}
 
 		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
@@ -245,8 +246,8 @@ type overlappingFieldsCanBeMergedManager struct {
 	walker *Walker
 
 	// per walker
-	comparedFragmentPairs pairSet
-	// cachedFieldsAndFragmentNames interface{}
+	comparedFragmentPairs        pairSet
+	cachedFieldsAndFragmentNames map[selectionSetKey]fieldCollection
 
 	// per selectionSet
 	comparedFragments map[string]bool
@@ -259,7 +260,7 @@ func (m *overlappingFieldsCanBeMergedManager) findConflictsWithinSelectionSet(
 		return nil
 	}
 
-	fieldsMap, fragmentSpreads := getFieldsAndFragmentNames(selectionSet)
+	fieldsMap, fragmentSpreads := m.getFieldsAndFragmentNames(selectionSet)
 
 	var conflicts conflictMessageContainer
 
@@ -300,7 +301,9 @@ func (m *overlappingFieldsCanBeMergedManager) collectConflictsBetweenFieldsAndFr
 		return
 	}
 
-	fieldsMapB, fragmentSpreads := getFieldsAndFragmentNames(fragmentSpread.Definition.SelectionSet)
+	fieldsMapB, fragmentSpreads := m.getFieldsAndFragmentNames(
+		fragmentSpread.Definition.SelectionSet,
+	)
 
 	// Do not compare a fragment's fieldMap to itself.
 	if reflect.DeepEqual(fieldsMap, fieldsMapB) {
@@ -351,10 +354,10 @@ func (m *overlappingFieldsCanBeMergedManager) collectConflictsBetweenFragments(
 			return
 		}
 
-		fieldsMapA, fragmentSpreadsA := getFieldsAndFragmentNames(
+		fieldsMapA, fragmentSpreadsA := m.getFieldsAndFragmentNames(
 			fragmentSpreadA.Definition.SelectionSet,
 		)
-		fieldsMapB, fragmentSpreadsB := getFieldsAndFragmentNames(
+		fieldsMapB, fragmentSpreadsB := m.getFieldsAndFragmentNames(
 			fragmentSpreadB.Definition.SelectionSet,
 		)
 
@@ -384,8 +387,8 @@ func (m *overlappingFieldsCanBeMergedManager) findConflictsBetweenSubSelectionSe
 ) *conflictMessageContainer {
 	var conflicts conflictMessageContainer
 
-	fieldsMapA, fragmentSpreadsA := getFieldsAndFragmentNames(selectionSetA)
-	fieldsMapB, fragmentSpreadsB := getFieldsAndFragmentNames(selectionSetB)
+	fieldsMapA, fragmentSpreadsA := m.getFieldsAndFragmentNames(selectionSetA)
+	fieldsMapB, fragmentSpreadsB := m.getFieldsAndFragmentNames(selectionSetB)
 
 	// (H) First, collect all conflicts between these two collections of field.
 	m.collectConflictsBetween(&conflicts, areMutuallyExclusive, fieldsMapA, fieldsMapB)
@@ -607,7 +610,7 @@ func doTypesConflict(walker *Walker, type1, type2 *ast.Type) bool {
 	return false
 }
 
-func getFieldsAndFragmentNames(
+func collectFieldsAndFragmentNames(
 	selectionSet ast.SelectionSet,
 ) (*sequentialFieldsMap, []*ast.FragmentSpread) {
 	fieldsMap := sequentialFieldsMap{
@@ -637,4 +640,30 @@ func getFieldsAndFragmentNames(
 	walk(selectionSet)
 
 	return &fieldsMap, fragmentSpreads
+}
+
+// Selection sets are immutable during validation. Key by backing-array slot
+// and length so subslices with the same start but different lengths stay distinct.
+type selectionSetKey struct {
+	first  *ast.Selection
+	length int
+}
+type fieldCollection struct {
+	fields    *sequentialFieldsMap
+	fragments []*ast.FragmentSpread
+}
+
+func (m *overlappingFieldsCanBeMergedManager) getFieldsAndFragmentNames(
+	selections ast.SelectionSet,
+) (*sequentialFieldsMap, []*ast.FragmentSpread) {
+	key := selectionSetKey{length: len(selections)}
+	if len(selections) != 0 {
+		key.first = &selections[0]
+	}
+	if cached, ok := m.cachedFieldsAndFragmentNames[key]; ok {
+		return cached.fields, cached.fragments
+	}
+	fields, fragments := collectFieldsAndFragmentNames(selections)
+	m.cachedFieldsAndFragmentNames[key] = fieldCollection{fields: fields, fragments: fragments}
+	return fields, fragments
 }
