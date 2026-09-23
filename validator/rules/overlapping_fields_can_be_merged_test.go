@@ -165,7 +165,7 @@ func Test_sameValue(t *testing.T) {
 		result         bool
 	}{
 		"identical scalars": {str("DE"), str("DE"), true},
-		"different scalars":  {str("DE"), str("US"), false},
+		"different scalars": {str("DE"), str("US"), false},
 		// Regression for #108: object arguments are stored in Children with an empty
 		// Raw, so differing objects used to compare equal and merge incorrectly.
 		"objects with differing field values": {
