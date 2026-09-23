@@ -184,6 +184,23 @@ func Test_sameValue(t *testing.T) {
 			object(field("name", str("Germany")), field("code", str("DE"))),
 			true,
 		},
+		// UniqueInputFieldNames rejects duplicate field names, but every rule runs over
+		// the same document, so a repeated name still has to match the right field here.
+		"objects with duplicate field names": {
+			object(field("code", str("DE")), field("code", str("DE"))),
+			object(field("code", str("DE")), field("name", str("DE"))),
+			false,
+		},
+		"identical objects with duplicate field names": {
+			object(field("code", str("DE")), field("code", str("US"))),
+			object(field("code", str("DE")), field("code", str("US"))),
+			true,
+		},
+		"objects with same field count but different field names": {
+			object(field("code", str("DE"))),
+			object(field("name", str("DE"))),
+			false,
+		},
 		"objects with different field count": {
 			object(field("code", str("DE"))),
 			object(field("code", str("DE")), field("name", str("Germany"))),
@@ -206,12 +223,29 @@ func Test_sameValue(t *testing.T) {
 			list(str("US"), str("DE")),
 			false,
 		},
+		"objects nested in lists with differing values": {
+			list(object(field("code", str("DE")))),
+			list(object(field("code", str("US")))),
+			false,
+		},
+		"lists nested in objects with differing values": {
+			object(field("codes", list(str("DE")))),
+			object(field("codes", list(str("US")))),
+			false,
+		},
+		// Empty composites agree on Raw and on child count, so only Kind separates them.
+		"empty object and empty list": {object(), list(), false},
 	}
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			if got := sameValue(tc.value1, tc.value2); got != tc.result {
 				t.Fatalf("Expected %t got %t", tc.result, got)
+			}
+			// Equality cannot depend on which value the caller passes first, so every
+			// case has to hold with the arguments swapped.
+			if got := sameValue(tc.value2, tc.value1); got != tc.result {
+				t.Fatalf("Expected %t got %t with the arguments swapped", tc.result, got)
 			}
 		})
 	}

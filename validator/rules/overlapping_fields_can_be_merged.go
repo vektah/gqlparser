@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
+	"slices"
+	"strings"
 
 	"github.com/vektah/gqlparser/v2/ast"
 	//nolint:staticcheck // Validator rules each use dot imports for convenience.
@@ -570,6 +572,9 @@ func sameArguments(args1, args2 []*ast.Argument) bool {
 	return true
 }
 
+// sameValue reports whether two argument values are identical. Input object fields
+// are compared in name order because their order is not significant, list elements
+// in the order written because theirs is. Both values must be non-nil.
 func sameValue(value1, value2 *ast.Value) bool {
 	if value1.Kind != value2.Kind {
 		return false
@@ -577,31 +582,36 @@ func sameValue(value1, value2 *ast.Value) bool {
 	if value1.Raw != value2.Raw {
 		return false
 	}
-	// Object and list values keep their contents in Children with an empty Raw, so
-	// the Raw comparison above is not enough to tell them apart. Compare the children
-	// too, otherwise every object (or list) value looks equal to every other one and
-	// fields with differing composite arguments are wrongly allowed to merge.
+	// Objects and lists keep their contents in Children and leave Raw empty, so the
+	// comparison above cannot tell two of them apart: without the walk below, every
+	// object value looks equal to every other one and fields with differing composite
+	// arguments are wrongly allowed to merge.
 	if len(value1.Children) != len(value2.Children) {
 		return false
 	}
-	switch value1.Kind {
-	case ast.ObjectValue:
-		// Input object field order is not significant, so match children by name.
-		for _, child1 := range value1.Children {
-			child2 := value2.Children.ForName(child1.Name)
-			if child2 == nil || !sameValue(child1.Value, child2) {
-				return false
-			}
-		}
-	default:
-		// List (and any other composite) values are compared position by position.
-		for i := range value1.Children {
-			if !sameValue(value1.Children[i].Value, value2.Children[i].Value) {
-				return false
-			}
+
+	children1, children2 := value1.Children, value2.Children
+	if value1.Kind == ast.ObjectValue {
+		children1, children2 = childrenSortedByName(children1), childrenSortedByName(children2)
+	}
+	for i, child1 := range children1 {
+		child2 := children2[i]
+		if child1.Name != child2.Name || !sameValue(child1.Value, child2.Value) {
+			return false
 		}
 	}
 	return true
+}
+
+// childrenSortedByName returns the children in name order. It sorts a copy because
+// the argument is live AST shared with everything else looking at the query. List
+// elements are unnamed, so only object values have anything to sort.
+func childrenSortedByName(children ast.ChildValueList) ast.ChildValueList {
+	sorted := slices.Clone(children)
+	slices.SortStableFunc(sorted, func(child1, child2 *ast.ChildValue) int {
+		return strings.Compare(child1.Name, child2.Name)
+	})
+	return sorted
 }
 
 func doTypesConflict(walker *Walker, type1, type2 *ast.Type) bool {
