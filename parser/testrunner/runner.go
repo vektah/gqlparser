@@ -14,10 +14,15 @@ import (
 
 type Features map[string][]Spec
 
+type SpecError struct {
+	*gqlerror.Error `yaml:",inline"`
+	As              []string `yaml:"as"`
+}
+
 type Spec struct {
 	Name   string
 	Input  string
-	Error  *gqlerror.Error
+	Error  *SpecError
 	Tokens []Token
 	AST    string
 }
@@ -79,6 +84,8 @@ func Test(t *testing.T, filename string, f func(t *testing.T, input string) Spec
 								result.Error.Locations[0].Column,
 							)
 						}
+
+						assertErrorAs(t, result.Error.Error, spec.Error.As)
 					}
 
 					if len(spec.Tokens) != len(result.Tokens) {

@@ -1,4 +1,4 @@
-package parser
+package parser_test
 
 import (
 	"errors"
@@ -7,17 +7,17 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/vektah/gqlparser/v2/ast"
-	"github.com/vektah/gqlparser/v2/gqlerror"
+	"github.com/vektah/gqlparser/v2/parser"
 	"github.com/vektah/gqlparser/v2/parser/testrunner"
 )
 
 func TestQueryDocument(t *testing.T) {
 	testrunner.Test(t, "query_test.yml", func(t *testing.T, input string) testrunner.Spec {
-		doc, err := ParseQuery(&ast.Source{Input: input, Name: "spec"})
+		doc, err := parser.ParseQuery(&ast.Source{Input: input, Name: "spec"})
 		if err != nil {
-			gqlErr := func() *gqlerror.Error {
-				target := &gqlerror.Error{}
-				_ = errors.As(err, &target)
+			gqlErr := func() *testrunner.SpecError {
+				target := &testrunner.SpecError{}
+				_ = errors.As(err, &target.Error)
 				return target
 			}()
 			return testrunner.Spec{
@@ -33,7 +33,7 @@ func TestQueryDocument(t *testing.T) {
 
 func TestQueryPosition(t *testing.T) {
 	t.Run("query line number with comments", func(t *testing.T) {
-		query, err := ParseQuery(&ast.Source{
+		query, err := parser.ParseQuery(&ast.Source{
 			Input: `
 	# comment 1
 query SomeOperation {
