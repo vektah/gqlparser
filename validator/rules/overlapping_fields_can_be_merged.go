@@ -252,6 +252,11 @@ type overlappingFieldsCanBeMergedManager struct {
 
 	// per selectionSet
 	comparedFragments map[string]bool
+
+	// fragments whose comparison is on the current call stack. comparedFragments
+	// is reset for every nested selection set, so without this a fragment that
+	// spreads itself in its own sub-selections would be compared forever.
+	fragmentsInProgress map[string]bool
 }
 
 func (m *overlappingFieldsCanBeMergedManager) findConflictsWithinSelectionSet(
@@ -293,10 +298,15 @@ func (m *overlappingFieldsCanBeMergedManager) collectConflictsBetweenFieldsAndFr
 	fieldsMap *sequentialFieldsMap,
 	fragmentSpread *ast.FragmentSpread,
 ) {
-	if m.comparedFragments[fragmentSpread.Name] {
+	if m.comparedFragments[fragmentSpread.Name] || m.fragmentsInProgress[fragmentSpread.Name] {
 		return
 	}
 	m.comparedFragments[fragmentSpread.Name] = true
+	if m.fragmentsInProgress == nil {
+		m.fragmentsInProgress = make(map[string]bool)
+	}
+	m.fragmentsInProgress[fragmentSpread.Name] = true
+	defer delete(m.fragmentsInProgress, fragmentSpread.Name)
 
 	if fragmentSpread.Definition == nil {
 		return

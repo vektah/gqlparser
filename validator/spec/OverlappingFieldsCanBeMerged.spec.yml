@@ -70,3 +70,48 @@
       someField(arg: { a: "DE", b: "Germany" })
       someField(arg: { b: "Germany", a: "DE" })
     }
+
+# A fragment that spreads itself inside its own sub-selections, first reached through a
+# field rather than at the top level. Each nested comparison used to reset the compared
+# fragments, so the rule recursed until the stack overflowed (#173). The cycle itself is
+# reported by NoFragmentCycles.
+- name: does not infinite loop on a recursive fragment reached through a field
+  rule: OverlappingFieldsCanBeMerged
+  schema: &recursiveSchema |
+    type Query { streams: [Stream] }
+    type Stream {
+      id: ID!
+      streams: [Stream]
+    }
+  query: |
+    {
+      streams { ...StreamFragment }
+    }
+    fragment StreamFragment on Stream {
+      id
+      streams {
+        ...StreamFragment
+        streams {
+          ...StreamFragment
+          streams { ...StreamFragment }
+        }
+      }
+    }
+  errors: []
+
+- name: does not infinite loop on mutually recursive fragments reached through a field
+  rule: OverlappingFieldsCanBeMerged
+  schema: *recursiveSchema
+  query: |
+    {
+      streams { ...A }
+    }
+    fragment A on Stream {
+      id
+      streams { ...B }
+    }
+    fragment B on Stream {
+      id
+      streams { ...A streams { ...A } }
+    }
+  errors: []
