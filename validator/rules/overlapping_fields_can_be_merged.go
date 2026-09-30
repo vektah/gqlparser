@@ -206,11 +206,6 @@ type sequentialFieldsMap struct {
 	data map[string][]*ast.Field
 }
 
-type fieldIterateEntry struct {
-	ResponseName string
-	Fields       []*ast.Field
-}
-
 func (m *sequentialFieldsMap) Push(responseName string, field *ast.Field) {
 	fields, ok := m.data[responseName]
 	if !ok {
@@ -223,27 +218,6 @@ func (m *sequentialFieldsMap) Push(responseName string, field *ast.Field) {
 func (m *sequentialFieldsMap) Get(responseName string) ([]*ast.Field, bool) {
 	fields, ok := m.data[responseName]
 	return fields, ok
-}
-
-func (m *sequentialFieldsMap) Iterator() [][]*ast.Field {
-	fieldsList := make([][]*ast.Field, 0, len(m.seq))
-	for _, responseName := range m.seq {
-		fields := m.data[responseName]
-		fieldsList = append(fieldsList, fields)
-	}
-	return fieldsList
-}
-
-func (m *sequentialFieldsMap) KeyValueIterator() []*fieldIterateEntry {
-	fieldEntriesList := make([]*fieldIterateEntry, 0, len(m.seq))
-	for _, responseName := range m.seq {
-		fields := m.data[responseName]
-		fieldEntriesList = append(fieldEntriesList, &fieldIterateEntry{
-			ResponseName: responseName,
-			Fields:       fields,
-		})
-	}
-	return fieldEntriesList
 }
 
 type conflictMessageContainer struct {
@@ -494,7 +468,8 @@ func (m *overlappingFieldsCanBeMergedManager) collectConflictsWithin(
 	conflicts *conflictMessageContainer,
 	fieldsMap *sequentialFieldsMap,
 ) {
-	for _, fields := range fieldsMap.Iterator() {
+	for _, responseName := range fieldsMap.seq {
+		fields := fieldsMap.data[responseName]
 		for idx, fieldA := range fields {
 			for _, fieldB := range fields[idx+1:] {
 				conflict := m.findConflict(false, fieldA, fieldB)
@@ -512,12 +487,13 @@ func (m *overlappingFieldsCanBeMergedManager) collectConflictsBetween(
 	fieldsMapA *sequentialFieldsMap,
 	fieldsMapB *sequentialFieldsMap,
 ) {
-	for _, fieldsEntryA := range fieldsMapA.KeyValueIterator() {
-		fieldsB, ok := fieldsMapB.Get(fieldsEntryA.ResponseName)
+	for _, responseName := range fieldsMapA.seq {
+		fieldsA := fieldsMapA.data[responseName]
+		fieldsB, ok := fieldsMapB.Get(responseName)
 		if !ok {
 			continue
 		}
-		for _, fieldA := range fieldsEntryA.Fields {
+		for _, fieldA := range fieldsA {
 			for _, fieldB := range fieldsB {
 				conflict := m.findConflict(parentFieldsAreMutuallyExclusive, fieldA, fieldB)
 				if conflict != nil {
