@@ -1,6 +1,6 @@
 module github.com/vektah/gqlparser/v2
 
-go 1.22
+go 1.25
 
 require (
 	github.com/agnivade/levenshtein v1.2.1
