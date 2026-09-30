@@ -335,6 +335,7 @@ func WrapPos(pos *ast.Position, err error) *Error {
 			"",
 			-1,
 			-1,
+			"%s",
 			err.Error(),
 		)
 	} else {
@@ -342,6 +343,7 @@ func WrapPos(pos *ast.Position, err error) *Error {
 			pos.Src.Name,
 			pos.Line,
 			pos.Column,
+			"%s",
 			err.Error(),
 		)
 	}

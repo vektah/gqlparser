@@ -90,6 +90,28 @@ func TestErrorPosition(t *testing.T) {
 	})
 }
 
+func TestWrapPosKeepsVerbsInTheWrappedMessage(t *testing.T) {
+	wrapped := testError{"100% of %s queries failed"}
+
+	t.Run("with nil position", func(t *testing.T) {
+		err := WrapPos(nil, wrapped)
+
+		require.Equal(t, wrapped.Error(), err.Message)
+	})
+
+	t.Run("with a position", func(t *testing.T) {
+		pos := &ast.Position{
+			Src:    &ast.Source{Name: "query.graphql"},
+			Line:   2,
+			Column: 3,
+		}
+		err := WrapPos(pos, wrapped)
+
+		require.Equal(t, wrapped.Error(), err.Message)
+		require.Equal(t, "query.graphql", err.Extensions["file"])
+	})
+}
+
 func TestErrorWithSourcesAreNotSerialized(t *testing.T) {
 	source := &ast.Source{Name: "query.graphql", Input: "query Q { field }"}
 	err := NewErrorWithSources(
