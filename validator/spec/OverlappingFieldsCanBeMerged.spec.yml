@@ -70,3 +70,126 @@
       someField(arg: { a: "DE", b: "Germany" })
       someField(arg: { b: "Germany", a: "DE" })
     }
+
+# Nested reuse of one fragment is not a cycle: the query below is acyclic, and the
+# conflict is only reachable by comparing the outer spread's "x" against the field set
+# the nested spread of the same fragment brings in. Tracking compared fragments by name
+# alone drops that comparison and reports nothing.
+- name: nested reuse of the same fragment with a conflicting field
+  rule: OverlappingFieldsCanBeMerged
+  schema: &recursiveSchema |
+    type Query {
+      root: T
+    }
+    type T {
+      x: T
+      a: String
+      b: String
+    }
+  query: |
+    {
+      root {
+        ...F
+        x {
+          ...F
+        }
+      }
+    }
+    fragment F on T {
+      same: a
+      x {
+        same: b
+      }
+    }
+  errors:
+    - message: Fields "x" conflict because subfields "same" conflict because "b" and "a" are different fields. Use different aliases on the fields to fetch both if this was intentional.
+      locations:
+        - {line: 11, column: 3}
+
+# The same fragment nested in itself, with no conflicting field to find.
+- name: nested reuse of the same fragment that merges
+  rule: OverlappingFieldsCanBeMerged
+  schema: *recursiveSchema
+  query: |
+    {
+      root {
+        ...F
+        x {
+          ...F
+        }
+      }
+    }
+    fragment F on T {
+      same: a
+      x {
+        same: a
+      }
+    }
+
+# A fragment cycle spread in nested selection sets. Collecting a selection set's fields
+# afresh on every lookup gives the memos in this rule nothing stable to key on, and
+# these two queries then recurse until the stack is exhausted — a fatal error, so this
+# case takes the whole test binary down rather than failing on its own. The upstream
+# suite's "does not infinite loop" cases spread their cycles at the top of a fragment,
+# where comparing the two fragments once is enough to stop the traversal.
+- name: does not exhaust the stack on a cyclic fragment spread in nested selection sets
+  rule: OverlappingFieldsCanBeMerged
+  schema: *recursiveSchema
+  query: |
+    {
+      root {
+        ...A
+        ...B
+      }
+    }
+    fragment A on T {
+      x {
+        ...A
+        x {
+          ...A
+        }
+      }
+    }
+    fragment B on T {
+      x {
+        ...B
+        x {
+          ...B
+        }
+      }
+    }
+
+# The same shape, with a conflict to find: terminating is not enough, the traversal has
+# to still report the fields that cannot merge.
+- name: finds a conflict through a cyclic fragment spread in nested selection sets
+  rule: OverlappingFieldsCanBeMerged
+  schema: *recursiveSchema
+  query: |
+    {
+      root {
+        ...A
+        ...B
+      }
+    }
+    fragment A on T {
+      same: a
+      x {
+        ...A
+        x {
+          ...A
+        }
+      }
+    }
+    fragment B on T {
+      same: b
+      x {
+        ...B
+        x {
+          ...B
+        }
+      }
+    }
+  errors:
+    - message: Fields "same" conflict because "a" and "b" are different fields. Use different aliases on the fields to fetch both if this was intentional.
+      locations:
+        - {line: 17, column: 3}
