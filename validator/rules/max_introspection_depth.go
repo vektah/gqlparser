@@ -36,12 +36,29 @@ type fragmentAtDepth struct {
 	depth int
 }
 
+// depthChecker walks one introspection field, reusing each fragment's result rather than
+// following every path to it.
+//
+// A fragment's result depends on the depth it is entered at and on which fragments are
+// already being visited, because visitedFragments cuts a fragment that is reached again
+// while it is still on the stack. Only a cycle can reach a fragment that is still being
+// visited, so for an acyclic document the cut never happens and the entry depth alone
+// identifies the result.
+//
+// On a cyclic document the memo can therefore answer with a result reached under a
+// different set of visited fragments, and miss a depth error the uncached walk reports.
+// That is accepted: NoFragmentCyclesRule rejects every such document, so nothing that used
+// to fail validation now passes. Skipping the memo for a fragment whose walk cut a cycle
+// would keep the result exact, but it would also restore the exponential walk for cyclic
+// documents, and the cost of that walk is the denial of service this memo exists to
+// prevent.
+//
+// graphql-js does not memoize here and pays the exponential walk, so this is a deliberate
+// divergence from the reference implementation.
 type depthChecker struct {
 	visitedFragments map[string]bool
-	// memo keeps the check linear in the size of the document. A fragment's
-	// result depends only on the depth it is entered at, and without the
-	// memo a fragment spread twice in each of n nested fragments is walked
-	// 2^n times.
+	// memo keeps the walk linear: without it, a fragment spread twice in each of n nested
+	// fragments is walked 2^n times.
 	memo map[fragmentAtDepth]bool
 }
 
@@ -94,18 +111,20 @@ func (c *depthChecker) checkDepthFragmentSpread(
 		return false
 	}
 
+	key := fragmentAtDepth{fragmentName, depth}
+	if exceeded, ok := c.memo[key]; ok {
+		return exceeded
+	}
+
 	// Rather than following an immutable programming pattern which has
 	// significant memory and garbage collection overhead, we've opted to
 	// take a mutable approach for efficiency's sake. Importantly visiting a
 	// fragment twice is fine, so long as you don't do one visit inside the
 	// other.
-	key := fragmentAtDepth{fragmentName, depth}
-	if exceeded, ok := c.memo[key]; ok {
-		return exceeded
-	}
 	c.visitedFragments[fragmentName] = true
+	defer delete(c.visitedFragments, fragmentName)
+
 	exceeded := c.checkDepthSelectionSet(fragment.SelectionSet, depth)
-	delete(c.visitedFragments, fragmentName)
 	c.memo[key] = exceeded
 	return exceeded
 }
