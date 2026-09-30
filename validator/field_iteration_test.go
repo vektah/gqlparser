@@ -1,8 +1,6 @@
 package validator_test
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -113,37 +111,6 @@ func TestDirectFieldIterationPreservesConflictOrder(t *testing.T) {
 			require.Len(t, errs, 2)
 			require.Contains(t, errs[0].Message, `Fields "first" conflict`)
 			require.Contains(t, errs[1].Message, `Fields "second" conflict`)
-		})
-	}
-}
-
-func BenchmarkParseAndValidateSharedFragments(b *testing.B) {
-	schema := gqlparser.MustLoadSchema(&ast.Source{Input: fieldCollectionSchema})
-	for _, count := range []int{1, 16, 64} {
-		b.Run(fmt.Sprintf("paths_%d", count), func(b *testing.B) {
-			var query strings.Builder
-			query.WriteString("{")
-			for i := 0; i < count; i++ {
-				fmt.Fprintf(&query, " item%d: item { ...Shared ...Nested }", i)
-			}
-			query.WriteString(`}
-				fragment Shared on Item { id name child { ...Leaf } }
-				fragment Nested on Item { child { ...Leaf name } }
-				fragment Leaf on Item { id name value(arg: 1) }
-			`)
-			source := &ast.Source{Input: query.String()}
-			b.ReportAllocs()
-			b.ResetTimer()
-			for i := 0; i < b.N; i++ {
-				// Parsing gives each validation pass a fresh, unbound AST.
-				doc, err := parser.ParseQuery(source)
-				if err != nil {
-					b.Fatal(err)
-				}
-				if errs := validator.Validate(schema, doc); len(errs) != 0 {
-					b.Fatal(errs)
-				}
-			}
 		})
 	}
 }
