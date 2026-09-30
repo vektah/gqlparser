@@ -36,7 +36,10 @@ func TestLoadSchema(t *testing.T) {
 	t.Run("swapi", func(t *testing.T) {
 		file, err := os.ReadFile("testdata/swapi.graphql")
 		require.NoError(t, err)
-		s, err := validator.LoadSchema(validator.Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
+		s, err := validator.LoadSchema(
+			validator.Prelude,
+			&ast.Source{Input: string(file), Name: "TestLoadSchema"},
+		)
 		require.NoError(t, err)
 
 		require.Equal(t, "Query", s.Query.Name)
@@ -61,7 +64,10 @@ func TestLoadSchema(t *testing.T) {
 	t.Run("default root operation type names", func(t *testing.T) {
 		file, err := os.ReadFile("testdata/default_root_operation_type_names.graphql")
 		require.NoError(t, err)
-		s, err := validator.LoadSchema(validator.Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
+		s, err := validator.LoadSchema(
+			validator.Prelude,
+			&ast.Source{Input: string(file), Name: "TestLoadSchema"},
+		)
 		require.NoError(t, err)
 
 		require.Nil(t, s.Mutation)
@@ -74,7 +80,10 @@ func TestLoadSchema(t *testing.T) {
 	t.Run("type extensions", func(t *testing.T) {
 		file, err := os.ReadFile("testdata/extensions.graphql")
 		require.NoError(t, err)
-		s, err := validator.LoadSchema(validator.Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
+		s, err := validator.LoadSchema(
+			validator.Prelude,
+			&ast.Source{Input: string(file), Name: "TestLoadSchema"},
+		)
 		require.NoError(t, err)
 
 		require.Equal(t, "Subscription", s.Subscription.Name)
@@ -103,7 +112,10 @@ func TestLoadSchema(t *testing.T) {
 	t.Run("interfaces", func(t *testing.T) {
 		file, err := os.ReadFile("testdata/interfaces.graphql")
 		require.NoError(t, err)
-		s, err := validator.LoadSchema(validator.Prelude, &ast.Source{Input: string(file), Name: "interfaces"})
+		s, err := validator.LoadSchema(
+			validator.Prelude,
+			&ast.Source{Input: string(file), Name: "interfaces"},
+		)
 		require.NoError(t, err)
 
 		implements := s.GetImplements(s.Types["Canine"])
@@ -131,7 +143,9 @@ func TestLoadSchema(t *testing.T) {
 }
 
 func TestSchemaDescription(t *testing.T) {
-	s, err := validator.LoadSchema(validator.Prelude, &ast.Source{Name: "graph/schema.graphqls", Input: `
+	s, err := validator.LoadSchema(
+		validator.Prelude,
+		&ast.Source{Name: "graph/schema.graphqls", Input: `
 	"""
 	A simple GraphQL schema which is well described.
 	"""
@@ -142,7 +156,8 @@ func TestSchemaDescription(t *testing.T) {
 	type Query {
 		entity: String
 	}
-	`, BuiltIn: false})
+	`, BuiltIn: false},
+	)
 	require.NoError(t, err)
 	want := "A simple GraphQL schema which is well described."
 	require.Equal(t, want, s.Description)

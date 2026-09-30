@@ -36,11 +36,22 @@ func init() {
 		typeName := t.Name()
 		qualifiedName := fmt.Sprintf("%s.%s", pkgPath, typeName)
 		if typeName == "" {
-			panic(fmt.Sprintf("unsupported error in testErrorRegistry at index %d: only named types are supported", i))
+			panic(
+				fmt.Sprintf(
+					"unsupported error in testErrorRegistry at index %d: only named types are supported",
+					i,
+				),
+			)
 		}
 
 		if prev, ok := errorRegistry[qualifiedName]; ok {
-			panic(fmt.Sprintf("duplicate error definitions in testErrorRegistry at indices%d and %d", prev.RegistryIndex, i))
+			panic(
+				fmt.Sprintf(
+					"duplicate error definitions in testErrorRegistry at indices%d and %d",
+					prev.RegistryIndex,
+					i,
+				),
+			)
 		}
 
 		errorRegistry[qualifiedName] = registeredError{

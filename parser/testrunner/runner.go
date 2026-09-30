@@ -15,7 +15,7 @@ import (
 type Features map[string][]Spec
 
 type SpecError struct {
-	*gqlerror.Error `yaml:",inline"`
+	*gqlerror.Error `         yaml:",inline"`
 	As              []string `yaml:"as"`
 }
 
