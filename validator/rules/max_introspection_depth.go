@@ -8,17 +8,27 @@ import (
 
 const maxListsDepth = 3
 
+// MaxIntrospectionDepth reports an introspection selection that nests __Type's list
+// fields past a fixed depth.
+//
+// The rule assumes NoFragmentCyclesRule runs alongside it, as it does in the default rule
+// set. Selected on its own, it can pass a document whose fragments form a cycle where an
+// unmemoized walk would have reported a violation; depthChecker explains why.
 var MaxIntrospectionDepth = Rule{
 	Name: "MaxIntrospectionDepth",
 	RuleFunc: func(observers *Events, addError AddErrFunc) {
+		// One checker per document: a fragment's result at a given depth is the same
+		// whichever introspection root reached it, so a document with many roots that
+		// spread the same fragments checks each of them once rather than once per root.
+		c := &depthChecker{
+			visitedFragments: make(map[string]bool),
+			memo:             make(map[fragmentAtDepth]bool),
+		}
+
 		// Counts the depth of list fields in "__Type" recursively and
 		// returns `true` if the limit has been reached.
 		observers.OnField(func(walker *Walker, field *ast.Field) {
 			if field.Name == "__schema" || field.Name == "__type" {
-				c := &depthChecker{
-					visitedFragments: make(map[string]bool),
-					memo:             make(map[fragmentAtDepth]bool),
-				}
 				if c.checkDepthField(field, 0) {
 					addError(
 						Message(`Maximum introspection depth exceeded`),
@@ -36,8 +46,8 @@ type fragmentAtDepth struct {
 	depth int
 }
 
-// depthChecker walks one introspection field, reusing each fragment's result rather than
-// following every path to it.
+// depthChecker walks a document's introspection fields, reusing each fragment's result
+// rather than following every path to it.
 //
 // A fragment's result depends on the depth it is entered at and on which fragments are
 // already being visited, because visitedFragments cuts a fragment that is reached again
@@ -47,8 +57,10 @@ type fragmentAtDepth struct {
 //
 // On a cyclic document the memo can therefore answer with a result reached under a
 // different set of visited fragments, and miss a depth error the uncached walk reports.
-// That is accepted: NoFragmentCyclesRule rejects every such document, so nothing that used
-// to fail validation now passes. Skipping the memo for a fragment whose walk cut a cycle
+// That is accepted: under the default rule set NoFragmentCyclesRule rejects every such
+// document, so nothing that used to fail validation now passes. A rule set that selects
+// MaxIntrospectionDepth without NoFragmentCyclesRule does lose the error, which is why the
+// rule documents the dependency. Skipping the memo for a fragment whose walk cut a cycle
 // would keep the result exact, but it would also restore the exponential walk for cyclic
 // documents, and the cost of that walk is the denial of service this memo exists to
 // prevent.

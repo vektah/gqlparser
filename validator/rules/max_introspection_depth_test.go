@@ -45,6 +45,30 @@ func TestMaxIntrospectionDepth(t *testing.T) {
 			`,
 			wantMessages: []string{"Maximum introspection depth exceeded"},
 		},
+		// One checker serves the whole document, so these two cases check that sharing a
+		// fragment's result between introspection roots does not carry the wrong answer
+		// across them: F is under the limit from the shallow root and over it from the
+		// deep one, in either order.
+		"same fragment from two roots, shallow root first": {
+			query: `
+				{
+					shallow: __schema { types { ...F } }
+					deep: __schema { types { fields { type { fields { type { ...F } } } } } }
+				}
+				fragment F on __Type { fields { name } }
+			`,
+			wantMessages: []string{"Maximum introspection depth exceeded"},
+		},
+		"same fragment from two roots, deep root first": {
+			query: `
+				{
+					deep: __schema { types { fields { type { fields { type { ...F } } } } } }
+					shallow: __schema { types { ...F } }
+				}
+				fragment F on __Type { fields { name } }
+			`,
+			wantMessages: []string{"Maximum introspection depth exceeded"},
+		},
 		// This case records what the rule does today, not what it ought to do. The memo
 		// answers for F1 with a result that was cut short under a different set of visited
 		// fragments, so the depth error the uncached walk reports is missed. See
