@@ -71,7 +71,7 @@ var OverlappingFieldsCanBeMergedRule = Rule{
 		 */
 
 		m := &overlappingFieldsCanBeMergedManager{
-			comparedFragmentPairs: pairSet{data: make(map[string]map[string]bool)},
+			comparedFragmentPairs: pairSet{pairs: newOrderedPairSet[string, string]()},
 		}
 
 		observers.OnOperation(func(walker *Walker, operation *ast.OperationDefinition) {
@@ -110,37 +110,34 @@ var OverlappingFieldsCanBeMergedRule = Rule{
 	},
 }
 
-type pairSet struct {
-	data map[string]map[string]bool
+// orderedPairSet records pairs of things already compared for conflicts, along with
+// whether each pair was compared as mutually exclusive. Comparisons are made many
+// times over, so memoizing them keeps this rule from re-walking the same fragments.
+// The order of a pair matters here; pairSet wraps this for pairs where it does not.
+// graphql-js keeps the same two structures.
+type orderedPairSet[A comparable, B comparable] struct {
+	data map[A]map[B]bool
 }
 
-func (pairSet *pairSet) Add(
-	a *ast.FragmentSpread,
-	b *ast.FragmentSpread,
-	areMutuallyExclusive bool,
-) {
-	add := func(a *ast.FragmentSpread, b *ast.FragmentSpread) {
-		m := pairSet.data[a.Name]
-		if m == nil {
-			m = make(map[string]bool)
-			pairSet.data[a.Name] = m
-		}
-		m[b.Name] = areMutuallyExclusive
+func newOrderedPairSet[A comparable, B comparable]() orderedPairSet[A, B] {
+	return orderedPairSet[A, B]{data: make(map[A]map[B]bool)}
+}
+
+func (set *orderedPairSet[A, B]) Add(a A, b B, areMutuallyExclusive bool) {
+	bs := set.data[a]
+	if bs == nil {
+		bs = make(map[B]bool)
+		set.data[a] = bs
 	}
-	add(a, b)
-	add(b, a)
+	bs[b] = areMutuallyExclusive
 }
 
-func (pairSet *pairSet) Has(
-	a *ast.FragmentSpread,
-	b *ast.FragmentSpread,
-	areMutuallyExclusive bool,
-) bool {
-	am, ok := pairSet.data[a.Name]
+func (set *orderedPairSet[A, B]) Has(a A, b B, areMutuallyExclusive bool) bool {
+	bs, ok := set.data[a]
 	if !ok {
 		return false
 	}
-	result, ok := am[b.Name]
+	result, ok := bs[b]
 	if !ok {
 		return false
 	}
@@ -153,6 +150,29 @@ func (pairSet *pairSet) Has(
 	}
 
 	return true
+}
+
+// pairSet records pairs of fragments already compared for conflicts, by name, for
+// which the order of the pair does not matter.
+type pairSet struct {
+	pairs orderedPairSet[string, string]
+}
+
+func (pairSet *pairSet) Add(
+	a *ast.FragmentSpread,
+	b *ast.FragmentSpread,
+	areMutuallyExclusive bool,
+) {
+	pairSet.pairs.Add(a.Name, b.Name, areMutuallyExclusive)
+	pairSet.pairs.Add(b.Name, a.Name, areMutuallyExclusive)
+}
+
+func (pairSet *pairSet) Has(
+	a *ast.FragmentSpread,
+	b *ast.FragmentSpread,
+	areMutuallyExclusive bool,
+) bool {
+	return pairSet.pairs.Has(a.Name, b.Name, areMutuallyExclusive)
 }
 
 type sequentialFieldsMap struct {
