@@ -1,31 +1,31 @@
-package lexer
+package lexer_test
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/vektah/gqlparser/v2/ast"
-	"github.com/vektah/gqlparser/v2/gqlerror"
+	"github.com/vektah/gqlparser/v2/lexer"
 	"github.com/vektah/gqlparser/v2/parser/testrunner"
 )
 
 func TestLexer(t *testing.T) {
 	testrunner.Test(t, "lexer_test.yml", func(t *testing.T, input string) testrunner.Spec {
-		l := New(&ast.Source{Input: input, Name: "spec"})
+		l := lexer.New(&ast.Source{Input: input, Name: "spec"})
 
 		ret := testrunner.Spec{}
 		for {
 			tok, err := l.ReadToken()
 			if err != nil {
-				ret.Error = func() *gqlerror.Error {
-					target := &gqlerror.Error{}
-					_ = errors.As(err, &target)
+				ret.Error = func() *testrunner.SpecError {
+					target := &testrunner.SpecError{}
+					_ = errors.As(err, &target.Error)
 					return target
 				}()
 				break
 			}
 
-			if tok.Kind == EOF {
+			if tok.Kind == lexer.EOF {
 				break
 			}
 
