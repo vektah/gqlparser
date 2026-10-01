@@ -1,0 +1,38 @@
+name: Mutation testing
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+env:
+  GOTOOLCHAIN: local
+jobs:
+  mutate:
+    name: Mutate changed lines
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      with:
+        # --git-diff-lines needs the base revision to diff against.
+        fetch-depth: 0
+    - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+      with:
+        go-version: "1.27"
+    - name: Install mutago
+      run: go install github.com/quality-gates/mutago/v2/cmd/mutago@latest
+    - name: Mutate the lines this pull request changed
+      # Scoped to changed lines because mutating the whole module runs the suite once per
+      # mutant, which is minutes of CI for a result nobody reads on an unrelated change.
+      #
+      # No --min-msi: a score floor needs a baseline this repository does not have yet, and a
+      # gate that fails on arrival gets switched off rather than fixed. --logger-github
+      # annotates surviving mutants on the diff instead, which is the part worth reading —
+      # each one is a line the suite runs without checking. Add a floor once the escape set
+      # has been looked at.
+      run: |
+        mutago --git-diff-lines \
+          --git-diff-base="${{ github.event.pull_request.base.sha }}" \
+          --logger-github --quiet --no-diffs \
+          ./ast/... ./lexer/... ./parser/... ./validator/...

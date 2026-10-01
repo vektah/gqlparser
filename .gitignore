@@ -16,3 +16,8 @@ dist/
 # rapid writes a reproducer here when a property fails; a local artifact, not a fixture.
 testdata/rapid/
 */testdata/rapid/
+
+# mutago reports.
+mutago-report.html
+mutago-agentic.json
+mutago-gitlab.json

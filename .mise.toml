@@ -6,6 +6,8 @@ goreleaser = "latest"
 # Benchmark regression and coverage gate; the same tool CI runs. It carries its own
 # statistics, so there is no benchstat to install alongside it.
 "go:github.com/StevenACoffman/benchgate" = "latest"
+# Mutation testing. Needs a Go 1.26+ toolchain to run, which the `go = "latest"` above gives.
+"go:github.com/quality-gates/mutago/v2/cmd/mutago" = "latest"
 # supply-chain tooling: syft generates the SBOM, cosign signs the checksum.
 syft = "latest"
 cosign = "latest"
@@ -72,3 +74,15 @@ run = "go test ./... -rapid.checks=1000"
 description = "Lint the property-test module"
 dir = "proptest"
 run = "golangci-lint run ./..."
+
+[tasks.mutate]
+description = "Mutate the packages that carry the parsing and validation invariants"
+run = "mutago --coverage --quiet ./ast/... ./lexer/... ./parser/... ./validator/..."
+
+[tasks."mutate:diff"]
+description = "Mutate only the lines this branch changed (usage: mise run mutate:diff [base])"
+run = "mutago --git-diff-lines --quiet ./ast/... ./lexer/... ./parser/... ./validator/..."
+
+[tasks."mutate:survivors"]
+description = "Write mutago-agentic.json listing the mutants no test killed"
+run = "mutago --coverage --quiet --logger-agentic-json ./ast/... ./lexer/... ./parser/... ./validator/..."
