@@ -3,6 +3,9 @@ go = "latest"
 golangci-lint = "latest"
 goreleaser = "latest"
 "github:gotestyourself/gotestsum" = "latest"
+# Benchmark regression and coverage gate; the same tool CI runs. It carries its own
+# statistics, so there is no benchstat to install alongside it.
+"go:github.com/StevenACoffman/benchgate" = "latest"
 # supply-chain tooling: syft generates the SBOM, cosign signs the checksum.
 syft = "latest"
 cosign = "latest"
@@ -45,3 +48,15 @@ run = "golangci-lint fmt"
 [tasks.bench]
 description = "Run the benchmarks once"
 run = "go test ./... -run=^$ -bench=. -benchtime=100ms -count=6"
+
+[tasks."bench:gate"]
+description = "Compare HEAD against the base revision the way CI does (usage: mise run bench:gate [base])"
+run = "benchgate check --metric B/op --metric allocs/op --tolerance 0 --rounds 6 --benchtime 100ms --fail-on-regression"
+
+[tasks."bench:uncommitted"]
+description = "Gate the working tree against the last commit, before committing it"
+run = "benchgate check --base HEAD --metric B/op --metric allocs/op --tolerance 0 --rounds 6 --benchtime 100ms --fail-on-regression"
+
+[tasks."bench:gaps"]
+description = "Report the code no benchmark reaches, and the benchmark-only statement coverage"
+run = "benchgate check --base HEAD --rounds 1 --benchtime 10x --warmup 0 --require-benchmark-per-package --report-unreached"
