@@ -12,3 +12,7 @@ dist/
 
 # Benchmark output saved for comparison.
 *.bench.txt
+
+# rapid writes a reproducer here when a property fails; a local artifact, not a fixture.
+testdata/rapid/
+*/testdata/rapid/

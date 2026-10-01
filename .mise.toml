@@ -60,3 +60,15 @@ run = "benchgate check --base HEAD --metric B/op --metric allocs/op --tolerance 
 [tasks."bench:gaps"]
 description = "Report the code no benchmark reaches, and the benchmark-only statement coverage"
 run = "benchgate check --base HEAD --rounds 1 --benchtime 10x --warmup 0 --require-benchmark-per-package --report-unreached"
+
+# The property tests are a module of their own, so the root `./...` does not reach them.
+# These tasks are the only thing that runs and lints them locally.
+[tasks.proptest]
+description = "Check the properties, with more attempts than rapid's default"
+dir = "proptest"
+run = "go test ./... -rapid.checks=1000"
+
+[tasks."proptest:lint"]
+description = "Lint the property-test module"
+dir = "proptest"
+run = "golangci-lint run ./..."
