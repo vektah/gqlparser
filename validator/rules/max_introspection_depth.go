@@ -11,9 +11,9 @@ const maxListsDepth = 3
 // MaxIntrospectionDepth reports an introspection selection that nests __Type's list
 // fields past a fixed depth.
 //
-// The rule assumes NoFragmentCyclesRule runs alongside it, as it does in the default rule
-// set. Selected on its own, it can pass a document whose fragments form a cycle where an
-// unmemoized walk would have reported a violation; depthChecker explains why.
+// A fragment cycle whose lap gains depth nests past any limit, so the rule reports it
+// without needing NoFragmentCyclesRule to run alongside. A cycle whose lap gains none
+// reaches no new depth and is cut, as it is in graphql-js.
 var MaxIntrospectionDepth = Rule{
 	Name: "MaxIntrospectionDepth",
 	RuleFunc: func(observers *Events, addError AddErrFunc) {
@@ -21,7 +21,7 @@ var MaxIntrospectionDepth = Rule{
 		// whichever introspection root reached it, so a document with many roots that
 		// spread the same fragments checks each of them once rather than once per root.
 		c := &depthChecker{
-			visitedFragments: make(map[string]bool),
+			visitedFragments: make(map[string]int),
 			memo:             make(map[fragmentAtDepth]bool),
 		}
 
@@ -50,25 +50,23 @@ type fragmentAtDepth struct {
 // rather than following every path to it.
 //
 // A fragment's result depends on the depth it is entered at and on which fragments are
-// already being visited, because visitedFragments cuts a fragment that is reached again
-// while it is still on the stack. Only a cycle can reach a fragment that is still being
-// visited, so for an acyclic document the cut never happens and the entry depth alone
-// identifies the result.
+// already being visited, since one that is still being visited is answered from its entry
+// depth rather than by walking it. Only a cycle reaches a fragment that is still being
+// visited, so for an acyclic document the entry depth alone identifies the result and the
+// memo is exact.
 //
-// On a cyclic document the memo can therefore answer with a result reached under a
-// different set of visited fragments, and miss a depth error the uncached walk reports.
-// That is accepted: under the default rule set NoFragmentCyclesRule rejects every such
-// document, so nothing that used to fail validation now passes. A rule set that selects
-// MaxIntrospectionDepth without NoFragmentCyclesRule does lose the error, which is why the
-// rule documents the dependency. Skipping the memo for a fragment whose walk cut a cycle
-// would keep the result exact, but it would also restore the exponential walk for cyclic
-// documents, and the cost of that walk is the denial of service this memo exists to
-// prevent.
+// On a cyclic document a fragment memoized under such an answer can be reused by an
+// introspection root that would have walked it, leaving the violation reported on fewer
+// roots than an uncached walk reports it on. Never on none: the walk that answered from
+// the entry depth is the one that goes on to find the violation. That trade is worth
+// making, because only a cycle reaches an in-progress fragment, so no valid document loses
+// anything, while every document gains the memo.
 //
 // graphql-js does not memoize here and pays the exponential walk, so this is a deliberate
 // divergence from the reference implementation.
 type depthChecker struct {
-	visitedFragments map[string]bool
+	// visitedFragments holds the depth at which each in-progress fragment was entered.
+	visitedFragments map[string]int
 	// memo keeps the walk linear: without it, a fragment spread twice in each of n nested
 	// fragments is walked 2^n times.
 	memo map[fragmentAtDepth]bool
@@ -113,9 +111,11 @@ func (c *depthChecker) checkDepthFragmentSpread(
 	depth int,
 ) bool {
 	fragmentName := fragmentSpread.Name
-	if c.visitedFragments[fragmentName] {
-		// Fragment cycles are handled by `NoFragmentCyclesRule`.
-		return false
+	if entryDepth, visiting := c.visitedFragments[fragmentName]; visiting {
+		// A cycle. Depth only grows, so if the walk gained any on the way round it gains
+		// that much again on every further lap and the selection nests past any limit. A
+		// lap that gained none reaches nothing the walk already in progress will not.
+		return depth > entryDepth
 	}
 	fragment := fragmentSpread.Definition
 	if fragment == nil {
@@ -133,7 +133,7 @@ func (c *depthChecker) checkDepthFragmentSpread(
 	// take a mutable approach for efficiency's sake. Importantly visiting a
 	// fragment twice is fine, so long as you don't do one visit inside the
 	// other.
-	c.visitedFragments[fragmentName] = true
+	c.visitedFragments[fragmentName] = depth
 	defer delete(c.visitedFragments, fragmentName)
 
 	exceeded := c.checkDepthSelectionSet(fragment.SelectionSet, depth)

@@ -20,9 +20,9 @@ import (
 // CI can increase this.
 var timeMultiplier = time.Duration(1)
 
-// cyclicQuery reaches F1 at one depth twice: once below F0, where the cycle back to F0 is
-// cut, and once beside it, where following F0 would reach the depth limit. Both tests below
-// have to describe the same document, or neither says anything about the other.
+// cyclicQuery's fragments spread one another through a list field, so each lap of the cycle
+// nests one level deeper. Both tests below have to describe the same document, or neither
+// says anything about the other.
 const cyclicQuery = `
 	{ __schema { types { ...F0 fields { type { ...F1 } } } } }
 	fragment F0 on __Type { fields { type { ...F1 } } }
@@ -69,15 +69,37 @@ func TestMaxIntrospectionDepth(t *testing.T) {
 			`,
 			wantMessages: []string{"Maximum introspection depth exceeded"},
 		},
-		// This case records what the rule does today, not what it ought to do. The memo
-		// answers for F1 with a result that was cut short under a different set of visited
-		// fragments, so the depth error the uncached walk reports is missed. See
-		// depthChecker for why that is accepted, and
-		// TestMaxIntrospectionDepthCyclicDocumentStillFailsValidation for what rejects the
-		// document instead. Do not "fix" this by expecting an error: keying the memo so
-		// that it answers exactly restores an exponential walk for cyclic documents.
-		"cyclic document, memo answers before the limit is reached": {
+		// Records what the rule does today, not what it ought to do. One checker serves the
+		// whole document, so F, answered from G's entry depth while G was being walked, is
+		// reused by the root that spreads F directly and would have walked it. An uncached
+		// walk reports both roots; this reports the first. depthChecker says why that is
+		// worth the memo. Do not "fix" it by dropping the shared checker: a cut only
+		// happens on a cycle, so no valid document is affected.
+		"cycle reached from two roots reports the first": {
+			query: `
+				{
+					a: __schema { types { ...G } }
+					b: __schema { types { ...F } }
+				}
+				fragment G on __Type { ...F fields { fields { fields { name } } } }
+				fragment F on __Type { ...G }
+			`,
+			wantMessages: []string{"Maximum introspection depth exceeded"},
+		},
+		// A lap of this cycle nests one level deeper, so repeating it passes any limit.
+		"cycle that gains depth on each lap": {
 			query:        cyclicQuery,
+			wantMessages: []string{"Maximum introspection depth exceeded"},
+		},
+		// The boundary of that rule, and the one cyclic case the graphql-js suite pins
+		// (MaxIntrospectionDepthRule.spec.yml, "doesn't infinitely recurse on fragment
+		// cycle"): a lap that gains no depth reaches nothing a further lap would, so it is
+		// cut and reports nothing.
+		"cycle that gains no depth": {
+			query: `
+				{ __schema { types { ...Cycle } } }
+				fragment Cycle on __Type { ...Cycle }
+			`,
 			wantMessages: nil,
 		},
 	}
@@ -101,9 +123,8 @@ func TestMaxIntrospectionDepth(t *testing.T) {
 	}
 }
 
-// The depth rule missing an error on a cyclic document is only acceptable because such a
-// document fails validation anyway. If that stops holding, depthChecker's memo has to be
-// keyed differently, whatever that costs.
+// Under the default rules the document is rejected twice over, by this rule and by the one
+// that owns fragment cycles. The rule no longer depends on that second error.
 func TestMaxIntrospectionDepthCyclicDocumentStillFailsValidation(t *testing.T) {
 	s := gqlparser.MustLoadSchema(
 		&ast.Source{Name: "schema.graphqls", Input: introspectionTestSchema},
@@ -113,8 +134,11 @@ func TestMaxIntrospectionDepthCyclicDocumentStillFailsValidation(t *testing.T) {
 
 	errs := validator.ValidateWithRules(s, q, rules.NewDefaultRules())
 
-	require.Len(t, errs, 1)
-	require.Equal(t, "NoFragmentCycles", errs[0].Rule)
+	rulesHit := make([]string, 0, len(errs))
+	for _, e := range errs {
+		rulesHit = append(rulesHit, e.Rule)
+	}
+	require.ElementsMatch(t, []string{"MaxIntrospectionDepth", "NoFragmentCycles"}, rulesHit)
 }
 
 // Each fragment spreads the next one twice. Following every path visits 2^n of them, so
