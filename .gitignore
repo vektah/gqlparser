@@ -9,3 +9,6 @@
 .vale
 # Added by goreleaser init:
 dist/
+
+# Benchmark output saved for comparison.
+*.bench.txt

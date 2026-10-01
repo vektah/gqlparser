@@ -42,3 +42,6 @@ run = "golangci-lint run ./..."
 description = "Run golangci-lint fmt"
 run = "golangci-lint fmt"
 
+[tasks.bench]
+description = "Run the benchmarks once"
+run = "go test ./... -run=^$ -bench=. -benchtime=100ms -count=6"

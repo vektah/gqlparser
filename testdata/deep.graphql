@@ -1,0 +1,14 @@
+{
+	human(id: "1000") {
+		friends {
+			name
+			friends {
+				name
+				friends {
+					name
+					friends { name }
+				}
+			}
+		}
+	}
+}
