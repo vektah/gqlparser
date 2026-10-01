@@ -1,0 +1,46 @@
+name: Property tests
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - master
+  pull_request:
+    types: [opened, synchronize]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+env:
+  GOTOOLCHAIN: local
+  GOFLAGS: "-trimpath"
+jobs:
+  proptest:
+    # proptest/ is a module of its own, so the root `go test ./...` and `golangci-lint run
+    # ./...` never reach it. Without this job it would quietly stop compiling the first time
+    # the library's API moved, and the properties would stop being checked without anyone
+    # being told.
+    name: Properties
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: proptest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+      with:
+        go-version: "1.27"
+    - name: Check the properties
+      # Ten times rapid's default. A property worth stating is worth more than a hundred
+      # attempts at falsifying it, and this suite takes seconds either way.
+      run: go test ./... -rapid.checks=1000
+    - name: Check the module is tidy
+      # The module replaces gqlparser with the working tree, so an import added to the
+      # library can leave this module's go.sum short without anything else noticing.
+      run: |
+        go mod tidy
+        git diff --exit-code -- go.mod go.sum
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+      with:
+        version: latest
+        working-directory: proptest
+        args: '--timeout 5m'
