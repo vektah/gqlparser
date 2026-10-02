@@ -49,18 +49,63 @@ func TestValueObject(t *testing.T) {
 	})
 }
 
+// TestValueStringQuotesAsGraphQL pins String() to graphql-js printString's escaping rather
+// than Go's. strconv.Quote, which this used to call, emits \x1b, \a, \v and \U0010ffff —
+// none of which the GraphQL grammar accepts — so its output could not always be read back.
+//
+// The cases below were checked against graphql-js 16.14.2 across U+0000-U+00FF plus astral
+// code points. Anything named "slow path" exists because quoteString escapes nothing until
+// it meets a byte that needs it: a character can therefore be printed by two different
+// branches depending only on what else shares the string with it, and both must agree.
 func TestValueStringQuotesAsGraphQL(t *testing.T) {
-	for _, tc := range []struct{ raw, want string }{
-		{"plain", `"plain"`},
-		{"\"\\/", `"\"\\/"`},
-		{"\b\f\n\r\t", `"\b\f\n\r\t"`},
-		{"\x00\x07\x0b\x1b\x1f", `"\u0000\u0007\u000B\u001B\u001F"`},
-		{" ~", `" ~"`},
-		{"\x7f\u0080\u009f", `"\u007F\u0080\u009F"`},
-		{" é", "\" é\""},
-		{"\U0001F600\U000E0001", "\"\U0001F600\U000E0001\""},
-	} {
-		v := &Value{Kind: StringValue, Raw: tc.raw}
-		require.Equal(t, tc.want, v.String(), "%q", tc.raw)
+	cases := map[string]struct{ raw, want string }{
+		"no escaping needed": {"plain", `"plain"`},
+
+		// Only " and \ are escaped by doubling. A forward slash is not: GraphQL accepts \/
+		// but does not require it, and graphql-js prints the bare character.
+		"quote, backslash, slash": {"\"\\/", `"\"\\/"`},
+
+		// The five controls with a short form. Note \v is absent on purpose: Go spells
+		// U+000B that way, GraphQL has no such escape, so it has to go out as \u000B.
+		"controls with a short escape": {"\b\f\n\r\t", `"\b\f\n\r\t"`},
+		"controls without one": {
+			"\x00\x07\x0b\x1b\x1f",
+			`"\u0000\u0007\u000B\u001B\u001F"`,
+		},
+
+		"printable ascii bounds": {" ~", `" ~"`},
+
+		// DEL and the C1 block are escaped even though they are not ASCII controls, and the
+		// hex is upper-case. strconv.Quote wrote \u008a here, which parses but does not match.
+		"del and c1 controls": {"\x7f\u0080\u009f", `"\u007F\u0080\u009F"`},
+
+		// 0xC2 leads the escaped C1 block *and* the printable U+00A0-U+00BF, so the lead
+		// byte alone cannot decide; U+00A0 must survive as itself.
+		"non-breaking space is printable": {"\u00a0", "\"\u00a0\""},
+
+		// Printable non-ASCII is passed through, not escaped. strconv.Quote agreed about
+		// the emoji, but spelled the unprintable tag character \U000e0001 — a Go escape
+		// the GraphQL grammar has no rule for, so that output did not parse at all.
+		"multibyte passed through":      {" é", "\" é\""},
+		"astral stays verbatim":         {"\U0001F600\U000E0001", "\"\U0001F600\U000E0001\""},
+		"multibyte on the slow path":    {"\né", "\"\\né\""},
+		"astral on the slow path":       {"\x00\U0001F600", "\"\\u0000\U0001F600\""},
+		"c1 escape next to a multibyte": {"\u0080é", "\"\\u0080é\""},
+
+		// Raw doesn't have to hold valid UTF-8 — callers build Values by hand. Formatting
+		// must not be what corrupts them: a rune-wise walk would turn each bad byte into
+		// U+FFFD, and only on the slow path, so the same byte would print two ways.
+		"invalid utf-8 passed through":    {"\xff", "\"\xff\""},
+		"invalid utf-8 on the slow path":  {"\x00\xff", `"\u0000` + "\xff" + `"`},
+		"invalid utf-8 after a 0xC2 lead": {"\u00a0\xff", "\"\u00a0\xff\""},
+		"truncated two-byte sequence":     {"\xc3", "\"\xc3\""},
+		"lone 0xC2 is not a c1 escape":    {"\xc2", "\"\xc2\""},
+	}
+
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			v := &Value{Kind: StringValue, Raw: tc.raw}
+			require.Equal(t, tc.want, v.String())
+		})
 	}
 }
