@@ -1,0 +1,3 @@
+query {
+	escapes(control: "bell \u0007 escape \u001B delete \u007F", astral: "𝅳", named: "\"\\\b\f\n\r\t")
+}
