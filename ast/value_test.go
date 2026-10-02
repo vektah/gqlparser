@@ -100,6 +100,27 @@ func TestValueStringQuotesAsGraphQL(t *testing.T) {
 		"invalid utf-8 after a 0xC2 lead": {"\u00a0\xff", "\"\u00a0\xff\""},
 		"truncated two-byte sequence":     {"\xc3", "\"\xc3\""},
 		"lone 0xC2 is not a c1 escape":    {"\xc2", "\"\xc2\""},
+
+		// Deciding which path runs is only ever an optimisation: treating a harmless byte
+		// as escape-worthy costs a slower route to the same text, whereas overlooking one
+		// puts it in the output raw. Every case above trips that decision on its first
+		// byte, so only a lone trigger sandwiched in clean text can tell the two apart.
+		"backslash is the only trigger":      {`a\b`, `"a\\b"`},
+		"unit separator is the only trigger": {"a\x1fb", `"a\u001Fb"`},
+
+		// A filter that recognised every byte *except* the backslash would still escape
+		// this one correctly whenever something else dragged the string onto the slow
+		// path. Only a string made of nothing else forces the filter to carry it alone.
+		"nothing but backslashes": {`\\`, `"\\\\"`},
+
+		// Text ahead of the first escape is copied in one go rather than a byte at a time,
+		// and the space afterwards has to survive the per-byte loop that handles the rest.
+		"clean text before the first escape": {"ab\nc d", `"ab\nc d"`},
+
+		// 0xC2 introduces an escape only when the byte after it falls in 0x80-0x9F. For
+		// anything else the pair is not a C1 control and both bytes stand on their own.
+		"0xC2 before ascii": {"\xc2A", "\"\xc2A\""},
+		"0xC2 before del":   {"\xc2\x7f", "\"\xc2\\u007F\""},
 	}
 
 	for name, tc := range cases {
