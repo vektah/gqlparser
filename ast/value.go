@@ -115,7 +115,7 @@ func (v *Value) String() string {
 	case IntValue, FloatValue, EnumValue, BooleanValue, NullValue:
 		return v.Raw
 	case StringValue, BlockValue:
-		return strconv.Quote(v.Raw)
+		return quoteString(v.Raw)
 	case ListValue:
 		var val []string
 		for _, elem := range v.Children {
@@ -135,4 +135,37 @@ func (v *Value) String() string {
 
 func (v *Value) Dump() string {
 	return v.String()
+}
+
+// quoteString quotes s as a GraphQL string literal, escaping like graphql-js printString.
+// strconv.Quote emits Go-only escapes such as \x1b that GraphQL rejects.
+func quoteString(s string) string {
+	var b strings.Builder
+	b.WriteByte('"')
+	for _, r := range s {
+		switch r {
+		case '"':
+			b.WriteString(`\"`)
+		case '\\':
+			b.WriteString(`\\`)
+		case '\b':
+			b.WriteString(`\b`)
+		case '\f':
+			b.WriteString(`\f`)
+		case '\n':
+			b.WriteString(`\n`)
+		case '\r':
+			b.WriteString(`\r`)
+		case '\t':
+			b.WriteString(`\t`)
+		default:
+			if r < 0x20 || (r >= 0x7f && r <= 0x9f) {
+				fmt.Fprintf(&b, `\u%04X`, r)
+			} else {
+				b.WriteRune(r)
+			}
+		}
+	}
+	b.WriteByte('"')
+	return b.String()
 }
