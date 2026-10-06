@@ -234,16 +234,30 @@ func TestNewErrorWithSourcesCopiesLegacyLocationsWithoutSources(t *testing.T) {
 }
 
 func TestNewErrorWithSourcesRejectsMismatchedLocations(t *testing.T) {
-	require.PanicsWithValue(
-		t,
-		"gqlerror: source location count 2 does not match location count 1",
-		func() {
-			NewErrorWithSources(
-				&Error{Locations: []Location{{Line: 1, Column: 2}}},
-				[]SourceLocation{{Line: 1, Column: 2}, {Line: 3, Column: 4}},
-			)
+	cases := map[string]struct {
+		err  *Error
+		want string
+	}{
+		"more sources than locations": {
+			err:  &Error{Locations: []Location{{Line: 1, Column: 2}}},
+			want: "gqlerror: source location count 2 does not match location count 1",
 		},
-	)
+		// Sources annotate an error's locations; they cannot supply locations it never had.
+		"sources for an error with no locations": {
+			err:  &Error{Message: "kabloom"},
+			want: "gqlerror: source location count 2 does not match location count 0",
+		},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			require.PanicsWithValue(t, tc.want, func() {
+				NewErrorWithSources(
+					tc.err,
+					[]SourceLocation{{Line: 1, Column: 2}, {Line: 3, Column: 4}},
+				)
+			})
+		})
+	}
 }
 
 func TestNewErrorWithSourcesRejectsMismatchedCoordinates(t *testing.T) {
