@@ -90,6 +90,13 @@ func TestErrorPosition(t *testing.T) {
 	})
 }
 
+func TestNilErrorUnwrapsToNil(t *testing.T) {
+	// WrapPath returns a nil *Error for a nil cause, and stored in an error it is not == nil.
+	var err error = WrapPath(nil, nil)
+
+	require.NotErrorIs(t, err, underlyingError)
+}
+
 func TestWrapPosKeepsVerbsInTheWrappedMessage(t *testing.T) {
 	wrapped := testError{"100% of %s queries failed"}
 
@@ -227,29 +234,157 @@ func TestNewErrorWithSourcesCopiesLegacyLocationsWithoutSources(t *testing.T) {
 }
 
 func TestNewErrorWithSourcesRejectsMismatchedLocations(t *testing.T) {
-	require.PanicsWithValue(
-		t,
-		"gqlerror: source location count 2 does not match location count 1",
-		func() {
-			NewErrorWithSources(
-				&Error{Locations: []Location{{Line: 1, Column: 2}}},
-				[]SourceLocation{{Line: 1, Column: 2}, {Line: 3, Column: 4}},
-			)
+	cases := map[string]struct {
+		err  *Error
+		want string
+	}{
+		"more sources than locations": {
+			err:  &Error{Locations: []Location{{Line: 1, Column: 2}}},
+			want: "gqlerror: source location count 2 does not match location count 1",
 		},
-	)
+		// Sources annotate an error's locations; they cannot supply locations it never had.
+		"sources for an error with no locations": {
+			err:  &Error{Message: "kabloom"},
+			want: "gqlerror: source location count 2 does not match location count 0",
+		},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			require.PanicsWithValue(t, tc.want, func() {
+				NewErrorWithSources(
+					tc.err,
+					[]SourceLocation{{Line: 1, Column: 2}, {Line: 3, Column: 4}},
+				)
+			})
+		})
+	}
 }
 
 func TestNewErrorWithSourcesRejectsMismatchedCoordinates(t *testing.T) {
-	require.PanicsWithValue(
-		t,
-		"gqlerror: source location 0 does not match location coordinates",
-		func() {
-			NewErrorWithSources(
-				&Error{Locations: []Location{{Line: 1, Column: 2}}},
-				[]SourceLocation{{Line: 3, Column: 4}},
+	// Either coordinate differing is a mismatch on its own, not only both together.
+	cases := map[string]SourceLocation{
+		"both differ":         {Line: 3, Column: 4},
+		"only line differs":   {Line: 3, Column: 2},
+		"only column differs": {Line: 1, Column: 4},
+	}
+	for name, source := range cases {
+		t.Run(name, func(t *testing.T) {
+			require.PanicsWithValue(
+				t,
+				"gqlerror: source location 0 does not match location coordinates",
+				func() {
+					NewErrorWithSources(
+						&Error{Locations: []Location{{Line: 1, Column: 2}}},
+						[]SourceLocation{source},
+					)
+				},
 			)
-		},
-	)
+		})
+	}
+}
+
+func TestNewErrorWithSourcesKeepsEveryField(t *testing.T) {
+	path := ast.Path{ast.PathName("field")}
+	extensions := map[string]any{"code": "BAD"}
+	err := NewErrorWithSources(&Error{
+		Err:        underlyingError,
+		Message:    "kabloom",
+		Path:       path,
+		Extensions: extensions,
+		Rule:       "NoUnusedFragments",
+	}, nil)
+
+	require.ErrorIs(t, err, underlyingError)
+	require.Equal(t, "kabloom", err.Message)
+	require.Equal(t, path, err.Path)
+	require.Equal(t, extensions, err.Extensions)
+	require.Equal(t, "NoUnusedFragments", err.Rule)
+}
+
+func TestWrappersKeepTheCause(t *testing.T) {
+	pos := &ast.Position{Src: &ast.Source{Name: "query.graphql"}, Line: 2, Column: 3}
+	cases := map[string]error{
+		"Wrap":                        Wrap(underlyingError),
+		"WrapPath":                    WrapPath(ast.Path{ast.PathName("field")}, underlyingError),
+		"WrapPos with a position":     WrapPos(pos, underlyingError),
+		"WrapPos without a position":  WrapPos(nil, underlyingError),
+		"WrapIfUnwrapped over plain":  WrapIfUnwrapped(underlyingError),
+		"NewErrorWithSources wrapped": NewErrorWithSources(Wrap(underlyingError), nil),
+	}
+	for name, err := range cases {
+		t.Run(name, func(t *testing.T) {
+			require.ErrorIs(t, err, underlyingError)
+		})
+	}
+}
+
+func TestWrappersCopyTheCauseMessage(t *testing.T) {
+	cases := map[string]*Error{
+		"Wrap":                       Wrap(underlyingError),
+		"WrapPath":                   WrapPath(ast.Path{ast.PathName("field")}, underlyingError),
+		"WrapIfUnwrapped over plain": WrapIfUnwrapped(underlyingError),
+	}
+	for name, err := range cases {
+		t.Run(name, func(t *testing.T) {
+			require.Equal(t, underlyingError.Error(), err.Message)
+		})
+	}
+}
+
+func TestWrapPosWithoutPositionReportsUnknownLocation(t *testing.T) {
+	err := WrapPos(nil, testError{"kabloom"})
+
+	require.Equal(t, []Location{{Line: -1, Column: -1}}, err.Locations)
+	require.Equal(t, "input:-1:-1: kabloom", err.Error())
+}
+
+func TestSetFileKeepsOtherExtensions(t *testing.T) {
+	err := &Error{Extensions: map[string]any{"code": "BAD"}}
+
+	err.SetFile("query.graphql")
+
+	require.Equal(t, map[string]any{"code": "BAD", "file": "query.graphql"}, err.Extensions)
+}
+
+func TestErrorWithSourcesFormatsPath(t *testing.T) {
+	err := &ErrorWithSources{Message: "kabloom", Path: ast.Path{ast.PathName("field")}}
+
+	require.Equal(t, "input: field kabloom", err.Error())
+}
+
+func TestErrorWithSourcesFormatsSingleLocationWithoutSource(t *testing.T) {
+	err := &ErrorWithSources{
+		Message:   "kabloom",
+		Locations: []SourceLocation{{Line: 1, Column: 2}},
+	}
+
+	require.Equal(t, "input:1:2: kabloom", err.Error())
+}
+
+// TestErrorWithSourcesUnmarshalKeepsLegacyFile checks that an error decoded from JSON, which
+// cannot carry sources, still names the file its extensions record. Without the legacy flag
+// UnmarshalJSON sets, several locations with no source would clear it.
+func TestErrorWithSourcesUnmarshalKeepsLegacyFile(t *testing.T) {
+	var err ErrorWithSources
+	require.NoError(t, json.Unmarshal([]byte(`{
+		"message": "kabloom",
+		"locations": [{"line": 1, "column": 2}, {"line": 3, "column": 4}],
+		"extensions": {"file": "legacy.graphql"}
+	}`), &err))
+
+	require.Equal(t, "legacy.graphql:1:2: kabloom", err.Error())
+}
+
+func TestErrorWithSourcesSourceLocationsIsNilWhenEmpty(t *testing.T) {
+	cases := map[string]*ErrorWithSources{
+		"nil *ErrorWithSources": nil,
+		"no locations":          {Message: "kabloom"},
+	}
+	for name, err := range cases {
+		t.Run(name, func(t *testing.T) {
+			require.Nil(t, err.SourceLocations())
+		})
+	}
 }
 
 func TestSourceListMatchesListErrorBehavior(t *testing.T) {

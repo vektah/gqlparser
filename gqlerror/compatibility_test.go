@@ -1,12 +1,21 @@
 package gqlerror_test
 
 import (
+	"log/slog"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
+)
+
+// Both error types report their own attributes through the same method gqlgen's errors
+// implement. A receiver changed from pointer to value would break this, and no behavioural test
+// would notice.
+var (
+	_ interface{ Attrs() []slog.Attr } = (*gqlerror.Error)(nil)
+	_ interface{ Attrs() []slog.Attr } = (*gqlerror.ErrorWithSources)(nil)
 )
 
 func TestLocationSupportsUnkeyedLiteral(t *testing.T) {

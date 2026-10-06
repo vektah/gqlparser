@@ -36,6 +36,11 @@ type Location struct {
 	Column int `json:"column,omitempty"`
 }
 
+// String writes the location as line:column, the form Error's message uses after the file name.
+func (l Location) String() string {
+	return strconv.Itoa(l.Line) + ":" + strconv.Itoa(l.Column)
+}
+
 // SourceLocation pairs a GraphQL line and column with its source document.
 // Source is nil when the location has no source document.
 type SourceLocation struct {
@@ -62,12 +67,18 @@ type ErrorWithSources struct {
 // NewErrorWithSources pairs an existing GraphQL error with source-aware
 // locations. The location slice is copied so callers cannot change the error's
 // source associations by mutating their input slice.
+//
+// A non-empty locations must describe err's own locations: one per location,
+// in the same order and at the same coordinates. It panics otherwise,
+// including when err has no locations at all, because sources can annotate
+// locations but not invent them. An empty locations pairs err's locations with
+// no sources.
 func NewErrorWithSources(err *Error, locations []SourceLocation) *ErrorWithSources {
 	if err == nil {
 		return nil
 	}
 	legacyLocations := locations == nil
-	if len(locations) > 0 && len(err.Locations) > 0 {
+	if len(locations) > 0 {
 		if len(locations) != len(err.Locations) {
 			panic(fmt.Sprintf(
 				"gqlerror: source location count %d does not match location count %d",
@@ -267,7 +278,13 @@ func (err *Error) pathString() string {
 	return err.Path.String()
 }
 
+// Unwrap returns the cause, or nil for a nil *Error. Wrap, WrapPath and WrapPos return a nil
+// *Error for a nil cause, and once that is stored in an error it is not == nil, so errors.Is
+// and errors.As would otherwise dereference it.
 func (err *Error) Unwrap() error {
+	if err == nil {
+		return nil
+	}
 	return err.Err
 }
 
