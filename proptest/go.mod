@@ -11,7 +11,7 @@ module github.com/vektah/gqlparser/v2/proptest
 go 1.25
 
 require (
-	github.com/vektah/gqlparser/v2 v2.5.58
+	github.com/vektah/gqlparser/v2 v2.5.60
 	pgregory.net/rapid v1.3.0
 )
 

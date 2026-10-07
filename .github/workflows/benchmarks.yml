@@ -24,7 +24,7 @@ jobs:
     # Twelve interleaved passes plus the build leave plenty of room under this.
     timeout-minutes: 20
     steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         # benchgate measures the base revision in a detached worktree, so it needs real
         # history. A shallow clone has none.
@@ -34,7 +34,7 @@ jobs:
         # reason to stay behind in .git/config while this job runs benchmark code from
         # the pull request under test.
         persist-credentials: "false"
-    - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+    - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
       with:
         go-version: "1.27"
     - uses: StevenACoffman/benchgate@ab2d4a87775c1f3fbd712a529e3d193077823130 # v0.2.0
