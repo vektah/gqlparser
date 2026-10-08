@@ -12,23 +12,6 @@ Two facts apply throughout this analysis.
 
 ## Unintentional gaps
 
-### `UniqueArgumentDefinitionNames` — missing entirely
-
-`validateArgs` (`schema.go:432`) checks that argument names don't begin with `__`, that referenced types exist, and that argument directives are valid. It never checks for duplicate argument names within the same list. Both field arguments and directive arguments are unprotected:
-
-```graphql
-type Query {
-  field(id: ID, id: String): Boolean
-}
-```
-
-graphql-js rejects with:
-> `Argument "Query.field(id:)" can only be defined once.`
-
-`schema_test.yml` has no case for this.
-
----
-
 ### `UniqueOperationTypes` — silent overwrite in three distinct cases
 
 graphql-js rejects any attempt to specify the same operation type more than once. gqlparser silently overwrites with the last value in all three scenarios.
@@ -95,6 +78,8 @@ The rationale is documented at `schema.go:95`: servers may ship directive defini
 
 **`UniqueEnumValueNames`** — enum value merging (`schema.go:65`) is followed by an O(n²) pair-scan at `schema.go:399–410`, mirroring the field check, catching duplicates within a definition and across extensions, returning `"Enum value X.Y can only be defined once."` Tested by two cases in `schema_test.yml` (same definition and across an extension).
 
+**`UniqueArgumentDefinitionNames`** — `validateArgNames` runs a pair-scan over each field's argument list (from `validateDefinition`) and each directive definition's argument list (from `validateDirective`), returning `"Argument Query.field(id:) can only be defined once."` or `"Argument @dir(id:) can only be defined once."`, matching the graphql-js wording without the quotes. Field arguments cannot be split across extensions, so a per-field check is sufficient. Tested by `schema_test.yml` cases for object fields, interface fields and directive definitions, plus positive cases for the same argument name on different fields and directives.
+
 **`UniqueDirectivesPerLocation` (SDL)** — `validateDirectives` (`schema.go:468`) tracks seen directive names per call and rejects a repeated non-repeatable directive with `"The directive X can only be used once at this location."` It is gated by a `singleLocation` flag (`schema.go:479`) so it applies only to single authored locations — fields, enum values, arguments, and the `schema` / `extend schema` directive lists. A type's own directives are exempt: they are merged across the base definition and every extension (`schema.go:65`-style append for `def.Directives`), which the spec treats as distinct locations, so the merged list validated at `schema.go:422` passes `singleLocation: false`. Consequence worth noting: a non-repeatable directive repeated within a single type definition (e.g. `type T @x @x` with no extension) is **not** caught, because provenance is lost once the base and extension directive lists are merged — directive definitions aren't even registered until `schema.go:112`, after the merge. graphql-js catches this by validating pre-merge AST nodes. Tested by four cases in `schema_test.yml` (non-repeatable directive repeated on a field and on an enum value; positive cases for a repeatable directive, the same directive on distinct field locations, and a directive on a type plus its extension).
 
 **`LoneSchemaDefinition`** — `len(sd.Schema) > 1` is checked at `schema.go:115`. The graphql-js check for "schema already defined in prior context" is an isolated-validation architectural difference, not a gap.
@@ -105,12 +90,12 @@ The rationale is documented at `schema.go:95`: servers may ship directive defini
 
 | Rule | Status | Nature |
 |---|---|---|
-| `UniqueArgumentDefinitionNames` | Missing | Unintentional gap — no test, no check |
 | `UniqueOperationTypes` | Missing (3 cases) | Unintentional gap — silent overwrite |
 | `PossibleTypeExtensions` | Intentional divergence | Allows ghost types; federation use case |
 | `UniqueDirectiveNames` (builtins) | Intentional divergence | Explicit test documents the choice |
 | `UniqueTypeNames` | Covered | — |
 | `UniqueFieldDefinitionNames` | Covered | — |
+| `UniqueArgumentDefinitionNames` | Covered | Field and directive argument lists; tested |
 | `UniqueEnumValueNames` | Covered | Pair-scan mirroring the field check; tested |
 | `UniqueDirectivesPerLocation` (SDL) | Covered (with caveat) | Per single authored location; merged type-level list exempt |
 | `LoneSchemaDefinitionRule` | Covered / arch. difference | Within-doc check present |
