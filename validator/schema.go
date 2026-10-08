@@ -338,6 +338,9 @@ func validateDirective(schema *Schema, def *DirectiveDefinition) *gqlerror.Error
 		// now, GraphQL spec doesn't have reserved directive name
 		return err
 	}
+	if err := validateArgNames(def.Arguments, "@"+def.Name); err != nil {
+		return err
+	}
 
 	return validateArgs(schema, def.Arguments, def)
 }
@@ -349,6 +352,9 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 			return err
 		}
 		if err := validateTypeRef(schema, field.Type); err != nil {
+			return err
+		}
+		if err := validateArgNames(field.Arguments, def.Name+"."+field.Name); err != nil {
 			return err
 		}
 		if err := validateArgs(schema, field.Arguments, nil); err != nil {
@@ -534,6 +540,24 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 func validateTypeRef(schema *Schema, typ *Type) *gqlerror.Error {
 	if schema.Types[typ.Name()] == nil {
 		return gqlerror.ErrorPosf(typ.Position, "Undefined type %s.", typ.Name())
+	}
+	return nil
+}
+
+// validateArgNames rejects an argument list that defines the same name twice.
+// parent identifies the owner in the error, e.g. "Query.field" or "@dir".
+func validateArgNames(args ArgumentDefinitionList, parent string) *gqlerror.Error {
+	for idx, arg1 := range args {
+		for _, arg2 := range args[idx+1:] {
+			if arg1.Name == arg2.Name {
+				return gqlerror.ErrorPosf(
+					arg2.Position,
+					"Argument %s(%s:) can only be defined once.",
+					parent,
+					arg2.Name,
+				)
+			}
+		}
 	}
 	return nil
 }
