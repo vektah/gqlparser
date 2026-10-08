@@ -77,7 +77,7 @@ run = "golangci-lint run ./..."
 
 [tasks.mutate]
 description = "Mutate the packages that carry the parsing and validation invariants"
-run = "mutago --coverage --quiet ./ast/... ./lexer/... ./parser/... ./validator/..."
+run = "mutago --coverage --quiet --min-covered-msi=75 ./ast/... ./lexer/... ./parser/... ./validator/..."
 
 [tasks."mutate:diff"]
 description = "Mutate only the lines this branch changed (usage: mise run mutate:diff [base])"

@@ -2,6 +2,7 @@ package gqlerror
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -172,6 +173,19 @@ func TestErrorWithSourcesFormatsDirectSingleLocation(t *testing.T) {
 	}
 
 	require.Equal(t, `query.graphql:1:2: kabloom`, err.Error())
+}
+
+// TestErrorWithSourcesKeepsAnOverriddenSingleLocationFile matches the *Error case in
+// TestErrorFormatting: with one location, a file set by SetFile takes precedence over the source's
+// name, and converting the error must not undo that.
+func TestErrorWithSourcesKeepsAnOverriddenSingleLocationFile(t *testing.T) {
+	source := &ast.Source{Name: "query.graphql"}
+	plain := ErrorPosf(&ast.Position{Src: source, Line: 1, Column: 2}, "kabloom")
+	plain.SetFile("override.graphql")
+
+	err := NewErrorWithSources(plain, []SourceLocation{{Line: 1, Column: 2, Source: source}})
+
+	require.Equal(t, `override.graphql:1:2: kabloom`, err.Error())
 }
 
 func TestErrorWithSourcesPreservesDirectMissingPrimarySource(t *testing.T) {
@@ -525,4 +539,93 @@ func BenchmarkError(b *testing.B) {
 		_ = error2.Error()
 		_ = list.Error()
 	}
+}
+
+func TestConstructorsReturnNilForANilCause(t *testing.T) {
+	pos := &ast.Position{Src: &ast.Source{Name: "query.graphql"}, Line: 2, Column: 3}
+	cases := map[string]any{
+		"Wrap":                    Wrap(nil),
+		"WrapPath":                WrapPath(ast.Path{ast.PathName("field")}, nil),
+		"WrapPos":                 WrapPos(pos, nil),
+		"WrapIfUnwrapped":         WrapIfUnwrapped(nil),
+		"NewErrorWithSources nil": NewErrorWithSources(nil, nil),
+	}
+	for name, got := range cases {
+		t.Run(name, func(t *testing.T) {
+			require.Nil(t, got)
+		})
+	}
+}
+
+// TestNilReceiversAreSafe covers the methods a nil pointer reaches once it is stored in an error,
+// where it is not == nil. AsError exists to turn such a pointer back into a nil error, so the
+// checks compare against the nil interface, which a typed nil does not equal.
+func TestNilReceiversAreSafe(t *testing.T) {
+	var plain *Error
+	var withSources *ErrorWithSources
+
+	require.Empty(t, plain.Error())
+	require.Empty(t, withSources.Error())
+	require.NoError(t, plain.Unwrap())
+	require.NoError(t, withSources.Unwrap())
+	require.NoError(t, plain.AsError())
+	require.NoError(t, withSources.AsError())
+}
+
+func TestAsErrorReturnsTheSameError(t *testing.T) {
+	plain := &Error{Message: "kabloom"}
+	withSources := &ErrorWithSources{Message: "kabloom"}
+
+	require.Same(t, plain, plain.AsError())
+	require.Same(t, withSources, withSources.AsError())
+}
+
+func TestSetFile(t *testing.T) {
+	cases := map[string]struct {
+		err  *Error
+		file string
+		want map[string]any
+	}{
+		"no extensions yet": {
+			err:  &Error{},
+			file: "query.graphql",
+			want: map[string]any{"file": "query.graphql"},
+		},
+		"an empty name leaves no extensions": {
+			err:  &Error{},
+			file: "",
+			want: nil,
+		},
+		"an empty name keeps the file already set": {
+			err:  &Error{Extensions: map[string]any{"file": "query.graphql"}},
+			file: "",
+			want: map[string]any{"file": "query.graphql"},
+		},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			tc.err.SetFile(tc.file)
+
+			require.Equal(t, tc.want, tc.err.Extensions)
+		})
+	}
+}
+
+func TestListFormatsAndUnwrapsEachError(t *testing.T) {
+	first := &Error{Message: "first"}
+	second := &Error{Err: underlyingError, Message: "second"}
+	errs := List{first, second}
+
+	require.EqualError(t, errs, "input: first\ninput: second\n")
+
+	unwrapped := errs.Unwrap()
+	require.Len(t, unwrapped, 2)
+	require.Same(t, first, unwrapped[0])
+	require.Same(t, second, unwrapped[1])
+}
+
+func TestWrapIfUnwrappedReturnsTheErrorAlreadyInTheChain(t *testing.T) {
+	gqlErr := &Error{Message: "kabloom"}
+
+	require.Same(t, gqlErr, WrapIfUnwrapped(fmt.Errorf("resolve: %w", gqlErr)))
 }

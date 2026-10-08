@@ -2,6 +2,7 @@ package gqlerror
 
 import (
 	"log/slog"
+	"slices"
 
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -14,7 +15,8 @@ import (
 // reports a path of its own.
 //
 // Err is not reported. Attrs means an error's own attributes, never its cause's, so a walk that
-// collects Attrs from every error in a chain visits the cause exactly once.
+// collects Attrs from every error in a chain visits the cause exactly once. CollectAttrs is that
+// walk, and it merges a cause's "gql" group into this one.
 func (err *Error) Attrs() []slog.Attr {
 	if err == nil {
 		return nil
@@ -99,4 +101,84 @@ func gqlAttrs(
 		return nil
 	}
 	return []slog.Attr{{Key: "gql", Value: slog.GroupValue(fields...)}}
+}
+
+// CollectAttrs reports the attributes of every error in err's tree, merged so that no key appears
+// twice at any level. It is what logging middleware should pass to slog for a GraphQL error.
+//
+// It visits err and then what Unwrap returns, depth first and, for Unwrap() []error, left to
+// right, taking Attrs() []slog.Attr from each error that has the method. Groups with the same key
+// are merged, so a cause reporting a "gql" group of its own adds keys to this package's group
+// rather than repeating it, which JSON readers would resolve by dropping one of the two. For any
+// other key reported twice, the first value found wins: the outermost error's, which is normally
+// the *Error the GraphQL response carried.
+//
+// Attributes follow slog's rules: values are resolved, a group with an empty key is inlined, and
+// a zero Attr or an empty group is dropped. Keys keep the order they first appear in. The result
+// is nil when nothing is reported. No error's attributes are modified.
+//
+// A cause reporting into the "gql" group should not reuse the keys Error.Attrs reports for its
+// own meaning: message, path, locations, extensions and rule.
+//
+// Like errors.Is, CollectAttrs does not guard against an Unwrap cycle.
+func CollectAttrs(err error) []slog.Attr {
+	return collectAttrs(nil, err)
+}
+
+// attrser is what CollectAttrs looks for in each error: the error's own attributes.
+type attrser interface {
+	Attrs() []slog.Attr
+}
+
+// collectAttrs merges the attributes of err's tree into collected, err's own before its causes'.
+func collectAttrs(collected []slog.Attr, err error) []slog.Attr {
+	if e, ok := err.(attrser); ok {
+		collected = mergeAttrs(collected, e.Attrs())
+	}
+	switch e := err.(type) {
+	case interface{ Unwrap() error }:
+		collected = collectAttrs(collected, e.Unwrap())
+	case interface{ Unwrap() []error }:
+		for _, cause := range e.Unwrap() {
+			collected = collectAttrs(collected, cause)
+		}
+	}
+	return collected
+}
+
+// mergeAttrs adds src to dst, which holds no key twice. A group merges into dst's group of the
+// same key; any other key already in dst keeps its value. A revisited error therefore adds
+// nothing, which is why CollectAttrs keeps no record of the errors it has seen.
+//
+// Every group mergeAttrs adds is rebuilt from a slice of its own, so the in-place writes that
+// merging makes never reach a group belonging to the error that reported it.
+func mergeAttrs(dst, src []slog.Attr) []slog.Attr {
+	for _, a := range src {
+		a.Value = a.Value.Resolve()
+		isGroup := a.Value.Kind() == slog.KindGroup
+
+		// Inline and drop what slog would, so that neither takes up a key.
+		if isGroup {
+			fields := mergeAttrs(nil, a.Value.Group())
+			if len(fields) == 0 {
+				continue
+			}
+			if a.Key == "" {
+				dst = mergeAttrs(dst, fields)
+				continue
+			}
+			a.Value = slog.GroupValue(fields...)
+		} else if a.Key == "" && a.Value.Any() == nil {
+			continue
+		}
+
+		i := slices.IndexFunc(dst, func(d slog.Attr) bool { return d.Key == a.Key })
+		switch {
+		case i < 0:
+			dst = append(dst, a)
+		case isGroup && dst[i].Value.Kind() == slog.KindGroup:
+			dst[i].Value = slog.GroupValue(mergeAttrs(dst[i].Value.Group(), a.Value.Group())...)
+		}
+	}
+	return dst
 }
