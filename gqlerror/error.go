@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"strconv"
 	"strings"
 
@@ -95,7 +96,7 @@ func NewErrorWithSources(err *Error, locations []SourceLocation) *ErrorWithSourc
 			}
 		}
 	}
-	if len(locations) == 0 && len(err.Locations) > 0 {
+	if len(locations) == 0 {
 		locations = make([]SourceLocation, len(err.Locations))
 		for i, location := range err.Locations {
 			locations[i] = SourceLocation{
@@ -135,25 +136,24 @@ func (err *ErrorWithSources) Error() string {
 			Column: sourceLocation.Column,
 		}
 	}
+	// base only formats the message, so it carries only the fields Error reads. Its extensions
+	// are a copy because the file name is about to be set or removed.
 	base := &Error{
-		Err:        err.Err,
 		Message:    err.Message,
 		Path:       err.Path,
 		Locations:  locations,
-		Extensions: cloneExtensions(err.Extensions),
-		Rule:       err.Rule,
+		Extensions: map[string]any{},
 	}
-	if base.Extensions == nil {
-		base.Extensions = map[string]any{}
-	}
+	maps.Copy(base.Extensions, err.Extensions)
 	filename, _ := base.Extensions["file"].(string)
-	if len(err.Locations) == 1 {
-		if filename == "" {
-			if source := err.Locations[0].Source; source != nil && source.Name != "" {
-				filename = source.Name
-			}
+	switch len(err.Locations) {
+	case 0:
+		// No location to name a file.
+	case 1:
+		if source := err.Locations[0].Source; filename == "" && source != nil {
+			filename = source.Name
 		}
-	} else if len(err.Locations) > 1 {
+	default:
 		if source := err.Locations[0].Source; source != nil {
 			filename = source.Name
 		} else if !err.legacyLocations {
@@ -166,17 +166,6 @@ func (err *ErrorWithSources) Error() string {
 		delete(base.Extensions, "file")
 	}
 	return base.Error()
-}
-
-func cloneExtensions(extensions map[string]any) map[string]any {
-	if extensions == nil {
-		return nil
-	}
-	clone := make(map[string]any, len(extensions))
-	for key, value := range extensions {
-		clone[key] = value
-	}
-	return clone
 }
 
 func (err *ErrorWithSources) Unwrap() error {
