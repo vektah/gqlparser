@@ -654,13 +654,20 @@ func validateDirectives(
 				location,
 			)
 		}
-		for _, arg := range dir.Arguments {
+		for i, arg := range dir.Arguments {
 			if dirDefinition.Arguments.ForName(arg.Name) == nil {
 				return gqlerror.ErrorPosf(
 					arg.Position,
 					"Undefined argument %s for directive %s.",
 					arg.Name,
 					dir.Name,
+				)
+			}
+			if dir.Arguments[:i].ForName(arg.Name) != nil {
+				return gqlerror.ErrorPosf(
+					arg.Position,
+					"There can be only one argument named %s.",
+					arg.Name,
 				)
 			}
 		}
