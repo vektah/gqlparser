@@ -120,9 +120,21 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 		)
 	}
 
+	// Each root operation type may be specified once across the schema
+	// definition and all of its extensions.
+	definedOperations := map[Operation]bool{}
+
 	if len(sd.Schema) == 1 {
 		schema.Description = sd.Schema[0].Description
 		for _, entrypoint := range sd.Schema[0].OperationTypes {
+			if definedOperations[entrypoint.Operation] {
+				return nil, gqlerror.ErrorPosf(
+					entrypoint.Position,
+					"There can be only one %s type in schema.",
+					entrypoint.Operation,
+				)
+			}
+			definedOperations[entrypoint.Operation] = true
 			def := schema.Types[entrypoint.Type]
 			if def == nil {
 				return nil, gqlerror.ErrorPosf(
@@ -155,6 +167,14 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 
 	for _, ext := range sd.SchemaExtension {
 		for _, entrypoint := range ext.OperationTypes {
+			if definedOperations[entrypoint.Operation] {
+				return nil, gqlerror.ErrorPosf(
+					entrypoint.Position,
+					"There can be only one %s type in schema.",
+					entrypoint.Operation,
+				)
+			}
+			definedOperations[entrypoint.Operation] = true
 			def := schema.Types[entrypoint.Type]
 			if def == nil {
 				return nil, gqlerror.ErrorPosf(

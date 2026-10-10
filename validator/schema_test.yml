@@ -926,6 +926,18 @@ entry points:
       message: "Schema root query refers to a type Query that does not exist."
       locations: [{line: 2, column: 3}]
 
+  - name: cannot specify the same operation type twice
+    input: |
+      schema {
+        query: Query
+        query: Other
+      }
+      type Query { id: ID }
+      type Other { id: ID }
+    error:
+      message: "There can be only one query type in schema."
+      locations: [{line: 3, column: 3}]
+
 entry point extensions:
   - name: Undefined schema entrypoint
     input: |
@@ -939,6 +951,53 @@ entry point extensions:
     error:
       message: "Schema root mutation refers to a type Mutation that does not exist."
       locations: [{line: 6, column: 3}]
+
+  - name: cannot redefine an operation type from the schema definition
+    input: |
+      schema {
+        query: Query
+      }
+      extend schema {
+        query: Other
+      }
+      type Query { id: ID }
+      type Other { id: ID }
+    error:
+      message: "There can be only one query type in schema."
+      locations: [{line: 5, column: 3}]
+
+  - name: cannot specify the same operation type in two extensions
+    input: |
+      schema {
+        query: Query
+      }
+      extend schema {
+        mutation: Mutation
+      }
+      extend schema {
+        mutation: Other
+      }
+      type Query { id: ID }
+      type Mutation { id: ID }
+      type Other { id: ID }
+    error:
+      message: "There can be only one mutation type in schema."
+      locations: [{line: 8, column: 3}]
+
+  - name: can add each operation type once across extensions
+    input: |
+      schema {
+        query: Query
+      }
+      extend schema {
+        mutation: Mutation
+      }
+      extend schema {
+        subscription: Subscription
+      }
+      type Query { id: ID }
+      type Mutation { id: ID }
+      type Subscription { id: ID }
 
 type references:
   - name: Field types
