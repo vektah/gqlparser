@@ -903,6 +903,36 @@ directives:
       message: 'Argument bla for directive foo cannot be null.'
       locations: [{line: 2, column: 17}]
 
+  - name: directive arguments cannot be repeated on a field
+    input: |
+      directive @foo(bla: Int) on FIELD_DEFINITION
+      type P {f: Int @foo(bla: 1, bla: 2) }
+    error:
+      message: 'There can be only one argument named bla.'
+      locations: [{line: 2, column: 29}]
+
+  - name: directive arguments cannot be repeated on a type
+    input: |
+      directive @foo(bla: Int) on OBJECT
+      type P @foo(bla: 1, bla: 2) {f: Int }
+    error:
+      message: 'There can be only one argument named bla.'
+      locations: [{line: 2, column: 21}]
+
+  - name: directive arguments cannot be repeated on the schema
+    input: |
+      directive @foo(bla: Int) on SCHEMA
+      type Query {f: Int }
+      schema @foo(bla: 1, bla: 2) { query: Query }
+    error:
+      message: 'There can be only one argument named bla.'
+      locations: [{line: 3, column: 21}]
+
+  - name: same argument name can be used on repeated directives
+    input: |
+      directive @foo(bla: Int) repeatable on FIELD_DEFINITION
+      type P {f: Int @foo(bla: 1) @foo(bla: 2) }
+
 entry points:
   - name: multiple schema entry points
     input: |
