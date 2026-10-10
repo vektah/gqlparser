@@ -502,6 +502,19 @@ inputs:
         id: ID!
       }
 
+  - name: default values cannot repeat an input field
+    input: |
+      input Point {
+        x: Int
+        y: Int
+      }
+      input Shape {
+        origin: Point = {x: 1, y: 2, x: 3}
+      }
+    error:
+      message: 'There can be only one input field named "x".'
+      locations: [{line: 6, column: 32}]
+
 args:
   - name: Valid arg types
     input: |
@@ -564,6 +577,48 @@ args:
       type Query {
         a(id: ID): Boolean
         b(id: ID): Boolean
+      }
+
+  - name: default values cannot repeat an input field
+    input: |
+      input Point {
+        x: Int
+        y: Int
+      }
+      type Query {
+        f(at: Point = {x: 1, x: 2}): Boolean
+      }
+    error:
+      message: 'There can be only one input field named "x".'
+      locations: [{line: 6, column: 24}]
+
+  - name: default values cannot repeat an input field in a nested list
+    input: |
+      input Point {
+        x: Int
+        y: Int
+      }
+      input Path {
+        points: [Point]
+      }
+      type Query {
+        f(path: Path = {points: [{x: 1}, {y: 1, y: 2}]}): Boolean
+      }
+    error:
+      message: 'There can be only one input field named "y".'
+      locations: [{line: 9, column: 43}]
+
+  - name: default values can use the same field name at different depths
+    input: |
+      input Inner {
+        a: Int
+      }
+      input Outer {
+        a: Int
+        inner: Inner
+      }
+      type Query {
+        f(o: Outer = {a: 1, inner: {a: 2}}, others: [Inner] = [{a: 1}, {a: 2}]): Boolean
       }
 
 enums:
@@ -884,6 +939,43 @@ directives:
     error:
       message: 'Undefined argument foobla for directive foo.'
       locations: [{line: 2, column: 21}]
+
+  - name: directive argument values cannot repeat an input field
+    input: |
+      input Options {
+        a: Int
+        b: Int
+      }
+      directive @foo(opts: Options) on FIELD_DEFINITION
+      type P {f: Int @foo(opts: {a: 1, b: 2, a: 3}) }
+    error:
+      message: 'There can be only one input field named "a".'
+      locations: [{line: 6, column: 40}]
+
+  - name: directive argument values cannot repeat a nested input field
+    input: |
+      input Inner {
+        a: Int
+      }
+      input Options {
+        inner: Inner
+      }
+      directive @foo(opts: Options) on SCHEMA
+      type Query {f: Int }
+      schema @foo(opts: {inner: {a: 1, a: 2}}) { query: Query }
+    error:
+      message: 'There can be only one input field named "a".'
+      locations: [{line: 9, column: 34}]
+
+  - name: directive definition default values cannot repeat an input field
+    input: |
+      input Options {
+        a: Int
+      }
+      directive @foo(opts: Options = {a: 1, a: 2}) on FIELD_DEFINITION
+    error:
+      message: 'There can be only one input field named "a".'
+      locations: [{line: 4, column: 39}]
 
   - name: non-null argument must be provided
     input: |

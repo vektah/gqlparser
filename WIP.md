@@ -54,6 +54,8 @@ The rationale is documented at `schema.go:95`: servers may ship directive defini
 
 **`UniqueOperationTypes`** — `ValidateSchemaDocument` tracks the operation types seen across the `schema {}` block and every `extend schema` block, returning `"There can be only one query type in schema."` (graphql-js wording) for the second occurrence. This covers a duplicate within one block, the same operation in two extensions, and an extension re-specifying an operation from the base block. graphql-js reports the last case as `"Type for query already defined in the schema. It cannot be redefined."` only when extending a pre-existing schema object, which is an isolated-validation architectural difference. Tested by three cases in `schema_test.yml`, plus a positive case adding each operation type once across extensions.
 
+**`UniqueInputFieldNames` (SDL)** — `validateInputFieldNames` walks an input object value, including objects nested in other objects and lists, and rejects a field set more than once with `There can be only one input field named "x".`, the same message as the query-side rule. It runs on directive argument values at every schema location (from `validateDirectives`) and on default values of field arguments, directive definition arguments and input fields. Tested by `schema_test.yml` cases for each of those, plus a positive case for the same field name at different depths.
+
 **`LoneSchemaDefinition`** — `len(sd.Schema) > 1` is checked at `schema.go:115`. The graphql-js check for "schema already defined in prior context" is an isolated-validation architectural difference, not a gap.
 
 ---
@@ -70,4 +72,5 @@ The rationale is documented at `schema.go:95`: servers may ship directive defini
 | `UniqueEnumValueNames` | Covered | Pair-scan mirroring the field check; tested |
 | `UniqueDirectivesPerLocation` (SDL) | Covered (with caveat) | Per single authored location; merged type-level list exempt |
 | `UniqueOperationTypes` | Covered | Across `schema` and `extend schema` blocks; tested |
+| `UniqueInputFieldNames` (SDL) | Covered | Directive argument values and default values; tested |
 | `LoneSchemaDefinitionRule` | Covered / arch. difference | Within-doc check present |
