@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -201,7 +202,7 @@ func (v *varValidator) validateVarType(
 
 		case "ID":
 			if kind == reflect.Int || kind == reflect.Int32 || kind == reflect.Int64 ||
-				kind == reflect.String {
+				kind == reflect.String || isIntegralFloat(val, kind) {
 				return val, nil
 			}
 		default:
@@ -285,4 +286,16 @@ func IsValidFloatString(val reflect.Value, kind reflect.Kind) bool {
 	}
 	_, e := strconv.ParseFloat(fmt.Sprintf("%v", val.Interface()), 64)
 	return e == nil
+}
+
+// isIntegralFloat reports whether val is a float holding a whole number.
+// encoding/json decodes every JSON number into a float64, so an integer ID
+// variable such as {"id": 4} arrives here as float64(4). The spec accepts an
+// integer for ID input coercion; a fractional value is still rejected.
+func isIntegralFloat(val reflect.Value, kind reflect.Kind) bool {
+	if kind != reflect.Float32 && kind != reflect.Float64 {
+		return false
+	}
+	f := val.Float()
+	return !math.IsInf(f, 0) && f == math.Trunc(f)
 }

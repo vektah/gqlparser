@@ -539,6 +539,34 @@ func TestValidateVars(t *testing.T) {
 			)
 			require.EqualError(t, gerr, "input: variable.var cannot use bool as Int")
 		})
+
+		t.Run("Json Number -> ID", func(t *testing.T) {
+			// encoding/json decodes {"var": 4} into float64(4).
+			//nolint:staticcheck
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: ID!) { idArg(i: $var) }`)
+			vars, gerr := validator.VariableValues(
+				schema,
+				q.Operations.ForName(""),
+				map[string]any{
+					"var": float64(4),
+				},
+			)
+			require.NoError(t, gerr)
+			require.Equal(t, float64(4), vars["var"])
+		})
+
+		t.Run("Fractional Float -> ID", func(t *testing.T) {
+			//nolint:staticcheck
+			q := gqlparser.MustLoadQuery(schema, `query foo($var: ID!) { idArg(i: $var) }`)
+			_, gerr := validator.VariableValues(
+				schema,
+				q.Operations.ForName(""),
+				map[string]any{
+					"var": 4.5,
+				},
+			)
+			require.EqualError(t, gerr, "input: variable.var cannot use float64 as ID")
+		})
 	})
 
 	t.Run("Int Array", func(t *testing.T) {
