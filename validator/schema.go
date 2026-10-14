@@ -121,20 +121,21 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 	}
 
 	// Each root operation type may be specified once across the schema
-	// definition and all of its extensions.
-	definedOperations := map[Operation]bool{}
+	// definition and all of its extensions. The recorded position is where
+	// root type errors are reported.
+	rootPositions := map[Operation]*Position{}
 
 	if len(sd.Schema) == 1 {
 		schema.Description = sd.Schema[0].Description
 		for _, entrypoint := range sd.Schema[0].OperationTypes {
-			if definedOperations[entrypoint.Operation] {
+			if _, ok := rootPositions[entrypoint.Operation]; ok {
 				return nil, gqlerror.ErrorPosf(
 					entrypoint.Position,
 					"There can be only one %s type in schema.",
 					entrypoint.Operation,
 				)
 			}
-			definedOperations[entrypoint.Operation] = true
+			rootPositions[entrypoint.Operation] = entrypoint.Position
 			def := schema.Types[entrypoint.Type]
 			if def == nil {
 				return nil, gqlerror.ErrorPosf(
@@ -143,13 +144,6 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 					entrypoint.Operation,
 					entrypoint.Type,
 				)
-			}
-			if err := validateRootOperationType(
-				entrypoint.Operation,
-				def,
-				entrypoint.Position,
-			); err != nil {
-				return nil, err
 			}
 			switch entrypoint.Operation {
 			case Query:
@@ -174,14 +168,14 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 
 	for _, ext := range sd.SchemaExtension {
 		for _, entrypoint := range ext.OperationTypes {
-			if definedOperations[entrypoint.Operation] {
+			if _, ok := rootPositions[entrypoint.Operation]; ok {
 				return nil, gqlerror.ErrorPosf(
 					entrypoint.Position,
 					"There can be only one %s type in schema.",
 					entrypoint.Operation,
 				)
 			}
-			definedOperations[entrypoint.Operation] = true
+			rootPositions[entrypoint.Operation] = entrypoint.Position
 			def := schema.Types[entrypoint.Type]
 			if def == nil {
 				return nil, gqlerror.ErrorPosf(
@@ -190,13 +184,6 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 					entrypoint.Operation,
 					entrypoint.Type,
 				)
-			}
-			if err := validateRootOperationType(
-				entrypoint.Operation,
-				def,
-				entrypoint.Position,
-			); err != nil {
-				return nil, err
 			}
 			switch entrypoint.Operation {
 			case Query:
@@ -237,36 +224,21 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 	if len(sd.Schema) == 0 {
 		if schema.Query == nil && schema.Types["Query"] != nil {
 			schema.Query = schema.Types["Query"]
-			if err := validateRootOperationType(
-				Query,
-				schema.Query,
-				schema.Query.Position,
-			); err != nil {
-				return nil, err
-			}
 		}
 
 		if schema.Mutation == nil && schema.Types["Mutation"] != nil {
 			schema.Mutation = schema.Types["Mutation"]
-			if err := validateRootOperationType(
-				Mutation,
-				schema.Mutation,
-				schema.Mutation.Position,
-			); err != nil {
-				return nil, err
-			}
 		}
 
 		if schema.Subscription == nil && schema.Types["Subscription"] != nil {
 			schema.Subscription = schema.Types["Subscription"]
-			if err := validateRootOperationType(
-				Subscription,
-				schema.Subscription,
-				schema.Subscription.Position,
-			); err != nil {
-				return nil, err
-			}
 		}
+	}
+
+	// Checked after inference so that explicit and inferred roots obey the
+	// same rule.
+	if err := validateRootOperationTypes(&schema, rootPositions); err != nil {
+		return nil, err
 	}
 
 	if schema.Query != nil {
@@ -289,25 +261,43 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 	return &schema, nil
 }
 
-// validateRootOperationType rejects a root operation type that is not an
-// object type.
+// validateRootOperationTypes rejects any root operation type that is not an
+// object type. Errors are reported at the root's entry in the schema
+// definition or extension, or at the type itself when the root was inferred
+// by name. Messages match graphql-js.
 // https://spec.graphql.org/October2021/#sec-Root-Operation-Types
-func validateRootOperationType(op Operation, def *Definition, pos *Position) *gqlerror.Error {
-	if def.Kind == Object {
-		return nil
+func validateRootOperationTypes(
+	schema *Schema,
+	rootPositions map[Operation]*Position,
+) *gqlerror.Error {
+	roots := []struct {
+		op      Operation
+		def     *Definition
+		message string
+	}{
+		{Query, schema.Query, "Query root type must be Object type, it cannot be %s."},
+		{
+			Mutation,
+			schema.Mutation,
+			"Mutation root type must be Object type if provided, it cannot be %s.",
+		},
+		{
+			Subscription,
+			schema.Subscription,
+			"Subscription root type must be Object type if provided, it cannot be %s.",
+		},
 	}
-	ifProvided := ""
-	if op != Query {
-		ifProvided = " if provided"
+	for _, root := range roots {
+		if root.def == nil || root.def.Kind == Object {
+			continue
+		}
+		pos, ok := rootPositions[root.op]
+		if !ok {
+			pos = root.def.Position
+		}
+		return gqlerror.ErrorPosf(pos, root.message, root.def.Name)
 	}
-	return gqlerror.ErrorPosf(
-		pos,
-		"%s%s root type must be Object type%s, it cannot be %s.",
-		strings.ToUpper(string(op[:1])),
-		op[1:],
-		ifProvided,
-		def.Name,
-	)
+	return nil
 }
 
 func validateTypeDefinitions(schema *Schema) *gqlerror.Error {

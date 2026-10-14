@@ -1137,6 +1137,14 @@ entry points:
       message: "Mutation root type must be Object type if provided, it cannot be Mutation."
       locations: [{line: 2, column: 6}]
 
+  - name: inferred subscription root type must be an object type
+    input: |
+      type Query { id: ID }
+      scalar Subscription
+    error:
+      message: "Subscription root type must be Object type if provided, it cannot be Subscription."
+      locations: [{line: 2, column: 8}]
+
   - name: non-object types named like root types are allowed with a schema definition
     input: |
       schema {
@@ -1220,6 +1228,16 @@ entry point extensions:
     error:
       message: "Subscription root type must be Object type if provided, it cannot be Subscription."
       locations: [{line: 5, column: 3}]
+
+  - name: extension root type must be an object type without a schema definition
+    input: |
+      extend schema {
+        query: Root
+      }
+      interface Root { id: ID }
+    error:
+      message: "Query root type must be Object type, it cannot be Root."
+      locations: [{line: 2, column: 3}]
 
 type references:
   - name: Field types
