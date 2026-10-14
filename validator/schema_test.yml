@@ -592,6 +592,18 @@ args:
       message: 'There can be only one input field named "x".'
       locations: [{line: 6, column: 24}]
 
+  - name: default values cannot repeat an input field first set to null
+    input: |
+      input Point {
+        x: Int
+      }
+      type Query {
+        f(at: Point = {x: null, x: 2}): Boolean
+      }
+    error:
+      message: 'There can be only one input field named "x".'
+      locations: [{line: 5, column: 27}]
+
   - name: default values cannot repeat an input field in a nested list
     input: |
       input Point {
