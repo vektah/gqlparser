@@ -21,8 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     # A ceiling against a hung benchmark, not a performance target: the default is
     # 360 minutes, and a benchmark that stops terminating would spend all of them.
-    # Twelve interleaved passes plus the build leave plenty of room under this.
-    timeout-minutes: 20
+    # Twelve interleaved passes plus the build and coverage pass took 14 to 20 minutes
+    # on passing runs in October 2026, so 20 cancelled healthy runs; 40 leaves about
+    # twice that time.
+    timeout-minutes: 40
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
@@ -56,8 +58,9 @@ jobs:
         fail-on-regression: 'true'
 
         # Six rounds is the minimum that can produce a significant result at the default
-        # alpha, and 100ms keeps a full interleaved run of both revisions inside a couple of
-        # minutes.
+        # alpha. 100ms keeps each pass short, but the whole run is still long: one revision
+        # takes about five minutes on a laptop, and the interleaved run of both revisions
+        # takes 14 to 20 minutes on a runner (see timeout-minutes above).
         rounds: '6'
         benchtime: 100ms
 
