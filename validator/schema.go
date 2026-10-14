@@ -686,7 +686,7 @@ func validateDirectives(
 				}
 			}
 		}
-		dir.Definition = schema.Directives[dir.Name]
+		dir.Definition = dirDefinition
 	}
 	return nil
 }
