@@ -1,7 +1,9 @@
 package validator_test
 
 import (
+	"encoding/json"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -100,6 +102,26 @@ func TestValidateVars(t *testing.T) {
 			)
 			require.NoError(t, gerr)
 			require.EqualValues(t, map[string]any{"name": "foobar"}, vars["var"])
+		})
+
+		t.Run("typed map of pointers", func(t *testing.T) {
+			// Writing the dereferenced string back into a map[string]*string
+			// used to panic.
+			//nolint:staticcheck
+			q := gqlparser.MustLoadQuery(
+				schema,
+				`query foo($var: InputType!) { structArg(i: $var) }`,
+			)
+			name := "foobar"
+			vars, gerr := validator.VariableValues(
+				schema,
+				q.Operations.ForName(""),
+				map[string]any{
+					"var": map[string]*string{"name": &name},
+				},
+			)
+			require.NoError(t, gerr)
+			require.Equal(t, map[string]*string{"name": &name}, vars["var"])
 		})
 
 		t.Run("null object field", func(t *testing.T) {
@@ -540,32 +562,134 @@ func TestValidateVars(t *testing.T) {
 			require.EqualError(t, gerr, "input: variable.var cannot use bool as Int")
 		})
 
-		t.Run("Json Number -> ID", func(t *testing.T) {
-			// encoding/json decodes {"var": 4} into float64(4).
+		t.Run("JSON number -> ID", func(t *testing.T) {
+			// Variables decoded with encoding/json into an `any` hold every
+			// number as a float64; integral ones are coerced to int64.
+			cases := map[string]struct {
+				query     string
+				json      string
+				useNumber bool
+				want      any
+				wantErr   string
+			}{
+				"integer": {
+					query: `query($v: ID!) { idArg(i: $v) }`,
+					json:  `{"v": 4}`,
+					want:  int64(4),
+				},
+				"exponent": {
+					query: `query($v: ID!) { idArg(i: $v) }`,
+					json:  `{"v": 4e0}`,
+					want:  int64(4),
+				},
+				"negative": {
+					query: `query($v: ID!) { idArg(i: $v) }`,
+					json:  `{"v": -4}`,
+					want:  int64(-4),
+				},
+				"max safe integer": {
+					query: `query($v: ID!) { idArg(i: $v) }`,
+					json:  `{"v": 9007199254740991}`,
+					want:  int64(9007199254740991),
+				},
+				"list": {
+					query: `query($v: [ID!]) { idArrayArg(i: $v) }`,
+					json:  `{"v": [1, 2]}`,
+					want:  []any{int64(1), int64(2)},
+				},
+				"input object field": {
+					query: `query($v: IDInput!) { idInputArg(i: $v) }`,
+					json:  `{"v": {"id": 7}}`,
+					want:  map[string]any{"id": int64(7)},
+				},
+				"UseNumber is left as json.Number": {
+					query:     `query($v: ID!) { idArg(i: $v) }`,
+					json:      `{"v": 4}`,
+					useNumber: true,
+					want:      json.Number("4"),
+				},
+				"fractional": {
+					query:   `query($v: ID!) { idArg(i: $v) }`,
+					json:    `{"v": 4.5}`,
+					wantErr: "input: variable.v cannot use float64 as ID",
+				},
+				"beyond max safe integer": {
+					query: `query($v: ID!) { idArg(i: $v) }`,
+					// 2^53, which 2^53+1 also decodes to.
+					json: `{"v": 9007199254740992}`,
+					wantErr: "input: variable.v cannot use 9.007199254740992e+15 as ID: " +
+						"integers beyond 2^53-1 may have been rounded; " +
+						"decode variables with json.Decoder.UseNumber",
+				},
+			}
+			for name, tc := range cases {
+				t.Run(name, func(t *testing.T) {
+					//nolint:staticcheck
+					q := gqlparser.MustLoadQuery(schema, tc.query)
+					dec := json.NewDecoder(strings.NewReader(tc.json))
+					if tc.useNumber {
+						dec.UseNumber()
+					}
+					var input map[string]any
+					require.NoError(t, dec.Decode(&input))
+
+					vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), input)
+					if tc.wantErr != "" {
+						require.EqualError(t, gerr, tc.wantErr)
+						return
+					}
+					require.NoError(t, gerr)
+					require.Equal(t, tc.want, vars["v"])
+				})
+			}
+		})
+
+		t.Run("JSON number -> Int", func(t *testing.T) {
+			cases := map[string]struct {
+				json    string
+				want    any
+				wantErr string
+			}{
+				"integer": {
+					json: `{"v": 4}`,
+					want: float64(4),
+				},
+				"fractional": {
+					json:    `{"v": 4.5}`,
+					wantErr: "input: variable.v cannot use float64 as Int",
+				},
+			}
+			for name, tc := range cases {
+				t.Run(name, func(t *testing.T) {
+					//nolint:staticcheck
+					q := gqlparser.MustLoadQuery(schema, `query($v: Int!) { intArg(i: $v) }`)
+					var input map[string]any
+					require.NoError(t, json.Unmarshal([]byte(tc.json), &input))
+
+					vars, gerr := validator.VariableValues(schema, q.Operations.ForName(""), input)
+					if tc.wantErr != "" {
+						require.EqualError(t, gerr, tc.wantErr)
+						return
+					}
+					require.NoError(t, gerr)
+					require.Equal(t, tc.want, vars["v"])
+				})
+			}
+		})
+
+		t.Run("Typed float list -> ID", func(t *testing.T) {
+			// A []float64 cannot hold the coerced int64, so the element is kept.
 			//nolint:staticcheck
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: ID!) { idArg(i: $var) }`)
+			q := gqlparser.MustLoadQuery(schema, `query($v: [ID!]) { idArrayArg(i: $v) }`)
 			vars, gerr := validator.VariableValues(
 				schema,
 				q.Operations.ForName(""),
 				map[string]any{
-					"var": float64(4),
+					"v": []float64{4},
 				},
 			)
 			require.NoError(t, gerr)
-			require.Equal(t, float64(4), vars["var"])
-		})
-
-		t.Run("Fractional Float -> ID", func(t *testing.T) {
-			//nolint:staticcheck
-			q := gqlparser.MustLoadQuery(schema, `query foo($var: ID!) { idArg(i: $var) }`)
-			_, gerr := validator.VariableValues(
-				schema,
-				q.Operations.ForName(""),
-				map[string]any{
-					"var": 4.5,
-				},
-			)
-			require.EqualError(t, gerr, "input: variable.var cannot use float64 as ID")
+			require.Equal(t, []float64{4}, vars["v"])
 		})
 	})
 
