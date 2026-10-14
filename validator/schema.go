@@ -144,6 +144,13 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 					entrypoint.Type,
 				)
 			}
+			if err := validateRootOperationType(
+				entrypoint.Operation,
+				def,
+				entrypoint.Position,
+			); err != nil {
+				return nil, err
+			}
 			switch entrypoint.Operation {
 			case Query:
 				schema.Query = def
@@ -184,6 +191,13 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 					entrypoint.Type,
 				)
 			}
+			if err := validateRootOperationType(
+				entrypoint.Operation,
+				def,
+				entrypoint.Position,
+			); err != nil {
+				return nil, err
+			}
 			switch entrypoint.Operation {
 			case Query:
 				schema.Query = def
@@ -223,14 +237,35 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 	if len(sd.Schema) == 0 {
 		if schema.Query == nil && schema.Types["Query"] != nil {
 			schema.Query = schema.Types["Query"]
+			if err := validateRootOperationType(
+				Query,
+				schema.Query,
+				schema.Query.Position,
+			); err != nil {
+				return nil, err
+			}
 		}
 
 		if schema.Mutation == nil && schema.Types["Mutation"] != nil {
 			schema.Mutation = schema.Types["Mutation"]
+			if err := validateRootOperationType(
+				Mutation,
+				schema.Mutation,
+				schema.Mutation.Position,
+			); err != nil {
+				return nil, err
+			}
 		}
 
 		if schema.Subscription == nil && schema.Types["Subscription"] != nil {
 			schema.Subscription = schema.Types["Subscription"]
+			if err := validateRootOperationType(
+				Subscription,
+				schema.Subscription,
+				schema.Subscription.Position,
+			); err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -252,6 +287,27 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 	}
 
 	return &schema, nil
+}
+
+// validateRootOperationType rejects a root operation type that is not an
+// object type.
+// https://spec.graphql.org/October2021/#sec-Root-Operation-Types
+func validateRootOperationType(op Operation, def *Definition, pos *Position) *gqlerror.Error {
+	if def.Kind == Object {
+		return nil
+	}
+	ifProvided := ""
+	if op != Query {
+		ifProvided = " if provided"
+	}
+	return gqlerror.ErrorPosf(
+		pos,
+		"%s%s root type must be Object type%s, it cannot be %s.",
+		strings.ToUpper(string(op[:1])),
+		op[1:],
+		ifProvided,
+		def.Name,
+	)
 }
 
 func validateTypeDefinitions(schema *Schema) *gqlerror.Error {
