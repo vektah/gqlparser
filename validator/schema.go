@@ -471,7 +471,15 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		}
 	}
 
-	for _, intf := range def.Interfaces {
+	for i, intf := range def.Interfaces {
+		if slices.Contains(def.Interfaces[:i], intf) {
+			return gqlerror.ErrorPosf(
+				def.Position,
+				"Type %s can only implement %s once.",
+				def.Name,
+				intf,
+			)
+		}
 		if err := validateImplements(schema, def, intf); err != nil {
 			return err
 		}
@@ -815,6 +823,14 @@ func validateImplements(schema *Schema, def *Definition, intfName string) *gqler
 			intf.Kind,
 		)
 	}
+	// validateTypeImplementsAncestors can't catch this: def is trivially in
+	// its own implements list, so the transitive check passes.
+	if intf.Name == def.Name {
+		return gqlerror.ErrorPosf(def.Position,
+			`Type %s cannot implement itself because it would create a circular reference.`,
+			def.Name,
+		)
+	}
 	for _, requiredField := range intf.Fields {
 		foundField := def.Fields.ForName(requiredField.Name)
 		if foundField == nil {
@@ -884,7 +900,7 @@ func validateTypeImplementsAncestors(
 		return gqlerror.ErrorPosf(def.Position, "Undefined type %s.", strconv.Quote(intfName))
 	}
 	for _, transitive := range intf.Interfaces {
-		if !containsString(def.Interfaces, transitive) {
+		if !slices.Contains(def.Interfaces, transitive) {
 			if transitive == def.Name {
 				return gqlerror.ErrorPosf(def.Position,
 					`Type %s cannot implement %s because it would create a circular reference.`,
@@ -898,10 +914,6 @@ func validateTypeImplementsAncestors(
 		}
 	}
 	return nil
-}
-
-func containsString(slice []string, want string) bool {
-	return slices.Contains(slice, want)
 }
 
 func isCovariant(schema *Schema, required, actual *Type) bool {
