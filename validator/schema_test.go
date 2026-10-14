@@ -226,3 +226,31 @@ func TestUnionDuplicateMemberFallbackPosition(t *testing.T) {
 	require.Equal(t, 1, gerr.Locations[0].Line)
 	require.Equal(t, 7, gerr.Locations[0].Column)
 }
+
+func TestRepeatedInputFieldWithoutValue(t *testing.T) {
+	// A built (unparsed) value may have a nil field Value; repeats must still be
+	// found by name.
+	sd, err := parser.ParseSchemas(
+		validator.Prelude,
+		&ast.Source{
+			Name:  "t",
+			Input: "input P { a: Int }\ntype Query { f(p: P = {a: 1, a: 2}): Int }\n",
+		},
+	)
+	require.NoError(t, err)
+	for _, def := range sd.Definitions {
+		if def.Name == "Query" {
+			def.Fields[0].Arguments[0].DefaultValue.Children[0].Value = nil
+		}
+	}
+
+	_, err = validator.ValidateSchemaDocument(sd)
+	require.Error(t, err)
+
+	var gerr *gqlerror.Error
+	require.ErrorAs(t, err, &gerr)
+	require.Equal(t, `There can be only one input field named "a".`, gerr.Message)
+	require.Len(t, gerr.Locations, 1)
+	require.Equal(t, 2, gerr.Locations[0].Line)
+	require.Equal(t, 30, gerr.Locations[0].Column)
+}

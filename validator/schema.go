@@ -379,6 +379,9 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		if err := validateTypeRef(schema, field.Type); err != nil {
 			return err
 		}
+		if err := validateInputFieldNames(field.DefaultValue); err != nil {
+			return err
+		}
 		if dup := duplicateArg(field.Arguments); dup != nil {
 			return gqlerror.ErrorPosf(
 				dup.Position,
@@ -602,6 +605,9 @@ func validateArgs(
 		if err := validateTypeRef(schema, arg.Type); err != nil {
 			return err
 		}
+		if err := validateInputFieldNames(arg.DefaultValue); err != nil {
+			return err
+		}
 		def := schema.Types[arg.Type.Name()]
 		if !def.IsInputType() {
 			return gqlerror.ErrorPosf(
@@ -706,7 +712,44 @@ func validateDirectives(
 				}
 			}
 		}
+		// Last, so argument-set errors are reported first.
+		for _, arg := range dir.Arguments {
+			if err := validateInputFieldNames(arg.Value); err != nil {
+				return err
+			}
+		}
 		dir.Definition = dirDefinition
+	}
+	return nil
+}
+
+// validateInputFieldNames rejects an input object that sets the same field
+// more than once, anywhere within value.
+//
+// It uses a map because a literal's field count is unbounded, so rescanning
+// would be quadratic.
+func validateInputFieldNames(value *Value) *gqlerror.Error {
+	if value == nil {
+		return nil
+	}
+	var seen map[string]struct{}
+	if value.Kind == ObjectValue && len(value.Children) > 1 {
+		seen = make(map[string]struct{}, len(value.Children))
+	}
+	for _, child := range value.Children {
+		if seen != nil {
+			if _, dup := seen[child.Name]; dup {
+				return gqlerror.ErrorPosf(
+					child.Position,
+					`There can be only one input field named "%s".`,
+					child.Name,
+				)
+			}
+			seen[child.Name] = struct{}{}
+		}
+		if err := validateInputFieldNames(child.Value); err != nil {
+			return err
+		}
 	}
 	return nil
 }
