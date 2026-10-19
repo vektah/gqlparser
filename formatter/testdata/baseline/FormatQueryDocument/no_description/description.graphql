@@ -1,0 +1,12 @@
+query GetUser ($limit: Int = 10, $id: ID!) {
+	user(id: $id) {
+		... UserFields
+		friends(first: $limit) {
+			name
+		}
+	}
+}
+fragment UserFields on User {
+	id
+	name
+}
