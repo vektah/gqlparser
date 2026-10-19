@@ -265,6 +265,42 @@ type extensions:
       message: "Unexpected <EOF>"
       locations: [{ line: 1, column: 18 }]
 
+  - name: interface extension without any fields
+    input: "extend interface Hello implements Greeting"
+    ast: |
+      <SchemaDocument>
+        Extensions: [Definition]
+        - <Definition>
+            Kind: DefinitionKind("INTERFACE")
+            Name: "Hello"
+            Interfaces: [string]
+            - "Greeting"
+
+  - name: interface extension with interfaces and fields
+    input: |
+      extend interface Hello implements Greeting & Named {
+        name: String
+      }
+    ast: |
+      <SchemaDocument>
+        Extensions: [Definition]
+        - <Definition>
+            Kind: DefinitionKind("INTERFACE")
+            Name: "Hello"
+            Interfaces: [string]
+            - "Greeting"
+            - "Named"
+            Fields: [FieldDefinition]
+            - <FieldDefinition>
+                Name: "name"
+                Type: String
+
+  - name: interface extension without anything errors
+    input: "extend interface Hello"
+    error:
+      message: "Unexpected <EOF>"
+      locations: [{ line: 1, column: 23 }]
+
   - name: can have descriptions # hmm, this might not be spec compliant...
     input: |
       "Description"
