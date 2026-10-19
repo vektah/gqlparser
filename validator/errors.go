@@ -27,6 +27,12 @@ func (n *EmptyDefinitionError) Error() string {
 			n.Definition.Kind,
 			n.Definition.Name,
 		)
+	case ast.Union:
+		return fmt.Sprintf(
+			"%s %s: must define one or more member types.",
+			n.Definition.Kind,
+			n.Definition.Name,
+		)
 	default:
 		return fmt.Sprintf(
 			"%s %s: must define one or more fields.",

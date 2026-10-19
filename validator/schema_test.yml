@@ -686,6 +686,33 @@ enums:
       locations: [{line: 1, column: 6}]
 
 unions:
+  - name: must define one or more member types
+    input: |
+      directive @D on UNION
+
+      type A {
+        id: ID
+      }
+
+      union InvalidUnion @D
+
+      union ValidUnion = A
+      extend union ValidUnion @D
+    error:
+      message: 'UNION InvalidUnion: must define one or more member types.'
+      locations: [{line: 7, column: 7}]
+      as:
+        - 'github.com/vektah/gqlparser/v2/validator.EmptyDefinitionError'
+  - name: member types can be added by an extension
+    input: |
+      directive @D on UNION
+
+      type A {
+        id: ID
+      }
+
+      union ValidUnion @D
+      extend union ValidUnion = A
   - name: union types must be defined
     input: |
       union Foo = Bar | Baz

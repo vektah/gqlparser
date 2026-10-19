@@ -553,6 +553,15 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 				}
 			}
 		}
+	case Union:
+		if len(def.Types) == 0 {
+			return gqlerror.WrapPos(
+				def.Position,
+				&EmptyDefinitionError{
+					Definition: def,
+				},
+			)
+		}
 	}
 
 	for idx, field1 := range def.Fields {
