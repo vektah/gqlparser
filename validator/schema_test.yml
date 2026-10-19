@@ -1053,6 +1053,70 @@ directives:
       directive @foo(bla: Int) repeatable on FIELD_DEFINITION
       type P {f: Int @foo(bla: 1) @foo(bla: 2) }
 
+  - name: a directive definition can be deprecated
+    input: |
+      directive @old @deprecated(reason: "use @new") on FIELD_DEFINITION
+
+  - name: directives on a directive definition must be declared
+    input: |
+      directive @old @foo on FIELD_DEFINITION
+    error:
+      message: "Undefined directive foo."
+      locations: [{line: 1, column: 17}]
+
+  - name: directives on a directive definition must apply to a directive definition
+    input: |
+      directive @tag on FIELD_DEFINITION
+      directive @old @tag on FIELD_DEFINITION
+    error:
+      message: "Directive tag is not applicable on DIRECTIVE_DEFINITION."
+      locations: [{line: 2, column: 17}]
+
+  - name: a directive definition cannot refer to itself
+    input: |
+      directive @A @A on DIRECTIVE_DEFINITION
+    error:
+      message: "Directive A cannot refer to itself."
+      locations: [{line: 1, column: 15}]
+
+  - name: non-repeatable directive cannot be used more than once on a directive definition
+    input: |
+      directive @tag on DIRECTIVE_DEFINITION
+      directive @old @tag @tag on FIELD_DEFINITION
+    error:
+      message: "The directive tag can only be used once at this location."
+      locations: [{line: 2, column: 22}]
+
+directive extensions:
+  - name: can add directives to a directive
+    input: |
+      directive @old on FIELD_DEFINITION
+      extend directive @old @deprecated(reason: "use @new")
+
+  - name: cannot extend an undefined directive
+    input: |
+      extend directive @old @deprecated
+    error:
+      message: "Cannot extend directive @old because it is not defined."
+      locations: [{line: 1, column: 19}]
+
+  - name: directives of an extension must apply to a directive definition
+    input: |
+      directive @tag on FIELD_DEFINITION
+      directive @old on FIELD_DEFINITION
+      extend directive @old @tag
+    error:
+      message: "Directive tag is not applicable on DIRECTIVE_DEFINITION."
+      locations: [{line: 3, column: 24}]
+
+  - name: non-repeatable directive cannot be used on a directive and its extension
+    input: |
+      directive @old @deprecated on FIELD_DEFINITION
+      extend directive @old @deprecated
+    error:
+      message: "The directive deprecated can only be used once at this location."
+      locations: [{line: 2, column: 24}]
+
 entry points:
   - name: multiple schema entry points
     input: |

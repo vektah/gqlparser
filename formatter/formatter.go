@@ -263,6 +263,7 @@ func (f *formatter) FormatSchemaDocument(doc *ast.SchemaDocument) {
 
 	f.FormatDefinitionList(doc.Definitions, false)
 	f.FormatDefinitionList(doc.Extensions, true)
+	f.FormatDirectiveExtensionList(doc.DirectiveExtensions)
 
 	// doc.Comment is end of file comment, so emit last
 	f.FormatCommentGroup(doc.Comment)
@@ -499,6 +500,8 @@ func (f *formatter) FormatDirectiveDefinition(def *ast.DirectiveDefinition) {
 		f.FormatArgumentDefinitionList(def.Arguments)
 	}
 
+	f.FormatDirectiveList(def.Directives)
+
 	if def.IsRepeatable {
 		f.WriteWord("repeatable")
 	}
@@ -514,6 +517,22 @@ func (f *formatter) FormatDirectiveDefinition(def *ast.DirectiveDefinition) {
 			}
 		}
 	}
+
+	f.WriteNewline()
+}
+
+func (f *formatter) FormatDirectiveExtensionList(lists ast.DirectiveDefinitionList) {
+	for _, ext := range lists {
+		f.FormatDirectiveExtension(ext)
+	}
+}
+
+func (f *formatter) FormatDirectiveExtension(ext *ast.DirectiveDefinition) {
+	f.FormatCommentGroup(ext.AfterDescriptionComment)
+
+	f.WriteWord("extend").WriteWord("directive").WriteString("@").WriteWord(ext.Name)
+
+	f.FormatDirectiveList(ext.Directives)
 
 	f.WriteNewline()
 }

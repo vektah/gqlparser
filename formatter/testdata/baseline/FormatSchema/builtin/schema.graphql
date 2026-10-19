@@ -25,7 +25,7 @@ directive @deprecated(
 	Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/).
 	"""
 	reason: String = "No longer supported"
-) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE | DIRECTIVE_DEFINITION
 """
 Directs the executor to include this field or fragment only when the `if` argument is true.
 """
@@ -140,6 +140,8 @@ type __Directive {
 	isRepeatable: Boolean!
 	locations: [__DirectiveLocation!]!
 	args(includeDeprecated: Boolean = false): [__InputValue!]!
+	isDeprecated: Boolean!
+	deprecationReason: String
 }
 """
 A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.
@@ -221,6 +223,10 @@ enum __DirectiveLocation {
 	Location adjacent to an input object field definition.
 	"""
 	INPUT_FIELD_DEFINITION
+	"""
+	Location adjacent to a directive definition.
+	"""
+	DIRECTIVE_DEFINITION
 }
 """
 One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.
@@ -280,7 +286,7 @@ type __Schema {
 	"""
 	A list of all directives supported by this server.
 	"""
-	directives: [__Directive!]!
+	directives(includeDeprecated: Boolean! = false): [__Directive!]!
 }
 """
 The fundamental unit of any GraphQL Schema is the type. There are many kinds of types in GraphQL as represented by the `__TypeKind` enum.

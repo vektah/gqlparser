@@ -113,6 +113,18 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 		schema.Directives[dir.Name] = sd.Directives[i]
 	}
 
+	for _, ext := range sd.DirectiveExtensions {
+		def := schema.Directives[ext.Name]
+		if def == nil {
+			return nil, gqlerror.ErrorPosf(
+				ext.Position,
+				"Cannot extend directive @%s because it is not defined.",
+				ext.Name,
+			)
+		}
+		def.Directives = append(def.Directives, ext.Directives...)
+	}
+
 	if len(sd.Schema) > 1 {
 		return nil, gqlerror.ErrorPosf(
 			sd.Schema[1].Position,
@@ -411,6 +423,17 @@ func validateDirective(schema *Schema, def *DirectiveDefinition) *gqlerror.Error
 			def.Name,
 			dup.Name,
 		)
+	}
+	// The directives of a definition and of its extensions apply to one
+	// directive, so a non-repeatable directive may appear once across them.
+	if err := validateDirectives(
+		schema,
+		def.Directives,
+		LocationDirectiveDefinition,
+		def,
+		true,
+	); err != nil {
+		return err
 	}
 
 	return validateArgs(schema, def.Arguments, def)

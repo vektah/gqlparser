@@ -432,6 +432,11 @@ func (p *parser) parseTypeSystemExtension(doc *SchemaDocument) {
 		doc.Extensions = append(doc.Extensions, p.parseEnumTypeExtension(comment))
 	case "input":
 		doc.Extensions = append(doc.Extensions, p.parseInputObjectTypeExtension(comment))
+	case "directive":
+		doc.DirectiveExtensions = append(
+			doc.DirectiveExtensions,
+			p.parseDirectiveExtension(comment),
+		)
 	default:
 		p.unexpectedError()
 	}
@@ -561,6 +566,7 @@ func (p *parser) parseDirectiveDefinition(description descriptionWithComment) *D
 	def.AfterDescriptionComment = comment
 	def.Name = p.parseName()
 	def.Arguments = p.parseArgumentDefs()
+	def.Directives = p.parseDirectives(true)
 
 	if peek := p.peek(); peek.Kind == lexer.Name && peek.Value == "repeatable" {
 		def.IsRepeatable = true
@@ -569,6 +575,21 @@ func (p *parser) parseDirectiveDefinition(description descriptionWithComment) *D
 
 	p.expectKeyword("on")
 	def.Locations = p.parseDirectiveLocations()
+	return &def
+}
+
+func (p *parser) parseDirectiveExtension(comment *CommentGroup) *DirectiveDefinition {
+	p.expectKeyword("directive")
+	p.expect(lexer.At)
+
+	var def DirectiveDefinition
+	def.Position = p.peekPos()
+	def.AfterDescriptionComment = comment
+	def.Name = p.parseName()
+	def.Directives = p.parseDirectives(true)
+	if len(def.Directives) == 0 {
+		p.unexpectedError()
+	}
 	return &def
 }
 
@@ -626,6 +647,8 @@ func (p *parser) parseDirectiveLocation() DirectiveLocation {
 		return LocationInputObject
 	case `INPUT_FIELD_DEFINITION`:
 		return LocationInputFieldDefinition
+	case `DIRECTIVE_DEFINITION`:
+		return LocationDirectiveDefinition
 	}
 
 	p.unexpectedToken(name)
