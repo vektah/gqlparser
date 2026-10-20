@@ -290,6 +290,15 @@ lexes strings:
         end: 12
         value: "\U0010FFFF"
 
+  - name: braced unicode with eight digits
+    input: '"\u{00000041}"'
+    tokens:
+      -
+        kind: STRING
+        start: 0
+        end: 14
+        value: "A"
+
 lex reports useful string errors:
   - name: unterminated
     input: '"'
@@ -391,6 +400,30 @@ lex reports useful string errors:
     input: '"bad \u{110000} esc"'
     error:
       message: 'Invalid character escape sequence: \u{110000}.'
+      locations: [{ line: 1, column: 7 }]
+
+  - name: braced escape of eight digits above the largest code point
+    input: '"bad \u{12345678} esc"'
+    error:
+      message: 'Invalid character escape sequence: \u{12345678}.'
+      locations: [{ line: 1, column: 7 }]
+
+  - name: braced escape of eight digits that fill a rune
+    input: '"bad \u{FFFFFFFF} esc"'
+    error:
+      message: 'Invalid character escape sequence: \u{FFFFFFFF}.'
+      locations: [{ line: 1, column: 7 }]
+
+  - name: braced escape that would overflow
+    input: '"bad \u{100000041} esc"'
+    error:
+      message: 'Invalid character escape sequence: \u{100000041.'
+      locations: [{ line: 1, column: 7 }]
+
+  - name: braced escape with more than eight leading zeros
+    input: '"bad \u{000000041} esc"'
+    error:
+      message: 'Invalid character escape sequence: \u{000000041.'
       locations: [{ line: 1, column: 7 }]
 
   - name: braced escape of a surrogate
