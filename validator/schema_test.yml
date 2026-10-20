@@ -336,6 +336,82 @@ interfaces:
       message: 'Type Circular1 cannot implement Circular2 because it would create a circular reference.'
       locations: [{line: 1, column: 11}]
 
+  - name: interface cannot implement itself
+    input: |
+      interface Node implements Node {
+        id: ID!
+      }
+    error:
+      message: 'Type Node cannot implement itself because it would create a circular reference.'
+      locations: [{line: 1, column: 11}]
+
+  - name: self-implementation is reported before repetition
+    input: |
+      interface Node implements Node & Node {
+        id: ID!
+      }
+    error:
+      message: 'Type Node cannot implement itself because it would create a circular reference.'
+      locations: [{line: 1, column: 11}]
+
+  - name: object cannot implement the same interface twice
+    input: |
+      interface Node {
+        id: ID!
+      }
+
+      type Foo implements Node & Node {
+        id: ID!
+      }
+    error:
+      message: 'Type Foo can only implement Node once.'
+      locations: [{line: 5, column: 6}]
+
+  - name: interface cannot implement the same interface twice
+    input: |
+      interface Node {
+        id: ID!
+      }
+
+      interface Resource implements Node & Node {
+        id: ID!
+      }
+    error:
+      message: 'Type Resource can only implement Node once.'
+      locations: [{line: 5, column: 11}]
+
+  - name: extension cannot implement an interface again
+    input: |
+      interface Node {
+        id: ID!
+      }
+
+      type Foo implements Node {
+        id: ID!
+      }
+
+      extend type Foo implements Node
+    error:
+      message: 'Type Foo can only implement Node once.'
+      locations: [{line: 5, column: 6}]
+
+  - name: extension may implement an additional interface
+    input: |
+      interface Node {
+        id: ID!
+      }
+
+      interface Named {
+        name: String
+      }
+
+      type Foo implements Node {
+        id: ID!
+        name: String
+      }
+
+      extend type Foo implements Named
+
 inputs:
   - name: must define one or more input fields
     input: |
