@@ -644,6 +644,11 @@ func childrenSortedByName(children ast.ChildValueList) ast.ChildValueList {
 }
 
 func doTypesConflict(walker *Walker, type1, type2 *ast.Type) bool {
+	// A list's own non-null flag sits next to its Elem, so it has to be
+	// compared before recursing into the item types.
+	if type1.NonNull != type2.NonNull {
+		return true
+	}
 	if type1.Elem != nil {
 		if type2.Elem != nil {
 			return doTypesConflict(walker, type1.Elem, type2.Elem)
@@ -651,12 +656,6 @@ func doTypesConflict(walker *Walker, type1, type2 *ast.Type) bool {
 		return true
 	}
 	if type2.Elem != nil {
-		return true
-	}
-	if type1.NonNull && !type2.NonNull {
-		return true
-	}
-	if !type1.NonNull && type2.NonNull {
 		return true
 	}
 

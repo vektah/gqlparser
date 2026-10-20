@@ -193,3 +193,78 @@
     - message: Fields "same" conflict because "a" and "b" are different fields. Use different aliases on the fields to fetch both if this was intentional.
       locations:
         - {line: 17, column: 3}
+
+# A list's own nullability is part of the response shape, like a named type's. The
+# imported graphql-js suite only compares nullability on named types.
+- name: conflicting nullability of a list
+  rule: OverlappingFieldsCanBeMerged
+  schema: &listSchema |
+    type Query {
+      someBox: SomeBox
+    }
+    union SomeBox = NonNullListBox | OtherNonNullListBox | ListBox
+    type NonNullListBox {
+      list: [Int]!
+      nested: [[Int]!]
+    }
+    type OtherNonNullListBox {
+      list: [Int]!
+      nested: [[Int]!]
+    }
+    type ListBox {
+      list: [Int]
+      nested: [[Int]]
+    }
+  query: |
+    {
+      someBox {
+        ... on NonNullListBox {
+          list
+        }
+        ... on ListBox {
+          list
+        }
+      }
+    }
+  errors:
+    - message: Fields "list" conflict because they return conflicting types "[Int]!" and "[Int]". Use different aliases on the fields to fetch both if this was intentional.
+      locations:
+        - {line: 4, column: 7}
+        - {line: 7, column: 7}
+
+- name: conflicting nullability of a nested list
+  rule: OverlappingFieldsCanBeMerged
+  schema: *listSchema
+  query: |
+    {
+      someBox {
+        ... on NonNullListBox {
+          nested
+        }
+        ... on ListBox {
+          nested
+        }
+      }
+    }
+  errors:
+    - message: Fields "nested" conflict because they return conflicting types "[[Int]!]" and "[[Int]]". Use different aliases on the fields to fetch both if this was intentional.
+      locations:
+        - {line: 4, column: 7}
+        - {line: 7, column: 7}
+
+- name: same nullability of a list
+  rule: OverlappingFieldsCanBeMerged
+  schema: *listSchema
+  query: |
+    {
+      someBox {
+        ... on NonNullListBox {
+          list
+          nested
+        }
+        ... on OtherNonNullListBox {
+          list
+          nested
+        }
+      }
+    }
