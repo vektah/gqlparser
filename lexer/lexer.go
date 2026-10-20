@@ -349,7 +349,7 @@ func (s *Lexer) describeNext() string {
 
 // readString from the input
 //
-// "([^"\\\u000A\u000D]|(\\(u[0-9a-fA-F]{4}|["\\/bfnrt])))*".
+// "([^"\\\u000A\u000D]|(\\(u[0-9a-fA-F]{4}|u\{[0-9a-fA-F]+\}|["\\/bfnrt])))*".
 func (s *Lexer) readString() (Token, error) {
 	inputLen := len(s.Input)
 
@@ -415,6 +415,24 @@ func (s *Lexer) readString() (Token, error) {
 			escape := s.Input[s.end+1]
 
 			if escape == 'u' {
+				if s.end+2 < inputLen && s.Input[s.end+2] == '{' {
+					// A braced escape, such as \u{1F600}, names any Unicode
+					// scalar value with one or more hex digits.
+					r, n, ok := unhexBraced(s.Input[s.end+3:])
+					if !ok {
+						s.end++
+						s.endRunes++
+						return s.makeError(
+							"Invalid character escape sequence: \\%s.",
+							s.Input[s.end:min(s.end+2+n, inputLen)],
+						)
+					}
+					s.end += 3 + n
+					s.endRunes += 3 + n
+					buf.WriteRune(r)
+					continue
+				}
+
 				if s.end+6 >= inputLen {
 					s.end++
 					s.endRunes++
@@ -573,6 +591,35 @@ func unhex(b string) (v rune, ok bool) {
 	}
 
 	return v, true
+}
+
+// unhexBraced reads the hex digits and the closing brace of a braced
+// unicode escape from b, which starts after the opening brace. It returns
+// the value of the digits and the number of bytes it read, the closing
+// brace included. It returns false for an escape without digits, with a
+// character that is not a hex digit, without a closing brace, or whose
+// value is not a Unicode scalar value.
+func unhexBraced(b string) (v rune, n int, ok bool) {
+	for n < len(b) && b[n] != '}' {
+		d, digit := unhex(b[n : n+1])
+		if !digit {
+			return 0, n, false
+		}
+		// Past the largest code point the value no longer matters, and
+		// shifting it further would overflow.
+		if v <= utf8.MaxRune {
+			v = v<<4 | d
+		}
+		n++
+	}
+	if n == len(b) {
+		return 0, n, false
+	}
+	n++ // the closing brace
+	if n == 1 || v > utf8.MaxRune || (v >= 0xD800 && v <= 0xDFFF) {
+		return 0, n, false
+	}
+	return v, n, true
 }
 
 // readName from the input
