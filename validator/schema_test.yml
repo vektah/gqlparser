@@ -713,6 +713,16 @@ unions:
 
       union ValidUnion @D
       extend union ValidUnion = A
+  - name: extension without a base union must define member types
+    input: |
+      directive @D on UNION
+
+      extend union InvalidUnion @D
+    error:
+      message: 'UNION InvalidUnion: must define one or more member types.'
+      locations: [{line: 3, column: 14}]
+      as:
+        - 'github.com/vektah/gqlparser/v2/validator.EmptyDefinitionError'
   - name: union types must be defined
     input: |
       union Foo = Bar | Baz
