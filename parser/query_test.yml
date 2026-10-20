@@ -197,10 +197,60 @@ descriptions:
                 Alias: "user"
                 Name: "user"
 
+  - name: keeps comments before and after a description
+    input: |
+      # before op
+      "op"
+      # after op
+      query Q(
+        # before var
+        "var"
+        # after var
+        $a: Int
+      ) { a }
+      # before frag
+      "frag"
+      # after frag
+      fragment F on T { a }
+    ast: |
+      <QueryDocument>
+        Operations: [OperationDefinition]
+        - <OperationDefinition>
+            Description: "op"
+            Operation: Operation("query")
+            Name: "Q"
+            VariableDefinitions: [VariableDefinition]
+            - <VariableDefinition>
+                Description: "var"
+                Variable: "a"
+                Type: Int
+                Comment: "# before var\n# after var\n"
+            SelectionSet: [Selection]
+            - <Field>
+                Alias: "a"
+                Name: "a"
+            Comment: "# before op\n# after op\n"
+        Fragments: [FragmentDefinition]
+        - <FragmentDefinition>
+            Description: "frag"
+            Name: "F"
+            TypeCondition: "T"
+            SelectionSet: [Selection]
+            - <Field>
+                Alias: "a"
+                Name: "a"
+            Comment: "# before frag\n# after frag\n"
+
   - name: not on the query shorthand
     input: '"Fetches a user." { user }'
     error:
       message: 'Unexpected String "Fetches a user."'
+      locations: [{ line: 1, column: 2 }]
+
+  - name: not on the query shorthand, even when empty
+    input: '"" { user }'
+    error:
+      message: 'Unexpected String'
       locations: [{ line: 1, column: 2 }]
 
 

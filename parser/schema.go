@@ -119,6 +119,7 @@ func (p *parser) parseDescription() descriptionWithComment {
 		return desc
 	}
 
+	desc.present = true
 	desc.comment = p.comment
 	desc.text = p.next().Value
 	return desc
@@ -635,4 +636,7 @@ func (p *parser) parseDirectiveLocation() DirectiveLocation {
 type descriptionWithComment struct {
 	text    string
 	comment *CommentGroup
+	// present reports whether a description string was read, so an empty
+	// "" still counts where the grammar forbids a description.
+	present bool
 }
