@@ -23,10 +23,35 @@ type parser struct {
 
 	tokenCount    int
 	maxTokenLimit int
+
+	depth         int
+	maxDepthLimit int
 }
 
 func (p *parser) SetMaxTokenLimit(maxToken int) {
 	p.maxTokenLimit = maxToken
+}
+
+func (p *parser) SetMaxDepthLimit(maxDepth int) {
+	p.maxDepthLimit = maxDepth
+}
+
+// enterDepth increments the current selection-set nesting depth and reports
+// whether parsing may continue. It bounds parser recursion so that a deeply
+// nested query cannot drive the parser past the Go runtime's goroutine stack
+// limit (an unrecoverable fatal error). A maxDepthLimit of 0 means unlimited.
+// Callers must pair a true-or-false enterDepth with a leaveDepth via defer.
+func (p *parser) enterDepth() bool {
+	p.depth++
+	if p.maxDepthLimit != 0 && p.depth > p.maxDepthLimit {
+		p.err = gqlerror.Errorf("exceeded maximum selection set nesting depth of %d", p.maxDepthLimit)
+		return false
+	}
+	return true
+}
+
+func (p *parser) leaveDepth() {
+	p.depth--
 }
 
 func (p *parser) consumeComment() (*ast.Comment, bool) {

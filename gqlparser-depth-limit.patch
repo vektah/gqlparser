@@ -1,0 +1,201 @@
+diff --git a/parser/depth_limit_test.go b/parser/depth_limit_test.go
+new file mode 100644
+index 0000000..99e9cb7
+--- /dev/null
++++ b/parser/depth_limit_test.go
+@@ -0,0 +1,85 @@
++package parser
++
++import (
++	"strings"
++	"testing"
++
++	"github.com/stretchr/testify/require"
++
++	"github.com/vektah/gqlparser/v2/ast"
++)
++
++// nestedQuery builds a query whose selection sets nest exactly depth levels,
++// e.g. depth=3 -> "{a{a{x}}}".
++func nestedQuery(depth int) string {
++	if depth < 1 {
++		return "{x}"
++	}
++	return "{" + strings.Repeat("a{", depth-1) + "x" + strings.Repeat("}", depth)
++}
++
++func TestParseQueryDepthLimit(t *testing.T) {
++	t.Run("shallow query parses cleanly", func(t *testing.T) {
++		doc, err := ParseQuery(&ast.Source{Name: "q", Input: "{ a { b { c } } }"})
++		require.NoError(t, err)
++		require.NotNil(t, doc)
++	})
++
++	t.Run("legitimately deep query under the default parses", func(t *testing.T) {
++		doc, err := ParseQuery(&ast.Source{Name: "q", Input: nestedQuery(DefaultMaxDepthLimit - 1)})
++		require.NoError(t, err)
++		require.NotNil(t, doc)
++	})
++
++	t.Run("deeply nested query errors instead of overflowing the stack", func(t *testing.T) {
++		// Before the fix this input drove unbounded recursion to a fatal
++		// runtime stack overflow. It must now return a normal error.
++		_, err := ParseQuery(&ast.Source{Name: "q", Input: nestedQuery(700000)})
++		require.Error(t, err)
++		require.Contains(t, err.Error(), "exceeded maximum selection set nesting depth")
++	})
++
++	t.Run("boundary: at the limit parses, one over errors", func(t *testing.T) {
++		const limit = 32
++
++		atLimit, err := ParseQueryWithLimits(&ast.Source{Name: "q", Input: nestedQuery(limit)}, 0, limit)
++		require.NoError(t, err)
++		require.NotNil(t, atLimit)
++
++		_, err = ParseQueryWithLimits(&ast.Source{Name: "q", Input: nestedQuery(limit + 1)}, 0, limit)
++		require.Error(t, err)
++		require.Contains(t, err.Error(), "exceeded maximum selection set nesting depth of 32")
++	})
++
++	t.Run("zero depth limit means unlimited (opt-out)", func(t *testing.T) {
++		// A modest depth that is safe to parse unbounded; confirms 0 disables
++		// the guard rather than rejecting at the default.
++		doc, err := ParseQueryWithLimits(&ast.Source{Name: "q", Input: nestedQuery(2000)}, 0, 0)
++		require.NoError(t, err)
++		require.NotNil(t, doc)
++	})
++
++	t.Run("depth resets across sibling selection sets", func(t *testing.T) {
++		// Two shallow operations in one document must not accumulate depth.
++		input := "query A { a { b } } query B { c { d } }"
++		doc, err := ParseQueryWithLimits(&ast.Source{Name: "q", Input: input}, 0, 4)
++		require.NoError(t, err)
++		require.NotNil(t, doc)
++	})
++}
++
++// FuzzParseQueryDepth exercises the parser against arbitrary input and asserts
++// it always returns rather than crashing the process. With the depth guard in
++// place, pathological nesting yields an error instead of a fatal stack overflow.
++func FuzzParseQueryDepth(f *testing.F) {
++	f.Add("{ a { b { c } } }")
++	f.Add("{" + strings.Repeat("a{", 5000) + "x" + strings.Repeat("}", 5001))
++	f.Add("query { ...frag } fragment frag on T { a { b } }")
++	f.Add("{{{{{{{{{{")
++	f.Add("")
++
++	f.Fuzz(func(t *testing.T, input string) {
++		// Must not panic or fatally overflow the stack for any input.
++		_, _ = ParseQuery(&ast.Source{Name: "fuzz", Input: input})
++	})
++}
+diff --git a/parser/parser.go b/parser/parser.go
+index b6a3064..516d23f 100644
+--- a/parser/parser.go
++++ b/parser/parser.go
+@@ -23,12 +23,37 @@ type parser struct {
+ 
+ 	tokenCount    int
+ 	maxTokenLimit int
++
++	depth         int
++	maxDepthLimit int
+ }
+ 
+ func (p *parser) SetMaxTokenLimit(maxToken int) {
+ 	p.maxTokenLimit = maxToken
+ }
+ 
++func (p *parser) SetMaxDepthLimit(maxDepth int) {
++	p.maxDepthLimit = maxDepth
++}
++
++// enterDepth increments the current selection-set nesting depth and reports
++// whether parsing may continue. It bounds parser recursion so that a deeply
++// nested query cannot drive the parser past the Go runtime's goroutine stack
++// limit (an unrecoverable fatal error). A maxDepthLimit of 0 means unlimited.
++// Callers must pair a true-or-false enterDepth with a leaveDepth via defer.
++func (p *parser) enterDepth() bool {
++	p.depth++
++	if p.maxDepthLimit != 0 && p.depth > p.maxDepthLimit {
++		p.err = gqlerror.Errorf("exceeded maximum selection set nesting depth of %d", p.maxDepthLimit)
++		return false
++	}
++	return true
++}
++
++func (p *parser) leaveDepth() {
++	p.depth--
++}
++
+ func (p *parser) consumeComment() (*ast.Comment, bool) {
+ 	if p.err != nil {
+ 		return nil, false
+diff --git a/parser/query.go b/parser/query.go
+index 271a2ff..1ed881c 100644
+--- a/parser/query.go
++++ b/parser/query.go
+@@ -5,10 +5,18 @@ import (
+ 	"github.com/vektah/gqlparser/v2/lexer"
+ )
+ 
++// DefaultMaxDepthLimit bounds selection-set nesting depth when a caller does
++// not specify its own limit. It is chosen to be far above any realistic query
++// (real queries nest a few dozen levels at most) while staying orders of
++// magnitude below the depth that overflows the goroutine stack. A token limit
++// does not bound depth, so this is a separate guard.
++const DefaultMaxDepthLimit = 1000
++
+ func ParseQuery(source *Source) (*QueryDocument, error) {
+ 	p := parser{
+ 		lexer:         lexer.New(source),
+ 		maxTokenLimit: 0, // 0 means unlimited
++		maxDepthLimit: DefaultMaxDepthLimit,
+ 	}
+ 	return p.parseQueryDocument(), p.err
+ }
+@@ -17,6 +25,20 @@ func ParseQueryWithTokenLimit(source *Source, maxTokenLimit int) (*QueryDocument
+ 	p := parser{
+ 		lexer:         lexer.New(source),
+ 		maxTokenLimit: maxTokenLimit,
++		maxDepthLimit: DefaultMaxDepthLimit,
++	}
++	return p.parseQueryDocument(), p.err
++}
++
++// ParseQueryWithLimits parses a query with explicit token and depth limits.
++// A limit of 0 means unlimited for that dimension. Passing 0 for maxDepthLimit
++// restores the pre-guard behaviour and re-exposes the stack-overflow DoS, so
++// prefer a non-zero value when parsing untrusted input.
++func ParseQueryWithLimits(source *Source, maxTokenLimit, maxDepthLimit int) (*QueryDocument, error) {
++	p := parser{
++		lexer:         lexer.New(source),
++		maxTokenLimit: maxTokenLimit,
++		maxDepthLimit: maxDepthLimit,
+ 	}
+ 	return p.parseQueryDocument(), p.err
+ }
+@@ -122,6 +144,11 @@ func (p *parser) parseVariable() string {
+ }
+ 
+ func (p *parser) parseOptionalSelectionSet() SelectionSet {
++	if !p.enterDepth() {
++		return nil
++	}
++	defer p.leaveDepth()
++
+ 	var selections []Selection
+ 	p.some(lexer.BraceL, lexer.BraceR, func() {
+ 		selections = append(selections, p.parseSelection())
+@@ -136,6 +163,11 @@ func (p *parser) parseRequiredSelectionSet() SelectionSet {
+ 		return nil
+ 	}
+ 
++	if !p.enterDepth() {
++		return nil
++	}
++	defer p.leaveDepth()
++
+ 	var selections []Selection
+ 	p.some(lexer.BraceL, lexer.BraceR, func() {
+ 		selections = append(selections, p.parseSelection())

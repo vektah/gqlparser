@@ -7,10 +7,18 @@ import (
 	"github.com/vektah/gqlparser/v2/lexer"
 )
 
+// DefaultMaxDepthLimit bounds selection-set nesting depth when a caller does
+// not specify its own limit. It is chosen to be far above any realistic query
+// (real queries nest a few dozen levels at most) while staying orders of
+// magnitude below the depth that overflows the goroutine stack. A token limit
+// does not bound depth, so this is a separate guard.
+const DefaultMaxDepthLimit = 1000
+
 func ParseQuery(source *Source) (*QueryDocument, error) {
 	p := parser{
 		lexer:         lexer.New(source),
 		maxTokenLimit: 0, // 0 means unlimited
+		maxDepthLimit: DefaultMaxDepthLimit,
 	}
 	return p.parseQueryDocument(), p.err
 }
@@ -19,6 +27,20 @@ func ParseQueryWithTokenLimit(source *Source, maxTokenLimit int) (*QueryDocument
 	p := parser{
 		lexer:         lexer.New(source),
 		maxTokenLimit: maxTokenLimit,
+		maxDepthLimit: DefaultMaxDepthLimit,
+	}
+	return p.parseQueryDocument(), p.err
+}
+
+// ParseQueryWithLimits parses a query with explicit token and depth limits.
+// A limit of 0 means unlimited for that dimension. Passing 0 for maxDepthLimit
+// restores the pre-guard behaviour and re-exposes the stack-overflow DoS, so
+// prefer a non-zero value when parsing untrusted input.
+func ParseQueryWithLimits(source *Source, maxTokenLimit, maxDepthLimit int) (*QueryDocument, error) {
+	p := parser{
+		lexer:         lexer.New(source),
+		maxTokenLimit: maxTokenLimit,
+		maxDepthLimit: maxDepthLimit,
 	}
 	return p.parseQueryDocument(), p.err
 }
@@ -132,6 +154,11 @@ func (p *parser) parseVariable() string {
 }
 
 func (p *parser) parseOptionalSelectionSet() SelectionSet {
+	if !p.enterDepth() {
+		return nil
+	}
+	defer p.leaveDepth()
+
 	var selections []Selection
 	p.some(lexer.BraceL, lexer.BraceR, func() {
 		selections = append(selections, p.parseSelection())
@@ -145,6 +172,11 @@ func (p *parser) parseRequiredSelectionSet() SelectionSet {
 		p.error(p.peek(), "Expected %s, found %s", lexer.BraceL, p.peek().Kind.String())
 		return nil
 	}
+
+	if !p.enterDepth() {
+		return nil
+	}
+	defer p.leaveDepth()
 
 	var selections []Selection
 	p.some(lexer.BraceL, lexer.BraceR, func() {
