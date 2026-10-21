@@ -268,3 +268,139 @@
         }
       }
     }
+
+# A leaf type has no subfields to compare later, so it conflicts with any other type,
+# composite or not. The imported graphql-js suite only overlaps leaves with leaves.
+- name: conflicting scalar and object types
+  rule: OverlappingFieldsCanBeMerged
+  schema: &leafSchema |
+    type Query {
+      someBox: SomeBox
+    }
+    union SomeBox = IntBox | EnumBox | ItemBox | OtherItemBox
+    type IntBox {
+      value: Int
+      list: [Int]
+    }
+    type EnumBox {
+      value: Color
+    }
+    enum Color {
+      RED
+    }
+    type ItemBox {
+      value: Item
+      list: [Item]
+    }
+    type OtherItemBox {
+      value: OtherItem
+    }
+    type Item {
+      id: Int
+    }
+    type OtherItem {
+      id: Int
+    }
+  query: |
+    {
+      someBox {
+        ... on IntBox {
+          value
+        }
+        ... on ItemBox {
+          value {
+            id
+          }
+        }
+      }
+    }
+  errors:
+    - message: Fields "value" conflict because they return conflicting types "Int" and "Item". Use different aliases on the fields to fetch both if this was intentional.
+      locations:
+        - {line: 4, column: 7}
+        - {line: 7, column: 7}
+
+- name: conflicting object and scalar types
+  rule: OverlappingFieldsCanBeMerged
+  schema: *leafSchema
+  query: |
+    {
+      someBox {
+        ... on ItemBox {
+          value {
+            id
+          }
+        }
+        ... on IntBox {
+          value
+        }
+      }
+    }
+  errors:
+    - message: Fields "value" conflict because they return conflicting types "Item" and "Int". Use different aliases on the fields to fetch both if this was intentional.
+      locations:
+        - {line: 4, column: 7}
+        - {line: 9, column: 7}
+
+- name: conflicting enum and object types
+  rule: OverlappingFieldsCanBeMerged
+  schema: *leafSchema
+  query: |
+    {
+      someBox {
+        ... on EnumBox {
+          value
+        }
+        ... on ItemBox {
+          value {
+            id
+          }
+        }
+      }
+    }
+  errors:
+    - message: Fields "value" conflict because they return conflicting types "Color" and "Item". Use different aliases on the fields to fetch both if this was intentional.
+      locations:
+        - {line: 4, column: 7}
+        - {line: 7, column: 7}
+
+- name: conflicting scalar and object list item types
+  rule: OverlappingFieldsCanBeMerged
+  schema: *leafSchema
+  query: |
+    {
+      someBox {
+        ... on IntBox {
+          list
+        }
+        ... on ItemBox {
+          list {
+            id
+          }
+        }
+      }
+    }
+  errors:
+    - message: Fields "list" conflict because they return conflicting types "[Int]" and "[Item]". Use different aliases on the fields to fetch both if this was intentional.
+      locations:
+        - {line: 4, column: 7}
+        - {line: 7, column: 7}
+
+- name: different object types with mergeable subfields
+  rule: OverlappingFieldsCanBeMerged
+  schema: *leafSchema
+  query: |
+    {
+      someBox {
+        ... on ItemBox {
+          value {
+            id
+          }
+        }
+        ... on OtherItemBox {
+          value {
+            id
+          }
+        }
+      }
+    }
