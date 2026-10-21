@@ -843,6 +843,12 @@ directive extensions:
       message: "Unexpected <EOF>"
       locations: [{ line: 1, column: 22 }]
 
+  - name: with arguments errors
+    input: "extend directive @foo(arg: Int) @bar"
+    error:
+      message: 'Unexpected ('
+      locations: [{ line: 1, column: 22 }]
+
 fuzzer:
   - name: 1
     input: "type o{d(g:["

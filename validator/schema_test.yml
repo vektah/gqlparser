@@ -1237,6 +1237,11 @@ directive extensions:
       directive @old on FIELD_DEFINITION
       extend directive @old @deprecated(reason: "use @new")
 
+  - name: can add directives to a builtin directive
+    input: |
+      directive @tag on DIRECTIVE_DEFINITION
+      extend directive @deprecated @tag
+
   - name: cannot extend an undefined directive
     input: |
       extend directive @old @deprecated

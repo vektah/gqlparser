@@ -1,3 +1,4 @@
 directive @tag(name: String!) repeatable on DIRECTIVE_DEFINITION | FIELD_DEFINITION
 directive @old(reason: String) @deprecated(reason: "use @new") @tag(name: "a") on FIELD_DEFINITION
+# adds a second tag
 extend directive @old @tag(name: "b")

@@ -521,8 +521,8 @@ func (f *formatter) FormatDirectiveDefinition(def *ast.DirectiveDefinition) {
 	f.WriteNewline()
 }
 
-func (f *formatter) FormatDirectiveExtensionList(lists ast.DirectiveDefinitionList) {
-	for _, ext := range lists {
+func (f *formatter) FormatDirectiveExtensionList(exts ast.DirectiveDefinitionList) {
+	for _, ext := range exts {
 		f.FormatDirectiveExtension(ext)
 	}
 }

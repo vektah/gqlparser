@@ -101,8 +101,6 @@ type __Directive {
 	isRepeatable: Boolean!
 	locations: [__DirectiveLocation!]!
 	args(includeDeprecated: Boolean = false): [__InputValue!]!
-	isDeprecated: Boolean!
-	deprecationReason: String
 }
 """
 A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.
@@ -247,7 +245,7 @@ type __Schema {
 	"""
 	A list of all directives supported by this server.
 	"""
-	directives(includeDeprecated: Boolean! = false): [__Directive!]!
+	directives: [__Directive!]!
 }
 """
 The fundamental unit of any GraphQL Schema is the type. There are many kinds of types in GraphQL as represented by the `__TypeKind` enum.

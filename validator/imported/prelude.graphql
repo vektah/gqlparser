@@ -81,7 +81,7 @@ type __Schema {
   subscriptionType: __Type
 
   """A list of all directives supported by this server."""
-  directives(includeDeprecated: Boolean! = false): [__Directive!]!
+  directives: [__Directive!]!
 }
 
 """
@@ -185,8 +185,6 @@ type __Directive {
   isRepeatable: Boolean!
   locations: [__DirectiveLocation!]!
   args(includeDeprecated: Boolean = false): [__InputValue!]!
-  isDeprecated: Boolean!
-  deprecationReason: String
 }
 
 """

@@ -424,8 +424,7 @@ func validateDirective(schema *Schema, def *DirectiveDefinition) *gqlerror.Error
 			dup.Name,
 		)
 	}
-	// The directives of a definition and of its extensions apply to one
-	// directive, so a non-repeatable directive may appear once across them.
+	// def.Directives includes those of its extensions; see singleLocation.
 	if err := validateDirectives(
 		schema,
 		def.Directives,
@@ -722,12 +721,15 @@ func validateDirectives(
 	dirs DirectiveList,
 	location DirectiveLocation,
 	currentDirective *DirectiveDefinition,
-	// singleLocation is true when dirs come from a single authored location
-	// (one field, enum value, argument, or schema/extension node). A type's
-	// own directives are merged across its base definition and every extension
-	// (see the def.Directives append in LoadSchema), which the spec treats as
-	// distinct locations, so the non-repeatable check is skipped for that
-	// merged list to avoid rejecting a directive used once per location.
+	// singleLocation enables the non-repeatable check. It is true when dirs
+	// come from a single authored location (one field, enum value, argument,
+	// or schema/extension node). A type's own directives are merged across its
+	// base definition and every extension (see the def.Directives append in
+	// ValidateSchemaDocument), which the spec treats as distinct locations, so
+	// the check is skipped for that merged list to avoid rejecting a directive
+	// used once per location. A directive definition's merged list is the
+	// exception: it is checked, matching graphql-js, so a non-repeatable
+	// directive may appear once across the definition and its extensions.
 	singleLocation bool,
 ) *gqlerror.Error {
 	seen := make(map[string]bool, len(dirs))
