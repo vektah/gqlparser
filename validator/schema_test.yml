@@ -443,6 +443,32 @@ interfaces:
 
       extend type Foo implements Named
 
+  - name: interface extension cannot implement itself
+    input: |
+      interface Node {
+        id: ID!
+      }
+
+      extend interface Node implements Node
+    error:
+      message: 'Type Node cannot implement itself because it would create a circular reference.'
+      locations: [{line: 1, column: 11}]
+
+  - name: interface extension cannot implement an interface again
+    input: |
+      interface Node {
+        id: ID!
+      }
+
+      interface Resource implements Node {
+        id: ID!
+      }
+
+      extend interface Resource implements Node
+    error:
+      message: 'Type Resource can only implement Node once.'
+      locations: [{line: 5, column: 11}]
+
 inputs:
   - name: must define one or more input fields
     input: |
