@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"slices"
+
 	. "github.com/vektah/gqlparser/v2/ast" //nolint:staticcheck // bad, yeah
 	"github.com/vektah/gqlparser/v2/lexer"
 )
@@ -40,10 +42,6 @@ func (p *parser) parseQueryDocument() *QueryDocument {
 				p.unexpectedError()
 			}
 		case lexer.BraceL:
-			// The query shorthand takes no description.
-			if description.text != "" {
-				p.unexpectedToken(p.prev)
-			}
 			doc.Operations = append(doc.Operations, p.parseOperationDefinition(description))
 		default:
 			p.unexpectedError()
@@ -55,6 +53,10 @@ func (p *parser) parseQueryDocument() *QueryDocument {
 
 func (p *parser) parseOperationDefinition(description descriptionWithComment) *OperationDefinition {
 	if p.peek().Kind == lexer.BraceL {
+		// The query shorthand takes no description.
+		if description.present {
+			p.unexpectedToken(p.prev)
+		}
 		return &OperationDefinition{
 			Position:     p.peekPos(),
 			Comment:      p.comment,
@@ -254,9 +256,7 @@ func joinComments(before, after *CommentGroup) *CommentGroup {
 	case after == nil:
 		return before
 	}
-	list := make([]*Comment, 0, len(before.List)+len(after.List))
-	list = append(list, before.List...)
-	return &CommentGroup{List: append(list, after.List...)}
+	return &CommentGroup{List: slices.Concat(before.List, after.List)}
 }
 
 func (p *parser) parseFragmentName() string {
