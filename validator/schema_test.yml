@@ -303,6 +303,37 @@ interfaces:
           id: ID!
       }
 
+  - name: may implement an interface through an extension
+    input: |
+      interface IA {
+          id: ID!
+      }
+
+      interface IIA {
+          id: ID!
+      }
+
+      extend interface IIA implements IA
+
+      type A implements IIA & IA {
+          id: ID!
+      }
+
+  - name: must have all fields from an interface that an extension adds
+    input: |
+      interface IA {
+          id: ID!
+      }
+
+      interface IIA {
+          name: String
+      }
+
+      extend interface IIA implements IA
+    error:
+      message: 'For IIA to implement IA it must have a field called id.'
+      locations: [{line: 5, column: 11}]
+
   - name: Type Foo must implement Baz because it is implemented by Bar
     input: |
       interface Baz {

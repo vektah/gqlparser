@@ -494,9 +494,10 @@ func (p *parser) parseInterfaceTypeExtension(comment *CommentGroup) *Definition 
 	def.AfterDescriptionComment = comment
 	def.Kind = Interface
 	def.Name = p.parseName()
+	def.Interfaces = p.parseImplementsInterfaces()
 	def.Directives = p.parseDirectives(true)
 	def.Fields, def.EndOfDefinitionComment = p.parseFieldsDefinition()
-	if len(def.Directives) == 0 && len(def.Fields) == 0 {
+	if len(def.Interfaces) == 0 && len(def.Directives) == 0 && len(def.Fields) == 0 {
 		p.unexpectedError()
 	}
 	return &def
