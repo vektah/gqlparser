@@ -144,6 +144,65 @@ operations:
   - name: named subscription
     input: 'subscription Foo { subscriptionField }'
 
+descriptions:
+  - name: on an operation
+    input: |
+      "Fetches a user."
+      query GetUser { user }
+    ast: |
+      <QueryDocument>
+        Operations: [OperationDefinition]
+        - <OperationDefinition>
+            Description: "Fetches a user."
+            Operation: Operation("query")
+            Name: "GetUser"
+            SelectionSet: [Selection]
+            - <Field>
+                Alias: "user"
+                Name: "user"
+
+  - name: on a fragment
+    input: |
+      """
+      The fields of a user.
+      """
+      fragment UserFields on User { id }
+    ast: |
+      <QueryDocument>
+        Fragments: [FragmentDefinition]
+        - <FragmentDefinition>
+            Description: "The fields of a user."
+            Name: "UserFields"
+            TypeCondition: "User"
+            SelectionSet: [Selection]
+            - <Field>
+                Alias: "id"
+                Name: "id"
+
+  - name: on a variable
+    input: 'query GetUser("The id of the user." $id: ID!) { user }'
+    ast: |
+      <QueryDocument>
+        Operations: [OperationDefinition]
+        - <OperationDefinition>
+            Operation: Operation("query")
+            Name: "GetUser"
+            VariableDefinitions: [VariableDefinition]
+            - <VariableDefinition>
+                Description: "The id of the user."
+                Variable: "id"
+                Type: ID!
+            SelectionSet: [Selection]
+            - <Field>
+                Alias: "user"
+                Name: "user"
+
+  - name: not on the query shorthand
+    input: '"Fetches a user." { user }'
+    error:
+      message: 'Unexpected String "Fetches a user."'
+      locations: [{ line: 1, column: 2 }]
+
 
 ast:
   - name: simple query

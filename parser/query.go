@@ -28,18 +28,23 @@ func (p *parser) parseQueryDocument() *QueryDocument {
 			return &doc
 		}
 		doc.Position = p.peekPos()
+		description := p.parseDescription()
 		switch p.peek().Kind {
 		case lexer.Name:
 			switch p.peek().Value {
 			case "query", "mutation", "subscription":
-				doc.Operations = append(doc.Operations, p.parseOperationDefinition())
+				doc.Operations = append(doc.Operations, p.parseOperationDefinition(description))
 			case "fragment":
-				doc.Fragments = append(doc.Fragments, p.parseFragmentDefinition())
+				doc.Fragments = append(doc.Fragments, p.parseFragmentDefinition(description))
 			default:
 				p.unexpectedError()
 			}
 		case lexer.BraceL:
-			doc.Operations = append(doc.Operations, p.parseOperationDefinition())
+			// The query shorthand takes no description.
+			if description.text != "" {
+				p.unexpectedToken(p.prev)
+			}
+			doc.Operations = append(doc.Operations, p.parseOperationDefinition(description))
 		default:
 			p.unexpectedError()
 		}
@@ -48,7 +53,7 @@ func (p *parser) parseQueryDocument() *QueryDocument {
 	return &doc
 }
 
-func (p *parser) parseOperationDefinition() *OperationDefinition {
+func (p *parser) parseOperationDefinition(description descriptionWithComment) *OperationDefinition {
 	if p.peek().Kind == lexer.BraceL {
 		return &OperationDefinition{
 			Position:     p.peekPos(),
@@ -59,8 +64,9 @@ func (p *parser) parseOperationDefinition() *OperationDefinition {
 	}
 
 	var od OperationDefinition
+	od.Description = description.text
 	od.Position = p.peekPos()
-	od.Comment = p.comment
+	od.Comment = joinComments(description.comment, p.comment)
 	od.Operation = p.parseOperationType()
 
 	if p.peek().Kind == lexer.Name {
@@ -99,8 +105,10 @@ func (p *parser) parseVariableDefinitions() VariableDefinitionList {
 
 func (p *parser) parseVariableDefinition() *VariableDefinition {
 	var def VariableDefinition
+	description := p.parseDescription()
+	def.Description = description.text
 	def.Position = p.peekPos()
-	def.Comment = p.comment
+	def.Comment = joinComments(description.comment, p.comment)
 	def.Variable = p.parseVariable()
 
 	p.expect(lexer.Colon)
@@ -218,10 +226,11 @@ func (p *parser) parseFragment() Selection {
 	return &def
 }
 
-func (p *parser) parseFragmentDefinition() *FragmentDefinition {
+func (p *parser) parseFragmentDefinition(description descriptionWithComment) *FragmentDefinition {
 	var def FragmentDefinition
+	def.Description = description.text
 	def.Position = p.peekPos()
-	def.Comment = p.comment
+	def.Comment = joinComments(description.comment, p.comment)
 	p.expectKeyword("fragment")
 
 	def.Name = p.parseFragmentName()
@@ -233,6 +242,21 @@ func (p *parser) parseFragmentDefinition() *FragmentDefinition {
 	def.Directives = p.parseDirectives(false)
 	def.SelectionSet = p.parseRequiredSelectionSet()
 	return &def
+}
+
+// joinComments returns the comments before a description followed by the
+// comments between the description and its definition, so a definition
+// with a description keeps both groups.
+func joinComments(before, after *CommentGroup) *CommentGroup {
+	switch {
+	case before == nil:
+		return after
+	case after == nil:
+		return before
+	}
+	list := make([]*Comment, 0, len(before.List)+len(after.List))
+	list = append(list, before.List...)
+	return &CommentGroup{List: append(list, after.List...)}
 }
 
 func (p *parser) parseFragmentName() string {

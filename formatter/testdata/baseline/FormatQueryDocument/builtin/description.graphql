@@ -1,0 +1,23 @@
+"""
+Fetches a user by its id.
+"""
+query GetUser ($limit: Int = 10,
+	"""
+	The id of the user.
+	"""
+	$id: ID!
+) {
+	user(id: $id) {
+		... UserFields
+		friends(first: $limit) {
+			name
+		}
+	}
+}
+"""
+The fields of a user.
+"""
+fragment UserFields on User {
+	id
+	name
+}
