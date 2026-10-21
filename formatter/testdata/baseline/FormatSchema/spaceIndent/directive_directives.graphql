@@ -1,0 +1,2 @@
+directive @old(reason: String) @deprecated(reason: "use @new") @tag(name: "a") @tag(name: "b") on FIELD_DEFINITION
+directive @tag(name: String!) repeatable on DIRECTIVE_DEFINITION | FIELD_DEFINITION
