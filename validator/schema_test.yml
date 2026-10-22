@@ -837,6 +837,11 @@ enums:
     error:
       message: 'Name "__B" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 5, column: 3}]
+  - name: allows enum value with a single leading underscore
+    input: |
+      enum FooBar {
+        _B
+      }
 
 unions:
   - name: must define one or more member types
@@ -1531,4 +1536,19 @@ type references:
 
     error:
       message: "ENUM Enum: non-enum value true."
-      locations: [{line: 1, column: 6}]
+      locations: [{line: 1, column: 13}]
+  - name: Invalid enum value false
+    input: |
+      enum Enum { A false }
+
+    error:
+      message: "ENUM Enum: non-enum value false."
+      locations: [{line: 1, column: 15}]
+  - name: Invalid enum value null from extension
+    input: |
+      enum Enum { A }
+      extend enum Enum { null }
+
+    error:
+      message: "ENUM Enum: non-enum value null."
+      locations: [{line: 2, column: 20}]
