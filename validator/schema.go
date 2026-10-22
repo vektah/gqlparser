@@ -92,17 +92,18 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 			// While the spec says SDL must not (§3.5) explicitly define builtin
 			// scalars, it may (§3.13) define builtin directives. Here we check for
 			// that, and reject doubly-defined directives otherwise.
-			switch dir.Name {
-			case "include", "skip", "deprecated", "specifiedBy", "defer", "oneOf": // the builtins
-				// In principle here we might want to validate that the
-				// directives are the same. But they might not be, if the
-				// server has an older spec than we do. (Plus, validating this
-				// is a lot of work.) So we just keep the first one we saw.
-				// That's an arbitrary choice, but in theory the only way it
-				// fails is if the server is using features newer than this
-				// version of gqlparser, in which case they're in trouble
-				// anyway.
-			default:
+			//
+			// In principle here we might want to validate that the directives
+			// are the same. But they might not be, if the server has an older
+			// spec than we do. (Plus, validating this is a lot of work.) So we
+			// just keep the last one we saw. That's an arbitrary choice, but in
+			// theory the only way it fails is if the server is using features
+			// newer than this version of gqlparser, in which case they're in
+			// trouble anyway.
+			//
+			// The check is by name, not by source, so a schema loaded without
+			// the prelude may also declare a builtin directive twice.
+			if !isPreludeDirective(dir.Name) {
 				return nil, gqlerror.ErrorPosf(
 					dir.Position,
 					"Cannot redeclare directive %s.",
@@ -254,20 +255,7 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 	}
 
 	if schema.Query != nil {
-		schema.Query.Fields = append(
-			schema.Query.Fields,
-			&FieldDefinition{
-				Name: "__schema",
-				Type: NonNullNamedType("__Schema", nil),
-			},
-			&FieldDefinition{
-				Name: "__type",
-				Type: NamedType("__Type", nil),
-				Arguments: ArgumentDefinitionList{
-					{Name: "name", Type: NonNullNamedType("String", nil)},
-				},
-			},
-		)
+		schema.Query.Fields = append(schema.Query.Fields, QueryIntrospectionFields()...)
 	}
 
 	return &schema, nil

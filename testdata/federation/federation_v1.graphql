@@ -1,0 +1,12 @@
+# The Federation v1 definitions a gqlgen subgraph declares as a built-in source.
+directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
+directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+directive @extends on OBJECT | INTERFACE
+directive @external on FIELD_DEFINITION
+scalar _Any
+scalar _FieldSet
+
+type _Service {
+  sdl: String
+}

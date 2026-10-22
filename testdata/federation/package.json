@@ -1,0 +1,15 @@
+{
+  "name": "gqlparser-federation-fixtures",
+  "private": true,
+  "type": "module",
+  "description": "Regenerates supergraph.graphql and fetches.json; see README.md.",
+  "scripts": {
+    "compose": "node compose.mjs"
+  },
+  "dependencies": {
+    "@apollo/composition": "2.12.2",
+    "@apollo/federation-internals": "2.12.2",
+    "@apollo/query-planner": "2.12.2",
+    "graphql": "16.12.0"
+  }
+}
