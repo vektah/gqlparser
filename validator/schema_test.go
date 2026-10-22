@@ -3,11 +3,13 @@ package validator_test
 import (
 	"errors"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/formatter"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"github.com/vektah/gqlparser/v2/parser"
 	"github.com/vektah/gqlparser/v2/parser/testrunner"
@@ -253,4 +255,33 @@ func TestRepeatedInputFieldWithoutValue(t *testing.T) {
 	require.Len(t, gerr.Locations, 1)
 	require.Equal(t, 2, gerr.Locations[0].Line)
 	require.Equal(t, 30, gerr.Locations[0].Column)
+}
+
+func TestRedeclareBuiltinDirectives(t *testing.T) {
+	// Every directive the prelude declares may be declared again by a schema, so
+	// adding one to the prelude must not make existing schemas that declare it
+	// fail to load.
+	for _, dir := range validator.PreludeDocument().Directives {
+		t.Run(dir.Name, func(t *testing.T) {
+			var sdl strings.Builder
+			formatter.NewFormatter(&sdl, formatter.WithBuiltin()).
+				FormatSchemaDocument(&ast.SchemaDocument{
+					Directives: ast.DirectiveDefinitionList{dir},
+				})
+			redeclared := &ast.Source{Name: "redeclared.graphql", Input: sdl.String()}
+
+			s, err := validator.LoadSchema(validator.Prelude, redeclared)
+			require.NoError(t, err)
+			require.Equal(t, redeclared, s.Directives[dir.Name].Position.Src,
+				"the later declaration replaces the prelude's")
+		})
+	}
+
+	t.Run("non-builtin directives cannot be redeclared", func(t *testing.T) {
+		_, err := validator.LoadSchema(&ast.Source{
+			Name:  "redeclared.graphql",
+			Input: "directive @foo on FIELD\ndirective @foo on FIELD\n",
+		})
+		require.EqualError(t, err, "redeclared.graphql:2:12: Cannot redeclare directive foo.")
+	})
 }
