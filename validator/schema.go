@@ -103,7 +103,7 @@ func ValidateSchemaDocument(sd *SchemaDocument) (*Schema, error) {
 			//
 			// The check is by name, not by source, so a schema loaded without
 			// the prelude may also declare a builtin directive twice.
-			if !preludeDirectiveNames()[dir.Name] {
+			if !isPreludeDirective(dir.Name) {
 				return nil, gqlerror.ErrorPosf(
 					dir.Position,
 					"Cannot redeclare directive %s.",

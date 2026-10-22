@@ -31,7 +31,7 @@ The consequence worth noting: the resulting ghost type does pass through `valida
 
 ### `UniqueDirectiveNames` — builtin redeclaration silently accepted
 
-For non-builtin directives, gqlparser correctly returns an error (`schema.go:106`), tested by `schema_test.yml`'s "cannot redeclare directives" case. For the directives the prelude declares — currently `include`, `skip`, `deprecated`, `specifiedBy`, `defer`, `oneOf` — a redeclaration is silently accepted with the last definition kept. The set comes from the prelude (`preludeDirectiveNames` in `prelude.go`), so a directive added to the prelude is covered automatically. `schema_test.yml`'s "can redeclare builtin directives" case and `TestRedeclareBuiltinDirectives` assert this.
+For non-builtin directives, gqlparser correctly returns an error (`schema.go:106`), tested by `schema_test.yml`'s "cannot redeclare directives" case. For the directives the prelude declares — currently `include`, `skip`, `deprecated`, `specifiedBy`, `defer`, `oneOf` — a redeclaration is silently accepted with the last definition kept. The set is generated from the prelude (`isPreludeDirective` in `prelude_directives.go`, written by `go generate ./validator`), so a directive added to the prelude is covered once the file is regenerated, and a test fails until it is. `schema_test.yml`'s "can redeclare builtin directives" case and `TestRedeclareBuiltinDirectives` assert this.
 
 graphql-js rejects any directive redefinition, including builtins:
 > `Directive "@skip" already exists in the schema. It cannot be redefined.`
@@ -161,7 +161,7 @@ alpha.2's differences don't need reproducing: it rejected `label: null`, had no 
 
 **Changes needed:**
 1. **Declaring the directive.**
-   - **Option a:** add `@stream` to the prelude. That is what gqlgen would need. Schemas that already declare `@stream` keep loading without a further change, because the set of redeclarable directives comes from the prelude.
+   - **Option a:** add `@stream` to the prelude. That is what gqlgen would need. Then run `go generate ./validator`, so schemas that already declare `@stream` keep loading.
    - **Release coordination:** every gqlgen server would then advertise `@stream` in introspection and accept it before gqlgen implements it. gqlgen pins the current behavior with `TestStreamDirectiveIsUnsupported` (`codegen/testserver/singlefile/defer_test.go`), which fails by design when that happens. So the prelude change and gqlgen's implementation should be released together.
    - **Option b:** an opt-in, such as a second prelude or a load option. That decouples the two releases.
 2. **`StreamDirectiveOnListFieldRule`.**

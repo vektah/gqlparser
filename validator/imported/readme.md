@@ -14,6 +14,8 @@ $ ./export.sh
 
 You will then need to manually update the [`validator/prelude.graphql`](./validator/prelude.graphql) file, [`validator/schema.go`](./validator/schema.go) file, and possibly other files relevant to those specific changes like [./validator/rules/](./validator/rules/), etc.
 
+After any change to `prelude.graphql`, run `go generate ./validator` to regenerate `validator/prelude_directives.go`. `TestPreludeDirectivesAreGenerated` fails until you do.
+
 The exporter applies a few deliberate deviations to the prelude for features gqlparser supports ahead of graphql-js; see `applyPreludeDeviations` in [`export.js`](./export.js).
 
 Please in your PR description note the git release tag that corresponds to the graphql-js commit.

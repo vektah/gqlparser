@@ -2,11 +2,12 @@ package validator
 
 import (
 	_ "embed"
-	"sync"
 
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/parser"
 )
+
+//go:generate go run ./internal/preludegen
 
 //go:embed imported/prelude.graphql
 var preludeGraphql string
@@ -53,15 +54,3 @@ func QueryIntrospectionFields() ast.FieldList {
 		},
 	}
 }
-
-// preludeDirectiveNames reports which directive names the prelude declares. Only a
-// schema that redeclares a directive needs it, so it is computed on first use and
-// then reused, sparing every other LoadSchema a second parse of the prelude. The
-// set is never modified, so sharing it is safe.
-var preludeDirectiveNames = sync.OnceValue(func() map[string]bool {
-	names := map[string]bool{}
-	for _, dir := range PreludeDocument().Directives {
-		names[dir.Name] = true
-	}
-	return names
-})
