@@ -540,16 +540,18 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 			)
 		}
 		for _, value := range def.EnumValues {
-			for _, nonEnum := range [3]string{"true", "false", "null"} {
-				if value.Name == nonEnum {
-					return gqlerror.ErrorPosf(
-						def.Position,
-						"%s %s: non-enum value %s.",
-						def.Kind,
-						def.Name,
-						value.Name,
-					)
-				}
+			if err := validateName(value.Position, value.Name); err != nil {
+				return err
+			}
+			switch value.Name {
+			case "true", "false", "null":
+				return gqlerror.ErrorPosf(
+					value.Position,
+					"%s %s: non-enum value %s.",
+					def.Kind,
+					def.Name,
+					value.Name,
+				)
 			}
 			if err := validateDirectives(
 				schema,
