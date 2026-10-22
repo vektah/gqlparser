@@ -11,11 +11,11 @@ module github.com/vektah/gqlparser/v2/proptest
 go 1.25
 
 require (
-	github.com/vektah/gqlparser/v2 v2.5.60
+	github.com/vektah/gqlparser/v2 v2.5.63
 	pgregory.net/rapid v1.3.0
 )
 
-require github.com/agnivade/levenshtein v1.2.1 // indirect
+require github.com/agnivade/levenshtein v1.2.2 // indirect
 
 // The properties are about the working tree, not the last release.
 replace github.com/vektah/gqlparser/v2 => ../
