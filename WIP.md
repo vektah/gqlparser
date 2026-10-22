@@ -31,12 +31,12 @@ The consequence worth noting: the resulting ghost type does pass through `valida
 
 ### `UniqueDirectiveNames` — builtin redeclaration silently accepted
 
-For non-builtin directives, gqlparser correctly returns an error (`schema.go:107`), tested by `schema_test.yml`'s "cannot redeclare directives" case. For the six builtins — `include`, `skip`, `deprecated`, `specifiedBy`, `defer`, `oneOf` — a redeclaration is silently accepted with the first definition kept. `schema_test.yml` has an explicit "can redeclare builtin directives" test asserting this.
+For non-builtin directives, gqlparser correctly returns an error (`schema.go:106`), tested by `schema_test.yml`'s "cannot redeclare directives" case. For the directives the prelude declares — currently `include`, `skip`, `deprecated`, `specifiedBy`, `defer`, `oneOf` — a redeclaration is silently accepted with the last definition kept. The set comes from the prelude (`preludeDirectiveNames` in `prelude.go`), so a directive added to the prelude is covered automatically. `schema_test.yml`'s "can redeclare builtin directives" case and `TestRedeclareBuiltinDirectives` assert this.
 
 graphql-js rejects any directive redefinition, including builtins:
 > `Directive "@skip" already exists in the schema. It cannot be redefined.`
 
-The rationale is documented at `schema.go:95`: servers may ship directive definitions from an older or divergent spec version, and validating definition equivalence is considered more work than it's worth. The practical consequence is that a schema with a conflicting `@deprecated` or `@skip` definition loads without error.
+The rationale is documented at `schema.go:96`: servers may ship directive definitions from an older or divergent spec version, and validating definition equivalence is considered more work than it's worth. The practical consequence is that a schema with a conflicting `@deprecated` or `@skip` definition loads without error.
 
 ---
 
@@ -161,7 +161,7 @@ alpha.2's differences don't need reproducing: it rejected `label: null`, had no 
 
 **Changes needed:**
 1. **Declaring the directive.**
-   - **Option a:** add `@stream` to the prelude. That is what gqlgen would need. Also add `"stream"` to the builtin list in `validator/schema.go:96`, so schemas that already declare it keep loading.
+   - **Option a:** add `@stream` to the prelude. That is what gqlgen would need. Schemas that already declare `@stream` keep loading without a further change, because the set of redeclarable directives comes from the prelude.
    - **Release coordination:** every gqlgen server would then advertise `@stream` in introspection and accept it before gqlgen implements it. gqlgen pins the current behavior with `TestStreamDirectiveIsUnsupported` (`codegen/testserver/singlefile/defer_test.go`), which fails by design when that happens. So the prelude change and gqlgen's implementation should be released together.
    - **Option b:** an opt-in, such as a second prelude or a load option. That decouples the two releases.
 2. **`StreamDirectiveOnListFieldRule`.**
@@ -183,3 +183,46 @@ alpha.2's differences don't need reproducing: it rejected `label: null`, had no 
 6. **Not validation:**
    - `initialCount >= 0` is checked at execution time in graphql-js (`getStreamUsage`: `initialCount must be a positive integer`), so it belongs to gqlgen, not gqlparser.
    - The same applies to graphql-js's execution-time guard against `@stream` in subscriptions.
+
+# Introspection work for graphql-js 16.14 / 17 parity
+
+gqlgen's `introspection.Query` requests every introspection field the prelude declares, apart from the optional fields in `introspection.QueryOptions`. gqlgen's `TestQueryRequestsEveryIntrospectionField` enforces this, so each prelude change below also needs a gqlgen change. Checked on 2026-10-22 against the published graphql-js `16.14.0`, `16.14.2` and `17.0.2` packages.
+
+## Directive deprecation (`experimentalDirectiveDeprecation`)
+
+**graphql-js 16.14.0 and 17.0.2 declare:**
+
+```graphql
+type __Schema {
+  directives(includeDeprecated: Boolean! = false): [__Directive!]!
+}
+type __Directive {
+  isDeprecated: Boolean!
+  deprecationReason: String
+}
+```
+
+With `includeDeprecated: false`, the default, `__Schema.directives` leaves out deprecated directives. `getIntrospectionQuery` requests these fields only with `experimentalDirectiveDeprecation: true`, which is off by default.
+
+**gqlparser today:**
+- The prelude already accepts `@deprecated` on `DIRECTIVE_DEFINITION`, through the deviations in `export.js`'s `applyPreludeDeviations`.
+- Introspection gives clients no way to see that a directive is deprecated, though: the prelude's `__Schema.directives` takes no arguments, and `__Directive` has neither field.
+
+**Changes needed:**
+1. **Prelude.**
+   - Re-running `export.sh` against graphql-js `16.x.x` at 16.14.0 or later adds exactly these three fields. `printIntrospectionSchema` from 16.14.2 differs from today's prelude in nothing else.
+   - The same re-export makes both `applyPreludeDeviations` replacements fail their "must match exactly once" check, because 16.14 already prints the `DIRECTIVE_DEFINITION` locations. Delete the deviations then.
+   - The re-export also brings in every other `16.x.x` change to the imported spec tests, so review those separately.
+2. **gqlgen** (in the same release as the gqlparser change, because its contract test fails until then):
+   - Add `IsDeprecated()` and `DeprecationReason()` to `introspection.Directive`, read from the definition's `@deprecated`.
+   - Bind `__Schema.directives` to a method that takes `includeDeprecated`. This is the same pattern `injectBuiltins` uses for `args` and `inputFields`, and it keeps deprecated directives from leaking.
+   - Add `QueryOptions.ExperimentalDirectiveDeprecation`, off by default, matching graphql-js. graphql-js servers older than 16.14.0 reject these fields.
+
+## `includeDeprecated` is `Boolean!` in graphql-js 17
+
+| Argument | gqlparser prelude | graphql-js 16.14 | graphql-js 17.0.2 |
+|---|---|---|---|
+| `__Schema.directives(includeDeprecated:)` | (no argument) | `Boolean! = false` | `Boolean! = false` |
+| `__Type.fields`, `inputFields`, `enumValues`, `__Field.args`, `__Directive.args` `(includeDeprecated:)` | `Boolean = false` | `Boolean = false` | `Boolean! = false` |
+
+A client that passes an explicit `includeDeprecated: null` is treated as passing `false` by gqlparser-based servers and graphql-js 16.x, but gets a validation error from 17.0.2. This doesn't affect queries that pass `true` or `false`, including gqlgen's `introspection.Query`. Make the arguments non-null together with the move to 17.x.x specs, not before. Changing the generated prelude means another deviation in `export.js` until then.
