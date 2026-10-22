@@ -17,18 +17,28 @@ import (
 	"github.com/vektah/gqlparser/v2/parser"
 )
 
+// main is the untested shell around run: it only supplies the paths and
+// reports the error.
+//
+// mutator-disable-func
 func main() {
-	input, err := os.ReadFile("imported/prelude.graphql")
+	if err := run("imported/prelude.graphql", "prelude_directives.go"); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// run writes to outputPath the Go source that generate returns for the prelude
+// at inputPath.
+func run(inputPath, outputPath string) error {
+	input, err := os.ReadFile(inputPath)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	out, err := generate(&ast.Source{Name: "prelude.graphql", Input: string(input), BuiltIn: true})
+	out, err := generate(&ast.Source{Name: inputPath, Input: string(input)})
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	if err := os.WriteFile("prelude_directives.go", out, 0o644); err != nil {
-		log.Fatal(err)
-	}
+	return os.WriteFile(outputPath, out, 0o644)
 }
 
 // generate returns the Go source of isPreludeDirective for the directives

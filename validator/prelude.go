@@ -27,7 +27,13 @@ var Prelude = &ast.Source{
 // Each call parses Prelude again, so the caller owns the result and may modify it.
 // It panics if the embedded prelude does not parse, which is a gqlparser bug.
 func PreludeDocument() *ast.SchemaDocument {
-	doc, err := parser.ParseSchema(Prelude)
+	return mustParsePrelude(Prelude)
+}
+
+// mustParsePrelude parses prelude and panics if it does not parse. The embedded
+// prelude always parses, so the panic only fires if gqlparser ships a broken one.
+func mustParsePrelude(prelude *ast.Source) *ast.SchemaDocument {
+	doc, err := parser.ParseSchema(prelude)
 	if err != nil {
 		panic("gqlparser: embedded prelude does not parse: " + err.Error())
 	}

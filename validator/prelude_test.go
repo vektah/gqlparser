@@ -1,6 +1,7 @@
 package validator_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -44,6 +45,22 @@ func TestQueryIntrospectionFields(t *testing.T) {
 
 		want := validator.QueryIntrospectionFields()
 		require.Equal(t, want, s.Query.Fields[len(s.Query.Fields)-len(want):])
+	})
+
+	t.Run("declares the spec's fields", func(t *testing.T) {
+		var got []string
+		for _, field := range validator.QueryIntrospectionFields() {
+			signature := field.Name
+			if len(field.Arguments) > 0 {
+				var args []string
+				for _, arg := range field.Arguments {
+					args = append(args, arg.Name+": "+arg.Type.String())
+				}
+				signature += "(" + strings.Join(args, ", ") + ")"
+			}
+			got = append(got, signature+": "+field.Type.String())
+		}
+		require.Equal(t, []string{"__schema: __Schema!", "__type(name: String!): __Type"}, got)
 	})
 
 	t.Run("each call returns new definitions", func(t *testing.T) {
