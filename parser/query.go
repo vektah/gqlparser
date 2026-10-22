@@ -132,6 +132,11 @@ func (p *parser) parseVariable() string {
 }
 
 func (p *parser) parseOptionalSelectionSet() SelectionSet {
+	if !p.enterNested() {
+		return nil
+	}
+	defer p.leaveNested()
+
 	var selections []Selection
 	p.some(lexer.BraceL, lexer.BraceR, func() {
 		selections = append(selections, p.parseSelection())
@@ -145,13 +150,7 @@ func (p *parser) parseRequiredSelectionSet() SelectionSet {
 		p.error(p.peek(), "Expected %s, found %s", lexer.BraceL, p.peek().Kind.String())
 		return nil
 	}
-
-	var selections []Selection
-	p.some(lexer.BraceL, lexer.BraceR, func() {
-		selections = append(selections, p.parseSelection())
-	})
-
-	return selections
+	return p.parseOptionalSelectionSet()
 }
 
 func (p *parser) parseSelection() Selection {
@@ -316,6 +315,11 @@ func (p *parser) parseValueLiteral(isConst bool) *Value {
 }
 
 func (p *parser) parseList(isConst bool) *Value {
+	if !p.enterNested() {
+		return nil
+	}
+	defer p.leaveNested()
+
 	var values ChildValueList
 	pos := p.peekPos()
 	comment := p.comment
@@ -327,6 +331,11 @@ func (p *parser) parseList(isConst bool) *Value {
 }
 
 func (p *parser) parseObject(isConst bool) *Value {
+	if !p.enterNested() {
+		return nil
+	}
+	defer p.leaveNested()
+
 	var fields ChildValueList
 	pos := p.peekPos()
 	comment := p.comment
@@ -375,6 +384,11 @@ func (p *parser) parseTypeReference() *Type {
 	var typ Type
 
 	if p.skip(lexer.BracketL) {
+		if !p.enterNested() {
+			return nil
+		}
+		defer p.leaveNested()
+
 		typ.Position = p.peekPos()
 		typ.Elem = p.parseTypeReference()
 		p.expect(lexer.BracketR)
