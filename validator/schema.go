@@ -884,7 +884,7 @@ func validateImplements(schema *Schema, def *Definition, intfName string) *gqler
 				)
 			}
 
-			if !requiredArg.Type.IsCompatible(foundArg.Type) {
+			if !isEqualType(requiredArg.Type, foundArg.Type) {
 				return gqlerror.ErrorPosf(
 					foundArg.Position,
 					`For %s to implement %s the field %s must have the same arguments but %s has the wrong type.`,
@@ -962,6 +962,19 @@ func isCovariant(schema *Schema, required, actual *Type) bool {
 	}
 
 	return isCovariant(schema, required.Elem, actual.Elem)
+}
+
+// isEqualType reports whether a and b are the same type, including every list
+// and non-null wrapper. Interface field arguments are invariant, so an
+// implementation must use exactly the same type for each of them.
+func isEqualType(a, b *Type) bool {
+	if a.NonNull != b.NonNull || a.NamedType != b.NamedType {
+		return false
+	}
+	if a.Elem == nil || b.Elem == nil {
+		return a.Elem == nil && b.Elem == nil
+	}
+	return isEqualType(a.Elem, b.Elem)
 }
 
 func validateName(pos *Position, name string) *gqlerror.Error {

@@ -241,6 +241,68 @@ interfaces:
       message: 'For Bar to implement BarInterface the field id must have the same arguments but ff has the wrong type.'
       locations: [{line: 2, column: 8}]
 
+  - name: must not make a non-null argument nullable
+    input: |
+      type Bar implements BarInterface {
+          id(ff: Int): ID!
+      }
+
+      interface BarInterface {
+          id(ff: Int!): ID!
+      }
+    error:
+      message: 'For Bar to implement BarInterface the field id must have the same arguments but ff has the wrong type.'
+      locations: [{line: 2, column: 8}]
+
+  - name: must not make a nullable argument non-null
+    input: |
+      type Bar implements BarInterface {
+          id(ff: Int!): ID!
+      }
+
+      interface BarInterface {
+          id(ff: Int): ID!
+      }
+    error:
+      message: 'For Bar to implement BarInterface the field id must have the same arguments but ff has the wrong type.'
+      locations: [{line: 2, column: 8}]
+
+  - name: must not make a non-null list item argument nullable
+    input: |
+      type Bar implements BarInterface {
+          id(ff: [Int]): ID!
+      }
+
+      interface BarInterface {
+          id(ff: [Int!]): ID!
+      }
+    error:
+      message: 'For Bar to implement BarInterface the field id must have the same arguments but ff has the wrong type.'
+      locations: [{line: 2, column: 8}]
+
+  - name: must not make a non-null argument nullable on an implementing interface
+    input: |
+      interface IA {
+          id(ff: Int!): ID!
+      }
+
+      interface IIA implements IA {
+          id(ff: Int): ID!
+      }
+    error:
+      message: 'For IIA to implement IA the field id must have the same arguments but ff has the wrong type.'
+      locations: [{line: 6, column: 8}]
+
+  - name: may define the same wrapped argument types
+    input: |
+      type Bar implements BarInterface {
+          id(ff: [Int!]!, gg: [[String]!]): ID!
+      }
+
+      interface BarInterface {
+          id(ff: [Int!]!, gg: [[String]!]): ID!
+      }
+
   - name: may defined additional nullable arguments
     input: |
       type Bar implements BarInterface {
