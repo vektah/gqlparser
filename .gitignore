@@ -21,3 +21,4 @@ testdata/rapid/
 mutago-report.html
 mutago-agentic.json
 mutago-gitlab.json
+/testdata/federation/node_modules
