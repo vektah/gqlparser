@@ -540,6 +540,9 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 			)
 		}
 		for _, value := range def.EnumValues {
+			if err := validateName(value.Position, value.Name); err != nil {
+				return err
+			}
 			for _, nonEnum := range [3]string{"true", "false", "null"} {
 				if value.Name == nonEnum {
 					return gqlerror.ErrorPosf(

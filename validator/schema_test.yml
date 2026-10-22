@@ -817,6 +817,26 @@ enums:
     error:
       message: 'Name "__FooBar" must not begin with "__", which is reserved by GraphQL introspection.'
       locations: [{line: 1, column: 6}]
+  - name: check reserved names on enum value
+    input: |
+      enum FooBar {
+        A
+        __B
+      }
+    error:
+      message: 'Name "__B" must not begin with "__", which is reserved by GraphQL introspection.'
+      locations: [{line: 3, column: 3}]
+  - name: check reserved names on enum value from extension
+    input: |
+      enum FooBar {
+        A
+      }
+      extend enum FooBar {
+        __B
+      }
+    error:
+      message: 'Name "__B" must not begin with "__", which is reserved by GraphQL introspection.'
+      locations: [{line: 5, column: 3}]
 
 unions:
   - name: must define one or more member types
