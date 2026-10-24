@@ -7,7 +7,6 @@ import (
 	"math"
 	"reflect"
 	"strconv"
-	"strings"
 
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -170,7 +169,7 @@ func (v *varValidator) validateVarType(
 		}
 		isValidEnum := false
 		for _, enumVal := range def.EnumValues {
-			if strings.EqualFold(val.String(), enumVal.Name) {
+			if val.String() == enumVal.Name {
 				isValidEnum = true
 			}
 		}
