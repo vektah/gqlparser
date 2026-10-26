@@ -4,7 +4,7 @@
   },
   "dependencies": {
     "@babel/cli": "^8.0.6",
-    "@babel/core": "^8.0.7",
+    "@babel/core": "^8.0.9",
     "@babel/node": "^8.0.6",
     "@babel/plugin-transform-typescript": "^8.0.6",
     "@babel/preset-env": "^8.0.7",
