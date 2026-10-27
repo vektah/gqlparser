@@ -1,6 +1,8 @@
 package gqlerror
 
 import (
+	"bytes"
+	"context"
 	"log/slog"
 	"slices"
 
@@ -103,15 +105,87 @@ func gqlAttrs(
 	return []slog.Attr{{Key: "gql", Value: slog.GroupValue(fields...)}}
 }
 
+// LogValue implements slog.LogValuer, so slog.Any("errors", list) logs the list as the list it
+// is: a JSON array with one object per error, each holding that error's CollectAttrs. A List is
+// several independent errors, and CollectAttrs over the whole list merges their "gql" groups into
+// one, keeping only the first error's message, path, and locations; here each keeps its own.
+//
+// The value encodes itself as JSON for JSON handlers and as the same JSON text for text handlers.
+// A handler's ReplaceAttr sees it as one value and cannot reach the fields inside it.
+func (errs List) LogValue() slog.Value { return slog.AnyValue(errorList[*Error](errs)) }
+
+// LogValue logs the list as List.LogValue does, each error's locations naming their sources.
+func (errs SourceList) LogValue() slog.Value {
+	return slog.AnyValue(errorList[*ErrorWithSources](errs))
+}
+
+// errorList is a list of errors as one log value: a JSON array of each error's CollectAttrs. It is
+// neither an error nor a slog.LogValuer, either of which a handler would turn into something else
+// before reaching MarshalJSON.
+type errorList[E error] []E
+
+// MarshalJSON writes the array. Each object is written by slog's own JSON handler, so every value
+// is encoded exactly as slog encodes it. MarshalJSON does not fail.
+func (errs errorList[E]) MarshalJSON() ([]byte, error) {
+	var b bytes.Buffer
+	b.WriteByte('[')
+	for i, err := range errs {
+		if i > 0 {
+			b.WriteByte(',')
+		}
+		writeAttrsObject(&b, CollectAttrs(err))
+	}
+	b.WriteByte(']')
+	return b.Bytes(), nil
+}
+
+// MarshalText writes the same JSON, so a text handler logs it as one quoted value.
+func (errs errorList[E]) MarshalText() ([]byte, error) { return errs.MarshalJSON() }
+
+// String returns the JSON.
+func (errs errorList[E]) String() string {
+	b, _ := errs.MarshalJSON()
+	return string(b)
+}
+
+// writeAttrsObject writes attrs as one JSON object through a slog JSON handler. The attrs go in a
+// group, so none of them is at the top level and ReplaceAttr can drop the record's own level and
+// message by key alone; a zero time is already left out. What remains is {"o":{...}}, and the
+// inner object is what is written. An empty group is left out by slog, which leaves {}.
+func writeAttrsObject(b *bytes.Buffer, attrs []slog.Attr) {
+	var out bytes.Buffer
+	h := slog.NewJSONHandler(&out, &slog.HandlerOptions{
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if len(groups) == 0 && (a.Key == slog.LevelKey || a.Key == slog.MessageKey) {
+				return slog.Attr{}
+			}
+			return a
+		},
+	})
+	r := slog.Record{}
+	r.AddAttrs(slog.Attr{Key: "o", Value: slog.GroupValue(attrs...)})
+	_ = h.Handle(context.Background(), r) // writing to a buffer cannot fail.
+	line := bytes.TrimSuffix(out.Bytes(), []byte("\n"))
+	inner, ok := bytes.CutPrefix(line, []byte(`{"o":`))
+	if !ok {
+		b.WriteString("{}")
+		return
+	}
+	b.Write(bytes.TrimSuffix(inner, []byte("}")))
+}
+
 // CollectAttrs reports the attributes of every error in err's tree, merged so that no key appears
-// twice at any level. It is what logging middleware should pass to slog for a GraphQL error.
+// twice at any level. It is the flat view: for a List, log the List itself with slog.Any, so that
+// each error keeps its own fields (see List.LogValue).
 //
 // It visits err and then what Unwrap returns, depth first and, for Unwrap() []error, left to
 // right, taking Attrs() []slog.Attr from each error that has the method. Groups with the same key
 // are merged, so a cause reporting a "gql" group of its own adds keys to this package's group
 // rather than repeating it, which JSON readers would resolve by dropping one of the two. For any
 // other key reported twice, the first value found wins: the outermost error's, which is normally
-// the *Error the GraphQL response carried.
+// the *Error the GraphQL response carried. Siblings merge the same way, so CollectAttrs of a List
+// of two errors
+// reports the first error's message, path, and locations, and none of the second's.
 //
 // Attributes follow slog's rules: values are resolved, a group with an empty key is inlined, and
 // a zero Attr or an empty group is dropped. Keys keep the order they first appear in. The result

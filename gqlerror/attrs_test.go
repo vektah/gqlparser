@@ -448,3 +448,86 @@ func BenchmarkLogCollectedAttrs(b *testing.B) {
 		})
 	}
 }
+
+// A List logs as an array with one object per error, so siblings keep their own fields where
+// CollectAttrs would merge them.
+func TestListLogValue(t *testing.T) {
+	errorsB := ast.Path{ast.PathName("errors"), ast.PathName("b")}
+	cases := map[string]struct {
+		list List
+		want string
+	}{
+		"siblings keep their own fields": {
+			list: List{
+				{Message: "a", Path: ast.Path{ast.PathName("a")}, Locations: []Location{{1, 2}}},
+				{Message: "b", Path: ast.Path{ast.PathName("b")}},
+			},
+			want: `{"errors":[` +
+				`{"gql":{"message":"a","path":"a","locations":[{"line":1,"column":2}]}},` +
+				`{"gql":{"message":"b","path":"b"}}]}`,
+		},
+		"a cause merges into its own error only": {
+			list: List{WrapPath(errorsB, invalidNull()), Errorf("other")},
+			want: `{"errors":[` +
+				`{"gql":{"message":"attr error","path":"errors.b","field":"Errors.b",` +
+				`"type":"Error!","null_source":"resolver"}},` +
+				`{"gql":{"message":"other"}}]}`,
+		},
+		"a nil error is an empty object": {
+			list: List{nil, {Message: "x"}},
+			want: `{"errors":[{},{"gql":{"message":"x"}}]}`,
+		},
+		"empty":    {list: List{}, want: `{"errors":[]}`},
+		"nil list": {list: nil, want: `{"errors":[]}`},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			got := renderJSON(t, []slog.Attr{slog.Any("errors", tc.list)})
+			require.Equal(t, tc.want+"\n", got)
+		})
+	}
+}
+
+// A SourceList logs as a List does, each location naming its source.
+func TestSourceListLogValue(t *testing.T) {
+	list := SourceList{
+		{
+			Message: "a",
+			Locations: []SourceLocation{
+				{Line: 1, Column: 2, Source: &ast.Source{Name: "q.graphql"}},
+			},
+		},
+		{Message: "b"},
+	}
+	got := renderJSON(t, []slog.Attr{slog.Any("errors", list)})
+	require.Equal(t, `{"errors":[`+
+		`{"gql":{"message":"a","locations":[{"line":1,"column":2,"source":"q.graphql"}]}},`+
+		`{"gql":{"message":"b"}}]}`+"\n", got)
+}
+
+// A text handler writes the same JSON as one quoted value.
+func TestListLogValueInATextHandler(t *testing.T) {
+	got := render(t, []slog.Attr{slog.Any("errors", List{{Message: "a"}, {Message: "b"}})})
+	require.Equal(t, `errors="[{\"gql\":{\"message\":\"a\"}},{\"gql\":{\"message\":\"b\"}}]"`, got)
+}
+
+// CollectAttrs is the flat view: siblings merge, and the first error's fields win.
+func TestCollectAttrsMergesSiblings(t *testing.T) {
+	got := render(t, CollectAttrs(List{{Message: "a"}, {Message: "b"}}))
+	require.Equal(t, "gql.message=a", got)
+}
+
+func BenchmarkListLogValue(b *testing.B) {
+	list := List{
+		WrapPath(ast.Path{ast.PathName("errors"), ast.PathName("b")}, invalidNull()),
+		{Message: "kabloom", Locations: []Location{{Line: 1, Column: 2}}},
+	}
+	handler := slog.NewJSONHandler(io.Discard, nil)
+
+	b.ReportAllocs()
+	for b.Loop() {
+		record := slog.NewRecord(time.Time{}, slog.LevelError, "request failed", 0)
+		record.AddAttrs(slog.Any("errors", list))
+		_ = handler.Handle(context.Background(), record)
+	}
+}
