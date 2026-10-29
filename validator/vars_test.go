@@ -281,6 +281,25 @@ func TestValidateVars(t *testing.T) {
 			)
 			require.EqualError(t, gerr, "input: variable.var.enum B is not a valid Enum")
 		})
+
+		t.Run("enum value with different case input object", func(t *testing.T) {
+			//nolint:staticcheck
+			q := gqlparser.MustLoadQuery(
+				schema,
+				`query foo($var: InputType!) { structArg(i: $var) }`,
+			)
+			_, gerr := validator.VariableValues(
+				schema,
+				q.Operations.ForName(""),
+				map[string]any{
+					"var": map[string]any{
+						"name": "foobar",
+						"enum": "a",
+					},
+				},
+			)
+			require.EqualError(t, gerr, "input: variable.var.enum a is not a valid Enum")
+		})
 	})
 
 	t.Run("array", func(t *testing.T) {
@@ -1013,6 +1032,25 @@ func TestValidateVarsWithRules(t *testing.T) {
 				},
 			)
 			require.EqualError(t, gerr, "input: variable.var.enum B is not a valid Enum")
+		})
+
+		t.Run("enum value with different case input object", func(t *testing.T) {
+			q := gqlparser.MustLoadQueryWithRules(
+				schema,
+				`query foo($var: InputType!) { structArg(i: $var) }`,
+				nil,
+			)
+			_, gerr := validator.VariableValues(
+				schema,
+				q.Operations.ForName(""),
+				map[string]any{
+					"var": map[string]any{
+						"name": "foobar",
+						"enum": "a",
+					},
+				},
+			)
+			require.EqualError(t, gerr, "input: variable.var.enum a is not a valid Enum")
 		})
 	})
 
