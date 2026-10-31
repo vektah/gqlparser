@@ -1,0 +1,30 @@
+[
+  {
+    "subgraph": "accounts",
+    "query": "query MyProgress__accounts__0{me{__typename id username}}"
+  },
+  {
+    "subgraph": "progress",
+    "query": "query MyProgress__progress__1($representations:[_Any!]!){_entities(representations:$representations){...on User{greeting progress(since:\"2024-01-01\"){percent completedOn video{__typename id title}}}}}"
+  },
+  {
+    "subgraph": "content",
+    "query": "query MyProgress__content__2($representations:[_Any!]!){_entities(representations:$representations){...on Video{durationSeconds}}}"
+  },
+  {
+    "subgraph": "accounts",
+    "query": "query DeprecatedArgument__accounts__0{me{avatarURL(px:64)}}"
+  },
+  {
+    "subgraph": "content",
+    "query": "query Search__content__0($query:String!$withArticles:Boolean!){search(query:$query kinds:[VIDEO ARTICLE]limit:5){__typename ...on Video{id title}...on Article@include(if:$withArticles){wordCount}}content(id:\"video-1\"){__typename id title ...on Video{publishedOn}}}"
+  },
+  {
+    "subgraph": "accounts",
+    "query": "mutation CreateStudents__accounts__0($input:CreateStudentsInput!){createStudents(input:$input notify:true){__typename id username}}"
+  },
+  {
+    "subgraph": "progress",
+    "query": "query CreateStudents__progress__1($representations:[_Any!]!){_entities(representations:$representations){...on User{progress{percent}}}}"
+  }
+]

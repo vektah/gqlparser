@@ -1,0 +1,91 @@
+- name: Object value for an Int argument
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |
+    {
+      complicatedArgs {
+        intArgField(intArg: {})
+      }
+    }
+  errors:
+    - message: "Int cannot represent non-integer value: {}"
+      locations:
+        - {line: 3, column: 25}
+- name: Object value for a non-null Int argument
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |
+    {
+      complicatedArgs {
+        nonNullIntArgField(nonNullIntArg: {})
+      }
+    }
+  errors:
+    - message: "Int cannot represent non-integer value: {}"
+      locations:
+        - {line: 3, column: 39}
+- name: Object value for a String argument
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |
+    {
+      complicatedArgs {
+        stringArgField(stringArg: {})
+      }
+    }
+  errors:
+    - message: "String cannot represent a non string value: {}"
+      locations:
+        - {line: 3, column: 31}
+- name: Object value for an enum argument
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |
+    {
+      complicatedArgs {
+        enumArgField(enumArg: {})
+      }
+    }
+  errors:
+    - message: 'Enum "FurColor" cannot represent non-enum value: {}.'
+      locations:
+        - {line: 3, column: 27}
+- name: Object value in a list of String
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |
+    {
+      complicatedArgs {
+        stringListArgField(stringListArg: ["a", {}])
+      }
+    }
+  errors:
+    - message: "String cannot represent a non string value: {}"
+      locations:
+        - {line: 3, column: 45}
+- name: Object value for an input object field of type Int
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |
+    {
+      complicatedArgs {
+        complexArgField(complexArg: {requiredField: true, intField: {}})
+      }
+    }
+  errors:
+    - message: "Int cannot represent non-integer value: {}"
+      locations:
+        - {line: 3, column: 65}
+- name: Object value as a variable default for Int
+  rule: ValuesOfCorrectType
+  schema: 0
+  query: |
+    query ($v: Int = {}) {
+      complicatedArgs {
+        intArgField(intArg: $v)
+      }
+    }
+  errors:
+    - message: "Int cannot represent non-integer value: {}"
+      locations:
+        - {line: 1, column: 18}

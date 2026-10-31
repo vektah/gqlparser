@@ -1,0 +1,16 @@
+query Compare($first: ID!, $second: ID!) {
+	left: human(id: $first) { ...Details ...Friends }
+	right: human(id: $second) { ...Details ...Friends }
+}
+fragment Details on Human {
+	name
+	homePlanet
+	appearsIn
+}
+fragment Friends on Human {
+	friends { ...Named }
+	friendsConnection { edges { node { ...Named } } }
+}
+fragment Named on Character {
+	name
+}

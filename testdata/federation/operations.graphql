@@ -1,0 +1,66 @@
+query MyProgress {
+  me {
+    id
+    username
+    greeting
+    progress(since: "2024-01-01") {
+      percent
+      completedOn
+      video {
+        id
+        title
+        durationSeconds
+      }
+    }
+  }
+}
+
+query DeprecatedArgument {
+  me {
+    avatarURL(px: 64)
+  }
+}
+
+query Search($query: String!, $withArticles: Boolean!) {
+  search(query: $query, kinds: [VIDEO, ARTICLE], limit: 5) {
+    __typename
+    ... on Video {
+      id
+      title
+    }
+    ... on Article @include(if: $withArticles) {
+      wordCount
+    }
+  }
+  content(id: "video-1") {
+    ...ContentFields
+  }
+}
+
+fragment ContentFields on Content {
+  id
+  title
+  ... on Video {
+    publishedOn
+  }
+}
+
+mutation CreateStudents($input: CreateStudentsInput!) {
+  createStudents(input: $input, notify: true) {
+    id
+    username
+    progress {
+      percent
+    }
+  }
+}
+
+query ListMutations {
+  __schema {
+    mutationType {
+      fields {
+        name
+      }
+    }
+  }
+}

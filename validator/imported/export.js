@@ -48,9 +48,35 @@ directive @defer(
   const customGeneratedContent = generatedText + builtinScalars + deferDirective
 
   const schema = new GraphQLSchema({});
-  const output = customGeneratedContent + printIntrospectionSchema(schema);
+  const output = applyPreludeDeviations(
+    customGeneratedContent + printIntrospectionSchema(schema),
+  );
 
   fs.writeFileSync("./prelude.graphql", output);
+}
+
+// applyPreludeDeviations adds features gqlparser supports ahead of the pinned
+// graphql-js: directives on directive definitions add a DIRECTIVE_DEFINITION
+// location, on which @deprecated may be used. Each replacement must match
+// exactly once so a graphql-js upgrade that changes the text fails loudly.
+function applyPreludeDeviations(prelude) {
+  const replacements = [
+    [
+      "| INPUT_FIELD_DEFINITION | ENUM_VALUE\n",
+      "| INPUT_FIELD_DEFINITION | ENUM_VALUE | DIRECTIVE_DEFINITION\n",
+    ],
+    [
+      "  INPUT_FIELD_DEFINITION\n}",
+      '  INPUT_FIELD_DEFINITION\n\n  """Location adjacent to a directive definition."""\n  DIRECTIVE_DEFINITION\n}',
+    ],
+  ];
+  for (const [from, to] of replacements) {
+    if (prelude.split(from).length !== 2) {
+      throw new Error(`prelude deviation must match exactly once: ${from}`);
+    }
+    prelude = prelude.replace(from, to);
+  }
+  return prelude;
 }
 
 function exportSpecDefinitions() {

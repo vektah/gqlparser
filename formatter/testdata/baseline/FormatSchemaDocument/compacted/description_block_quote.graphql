@@ -1,0 +1,6 @@
+"""
+Quote a block with \""" on each side.
+"""
+type Query {
+	field: String
+}

@@ -1,0 +1,132 @@
+schema
+  @link(url: "https://specs.apollo.dev/link/v1.0")
+  @link(url: "https://specs.apollo.dev/join/v0.3", for: EXECUTION)
+{
+  query: Query
+  mutation: Mutation
+}
+
+directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
+
+directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true, isInterfaceObject: Boolean! = false) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on UNION
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+type Article implements Content
+  @join__implements(graph: CONTENT, interface: "Content")
+  @join__type(graph: CONTENT, key: "id")
+{
+  id: ID!
+  title: String!
+  wordCount: Int!
+}
+
+interface Content
+  @join__type(graph: CONTENT)
+{
+  id: ID!
+  title: String!
+}
+
+enum ContentKind
+  @join__type(graph: CONTENT)
+{
+  VIDEO @join__enumValue(graph: CONTENT)
+  ARTICLE @join__enumValue(graph: CONTENT)
+  EXERCISE @join__enumValue(graph: CONTENT) @deprecated(reason: "Exercises are no longer searchable.")
+}
+
+input CreateStudentsInput
+  @join__type(graph: ACCOUNTS)
+{
+  usernames: [String!]!
+  classroomID: ID
+  listKey: String @deprecated(reason: "Use classroomID.")
+}
+
+scalar Date
+  @join__type(graph: CONTENT)
+  @join__type(graph: PROGRESS)
+
+scalar join__FieldSet
+
+enum join__Graph {
+  ACCOUNTS @join__graph(name: "accounts", url: "http://accounts.invalid/query")
+  CONTENT @join__graph(name: "content", url: "http://content.invalid/query")
+  PROGRESS @join__graph(name: "progress", url: "http://progress.invalid/query")
+}
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+type Mutation
+  @join__type(graph: ACCOUNTS)
+{
+  createStudents(input: CreateStudentsInput!, notify: Boolean @deprecated(reason: "Students are always notified.")): [User!]!
+}
+
+type Query
+  @join__type(graph: ACCOUNTS)
+  @join__type(graph: CONTENT)
+  @join__type(graph: PROGRESS)
+{
+  me: User @join__field(graph: ACCOUNTS)
+  user(id: ID!): User @join__field(graph: ACCOUNTS)
+  content(id: ID!): Content @join__field(graph: CONTENT)
+  search(query: String!, kinds: [ContentKind!], first: Int, limit: Int = 10 @deprecated(reason: "Use first.")): [SearchResult!]! @join__field(graph: CONTENT)
+}
+
+union SearchResult
+  @join__type(graph: CONTENT)
+  @join__unionMember(graph: CONTENT, member: "Video")
+  @join__unionMember(graph: CONTENT, member: "Article")
+ = Video | Article
+
+type User
+  @join__type(graph: ACCOUNTS, key: "id")
+  @join__type(graph: PROGRESS, key: "id")
+{
+  id: ID!
+  username: String! @join__field(graph: ACCOUNTS) @join__field(graph: PROGRESS, external: true)
+  avatarURL(size: Int, px: Int @deprecated(reason: "Use size.")): String @join__field(graph: ACCOUNTS)
+  progress(since: Date): [VideoProgress!]! @join__field(graph: PROGRESS)
+  greeting: String! @join__field(graph: PROGRESS, requires: "username")
+}
+
+type Video implements Content
+  @join__implements(graph: CONTENT, interface: "Content")
+  @join__type(graph: CONTENT, key: "id")
+  @join__type(graph: PROGRESS, key: "id")
+{
+  id: ID!
+  title: String! @join__field(graph: CONTENT) @join__field(graph: PROGRESS, external: true)
+  durationSeconds: Int! @join__field(graph: CONTENT)
+  publishedOn: Date @join__field(graph: CONTENT)
+}
+
+type VideoProgress
+  @join__type(graph: PROGRESS)
+{
+  video: Video! @join__field(graph: PROGRESS, provides: "title")
+  percent: Float!
+  completedOn: Date
+}

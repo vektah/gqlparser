@@ -1,21 +1,24 @@
-package validator
+package validator_test
 
 import (
 	"errors"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/formatter"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"github.com/vektah/gqlparser/v2/parser"
 	"github.com/vektah/gqlparser/v2/parser/testrunner"
+	"github.com/vektah/gqlparser/v2/validator"
 )
 
 func TestLoadSchema(t *testing.T) {
 	t.Run("prelude", func(t *testing.T) {
-		s, err := LoadSchema(Prelude)
+		s, err := validator.LoadSchema(validator.Prelude)
 		require.NoError(t, err)
 
 		boolDef := s.Types["Boolean"]
@@ -35,7 +38,10 @@ func TestLoadSchema(t *testing.T) {
 	t.Run("swapi", func(t *testing.T) {
 		file, err := os.ReadFile("testdata/swapi.graphql")
 		require.NoError(t, err)
-		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
+		s, err := validator.LoadSchema(
+			validator.Prelude,
+			&ast.Source{Input: string(file), Name: "TestLoadSchema"},
+		)
 		require.NoError(t, err)
 
 		require.Equal(t, "Query", s.Query.Name)
@@ -60,7 +66,10 @@ func TestLoadSchema(t *testing.T) {
 	t.Run("default root operation type names", func(t *testing.T) {
 		file, err := os.ReadFile("testdata/default_root_operation_type_names.graphql")
 		require.NoError(t, err)
-		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
+		s, err := validator.LoadSchema(
+			validator.Prelude,
+			&ast.Source{Input: string(file), Name: "TestLoadSchema"},
+		)
 		require.NoError(t, err)
 
 		require.Nil(t, s.Mutation)
@@ -73,7 +82,10 @@ func TestLoadSchema(t *testing.T) {
 	t.Run("type extensions", func(t *testing.T) {
 		file, err := os.ReadFile("testdata/extensions.graphql")
 		require.NoError(t, err)
-		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "TestLoadSchema"})
+		s, err := validator.LoadSchema(
+			validator.Prelude,
+			&ast.Source{Input: string(file), Name: "TestLoadSchema"},
+		)
 		require.NoError(t, err)
 
 		require.Equal(t, "Subscription", s.Subscription.Name)
@@ -102,7 +114,10 @@ func TestLoadSchema(t *testing.T) {
 	t.Run("interfaces", func(t *testing.T) {
 		file, err := os.ReadFile("testdata/interfaces.graphql")
 		require.NoError(t, err)
-		s, err := LoadSchema(Prelude, &ast.Source{Input: string(file), Name: "interfaces"})
+		s, err := validator.LoadSchema(
+			validator.Prelude,
+			&ast.Source{Input: string(file), Name: "interfaces"},
+		)
 		require.NoError(t, err)
 
 		implements := s.GetImplements(s.Types["Canine"])
@@ -115,12 +130,12 @@ func TestLoadSchema(t *testing.T) {
 	})
 
 	testrunner.Test(t, "./schema_test.yml", func(t *testing.T, input string) testrunner.Spec {
-		_, err := LoadSchema(Prelude, &ast.Source{Input: input})
+		_, err := validator.LoadSchema(validator.Prelude, &ast.Source{Input: input})
 		if err != nil {
 			return testrunner.Spec{
-				Error: func() *gqlerror.Error {
-					target := &gqlerror.Error{}
-					_ = errors.As(err, &target)
+				Error: func() *testrunner.SpecError {
+					target := &testrunner.SpecError{}
+					_ = errors.As(err, &target.Error)
 					return target
 				}(),
 			}
@@ -130,7 +145,9 @@ func TestLoadSchema(t *testing.T) {
 }
 
 func TestSchemaDescription(t *testing.T) {
-	s, err := LoadSchema(Prelude, &ast.Source{Name: "graph/schema.graphqls", Input: `
+	s, err := validator.LoadSchema(
+		validator.Prelude,
+		&ast.Source{Name: "graph/schema.graphqls", Input: `
 	"""
 	A simple GraphQL schema which is well described.
 	"""
@@ -141,7 +158,8 @@ func TestSchemaDescription(t *testing.T) {
 	type Query {
 		entity: String
 	}
-	`, BuiltIn: false})
+	`, BuiltIn: false},
+	)
 	require.NoError(t, err)
 	want := "A simple GraphQL schema which is well described."
 	require.Equal(t, want, s.Description)
@@ -153,7 +171,7 @@ func TestSchemaDescriptionWithQuotesAtEnd(t *testing.T) {
 
 	t.Run("working case - quotes followed by space at end of description", func(t *testing.T) {
 		// This case works correctly - note the space after the quote and before the closing """
-		_, err := LoadSchema(Prelude, &ast.Source{Name: "test", Input: `
+		_, err := validator.LoadSchema(validator.Prelude, &ast.Source{Name: "test", Input: `
 		"""This is a "test" """
 		type Query {
 		  field: String
@@ -168,7 +186,7 @@ func TestSchemaDescriptionWithQuotesAtEnd(t *testing.T) {
 
 	t.Run("bug - quotes at end of description", func(t *testing.T) {
 		// This case fails - note the quote directly before the closing """
-		_, err := LoadSchema(Prelude, &ast.Source{Name: "test", Input: `
+		_, err := validator.LoadSchema(validator.Prelude, &ast.Source{Name: "test", Input: `
 		"""This is a "test""""
 		type Query {
 		  field: String
@@ -188,7 +206,7 @@ func TestUnionDuplicateMemberFallbackPosition(t *testing.T) {
 	// definition's own position instead of risking a misaligned member position.
 	// Simulate that by parsing a valid schema and clearing the positions.
 	sd, err := parser.ParseSchemas(
-		Prelude,
+		validator.Prelude,
 		&ast.Source{Name: "t", Input: "union Foo = Bar | Bar\ntype Bar { id: ID }\n"},
 	)
 	require.NoError(t, err)
@@ -198,7 +216,7 @@ func TestUnionDuplicateMemberFallbackPosition(t *testing.T) {
 		}
 	}
 
-	_, err = ValidateSchemaDocument(sd)
+	_, err = validator.ValidateSchemaDocument(sd)
 	require.Error(t, err)
 
 	var gerr *gqlerror.Error
@@ -209,4 +227,61 @@ func TestUnionDuplicateMemberFallbackPosition(t *testing.T) {
 	require.Len(t, gerr.Locations, 1)
 	require.Equal(t, 1, gerr.Locations[0].Line)
 	require.Equal(t, 7, gerr.Locations[0].Column)
+}
+
+func TestRepeatedInputFieldWithoutValue(t *testing.T) {
+	// A built (unparsed) value may have a nil field Value; repeats must still be
+	// found by name.
+	sd, err := parser.ParseSchemas(
+		validator.Prelude,
+		&ast.Source{
+			Name:  "t",
+			Input: "input P { a: Int }\ntype Query { f(p: P = {a: 1, a: 2}): Int }\n",
+		},
+	)
+	require.NoError(t, err)
+	for _, def := range sd.Definitions {
+		if def.Name == "Query" {
+			def.Fields[0].Arguments[0].DefaultValue.Children[0].Value = nil
+		}
+	}
+
+	_, err = validator.ValidateSchemaDocument(sd)
+	require.Error(t, err)
+
+	var gerr *gqlerror.Error
+	require.ErrorAs(t, err, &gerr)
+	require.Equal(t, `There can be only one input field named "a".`, gerr.Message)
+	require.Len(t, gerr.Locations, 1)
+	require.Equal(t, 2, gerr.Locations[0].Line)
+	require.Equal(t, 30, gerr.Locations[0].Column)
+}
+
+func TestRedeclareBuiltinDirectives(t *testing.T) {
+	// Every directive the prelude declares may be declared again by a schema, so
+	// adding one to the prelude must not make existing schemas that declare it
+	// fail to load.
+	for _, dir := range validator.PreludeDocument().Directives {
+		t.Run(dir.Name, func(t *testing.T) {
+			var sdl strings.Builder
+			formatter.NewFormatter(&sdl, formatter.WithBuiltin()).
+				FormatSchemaDocument(&ast.SchemaDocument{
+					Directives: ast.DirectiveDefinitionList{dir},
+				})
+			redeclared := &ast.Source{Name: "redeclared.graphql", Input: sdl.String()}
+
+			s, err := validator.LoadSchema(validator.Prelude, redeclared)
+			require.NoError(t, err)
+			require.Equal(t, redeclared, s.Directives[dir.Name].Position.Src,
+				"the later declaration replaces the prelude's")
+		})
+	}
+
+	t.Run("non-builtin directives cannot be redeclared", func(t *testing.T) {
+		_, err := validator.LoadSchema(&ast.Source{
+			Name:  "redeclared.graphql",
+			Input: "directive @foo on FIELD\ndirective @foo on FIELD\n",
+		})
+		require.EqualError(t, err, "redeclared.graphql:2:12: Cannot redeclare directive foo.")
+	})
 }

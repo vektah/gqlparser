@@ -1,0 +1,6 @@
+query Hero($episode: Episode) {
+	hero(episode: $episode) {
+		name
+		friends { name }
+	}
+}

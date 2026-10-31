@@ -5,6 +5,8 @@ type Query {
     boolArg(i: Boolean!): Boolean!
     floatArg(i: Float!): Boolean!
     idArg(i: ID!): Boolean!
+    idArrayArg(i: [ID!]): Boolean!
+    idInputArg(i: IDInput!): Boolean!
     scalarArg(i: Custom!): Boolean!
     structArg(i: InputType!): Boolean!
     defaultStructArg(i: InputType! = {name: "foo"}): Boolean!
@@ -22,6 +24,10 @@ input InputType {
     nullEmbedded: Embedded
     enum: Enum
     defaultName: String! = "defaultFoo"
+}
+
+input IDInput {
+    id: ID!
 }
 
 input Embedded {
