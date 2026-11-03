@@ -39,9 +39,19 @@ type Directive struct {
 	Location         DirectiveLocation
 }
 
+// ArgumentMap resolves the directive's arguments and default values into a map, panicking on error.
 func (d *Directive) ArgumentMap(vars map[string]any) map[string]any {
+	m, err := d.TryArgumentMap(vars)
+	if err != nil {
+		panic(err)
+	}
+	return m
+}
+
+// TryArgumentMap resolves the directive's arguments and default values into a map.
+func (d *Directive) TryArgumentMap(vars map[string]any) (map[string]any, error) {
 	if d.Definition == nil {
-		return nil
+		return nil, nil
 	}
 	return arg2map(d.Definition.Arguments, d.Arguments, vars)
 }
