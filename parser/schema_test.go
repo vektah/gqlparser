@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/parser"
@@ -28,6 +29,25 @@ func TestSchemaDocument(t *testing.T) {
 			AST: ast.Dump(doc),
 		}
 	})
+}
+
+func TestBlockStringDescriptionIndentation(t *testing.T) {
+	// The indentation of the first line of a block string is part of the value:
+	// it is the text right after the opening quotes. BlockStringValue() only
+	// removes the common indentation of the lines after it.
+	doc, err := parser.ParseSchema(&ast.Source{Input: `"""Root operation.
+    Indented continuation.
+"""
+type Query {
+  """The user
+      by id"""
+  user: String
+}`})
+	require.NoError(t, err)
+	query := doc.Definitions.ForName("Query")
+	require.NotNil(t, query)
+	require.Equal(t, "Root operation.\nIndented continuation.", query.Description)
+	require.Equal(t, "The user\nby id", query.Fields.ForName("user").Description)
 }
 
 func TestFieldPositionWithBlockStringDescription(t *testing.T) {

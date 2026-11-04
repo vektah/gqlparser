@@ -13,7 +13,12 @@ func blockStringValue(raw string) string {
 	lines := strings.Split(raw, "\n")
 
 	commonIndent := math.MaxInt32
-	for _, line := range lines {
+	for i, line := range lines {
+		if i == 0 {
+			// The first line is the text right after the opening quotes, so
+			// its indentation is part of the value, not a common indentation.
+			continue
+		}
 		indent := leadingWhitespace(line)
 		if indent < len(line) && indent < commonIndent {
 			commonIndent = indent
