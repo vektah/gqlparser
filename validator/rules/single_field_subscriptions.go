@@ -44,8 +44,9 @@ var SingleFieldSubscriptionsRule = Rule{
 }
 
 type topField struct {
-	name     string
-	position *ast.Position
+	name        string
+	responseKey string
+	position    *ast.Position
 }
 
 func retrieveTopFieldNames(selectionSet ast.SelectionSet) []*topField {
@@ -56,9 +57,17 @@ func retrieveTopFieldNames(selectionSet ast.SelectionSet) []*topField {
 		for _, selection := range selectionSet {
 			switch selection := selection.(type) {
 			case *ast.Field:
+				// The response key is the alias when there is one, and the
+				// field name otherwise.  The subscription rule counts the
+				// response keys, not the field names.
+				responseKey := selection.Name
+				if selection.Alias != "" {
+					responseKey = selection.Alias
+				}
 				fields = append(fields, &topField{
-					name:     selection.Name,
-					position: selection.GetPosition(),
+					name:        selection.Name,
+					responseKey: responseKey,
+					position:    selection.GetPosition(),
 				})
 			case *ast.InlineFragment:
 				walk(selection.SelectionSet)
@@ -79,10 +88,10 @@ func retrieveTopFieldNames(selectionSet ast.SelectionSet) []*topField {
 	seen := make(map[string]bool, len(fields))
 	uniquedFields := make([]*topField, 0, len(fields))
 	for _, field := range fields {
-		if !seen[field.name] {
+		if !seen[field.responseKey] {
 			uniquedFields = append(uniquedFields, field)
 		}
-		seen[field.name] = true
+		seen[field.responseKey] = true
 	}
 	return uniquedFields
 }

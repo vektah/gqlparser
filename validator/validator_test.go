@@ -17,6 +17,65 @@ import (
 	"github.com/vektah/gqlparser/v2/validator/rules"
 )
 
+func TestSingleFieldSubscriptionsCountsResponseKeys(t *testing.T) {
+	s := gqlparser.MustLoadSchema(&ast.Source{
+		Name: "schema.graphqls",
+		Input: `
+type Query {
+	field: String
+}
+
+type Pet {
+	id: ID
+}
+
+type Subscription {
+	petAdded: Pet
+}
+`,
+	})
+
+	tests := map[string]struct {
+		query   string
+		wantErr bool
+	}{
+		"one root field": {
+			query:   `subscription { petAdded { __typename } }`,
+			wantErr: false,
+		},
+		"the same field twice under the same response key": {
+			query:   `subscription { petAdded { __typename } petAdded { __typename } }`,
+			wantErr: false,
+		},
+		"two aliases of the same field": {
+			query:   `subscription { a: petAdded { __typename } b: petAdded { __typename } }`,
+			wantErr: true,
+		},
+		"one alias and the field itself": {
+			query:   `subscription { petAdded { __typename } a: petAdded { __typename } }`,
+			wantErr: true,
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			doc, err := parser.ParseQuery(&ast.Source{
+				Name:  "query.graphql",
+				Input: tc.query,
+			})
+			require.NoError(t, err)
+
+			errs := validator.Validate(s, doc)
+			if !tc.wantErr {
+				require.Empty(t, errs)
+				return
+			}
+			require.Len(t, errs, 1)
+			require.Contains(t, errs[0].Error(), "must select only one top level field")
+		})
+	}
+}
+
 func TestExtendingNonExistantTypes(t *testing.T) {
 	s := gqlparser.MustLoadSchema(
 		&ast.Source{Name: "graph/schema.graphqls", Input: `
