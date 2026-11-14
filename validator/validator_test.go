@@ -631,3 +631,27 @@ func TestRemoveRule(t *testing.T) {
 	// no error
 	validator.RemoveRule("Rule that should no longer exist")
 }
+
+func TestOneOfNullFieldReportsProvidedField(t *testing.T) {
+	s := gqlparser.MustLoadSchema(&ast.Source{
+		Name: "schema.graphqls",
+		Input: `
+input OneOfInput @oneOf {
+  stringField: String
+  intField: Int
+}
+
+type Query {
+  test(input: OneOfInput): String
+}
+`,
+	})
+
+	q, err := parser.ParseQuery(&ast.Source{Name: "q", Input: "{ test(input: { intField: null }) }"})
+	require.NoError(t, err)
+
+	errs := validator.ValidateWithRules(s, q, rules.NewRules(rules.ValuesOfCorrectTypeRule))
+	require.Len(t, errs, 1)
+	require.Equal(t, `Field "OneOfInput.intField" must be non-null.`, errs[0].Message)
+	require.Equal(t, []gqlerror.Location{{Line: 1, Column: 15}}, errs[0].Locations)
+}
