@@ -3,9 +3,9 @@
     "fmt": "prettier -w '*.js'"
   },
   "dependencies": {
-    "@babel/cli": "^8.0.6",
-    "@babel/core": "^8.0.9",
-    "@babel/node": "^8.0.6",
+    "@babel/cli": "^8.1.0",
+    "@babel/core": "^8.1.2",
+    "@babel/node": "^8.1.2",
     "@babel/plugin-transform-typescript": "^8.0.6",
     "@babel/preset-env": "^8.0.7",
     "@babel/preset-flow": "^8.0.1",
@@ -14,7 +14,7 @@
     "js-yaml": "^5.5.0"
   },
   "devDependencies": {
-    "prettier": "^3.9.10"
+    "prettier": "^3.10.1"
   },
   "engines": {
     "node": ">= 22"
