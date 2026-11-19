@@ -134,6 +134,7 @@ func (v *varValidator) validateVarType(
 			slc = reflect.Append(slc, val)
 			val = slc
 		}
+		coerced := val
 		for i := 0; i < val.Len(); i++ {
 			resetPath()
 			v.path = append(v.path, ast.PathIndex(i))
@@ -148,13 +149,21 @@ func (v *varValidator) validateVarType(
 			if err != nil {
 				return val, err
 			}
-			// Like the input object case below, this writes the coerced value
-			// into the caller's slice.
-			if canStore(val.Type().Elem(), cval) {
-				val.Index(i).Set(cval)
+			if !canStore(coerced.Type().Elem(), cval) {
+				if !isContainerCoercion(field, cval) {
+					continue
+				}
+				// A typed slice cannot hold an added list dimension or a
+				// widened input object. Retain the already coerced prefix.
+				values := make([]any, val.Len())
+				for j := 0; j < i; j++ {
+					values[j] = coerced.Index(j).Interface()
+				}
+				coerced = reflect.ValueOf(values)
 			}
+			coerced.Index(i).Set(cval)
 		}
-		return val, nil
+		return coerced, nil
 	}
 	def := v.schema.Types[typ.NamedType]
 	if def == nil {
@@ -245,6 +254,7 @@ func (v *varValidator) validateVarType(
 			}
 		}
 
+		coerced := val
 		for _, fieldDef := range def.Fields {
 			resetPath()
 			v.path = append(v.path, ast.PathName(fieldDef.Name))
@@ -278,14 +288,24 @@ func (v *varValidator) validateVarType(
 			if err != nil {
 				return val, err
 			}
-			if canStore(val.Type().Elem(), cval) {
-				val.SetMapIndex(reflect.ValueOf(fieldDef.Name), cval)
+			if !canStore(coerced.Type().Elem(), cval) {
+				if !isContainerCoercion(field, cval) {
+					continue
+				}
+				// Preserve the other fields when a list coercion no longer
+				// fits the map's concrete element type.
+				fields := make(map[string]any, val.Len())
+				for _, name := range coerced.MapKeys() {
+					fields[name.String()] = coerced.MapIndex(name).Interface()
+				}
+				coerced = reflect.ValueOf(fields)
 			}
+			coerced.SetMapIndex(reflect.ValueOf(fieldDef.Name), cval)
 		}
+		return coerced, nil
 	default:
 		panic(fmt.Errorf("unsupported type %s", def.Kind))
 	}
-	return val, nil
 }
 
 func IsValidIntString(val reflect.Value, kind reflect.Kind) bool {
@@ -303,6 +323,14 @@ func IsValidFloatString(val reflect.Value, kind reflect.Kind) bool {
 	}
 	_, e := strconv.ParseFloat(fmt.Sprintf("%v", val.Interface()), 64)
 	return e == nil
+}
+
+// isContainerCoercion identifies structural changes, rather than scalar
+// conversions or pointer dereferencing that typed containers already preserve.
+func isContainerCoercion(original, coerced reflect.Value) bool {
+	return coerced.IsValid() &&
+		(coerced.Kind() == reflect.Slice || coerced.Kind() == reflect.Map) &&
+		coerced.Type() != original.Type()
 }
 
 // canStore reports whether the coerced value cval can be written back into a
