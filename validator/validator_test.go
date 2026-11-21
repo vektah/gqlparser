@@ -647,7 +647,9 @@ type Query {
 `,
 	})
 
-	q, err := parser.ParseQuery(&ast.Source{Name: "q", Input: "{ test(input: { intField: null }) }"})
+	q, err := parser.ParseQuery(
+		&ast.Source{Name: "q", Input: "{ test(input: { intField: null }) }"},
+	)
 	require.NoError(t, err)
 
 	errs := validator.ValidateWithRules(s, q, rules.NewRules(rules.ValuesOfCorrectTypeRule))
