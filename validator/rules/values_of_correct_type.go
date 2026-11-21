@@ -185,9 +185,9 @@ func ruleFuncValuesOfCorrectType(observers *Events, addError AddErrFunc, disable
 								Message(
 									`Field "%s.%s" must be non-null.`,
 									value.Definition.Name,
-									value.Definition.Fields[0].Name,
+									value.Children[0].Name,
 								),
-								At(fieldValue.Position),
+								At(value.Position),
 							)
 							return
 						}
