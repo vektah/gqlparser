@@ -438,6 +438,9 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		if err := validateInputFieldNames(field.DefaultValue); err != nil {
 			return err
 		}
+		if err := validateEnumDefaultLiterals(schema, field.Type, field.DefaultValue); err != nil {
+			return err
+		}
 		if dup := duplicateArg(field.Arguments); dup != nil {
 			return gqlerror.ErrorPosf(
 				dup.Position,
@@ -683,6 +686,9 @@ func validateArgs(
 		if err := validateInputFieldNames(arg.DefaultValue); err != nil {
 			return err
 		}
+		if err := validateEnumDefaultLiterals(schema, arg.Type, arg.DefaultValue); err != nil {
+			return err
+		}
 		def := schema.Types[arg.Type.Name()]
 		if !def.IsInputType() {
 			return gqlerror.ErrorPosf(
@@ -827,6 +833,47 @@ func validateInputFieldNames(value *Value) *gqlerror.Error {
 		}
 		if err := validateInputFieldNames(child.Value); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+// validateEnumDefaultLiterals checks enum positions without converting literals
+// into Go values, which would make strings and enum literals indistinguishable.
+func validateEnumDefaultLiterals(schema *Schema, typ *Type, value *Value) *gqlerror.Error {
+	if typ == nil || value == nil || value.Kind == NullValue {
+		return nil
+	}
+	if typ.Elem != nil {
+		if value.Kind != ListValue {
+			return validateEnumDefaultLiterals(schema, typ.Elem, value)
+		}
+		for _, child := range value.Children {
+			if err := validateEnumDefaultLiterals(schema, typ.Elem, child.Value); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	def := schema.Types[typ.NamedType]
+	if def == nil {
+		return nil
+	}
+	if def.Kind == Enum && (value.Kind == StringValue || value.Kind == BlockValue) {
+		return gqlerror.ErrorPosf(
+			value.Position,
+			`Enum "%s" cannot represent non-enum value: %s.`,
+			def.Name,
+			value.String(),
+		)
+	}
+	if def.Kind == InputObject && value.Kind == ObjectValue {
+		for _, child := range value.Children {
+			if field := def.Fields.ForName(child.Name); field != nil {
+				if err := validateEnumDefaultLiterals(schema, field.Type, child.Value); err != nil {
+					return err
+				}
+			}
 		}
 	}
 	return nil
