@@ -834,7 +834,7 @@ func validateInputFieldNames(value *Value) *gqlerror.Error {
 
 func validateImplements(schema *Schema, def *Definition, intfName string) *gqlerror.Error {
 	// see validation rules at the bottom of
-	// https://spec.graphql.org/October2021/#sec-Objects
+	// https://spec.graphql.org/September2025/#sec-Objects
 	intf := schema.Types[intfName]
 	if intf == nil {
 		return gqlerror.ErrorPosf(def.Position, "Undefined type %s.", strconv.Quote(intfName))
@@ -907,6 +907,14 @@ func validateImplements(schema *Schema, def *Definition, intfName string) *gqler
 					foundArgs.Name,
 				)
 			}
+		}
+		if foundField.Directives.ForName("deprecated") != nil &&
+			requiredField.Directives.ForName("deprecated") == nil {
+			return gqlerror.ErrorPosf(
+				foundField.Position,
+				`Field %s.%s is deprecated, but interface field %s.%s is not.`,
+				def.Name, foundField.Name, intf.Name, requiredField.Name,
+			)
 		}
 	}
 	return validateTypeImplementsAncestors(schema, def, intfName)
