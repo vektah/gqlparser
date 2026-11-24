@@ -757,13 +757,12 @@ func (f *formatter) FormatVariableDefinition(def *ast.VariableDefinition) {
 		f.FormatValue(def.DefaultValue)
 	}
 
+	f.NeedPadding().FormatDirectiveList(def.Directives)
+
 	if described {
 		f.DecrementIndent()
 		f.WriteNewline()
 	}
-
-	// TODO https://github.com/vektah/gqlparser/v2/issues/102
-	//   VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 }
 
 func (f *formatter) FormatSelectionSet(sets ast.SelectionSet) {
