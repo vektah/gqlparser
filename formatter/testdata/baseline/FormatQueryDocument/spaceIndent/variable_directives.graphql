@@ -1,0 +1,11 @@
+query ($first: Int = 30 @range(max: 100), $after: String @deprecated, $tags: [String!]! @a @b(x: "y"),
+ """
+ a described variable
+ """
+ $described: Int @c
+$last: Int) {
+ a(first: $first, after: $after, tags: $tags, described: $described, last: $last)
+}
+fragment F ($size: Int = 1 @range(max: 10)) on T {
+ b(size: $size)
+}
