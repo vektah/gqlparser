@@ -448,6 +448,13 @@ func TestList_As(t *testing.T) {
 			targetFound: true,
 		},
 		{
+			name:        "List skips nil errors",
+			errs:        List{nil, error1},
+			target:      new(*Error),
+			wantsTarget: &error1,
+			targetFound: true,
+		},
+		{
 			name:        "List with multiple errors 2",
 			errs:        List{error1, error2},
 			target:      new(testError),

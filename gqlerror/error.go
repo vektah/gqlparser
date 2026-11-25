@@ -217,6 +217,9 @@ func (errs SourceList) Is(target error) bool {
 
 func (errs SourceList) As(target any) bool {
 	for _, err := range errs {
+		if err == nil {
+			continue
+		}
 		if errors.As(err, target) {
 			return true
 		}
@@ -304,6 +307,9 @@ func (errs List) Is(target error) bool {
 
 func (errs List) As(target any) bool {
 	for _, err := range errs {
+		if err == nil {
+			continue
+		}
 		if errors.As(err, target) {
 			return true
 		}
